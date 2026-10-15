@@ -1,0 +1,10 @@
+{
+  "name": "morph-expressive-gif-capture",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Capturas reproducibles de Morph Expressive para el README",
+  "dependencies": {
+    "playwright": "1.56.1"
+  }
+}

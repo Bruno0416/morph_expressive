@@ -1,0 +1,26 @@
+/.idea/
+/.dart_tool/
+/preview/
+/test/
+/tool/
+/*.iml
+
+# Morph Expressive: generated artifacts and release exclusions
+/.vscode/
+/build/
+/coverage/
+/pubspec.lock
+/docs/assets/
+/docs/canvaskit/
+/docs/icons/
+/docs/index.html
+/docs/index.web-release.html
+/docs/main.dart.js
+/docs/flutter*.js
+/docs/manifest.json
+/docs/version.json
+/docs/favicon.png
+/docs/.nojekyll
+/docs/.last_build_id
+*.patch
+*.zip

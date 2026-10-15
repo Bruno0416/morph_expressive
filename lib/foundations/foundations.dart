@@ -1,0 +1,44 @@
+/// Design tokens, theming hosts, and shared interaction primitives for
+/// Material 3 Expressive components.
+library;
+
+export 'color/morph_color_scheme.dart';
+export 'color/morph_color_utils.dart';
+export 'components/morph_component_theme.dart';
+export 'interaction/morph_focus.dart';
+export 'interaction/morph_focus_interaction.dart';
+export 'interaction/morph_focus_ring.dart';
+export 'interaction/morph_focus_ring_theme.dart';
+export 'interaction/morph_haptics.dart';
+export 'interaction/morph_ink_splash_theme.dart';
+export 'interaction/morph_motion.dart';
+export 'interaction/morph_overlay_history.dart';
+export 'interaction/morph_state_layer.dart';
+export 'interaction/morph_state_layer_overlay.dart';
+export 'interaction/morph_tappable.dart';
+export 'interaction/morph_tappable_ink_scope.dart';
+export 'morph_icons.dart';
+export 'shape/morph_material_new_shapes_bridge.dart';
+export 'shape/morph_shape_clipper.dart';
+export 'shape/morph_shape_container.dart';
+export 'shape/morph_shape_kind.dart';
+export 'shape/morph_shapes.dart';
+export 'theme/morph_dynamic_color_host.dart';
+export 'theme/morph_material_app.dart';
+export 'theme/morph_resolved_theme.dart';
+export 'theme/morph_theme.dart';
+export 'theme/morph_theme_controller.dart';
+export 'theme/morph_theme_data.dart';
+export 'theme/morph_theme_defaults.dart';
+export 'theme/morph_theme_extension.dart';
+export 'theme/morph_theme_scope.dart';
+export 'tokens/morph_dimensions.dart';
+export 'tokens/morph_elevation.dart';
+export 'tokens/morph_safe_area.dart';
+export 'tokens/morph_scrim_system_ui.dart';
+export 'tokens/morph_spacing.dart';
+export 'type/morph_type_style_conversion.dart';
+export 'type/morph_type_style_tokens.dart';
+export 'type/morph_typography.dart';
+export 'type/morph_variable_font_axes.dart';
+export 'type/morph_variable_font_config.dart';

@@ -1,0 +1,45 @@
+name: morph_expressive
+description: A Flutter design system that builds on Material 3 Expressive with a focus on symmetry, rounded shapes, balanced colors, and smooth animations.
+version: 0.1.0
+homepage: https://github.com/Bruno0416/morph_expressive
+repository: https://github.com/Bruno0416/morph_expressive
+issue_tracker: https://github.com/Bruno0416/morph_expressive/issues
+documentation: https://github.com/Bruno0416/morph_expressive/blob/main/doc/README.md
+
+topics:
+  - flutter
+  - material-design
+  - material-3-expressive
+  - design-system
+  - animations
+
+screenshots:
+  - description: Animated segmented toggle and connected button group.
+    path: doc/assets/gifs/segmented.gif
+  - description: Expressive buttons and selection states.
+    path: doc/assets/gifs/buttons.gif
+  - description: Linear, circular and expressive loading indicators.
+    path: doc/assets/gifs/loading.gif
+  - description: Compact and wide animated navigation bars.
+    path: doc/assets/gifs/navigation.gif
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  collection: ^1.19.1
+  dynamic_color: ^2.1.0
+  fluent_icons_kit: ^0.1.2
+  gap: ^3.0.1
+  material_new_shapes: ^1.0.0
+  material_ui: ^1.6.0
+  motor: ^1.1.0
+
+dev_dependencies:
+  material_color_utilities: ^0.13.0
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
