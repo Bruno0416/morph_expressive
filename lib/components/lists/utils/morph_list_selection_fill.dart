@@ -9,7 +9,9 @@ import '../components/morph_list_feature_scope.dart';
 /// Checks [MorphListFeatureScope] first, then [MorphSelectionScope].
 Color? morphSelectionFill(BuildContext context, int index) {
   final MorphThemeData theme = MorphTheme.of(context);
-  final MorphListFeatureScope? listScope = MorphListFeatureScope.maybeOf(context);
+  final MorphListFeatureScope? listScope = MorphListFeatureScope.maybeOf(
+    context,
+  );
   if (listScope != null &&
       listScope.selectionEnabled &&
       listScope.isSelected(index)) {
@@ -29,7 +31,9 @@ BorderRadius? morphSelectionRadius(
   int index, {
   double? outerRadius,
 }) {
-  final MorphListFeatureScope? listScope = MorphListFeatureScope.maybeOf(context);
+  final MorphListFeatureScope? listScope = MorphListFeatureScope.maybeOf(
+    context,
+  );
   if (listScope != null &&
       listScope.selectionEnabled &&
       listScope.isSelected(index)) {

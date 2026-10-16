@@ -7,6 +7,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -185,6 +186,7 @@ class _MorphCarouselWrapperState extends State<MorphCarouselWrapper>
   final List<LayerLink> _itemLinks = <LayerLink>[];
   final List<Size> _itemRest = <Size>[];
   bool _restRebuildScheduled = false;
+  bool _itemStatesRebuildScheduled = false;
 
   /// Per-index item boxes for pulse measuring.
   final Map<int, RenderBox> _itemBoxes = <int, RenderBox>{};

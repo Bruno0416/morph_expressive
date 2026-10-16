@@ -10,6 +10,5 @@ import '../../../foundations/foundations.dart';
 /// dropdown menu panel.
 extension MorphExpandableSpringMotion on MorphSpring {
   /// toMotion.
-  SpringMotion toMotion() =>
-      MorphMotion.springMotion(this);
+  SpringMotion toMotion() => MorphMotion.springMotion(this);
 }

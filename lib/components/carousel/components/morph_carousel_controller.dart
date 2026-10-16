@@ -93,7 +93,12 @@ class MorphCarouselController extends ScrollController {
   void jumpToItem(int index) {
     final move = _moveTo;
     if (move != null) {
-      move(index, jump: true, duration: Duration.zero, curve: MorphMotion.linear);
+      move(
+        index,
+        jump: true,
+        duration: Duration.zero,
+        curve: MorphMotion.linear,
+      );
       return;
     }
     if (!hasClients || _carouselState == null) {

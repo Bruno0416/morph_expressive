@@ -22,16 +22,17 @@ against a release Web build, not only a debug run.
 
 ## Reproducible animated GIF scenes
 
-The eight isolated capture scenes are `buttons`, `dropdown`, `segmented`,
-`textfields`, `chips`, `sliders`, `loading` and `navigation`; their source
-lives in `preview/lib/component_gif_capture.dart`. The URL query
+The ten isolated capture scenes are `buttons`, `dropdown`, `segmented`,
+`textfields`, `chips`, `sliders`, `loading`, `navigation`, `lists` and `dialogs`; their
+source lives in `preview/lib/component_gif_capture.dart`. The URL query
 `?capture=<scene>` selects a scene without altering the normal gallery.
 
-From the repository root, regenerate **only the two changed scenes**:
+From the repository root, regenerate **only the changed scenes you touched**:
 
 ```bash
 bash tool/generate_component_gifs.sh --only chips
 bash tool/generate_component_gifs.sh --only textfields
+bash tool/generate_component_gifs.sh --only lists --only dialogs
 python3 tool/check_gif_branding.py
 ```
 
@@ -44,6 +45,13 @@ Text fields uses **640 x 480 at 15 FPS over approximately 8.2 seconds** and
 preserves search and outlined fields while adding the filled exterior-label
 sequence (focus, placeholder, typing and blur).
 
+Lists uses **640 x 360 at 15 FPS over approximately 5.8 seconds** and shows
+a regular MorphList item alongside swipe-enabled rows revealing actions
+without an added trailing overflow icon.
+
+Dialogs uses **640 x 420 at 15 FPS over approximately 6.5 seconds** to show
+MorphDialog opening and closing with its scrim and spring transition.
+
 The other six scenes keep their established 640 x 360, ~4.8-second captures.
 The capture script requires Flutter, Node.js/npm, Python 3, curl and FFmpeg;
 it installs Playwright/Chromium on first use and builds the Web preview in
@@ -54,12 +62,17 @@ port. `--skip-build` reuses a previously built release preview and **must not**
 be used after editing scene source. Review the generated files before a
 release, and commit GIF changes together with their README references.
 
-## 0.2.0 interaction review
+## 0.3.0 interaction review
 
 - Multi-selection: verify 0 -> 1 and 1 -> 0 circular bloom, and non-boundary
   duplicate/merge movement with nearest selected chip.
 - Filled text fields: verify empty, focused, populated and blurred label
-  positions, including no overlap with a placeholder or entered value.
+  positions, including no overlap with a placeholder or entered value. The
+  gallery also includes no-icon, prefix-icon, and suffix-icon error-state
+  examples in filled and outlined styles.
+- Dialogs: verify floating modal entrance, barrier scrim and spring exit.
+- Lists: verify swipe reveal opens/closes cleanly, action pills keep their
+  spacing, and swipeable rows do not show a synthetic trailing overflow icon.
 - Haptics: use the preview app bar preferences (Off/Light/Medium/Heavy), then
   verify physical intensity on a device because Web may lack feedback.
 - Tabs and rail: tab focus should not scroll the outer page unexpectedly; the

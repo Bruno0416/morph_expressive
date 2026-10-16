@@ -354,7 +354,8 @@ class _MorphListState extends State<MorphList>
 
   @override
   List<MorphListSwipeAction> Function(int index)? get trailingActionsBuilder =>
-      (int index) => _swipeAt(index)?.trailing ?? const <MorphListSwipeAction>[];
+      (int index) =>
+          _swipeAt(index)?.trailing ?? const <MorphListSwipeAction>[];
 
   @override
   MorphListSwipeMode get swipeMode =>
@@ -363,6 +364,10 @@ class _MorphListState extends State<MorphList>
   @override
   MorphListSwipeEdge get dismissEdge =>
       _swipeAt(activeSwipeIndex ?? -1)?.edge ?? MorphListSwipeEdge.both;
+
+  @override
+  bool swipeItemEnabled(int dataIndex) =>
+      _swipeAt(dataIndex) != null && _enabledAt(dataIndex);
 
   @override
   bool swipeItemPaintsSurface(int dataIndex) => _expandedAt(dataIndex) != null;

@@ -27,7 +27,13 @@ mixin MorphDismissibleCardDragMixin<T extends StatefulWidget>
 
   @override
   void handleDragStart(MorphDismissibleSlot slot) {
-    if (!slot.isVisible || _collapsingCount > 0) {
+    final int slotIndex = _slots.indexOf(slot);
+    final int dataIndex = computeVisibleIndices().indexOf(slotIndex);
+    if (!slot.isVisible ||
+        _collapsingCount > 0 ||
+        _dismissPending ||
+        dataIndex < 0 ||
+        !swipeItemEnabled(dataIndex)) {
       return;
     }
 
@@ -258,6 +264,9 @@ mixin MorphDismissibleCardDragMixin<T extends StatefulWidget>
 
   @override
   void handleDragEnd(DragEndDetails d) {
+    if (_dismissPending) {
+      return;
+    }
     if (_isDismissDragging) {
       setState(() => _isDismissDragging = false);
     }
@@ -379,7 +388,10 @@ mixin MorphDismissibleCardDragMixin<T extends StatefulWidget>
 
   bool _armIndex(int index) {
     final List<int> visible = computeVisibleIndices();
-    if (index < 0 || index >= visible.length) {
+    if (index < 0 ||
+        index >= visible.length ||
+        _dismissPending ||
+        !swipeItemEnabled(index)) {
       return false;
     }
     final int slotIndex = visible[index];
@@ -414,6 +426,52 @@ mixin MorphDismissibleCardDragMixin<T extends StatefulWidget>
       return;
     }
 
+    if (_dismissPending || !slot.isVisible || !swipeItemEnabled(dataIndex)) {
+      return;
+    }
+
+    // A confirmation may show a dialog or await a remote operation. Keep the
+    // row in place and suppress new drags until the decision has completed.
+    _dismissPending = true;
+    bool confirmed;
+    try {
+      confirmed =
+          await (onDismissCallback?.call(dataIndex, direction) ??
+              Future<bool>.value(true));
+    } catch (error, stackTrace) {
+      if (mounted && identical(_dragSlotRef, slot)) {
+        _springBack(speedMul);
+      }
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stackTrace,
+          library: 'morph_expressive',
+          context: ErrorDescription('while confirming a list swipe dismissal'),
+        ),
+      );
+      return;
+    } finally {
+      _dismissPending = false;
+    }
+
+    if (!mounted || !slot.isVisible || !_slots.contains(slot)) {
+      return;
+    }
+    if (!confirmed) {
+      if (identical(_dragSlotRef, slot)) {
+        _springBack(speedMul);
+      }
+      return;
+    }
+
+    // A consumer may have rebuilt or removed the row during confirmation.
+    // Never complete a dismissal against a different row at the same index.
+    if (!identical(_dragSlotRef, slot) ||
+        _dataIndexForDragSlot() != dataIndex) {
+      return;
+    }
+
     final flyInitial = _captureDismissSlot(slot, dataIndex, direction);
     _disposeDragControllers();
     _markSlotCollapsing(slot);
@@ -433,13 +491,14 @@ mixin MorphDismissibleCardDragMixin<T extends StatefulWidget>
           (MorphListSwipeAction a) => a.isPrimary,
           orElse: () => actionList.last,
         );
-        primary.onPressed?.call();
+        if (primary.enabled) {
+          primary.onPressed?.call();
+        }
       }
     }
 
     final colCtrl = _createCollapseController(slot, speedMul);
     _startFlyOut(slot, flyInitial, speedMul, colCtrl);
-    onDismissCallback?.call(dataIndex, direction);
   }
 
   double _captureDismissSlot(

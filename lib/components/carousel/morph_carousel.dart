@@ -57,7 +57,8 @@ class MorphCarousel extends StatefulWidget {
     this.isExtended,
     this.freeScroll,
     this.heroAlignment = MorphCarouselHeroAlignment.center,
-    this.uncontainedItemExtent = MorphCarouselTheme.defaultUncontainedItemExtent,
+    this.uncontainedItemExtent =
+        MorphCarouselTheme.defaultUncontainedItemExtent,
     this.uncontainedShrinkExtent =
         MorphCarouselTheme.defaultUncontainedShrinkExtent,
     this.childElementBorderRadius,

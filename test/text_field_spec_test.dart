@@ -50,13 +50,26 @@ void main() {
   tearDown(tearDownFocusRingTests);
   testWidgets('filled measurements match the spec', _filledMeasurements);
   testWidgets('outlined notch and 2dp focus outline', _outlinedNotch);
-  testWidgets('filled label exits only on focus or populated', _filledExternalLabel);
-  testWidgets('filled label shifts diagonally and respects theme style',
-      _filledDiagonalLabel);
+  testWidgets(
+    'filled label exits only on focus or populated',
+    _filledExternalLabel,
+  );
+  testWidgets(
+    'filled label shifts diagonally and respects theme style',
+    _filledDiagonalLabel,
+  );
   test('color roles resolve per state', _colorRoles);
   testWidgets('hover darkens the filled indicator', _hoverState);
   testWidgets('counter limits input and is labelled', _counter);
   testWidgets('error text is an alert with an error icon', _errorAlert);
+  testWidgets(
+    'error message has no default icon in either variant',
+    _errorNoDefaultIcon,
+  );
+  testWidgets(
+    'explicit error glyph supports prefix and suffix in both variants',
+    _errorIconPlacements,
+  );
   testWidgets('disabled fields are skipped by Tab', _disabledSkipped);
   testWidgets('focus ring is secondary 3dp and hides on tap', _focusRing);
   testWidgets('clear and password toggles', _clearAndPassword);
@@ -92,8 +105,7 @@ Future<void> _filledMeasurements(WidgetTester tester) async {
   expect(input.left - leading.right, 16);
   expect(trailing.left - input.right, 16);
   expect(input.center.dy, closeTo(box.center.dy, 0.5));
-  expect(tester.getRect(find.text('Label')).bottom,
-      lessThanOrEqualTo(box.top));
+  expect(tester.getRect(find.text('Label')).bottom, lessThanOrEqualTo(box.top));
   expect(tester.getRect(find.text('Label')).left, closeTo(box.left, 0.5));
   expect(_painter(tester).strokeWidth, 0);
   expect(_painter(tester).strokeColor, _scheme.onSurfaceVariant);
@@ -104,52 +116,65 @@ Future<void> _filledExternalLabel(WidgetTester tester) async {
   final node = FocusNode();
   addTearDown(controller.dispose);
   addTearDown(node.dispose);
-  await tester.pumpWidget(_app(MorphTextField(
-    label: 'Email',
-    placeholder: 'name@example.com',
-    controller: controller,
-    focusNode: node,
-  )));
+  await tester.pumpWidget(
+    _app(
+      MorphTextField(
+        label: 'Email',
+        placeholder: 'name@example.com',
+        controller: controller,
+        focusNode: node,
+      ),
+    ),
+  );
   await tester.pumpAndSettle();
   Rect box = _container(tester);
-  expect(tester.getRect(find.text('Email')).center.dy,
-      closeTo(box.center.dy, 0.5));
+  expect(
+    tester.getRect(find.text('Email')).center.dy,
+    closeTo(box.center.dy, 0.5),
+  );
   expect(find.text('name@example.com'), findsNothing);
 
   node.requestFocus();
   await tester.pumpAndSettle();
   box = _container(tester);
-  expect(tester.getRect(find.text('Email')).bottom,
-      lessThanOrEqualTo(box.top));
+  expect(tester.getRect(find.text('Email')).bottom, lessThanOrEqualTo(box.top));
   expect(find.text('name@example.com'), findsOneWidget);
-  expect(tester.getRect(find.byType(EditableText)).center.dy,
-      closeTo(box.center.dy, 0.5));
+  expect(
+    tester.getRect(find.byType(EditableText)).center.dy,
+    closeTo(box.center.dy, 0.5),
+  );
 
   controller.text = 'user@example.com';
   await tester.pumpAndSettle();
   node.unfocus();
   await tester.pumpAndSettle();
-  expect(tester.getRect(find.text('Email')).bottom,
-      lessThanOrEqualTo(_container(tester).top));
+  expect(
+    tester.getRect(find.text('Email')).bottom,
+    lessThanOrEqualTo(_container(tester).top),
+  );
   expect(find.text('name@example.com'), findsNothing);
 
   controller.clear();
   await tester.pumpAndSettle();
   box = _container(tester);
-  expect(tester.getRect(find.text('Email')).center.dy,
-      closeTo(box.center.dy, 0.5));
+  expect(
+    tester.getRect(find.text('Email')).center.dy,
+    closeTo(box.center.dy, 0.5),
+  );
 }
 
 Future<void> _filledDiagonalLabel(WidgetTester tester) async {
   final node = FocusNode();
   addTearDown(node.dispose);
-  await tester.pumpWidget(_app(
-    MorphTextField(
-      label: 'Email',
-      leading: const Icon(MorphIcons.search),
-      focusNode: node,
+  await tester.pumpWidget(
+    _app(
+      MorphTextField(
+        label: 'Email',
+        leading: const Icon(MorphIcons.search),
+        focusNode: node,
+      ),
     ),
-  ));
+  );
   await tester.pumpAndSettle();
   final Rect initial = tester.getRect(find.text('Email'));
   final Rect box = _container(tester);
@@ -163,7 +188,10 @@ Future<void> _filledDiagonalLabel(WidgetTester tester) async {
   expect(floated.bottom, lessThanOrEqualTo(_container(tester).top));
   final Text label = tester.widget<Text>(find.text('Email'));
   expect(label.style!.color, _scheme.onSurface);
-  expect(label.style!.fontSize, (_theme.typeScale.bodyMedium.fontSize ?? 14) + 1);
+  expect(
+    label.style!.fontSize,
+    (_theme.typeScale.bodyMedium.fontSize ?? 14) + 1,
+  );
 
   final custom = _theme.copyWith(
     textFieldTheme: _theme.textFieldTheme.copyWith(
@@ -172,17 +200,21 @@ Future<void> _filledDiagonalLabel(WidgetTester tester) async {
   );
   final populated = TextEditingController(text: 'value');
   addTearDown(populated.dispose);
-  await tester.pumpWidget(MorphMaterialApp(
-    data: custom,
-    home: Scaffold(body: SizedBox(
-      width: 320,
-      child: MorphTextField(
-        label: 'Email',
-        controller: populated,
-        floatingLabelTextStyle: const TextStyle(fontSize: 21),
+  await tester.pumpWidget(
+    MorphMaterialApp(
+      data: custom,
+      home: Scaffold(
+        body: SizedBox(
+          width: 320,
+          child: MorphTextField(
+            label: 'Email',
+            controller: populated,
+            floatingLabelTextStyle: const TextStyle(fontSize: 21),
+          ),
+        ),
       ),
-    )),
-  ));
+    ),
+  );
   await tester.pumpAndSettle();
   // Per-widget override wins over the theme's floatingLabelTextStyle.
   expect(tester.widget<Text>(find.text('Email')).style!.fontSize, 21);
@@ -191,7 +223,10 @@ Future<void> _filledDiagonalLabel(WidgetTester tester) async {
 Future<void> _outlinedNotch(WidgetTester tester) async {
   await tester.pumpWidget(
     _app(
-      const MorphTextField(label: 'Label', variant: MorphTextFieldVariant.outlined),
+      const MorphTextField(
+        label: 'Label',
+        variant: MorphTextFieldVariant.outlined,
+      ),
     ),
   );
   await tester.pumpAndSettle();
@@ -207,8 +242,7 @@ Future<void> _outlinedNotch(WidgetTester tester) async {
   expect(painter.strokeColor, _scheme.primary);
   // The notch must clear the rounded top-left corner and the label.
   final Rect label = tester.getRect(find.text('Label'));
-  expect(painter.notchStart,
-      greaterThanOrEqualTo(painter.shape.topLeft.x));
+  expect(painter.notchStart, greaterThanOrEqualTo(painter.shape.topLeft.x));
   expect(painter.notchWidth, closeTo(label.width + 8, 0.5));
   expect(label.center.dy, closeTo(_container(tester).top, 0.5));
 }
@@ -236,11 +270,13 @@ void _colorRoles() {
   final focus = filled(const MorphTextFieldStates(focused: true));
   expect(focus.label, _scheme.onSurface);
   expect(focus.strokeWidth, 0); // Morph filled: no underline on focus.
-  final customFocus = theme.copyWith(focusActiveIndicatorWidth: 2).resolveColors(
-    _scheme,
-    variant: MorphTextFieldVariant.filled,
-    states: const MorphTextFieldStates(focused: true),
-  );
+  final customFocus = theme
+      .copyWith(focusActiveIndicatorWidth: 2)
+      .resolveColors(
+        _scheme,
+        variant: MorphTextFieldVariant.filled,
+        states: const MorphTextFieldStates(focused: true),
+      );
   expect(customFocus.strokeWidth, 2); // Still configurable by the consumer.
   final errorHover = filled(
     const MorphTextFieldStates(error: true, hovered: true),
@@ -262,18 +298,21 @@ void _colorRoles() {
   final outlinedFocused = outlined(const MorphTextFieldStates(focused: true));
   expect(outlinedResting.strokeWidth, 2);
   expect(outlinedFocused.strokeWidth, 2);
-  final customOutline = theme.copyWith(
-    outlineWidth: 1,
-    focusOutlineWidth: 3,
+  final customOutline = theme.copyWith(outlineWidth: 1, focusOutlineWidth: 3);
+  expect(
+    customOutline.strokeWidthFor(
+      MorphTextFieldVariant.outlined,
+      const MorphTextFieldStates(),
+    ),
+    1,
   );
-  expect(customOutline.strokeWidthFor(
-    MorphTextFieldVariant.outlined,
-    const MorphTextFieldStates(),
-  ), 1);
-  expect(customOutline.strokeWidthFor(
-    MorphTextFieldVariant.outlined,
-    const MorphTextFieldStates(focused: true),
-  ), 3);
+  expect(
+    customOutline.strokeWidthFor(
+      MorphTextFieldVariant.outlined,
+      const MorphTextFieldStates(focused: true),
+    ),
+    3,
+  );
   final outlinedHover = outlined(const MorphTextFieldStates(hovered: true));
   expect(outlinedHover.label, _scheme.onSurface);
   expect(outlinedHover.stroke, _scheme.onSurface);
@@ -298,7 +337,9 @@ Future<void> _hoverState(WidgetTester tester) async {
 
 Future<void> _counter(WidgetTester tester) async {
   final SemanticsHandle semantics = tester.ensureSemantics();
-  await tester.pumpWidget(_app(const MorphTextField(label: 'Bio', maxLength: 5)));
+  await tester.pumpWidget(
+    _app(const MorphTextField(label: 'Bio', maxLength: 5)),
+  );
   await tester.enterText(find.byType(EditableText), 'Hello world');
   await tester.pumpAndSettle();
   expect(find.text('5/5'), findsOneWidget);
@@ -317,6 +358,7 @@ Future<void> _errorAlert(WidgetTester tester) async {
         label: 'ZIP code',
         supportingText: 'Five digits',
         errorText: 'Not a valid ZIP code',
+        showErrorIcon: true, // Opt in; the default has no error glyph.
       ),
     ),
   );
@@ -329,6 +371,73 @@ Future<void> _errorAlert(WidgetTester tester) async {
   expect(find.byIcon(MorphIcons.error), findsOneWidget);
   expect(find.bySemanticsLabel('Error'), findsOneWidget);
   semantics.dispose();
+}
+
+Future<void> _errorNoDefaultIcon(WidgetTester tester) async {
+  for (final variant in MorphTextFieldVariant.values) {
+    await tester.pumpWidget(
+      _app(
+        MorphTextField(
+          label: 'Email',
+          variant: variant,
+          errorText: 'Invalid email',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byIcon(MorphIcons.error), findsNothing);
+    expect(find.bySemanticsLabel('Error'), findsNothing);
+    expect(find.text('Invalid email'), findsOneWidget);
+  }
+}
+
+Future<void> _errorIconPlacements(WidgetTester tester) async {
+  final SemanticsHandle semantics = tester.ensureSemantics();
+  try {
+    for (final variant in MorphTextFieldVariant.values) {
+      for (final position in MorphTextFieldErrorIconPosition.values) {
+        await tester.pumpWidget(
+          _app(
+            MorphTextField(
+              label: 'Email',
+              variant: variant,
+              errorText: 'Invalid email',
+              trailing: const Icon(MorphIcons.star),
+              errorIcon: const Icon(
+                MorphIcons.error,
+                key: ValueKey('customErrorIcon'),
+              ),
+              errorIconPosition: position,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(const ValueKey('customErrorIcon')), findsOneWidget);
+        expect(find.bySemanticsLabel('Error'), findsOneWidget);
+        expect(find.byIcon(MorphIcons.star), findsOneWidget);
+        final iconX = tester
+            .getCenter(find.byKey(const ValueKey('customErrorIcon')))
+            .dx;
+        final inputX = tester.getCenter(find.byType(EditableText)).dx;
+        if (position == MorphTextFieldErrorIconPosition.prefix) {
+          expect(iconX, lessThan(inputX));
+        } else {
+          expect(iconX, greaterThan(inputX));
+        }
+      }
+    }
+
+    // The icon is hidden when the field leaves its error state.
+    await tester.pumpWidget(
+      _app(
+        const MorphTextField(label: 'Email', errorIcon: Icon(MorphIcons.error)),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byIcon(MorphIcons.error), findsNothing);
+  } finally {
+    semantics.dispose();
+  }
 }
 
 Future<void> _disabledSkipped(WidgetTester tester) async {
@@ -359,7 +468,8 @@ Future<void> _focusRing(WidgetTester tester) async {
   MorphFocusInteraction.instance.noteKeyboardHighlight();
   node.requestFocus();
   await tester.pumpAndSettle();
-  MorphFocusRing ring() => tester.widget<MorphFocusRing>(find.byType(MorphFocusRing));
+  MorphFocusRing ring() =>
+      tester.widget<MorphFocusRing>(find.byType(MorphFocusRing));
   expect(ring().focused, isTrue);
   expect(ring().width, 3);
   expect(ring().gap, 2);

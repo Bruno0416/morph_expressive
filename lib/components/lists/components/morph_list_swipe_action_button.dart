@@ -44,7 +44,9 @@ class MorphListSwipeActionButton extends StatelessWidget {
     void handlePress() {
       MorphHaptics.triggerFor(context, action.haptic);
       action.onPressed?.call();
-      onTriggered();
+      if (action.autoClose) {
+        onTriggered();
+      }
     }
 
     final Color? bg = action.backgroundColor;
@@ -72,7 +74,9 @@ class MorphListSwipeActionButton extends StatelessWidget {
           maxHeight: resolvedHeight,
           child: MorphIconButton(
             icon: action.icon,
-            onPressed: handlePress,
+            onPressed: action.enabled ? handlePress : null,
+            tooltip: action.tooltip,
+            semanticLabel: action.semanticLabel,
             haptic: MorphHapticFeedback.none,
             variant: variant,
             enableFeedback: false,

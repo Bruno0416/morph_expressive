@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
@@ -7,6 +9,7 @@ void main() {
   registerDismissiblePreviewSnapTests();
   registerDismissibleReorderBlockedTests();
   registerDismissibleFullDismissTests();
+  registerDismissibleConfirmationTests();
 }
 
 /// Moves in small steps like a real swipe, so the drag wins the gesture arena
@@ -222,5 +225,139 @@ void registerDismissibleFullDismissTests() {
     await gesture.up();
     await tester.pumpAndSettle();
     expect(dismissed, isTrue);
+  });
+}
+
+/// Regression coverage for asynchronous dismiss confirmation and disabled rows.
+void registerDismissibleConfirmationTests() {
+  testWidgets('false dismissal confirmation restores row and skips primary action',
+      (WidgetTester tester) async {
+    var confirmations = 0;
+    var primaryActions = 0;
+    await tester.pumpWidget(MorphMaterialApp(
+      data: MorphThemeData.light(seedColor: const Color(0xFF6750A4)),
+      home: Scaffold(
+        body: SizedBox(
+          width: 400,
+          child: MorphList(
+            itemCount: 1,
+            itemBuilder: (context, index) => MorphListItem(
+              headline: 'Keep me',
+              swipe: MorphListItemSwipe(
+                mode: MorphListSwipeMode.dismiss,
+                onDismiss: (_) async {
+                  confirmations++;
+                  return false;
+                },
+                leading: [
+                  MorphListSwipeAction(
+                    icon: const Icon(MorphIcons.delete),
+                    isPrimary: true,
+                    onPressed: () => primaryActions++,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    final gesture = await tester.startGesture(
+      tester.getCenter(find.text('Keep me')),
+    );
+    await _swipeBy(tester, gesture, 160);
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    expect(confirmations, 1);
+    expect(primaryActions, 0);
+    expect(find.text('Keep me'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('pending confirmation prevents a second dismiss and commits once',
+      (WidgetTester tester) async {
+    final confirmation = Completer<bool>();
+    final controller = MorphDismissibleListController();
+    var confirmations = 0;
+    var primaryActions = 0;
+    await tester.pumpWidget(MorphMaterialApp(
+      data: MorphThemeData.light(seedColor: const Color(0xFF6750A4)),
+      home: Scaffold(
+        body: SizedBox(
+          width: 400,
+          child: MorphList(
+            itemCount: 1,
+            dismissController: controller,
+            itemBuilder: (context, index) => MorphListItem(
+              headline: 'Confirm me',
+              swipe: MorphListItemSwipe(
+                mode: MorphListSwipeMode.dismiss,
+                onDismiss: (_) {
+                  confirmations++;
+                  return confirmation.future;
+                },
+                leading: [
+                  MorphListSwipeAction(
+                    icon: const Icon(MorphIcons.delete),
+                    isPrimary: true,
+                    onPressed: () => primaryActions++,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    controller.dismiss(0);
+    await tester.pump();
+    controller.dismiss(0);
+    await tester.pump();
+    expect(confirmations, 1);
+    expect(primaryActions, 0);
+    expect(find.text('Confirm me'), findsOneWidget);
+
+    confirmation.complete(true);
+    await tester.pumpAndSettle();
+    expect(primaryActions, 1);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('disabled rows refuse controller reveal and dismiss',
+      (WidgetTester tester) async {
+    final controller = MorphDismissibleListController();
+    var confirmations = 0;
+    await tester.pumpWidget(MorphMaterialApp(
+      data: MorphThemeData.light(seedColor: const Color(0xFF6750A4)),
+      home: Scaffold(
+        body: MorphList(
+          itemCount: 1,
+          dismissController: controller,
+          itemBuilder: (context, index) => MorphListItem(
+            headline: 'Disabled',
+            enabled: false,
+            swipe: MorphListItemSwipe(
+              onDismiss: (_) async {
+                confirmations++;
+                return true;
+              },
+              trailing: const [
+                MorphListSwipeAction(icon: Icon(MorphIcons.archive)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    controller.reveal(0, leading: false);
+    controller.dismiss(0);
+    await tester.pumpAndSettle();
+    expect(confirmations, 0);
+    expect(find.byIcon(MorphIcons.archive), findsNothing);
+    expect(find.text('Disabled'), findsOneWidget);
   });
 }

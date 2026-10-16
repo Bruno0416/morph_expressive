@@ -12,6 +12,7 @@ import 'components/morph_text_field_container_painter.dart';
 import 'components/morph_text_field_label.dart';
 import 'components/morph_text_field_selection_builder.dart';
 import 'components/morph_text_field_supporting_row.dart';
+import 'enums/morph_text_field_error_icon_position.dart';
 import 'enums/morph_text_field_slot_alignment.dart';
 import 'enums/morph_text_field_variant.dart';
 import 'models/morph_text_field_colors.dart';
@@ -20,6 +21,7 @@ import 'styles/morph_text_field_theme.dart';
 import 'utils/morph_text_field_autofill_client.dart';
 import 'utils/morph_text_field_selection_controls.dart';
 
+export 'enums/morph_text_field_error_icon_position.dart';
 export 'enums/morph_text_field_slot_alignment.dart';
 export 'enums/morph_text_field_variant.dart';
 export 'models/morph_text_field_colors.dart';
@@ -91,7 +93,9 @@ class MorphTextField extends StatefulWidget {
     this.showCounter,
     this.counterSemanticsLabelBuilder = morphTextFieldCounterLabel,
     this.supportingTextOnFocusOnly = false,
-    this.showErrorIcon = true,
+    this.showErrorIcon = false,
+    this.errorIcon,
+    this.errorIconPosition = MorphTextFieldErrorIconPosition.suffix,
     this.showClearButton = false,
     this.showPasswordToggle = false,
     this.clearButtonSemanticsLabel = 'Clear',
@@ -214,8 +218,22 @@ class MorphTextField extends StatefulWidget {
   /// Shows [supportingText] only while the field is focused.
   final bool supportingTextOnFocusOnly;
 
-  /// Shows an error icon in error when there is no [trailing] widget.
+  /// Opt-in to the built-in error glyph while [errorText] is present.
+  ///
+  /// Defaults to false: error text and coloring do not insert an icon.
+  /// For a custom glyph, use [errorIcon] instead.
+  /// Retained for callers that previously set this flag explicitly.
   final bool showErrorIcon;
+
+  /// Optional error glyph shown only while [errorText] is non-null.
+  ///
+  /// Null by default. Unlike the legacy [showErrorIcon] fallback, an explicit
+  /// icon may coexist with an ordinary leading or trailing widget.
+  final Widget? errorIcon;
+
+  /// Places an enabled [errorIcon] (or [showErrorIcon] fallback) at the
+  /// start/prefix or end/suffix of the field in both filled and outlined modes.
+  final MorphTextFieldErrorIconPosition errorIconPosition;
 
   /// Shows a clear button while the field has text.
   final bool showClearButton;

@@ -10,6 +10,10 @@ class MorphListSwipeAction {
     this.backgroundColor,
     this.foregroundColor,
     this.onPressed,
+    this.tooltip,
+    this.semanticLabel,
+    this.enabled = true,
+    this.autoClose = true,
     this.isPrimary = false,
     this.width = 52,
     this.height,
@@ -27,6 +31,18 @@ class MorphListSwipeAction {
 
   /// Called when the action is invoked.
   final VoidCallback? onPressed;
+
+  /// Tooltip shown on hover or long-press; also used as a semantic label.
+  final String? tooltip;
+
+  /// Accessibility description (overrides [tooltip] for semantics).
+  final String? semanticLabel;
+
+  /// Whether this action is interactive.
+  final bool enabled;
+
+  /// Close an open action preview after activating this action.
+  final bool autoClose;
 
   /// Primary end-aligned action for auto-execute on full dismiss.
   final bool isPrimary;

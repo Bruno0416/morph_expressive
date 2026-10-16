@@ -16,6 +16,10 @@ The `preview/` gallery includes interactive examples by family. A public export
 in the source inventory is not necessarily a standalone component requiring a
 separate showcase scene.
 
+To start from a smaller, application-style example, explore
+[`example/main.dart`](../example/main.dart): it combines buttons, selections,
+validated fields, swipeable lists and a modal dialog.
+
 ## Chip variants and selection
 
 The standard MD3-inspired chips (filter, input and assist) are distinct from
@@ -76,6 +80,26 @@ Customize `floatingLabelTextStyle` on the widget or through
 
 ![Search, outlined and filled text fields](assets/gifs/textfields.gif)
 
+### Validation error icons
+
+`errorText` applies error styling and an accessible error message without
+adding an icon by default. Opt into a custom `errorIcon` and set its location
+with `MorphTextFieldErrorIconPosition.prefix` or `.suffix` (suffix is the
+default). Both filled and outlined fields support either position. The
+explicit error icon is only rendered when `errorText` is present, and can
+coexist with your `leading` or `trailing` content. `showErrorIcon: true` is
+retained for existing users of the built-in error glyph, but is now opt-in.
+
+```dart
+MorphTextField(
+  label: 'Email',
+  errorText: 'Please enter a valid address',
+  errorIcon: const Icon(MorphIcons.error),
+  errorIconPosition: MorphTextFieldErrorIconPosition.prefix,
+  variant: MorphTextFieldVariant.outlined,
+)
+```
+
 ## Tabs and focus-driven scrolling
 
 `MorphTabs` and `MorphTabs.sliver` now default to
@@ -83,6 +107,58 @@ Customize `floatingLabelTextStyle` on the widget or through
 tab does not automatically move its enclosing scroll viewport. Opt in with
 `autoScrollToFocusedTab: true` if the app needs focus-following scrolling.
 The animated indicator and keyboard focus behavior remain available.
+
+## Swipe actions on Morph lists
+
+Swipe actions are built into `MorphList`; no dependency on `flutter_slidable`
+is required. Set `swipe` on each `MorphListItem` (a standalone item does
+not provide the drag host). Swipe actions retain the standard Morph card
+surface, spring motion, radii, pill buttons, and list spacing. Swipeable
+rows do not inject a default trailing overflow icon; reveal them directly by
+gesture or through a dismiss controller to keep the row chrome clean.
+
+```dart
+MorphList(
+  itemCount: items.length,
+  itemBuilder: (context, index) => MorphListItem(
+    headline: items[index].title,
+    swipe: MorphListItemSwipe(
+      mode: MorphListSwipeMode.reveal,
+      leading: [
+        MorphListSwipeAction(
+          icon: const Icon(MorphIcons.star),
+          tooltip: 'Favorite',
+          onPressed: () => favorite(items[index]),
+        ),
+      ],
+      trailing: [
+        MorphListSwipeAction(
+          icon: const Icon(MorphIcons.archive),
+          tooltip: 'Archive',
+          onPressed: () => archive(items[index]),
+        ),
+      ],
+    ),
+  ),
+)
+```
+
+![MorphList swipe actions](assets/gifs/lists.gif)
+
+Floating dialogs use the same expressive motion system; see the
+[dialog capture](assets/gifs/dialogs.gif) for entrance and exit transitions.
+
+`MorphListSwipeMode.reveal` only opens actions; `dismiss` performs a full
+swipe; `both` supports both gestures. `MorphListSwipeAction` supports
+`tooltip`, `semanticLabel`, `enabled`, `autoClose`, optional colors, and
+`isPrimary` for full-swipe actions. Use `MorphDismissibleListController` to
+reveal, dismiss or close a row from your app.
+
+If you enable full dismissal, `onDismiss` returns a `Future<bool>`: `false`
+restores the card, while `true` permits its animation and the optional primary
+action. It is safe to await a confirmation dialog. Update the application
+collection to reflect confirmed deletion and provide stable item identities
+when items can reorder. A disabled `MorphListItem` ignores swipe commands.
 
 ## Haptic feedback
 

@@ -35,9 +35,15 @@ class _MorphPreviewAppState extends State<MorphPreviewApp> {
         ? ThemeData().textTheme.apply(fontFamily: 'serif')
         : null;
     final light = MorphThemeData.light(seedColor: _seed, textTheme: fontTheme)
-        .copyWith(hapticsEnabled: _hapticsEnabled, hapticFeedback: _hapticFeedback);
+        .copyWith(
+          hapticsEnabled: _hapticsEnabled,
+          hapticFeedback: _hapticFeedback,
+        );
     final dark = MorphThemeData.dark(seedColor: _seed, textTheme: fontTheme)
-        .copyWith(hapticsEnabled: _hapticsEnabled, hapticFeedback: _hapticFeedback);
+        .copyWith(
+          hapticsEnabled: _hapticsEnabled,
+          hapticFeedback: _hapticFeedback,
+        );
     final current = _darkMode ? dark : light;
     final scheme = current.colorScheme;
 
@@ -47,10 +53,8 @@ class _MorphPreviewAppState extends State<MorphPreviewApp> {
       theme: light.toThemeData(),
       darkTheme: dark.toThemeData(),
       themeMode: _darkMode ? ThemeMode.dark : ThemeMode.light,
-      builder: (context, child) => MorphTheme(
-        data: current,
-        child: child ?? const SizedBox.shrink(),
-      ),
+      builder: (context, child) =>
+          MorphTheme(data: current, child: child ?? const SizedBox.shrink()),
       home: Scaffold(
         backgroundColor: scheme.surface,
         appBar: AppBar(

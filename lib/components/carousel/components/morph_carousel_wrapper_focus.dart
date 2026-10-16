@@ -50,9 +50,28 @@ extension _MorphCarouselWrapperFocus on _MorphCarouselWrapperState {
   }
 
   void _onItemStates() {
-    if (mounted) {
-      setState(() {});
+    if (!mounted || _itemStatesRebuildScheduled) {
+      return;
     }
+
+    final SchedulerPhase phase = WidgetsBinding.instance.schedulerPhase;
+    if (phase == SchedulerPhase.persistentCallbacks ||
+        phase == SchedulerPhase.midFrameMicrotasks) {
+      // InkWell may update its states controller while its subtree is being
+      // built. Rebuilding this ancestor then would violate Flutter's build
+      // contract. Coalesce all state changes in the frame into one rebuild.
+      _itemStatesRebuildScheduled = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _itemStatesRebuildScheduled = false;
+        if (mounted) {
+          setState(() {});
+        }
+      });
+      return;
+    }
+
+    // Outside build/layout, keep hover and focus feedback responsive.
+    setState(() {});
   }
 
   void _moveFocus(int index) {

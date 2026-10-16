@@ -240,7 +240,9 @@ extension _MorphListBuild on _MorphListState {
         ? 0
         : _baselineOr(itemTheme, widget.gap, MorphListCardListTheme.defaultGap);
     final MorphCardPosition position = calculateCardPosition(index, total);
-    final MorphListFeatureScope? features = MorphListFeatureScope.maybeOf(context);
+    final MorphListFeatureScope? features = MorphListFeatureScope.maybeOf(
+      context,
+    );
     final bool enabled = _enabledAt(index);
     return MorphListTapBinder(
       onTap: _tapFor(features, index),
@@ -283,14 +285,21 @@ extension _MorphListBuild on _MorphListState {
     );
   }
 
-  MorphCardVariant _variant(BuildContext context, MorphListCardListTheme cardList) {
+  MorphCardVariant _variant(
+    BuildContext context,
+    MorphListCardListTheme cardList,
+  ) {
     final MorphExpandableNestScope? nest = MorphExpandableNestScope.maybeOf(
       context,
     );
     return widget.variant ?? nest?.variant ?? cardList.variant;
   }
 
-  double _baselineOr(MorphListItemTheme theme, double value, double specDefault) {
+  double _baselineOr(
+    MorphListItemTheme theme,
+    double value,
+    double specDefault,
+  ) {
     if (theme.isBaseline && value == specDefault) {
       return 0;
     }
@@ -318,7 +327,8 @@ extension _MorphListBuild on _MorphListState {
     if (features == null || !features.selectionEnabled) {
       return null;
     }
-    if (features.selectionState.trigger != MorphListSelectionTrigger.doubleTap) {
+    if (features.selectionState.trigger !=
+        MorphListSelectionTrigger.doubleTap) {
       return null;
     }
     return () => features.onToggleSelection(index);

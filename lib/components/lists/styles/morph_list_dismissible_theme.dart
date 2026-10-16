@@ -28,10 +28,11 @@ class MorphListDismissibleTheme {
   static const double defaultActionGap = 2;
 
   /// defaultActionSpacing.
-  static const double defaultActionSpacing = 2;
+  static const double defaultActionSpacing = 4;
 
-  /// defaultActionEdgePadding.
-  static const double defaultActionEdgePadding = 2;
+  /// Space between the card and its nearest action pill. The outer edge
+  /// uses the same inset, matching the spacing between action pills.
+  static const double defaultActionEdgePadding = defaultActionSpacing;
 
   /// Fraction of actions width at which the preview snaps open on release.
   static const double defaultActionPreviewThreshold = 0.35;

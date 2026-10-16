@@ -18,7 +18,8 @@ class MorphListDragProxyScope extends InheritedWidget {
 
   /// Nearest scope, or null when not building the drag proxy.
   static MorphListDragProxyScope? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<MorphListDragProxyScope>();
+    return context
+        .dependOnInheritedWidgetOfExactType<MorphListDragProxyScope>();
   }
 
   @override

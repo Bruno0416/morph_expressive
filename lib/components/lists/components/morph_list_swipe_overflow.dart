@@ -4,7 +4,11 @@ import 'package:flutter/widgets.dart';
 /// drag.
 class MorphListSwipeOverflow extends InheritedWidget {
   /// Creates a swipe-overflow scope.
-  const MorphListSwipeOverflow({this.onReveal, required super.child, super.key});
+  const MorphListSwipeOverflow({
+    this.onReveal,
+    required super.child,
+    super.key,
+  });
 
   /// Opens the action preview. Null when the row has no swipe actions.
   final VoidCallback? onReveal;

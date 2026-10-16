@@ -10,7 +10,12 @@ import 'morph_list_feature_scope.dart';
 /// One focusable list row or trailing action registered with
 /// [MorphListKeyboardGroup].
 class MorphListKeyboardRegistration {
-  MorphListKeyboardRegistration._(this._state, this.node, this.index, this.slot);
+  MorphListKeyboardRegistration._(
+    this._state,
+    this.node,
+    this.index,
+    this.slot,
+  );
 
   final _MorphListKeyboardGroupState _state;
 
@@ -121,8 +126,12 @@ class _MorphListKeyboardGroupState extends State<MorphListKeyboardGroup> {
   bool _syncSoonQueued = false;
   _MorphListKeyboardGroupState? _parent;
   int? _nestIndex;
-  late final MorphListKeyboardBinding _binding = MorphListKeyboardBinding._(this);
-  late final _MorphListTraversalPolicy _policy = _MorphListTraversalPolicy(this);
+  late final MorphListKeyboardBinding _binding = MorphListKeyboardBinding._(
+    this,
+  );
+  late final _MorphListTraversalPolicy _policy = _MorphListTraversalPolicy(
+    this,
+  );
   late final _MorphListShortcutManager _shortcuts = _MorphListShortcutManager(
     state: this,
     shortcuts: <ShortcutActivator, Intent>{
@@ -181,7 +190,12 @@ class _MorphListKeyboardGroupState extends State<MorphListKeyboardGroup> {
   MorphListKeyboardRegistration register({required int index, int slot = 0}) {
     final node = FocusNode(debugLabel: 'list $index.$slot')
       ..addListener(_onMemberFocus);
-    final registration = MorphListKeyboardRegistration._(this, node, index, slot);
+    final registration = MorphListKeyboardRegistration._(
+      this,
+      node,
+      index,
+      slot,
+    );
     _members.add(registration);
     _root._queueTabStopSync();
     return registration;
@@ -302,7 +316,9 @@ class _MorphListKeyboardGroupState extends State<MorphListKeyboardGroup> {
   }
 
   int? _selectedIndex() {
-    final MorphListFeatureScope? features = MorphListFeatureScope.maybeOf(context);
+    final MorphListFeatureScope? features = MorphListFeatureScope.maybeOf(
+      context,
+    );
     final Set<int>? selected = features?.controller?.selectedIndices;
     if (selected == null || selected.isEmpty) {
       return null;

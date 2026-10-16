@@ -71,7 +71,11 @@ extension _MorphCarouselLayoutResolution on _MorphCarouselState {
     );
   }
 
-  double? _fixedExtent(MorphCarouselTheme theme, bool reduced, double trackMain) {
+  double? _fixedExtent(
+    MorphCarouselTheme theme,
+    bool reduced,
+    double trackMain,
+  ) {
     if (widget.type == MorphCarouselType.uncontainedMultiAspect) {
       return null;
     }
@@ -134,7 +138,8 @@ extension _MorphCarouselLayoutResolution on _MorphCarouselState {
     if (themed != fallback) {
       return themed;
     }
-    if (_fullScreen || (reduced && widget.type == MorphCarouselType.contained)) {
+    if (_fullScreen ||
+        (reduced && widget.type == MorphCarouselType.contained)) {
       return EdgeInsets.zero;
     }
     final bool bleed =

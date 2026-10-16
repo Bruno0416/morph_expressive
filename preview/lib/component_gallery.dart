@@ -58,6 +58,7 @@ class _MorphComponentGalleryState extends State<MorphComponentGallery> {
   int _drawerIndex = 0;
   int _railIndex = 0;
   String _menuAction = 'None';
+  String _lastSwipeAction = 'None';
   String _splitChoice = 'One';
   int _tabIndex = 0;
   int _navigationIndex = 0;
@@ -495,6 +496,29 @@ class _MorphComponentGalleryState extends State<MorphComponentGallery> {
               variant: MorphTextFieldVariant.outlined,
             ),
             const Gap(16),
+            const MorphTextField(
+              label: 'Validation · no icon (default)',
+              placeholder: 'name@example.com',
+              errorText: 'Enter a valid email address.',
+              variant: MorphTextFieldVariant.filled,
+            ),
+            const Gap(16),
+            const MorphTextField(
+              label: 'Validation · suffix icon',
+              errorText: 'A valid email is required.',
+              errorIcon: Icon(MorphIcons.error),
+              errorIconPosition: MorphTextFieldErrorIconPosition.suffix,
+              variant: MorphTextFieldVariant.outlined,
+            ),
+            const Gap(16),
+            const MorphTextField(
+              label: 'Validation · prefix icon',
+              errorText: 'This field is required.',
+              errorIcon: Icon(MorphIcons.error),
+              errorIconPosition: MorphTextFieldErrorIconPosition.prefix,
+              variant: MorphTextFieldVariant.filled,
+            ),
+            const Gap(16),
             const MorphTextField(label: 'Disabled', enabled: false),
           ],
         ), width: 680));
@@ -526,7 +550,9 @@ class _MorphComponentGalleryState extends State<MorphComponentGallery> {
                     selected: _selectedChips.contains(type),
                     onPressed: () => setState(() {
                       if (type == MorphChipType.filter || type == MorphChipType.input) {
-                        if (!_selectedChips.add(type)) _selectedChips.remove(type);
+                        if (!_selectedChips.add(type)) {
+                          _selectedChips.remove(type);
+                        }
                       } else {
                         _chipActions++;
                         _lastChipAction = type.name;
@@ -936,6 +962,50 @@ class _MorphComponentGalleryState extends State<MorphComponentGallery> {
             leading: Icon(FluentIcons.line.heart),
             onTap: () => setState(() => _presses++),
           ),
+        ), width: 560));
+        samples.add(_panel('MorphList · swipe actions', Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Swipe a row left or right to reveal actions'),
+            const Gap(12),
+            MorphList(
+              itemCount: 3,
+              itemBuilder: (context, index) => MorphListItem(
+                headline: 'Swipe item ${index + 1}',
+                supportingText: 'Reveal Morph action pills',
+                leading: const Icon(MorphIcons.star),
+                swipe: MorphListItemSwipe(
+                  mode: MorphListSwipeMode.reveal,
+                  leading: [
+                    MorphListSwipeAction(
+                      icon: const Icon(MorphIcons.star),
+                      tooltip: 'Favorite',
+                      onPressed: () => setState(() =>
+                          _lastSwipeAction = 'Favorited item ${index + 1}'),
+                    ),
+                  ],
+                  trailing: [
+                    MorphListSwipeAction(
+                      icon: const Icon(MorphIcons.archive),
+                      tooltip: 'Archive',
+                      onPressed: () => setState(() =>
+                          _lastSwipeAction = 'Archived item ${index + 1}'),
+                    ),
+                    MorphListSwipeAction(
+                      icon: const Icon(MorphIcons.delete),
+                      tooltip: 'Delete',
+                      backgroundColor: scheme.error,
+                      foregroundColor: scheme.onError,
+                      onPressed: () => setState(() =>
+                          _lastSwipeAction = 'Delete tapped on item ${index + 1}'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const Gap(8),
+            Text('Last action: $_lastSwipeAction'),
+          ],
         ), width: 560));
         break;
       case 'menus':

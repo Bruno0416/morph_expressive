@@ -125,9 +125,13 @@ extension _MorphTextFieldBuild on _MorphTextFieldState {
     final int density = _densityOf(fieldTheme);
     final double height = fieldTheme.heightFor(density);
     final List<Widget> trailing = _trailingSlots(fieldTheme, colors, height);
-    final double start = widget.leading == null
+    final bool hasLeading = widget.leading != null || _hasPrefixErrorIcon;
+    final double start = !hasLeading
         ? fieldTheme.horizontalPadding
-        : fieldTheme.iconSlotWidth + fieldTheme.iconSlotTextPadding;
+        : fieldTheme.iconSlotWidth *
+                  ((widget.leading != null ? 1 : 0) +
+                      (_hasPrefixErrorIcon ? 1 : 0)) +
+              fieldTheme.iconSlotTextPadding;
     final double end = trailing.isEmpty
         ? fieldTheme.horizontalPadding
         : fieldTheme.iconSlotWidth * trailing.length +
@@ -258,28 +262,64 @@ extension _MorphTextFieldBuild on _MorphTextFieldState {
     );
   }
 
+  /// Both error-placement options are available in filled and outlined fields.
+  /// The default is no icon at all, even when there is validation error text.
+  bool get _hasErrorGlyph => widget.hasError &&
+      (widget.errorIcon != null ||
+          (widget.showErrorIcon && widget.trailing == null));
+
+  bool get _hasPrefixErrorIcon => _hasErrorGlyph &&
+      widget.errorIconPosition == MorphTextFieldErrorIconPosition.prefix;
+
+  bool get _hasSuffixErrorIcon => _hasErrorGlyph &&
+      widget.errorIconPosition == MorphTextFieldErrorIconPosition.suffix;
+
+  Widget _errorGlyph(MorphTextFieldTheme fieldTheme, MorphTextFieldColors colors) {
+    return Semantics(
+      label: widget.errorIconSemanticsLabel,
+      child: ExcludeSemantics(
+        child: IconTheme.merge(
+          data: IconThemeData(
+            color: colors.trailingIcon,
+            size: fieldTheme.iconSize,
+          ),
+          child: widget.errorIcon ?? const Icon(MorphIcons.error),
+        ),
+      ),
+    );
+  }
+
+  Widget _iconSlot(Widget content, MorphTextFieldTheme theme, double height) {
+    return SizedBox(
+      width: theme.iconSlotWidth,
+      height: height,
+      child: Center(child: content),
+    );
+  }
+
   List<Widget> _leadingSlot(
     MorphTextFieldTheme fieldTheme,
     MorphTextFieldColors colors,
     double height,
   ) {
-    if (widget.leading == null) {
+    if (widget.leading == null && !_hasPrefixErrorIcon) {
       return <Widget>[SizedBox(width: fieldTheme.horizontalPadding)];
     }
     return <Widget>[
-      SizedBox(
-        width: fieldTheme.iconSlotWidth,
-        height: height,
-        child: Center(
-          child: IconTheme.merge(
+      if (widget.leading != null)
+        _iconSlot(
+          IconTheme.merge(
             data: IconThemeData(
               color: colors.leadingIcon,
               size: fieldTheme.iconSize,
             ),
             child: widget.leading!,
           ),
+          fieldTheme,
+          height,
         ),
-      ),
+      if (_hasPrefixErrorIcon)
+        _iconSlot(_errorGlyph(fieldTheme, colors), fieldTheme, height),
       SizedBox(width: fieldTheme.iconSlotTextPadding),
     ];
   }
@@ -321,14 +361,11 @@ extension _MorphTextFieldBuild on _MorphTextFieldState {
             size: fieldTheme.iconSize,
           ),
           child: widget.trailing!,
-        )
-      else if (widget.hasError && widget.showErrorIcon)
-        _affordance(
-          fieldTheme,
-          colors,
-          icon: MorphIcons.error,
-          label: widget.errorIconSemanticsLabel,
         ),
+      // Explicit icons may coexist with a trailing action; the legacy
+      // showErrorIcon fallback still yields to custom trailing content.
+      if (_hasSuffixErrorIcon)
+        _errorGlyph(fieldTheme, colors),
     ];
     return <Widget>[
       for (final Widget slot in slots)

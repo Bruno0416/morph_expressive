@@ -33,7 +33,8 @@ BorderRadius calculateCardRadius({
 }) {
   if (embedded) {
     final bool isTail =
-        position == MorphCardPosition.last || position == MorphCardPosition.single;
+        position == MorphCardPosition.last ||
+        position == MorphCardPosition.single;
     if (closeBottom && isTail) {
       return BorderRadius.vertical(
         top: Radius.circular(innerRadius),
@@ -184,7 +185,8 @@ class MorphCardListItem extends StatelessWidget {
                   : cardListTheme.backgroundColor(scheme, variant: variant)));
 
     final bool isLast =
-        position == MorphCardPosition.last || position == MorphCardPosition.single;
+        position == MorphCardPosition.last ||
+        position == MorphCardPosition.single;
 
     final VoidCallback? wrappedOnTap = onTap != null
         ? () => onTap!(index)

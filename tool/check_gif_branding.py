@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Reject preview GIFs made before the Morph Expressive branding change.
 
-These hashes identify the eight previous exports, whose watermark is embedded
-in the animation frames. Source edits alone cannot update GIF binaries.
+These hashes identify the eight previous exports whose watermark is embedded
+in the animation frames. Source edits alone cannot update GIF binaries. The
+new lists/dialogs GIFs are also required for the README and docs.
 """
 
 from hashlib import sha256
@@ -21,13 +22,17 @@ LEGACY_EXPORTS = {
     "textfields.gif": "a809a35861494aeb38de0deb506e3fe558ae8fa5a4430b6aff65e1c6cb529e41",
 }
 
+REQUIRED_EXPORTS = set(LEGACY_EXPORTS) | {"lists.gif", "dialogs.gif"}
+
 stale = []
 missing = []
-for name, old_digest in LEGACY_EXPORTS.items():
+for name in sorted(REQUIRED_EXPORTS):
     path = GIF_DIR / name
     if not path.is_file():
         missing.append(name)
-    elif sha256(path.read_bytes()).hexdigest() == old_digest:
+        continue
+    old_digest = LEGACY_EXPORTS.get(name)
+    if old_digest and sha256(path.read_bytes()).hexdigest() == old_digest:
         stale.append(name)
 
 if missing or stale:
@@ -36,7 +41,7 @@ if missing or stale:
         details.append("GIF exports still have the former watermark: " + ", ".join(stale))
     if missing:
         details.append("Missing GIFs: " + ", ".join(missing))
-    details.append("Regenerate all eight: bash tool/generate_component_gifs.sh")
+    details.append("Regenerate all ten: bash tool/generate_component_gifs.sh")
     raise SystemExit("\n".join(details))
 
-print("GIF branding OK: eight assets updated since the rename")
+print("GIF branding OK: required assets are present and the renamed exports are updated")

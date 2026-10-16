@@ -10,13 +10,13 @@
 
 ```yaml
 dependencies:
-  morph_expressive: ^0.2.0
+  morph_expressive: ^0.3.0
 ```
 
-**Release status:** this is the intended dependency constraint **after 0.2.0
-has been published on pub.dev**. Until that happens, the published release is
-0.1.0 (`^0.1.0`), which does not expose the new 0.2.0 APIs. For pre-release
-validation, use the repository source with a Git/path dependency.
+**Release status:** `0.2.0` is already on pub.dev. The `^0.3.0`
+constraint works after the new release is published. Until then use the
+published `^0.2.0` version (without 0.3.0 features), or reference the
+repository through a Git/path dependency for pre-publication testing.
 
 Run `flutter pub get` after selecting the appropriate version.
 
@@ -55,7 +55,7 @@ compatible with `MaterialApp.router` via its `builder` property.
 The package import exports component families, foundations, and `FluentIcons`.
 The icon glyphs are provided by the `fluent_icons_kit` dependency.
 
-## Configure 0.2.0 interactions
+## Configure theme-level interactions (available since 0.2.0)
 
 Globally disable Morph-managed haptics when your app or accessibility policy
 requires it:
@@ -66,8 +66,10 @@ final quietTheme = MorphThemeData.light(
 ).copyWith(hapticsEnabled: false);
 ```
 
-For an example of single/multiple chip selection and the filled floating label,
-see [Components](COMPONENTS.md). For curves, spring timing and composable
+For a runnable overview of selection, validation, swipe actions, and
+dialogs, see [`example/main.dart`](../example/main.dart) and the
+[example guide](../example/README.md). For deeper options, see
+[Components](COMPONENTS.md). For curves, spring timing and composable
 animation tweens, see [Motion](MOTION.md).
 
 ## Next steps

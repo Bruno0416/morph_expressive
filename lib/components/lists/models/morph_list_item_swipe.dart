@@ -33,7 +33,9 @@ class MorphListItemSwipe {
   /// Which manual swipe direction can dismiss.
   final MorphListSwipeEdge edge;
 
-  /// Called when this row is dismissed. Return false to keep the row.
+  /// Confirms a full swipe before any collapse or primary action runs.
+  /// Return false to restore the row. When true, the caller remains
+  /// responsible for keeping its data source in sync with the dismissal.
   final Future<bool> Function(DismissDirection direction)? onDismiss;
 
   /// Background revealed when swiping start-to-end.

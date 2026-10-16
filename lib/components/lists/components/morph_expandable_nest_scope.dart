@@ -36,7 +36,8 @@ class MorphExpandableNestScope extends InheritedWidget {
 
   /// Nearest nest scope, if any.
   static MorphExpandableNestScope? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<MorphExpandableNestScope>();
+    return context
+        .dependOnInheritedWidgetOfExactType<MorphExpandableNestScope>();
   }
 
   @override

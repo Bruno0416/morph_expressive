@@ -52,7 +52,8 @@ class MorphListFocusRing extends StatelessWidget {
     return ListenableBuilder(
       listenable: MorphFocusInteraction.instance,
       builder: (BuildContext context, Widget? _) {
-        final bool show = focused && MorphFocusInteraction.instance.ringsAllowed;
+        final bool show =
+            focused && MorphFocusInteraction.instance.ringsAllowed;
         final double pathInset = inset + thickness / 2;
         return Stack(
           fit: StackFit.passthrough,

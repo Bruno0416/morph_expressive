@@ -136,7 +136,8 @@ mixin _MorphListItemThemeColors on _MorphListItemThemeFields {
       avatarLabelColor ?? scheme.onPrimaryContainer;
 
   /// Divider color.
-  Color resolveDivider(MorphColorScheme scheme) => dividerColor ?? scheme.outline;
+  Color resolveDivider(MorphColorScheme scheme) =>
+      dividerColor ?? scheme.outline;
 
   /// Focus ring color.
   Color resolveFocusIndicator(MorphColorScheme scheme) =>

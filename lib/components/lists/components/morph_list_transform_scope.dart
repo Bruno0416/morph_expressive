@@ -17,7 +17,8 @@ class MorphListTransformScope extends InheritedWidget {
 
   /// Nearest scope, or null when the row has no surface.
   static MorphListTransformScope? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<MorphListTransformScope>();
+    return context
+        .dependOnInheritedWidgetOfExactType<MorphListTransformScope>();
   }
 
   @override

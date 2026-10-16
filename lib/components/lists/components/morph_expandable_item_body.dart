@@ -167,16 +167,22 @@ extension _MorphExpandableItemHeader on _MorphExpandableItemState {
   }
 
   VoidCallback? _selectionDoubleTap() {
-    final MorphListFeatureScope? features = MorphListFeatureScope.maybeOf(context);
+    final MorphListFeatureScope? features = MorphListFeatureScope.maybeOf(
+      context,
+    );
     if (features == null ||
         !features.selectionEnabled ||
-        features.selectionState.trigger != MorphListSelectionTrigger.doubleTap) {
+        features.selectionState.trigger !=
+            MorphListSelectionTrigger.doubleTap) {
       return null;
     }
     return () => features.onToggleSelection(widget.index);
   }
 
-  bool _separateLeadingSelect(MorphListFeatureScope? features, bool selectionOn) {
+  bool _separateLeadingSelect(
+    MorphListFeatureScope? features,
+    bool selectionOn,
+  ) {
     // Leading flip owns its own InkWell — keep expand off the card surface so
     // icon tap-to-select cannot also toggle expand/collapse.
     return selectionOn &&
@@ -244,7 +250,9 @@ extension _MorphExpandableItemHeader on _MorphExpandableItemState {
     required MorphExpandableStyle d,
     required bool hasList,
   }) {
-    final MorphListFeatureScope? features = MorphListFeatureScope.maybeOf(context);
+    final MorphListFeatureScope? features = MorphListFeatureScope.maybeOf(
+      context,
+    );
     final selectionOn = features?.selectionEnabled ?? false;
     final separateLeadingSelect = _separateLeadingSelect(features, selectionOn);
     final canTapHeader = d.tapHeaderToToggle;

@@ -12,12 +12,9 @@ import 'components/morph_list_feature_host.dart';
 import 'components/morph_list_feature_scope.dart';
 import 'components/morph_list_interaction.dart';
 import 'components/morph_list_item_scope.dart';
-import 'components/morph_list_key_target.dart';
 import 'components/morph_list_keyboard.dart';
 import 'components/morph_list_reorder_host.dart';
 import 'components/morph_list_row_surface.dart';
-import 'components/morph_list_swipe_overflow.dart';
-import 'components/morph_list_trailing_override.dart';
 import 'components/morph_list_transform_publisher.dart';
 import 'controllers/morph_dismissible_card_controller.dart';
 import 'controllers/morph_dismissible_list_controller.dart';
@@ -217,7 +214,9 @@ class MorphListItem extends StatelessWidget {
     }
 
     final bool rowSelected = _isSelected(context);
-    final MorphListFeatureScope? features = MorphListFeatureScope.maybeOf(context);
+    final MorphListFeatureScope? features = MorphListFeatureScope.maybeOf(
+      context,
+    );
     final bool selection = features?.selectionEnabled ?? false;
     final bool single =
         selection &&
@@ -275,7 +274,9 @@ class MorphListItem extends StatelessWidget {
   }
 
   Widget _semantics(BuildContext context, Widget child) {
-    final MorphListFeatureScope? features = MorphListFeatureScope.maybeOf(context);
+    final MorphListFeatureScope? features = MorphListFeatureScope.maybeOf(
+      context,
+    );
     final bool selection = features?.selectionEnabled ?? false;
     final bool rowSelected = _isSelected(context);
     return Semantics(
@@ -437,34 +438,8 @@ class MorphListItem extends StatelessWidget {
             interaction.state.dragged);
   }
 
-  Widget? _resolveRowTrailing(BuildContext context, int? index) {
-    final MorphListTrailingOverride? trailingOverride =
-        MorphListTrailingOverride.maybeOf(context);
-    final MorphListSwipeOverflow? overflow =
-        trailingOverride == null && trailing == null
-        ? MorphListSwipeOverflow.maybeOf(context)
-        : null;
-    final Widget? resolvedTrailing = morphResolveListTrailing(
-      context: context,
-      trailing: trailing,
-    );
-    final VoidCallback? reveal = overflow?.onReveal;
-    if (trailingOverride == null &&
-        resolvedTrailing == null &&
-        reveal != null &&
-        index != null) {
-      return MorphListKeyTarget(
-        index: index,
-        // After a leading selection action (slot 1).
-        slot: 2,
-        onActivate: reveal,
-        child: GestureDetector(
-          onTap: reveal,
-          child: const Icon(MorphIcons.more_vert),
-        ),
-      );
-    }
-    return resolvedTrailing;
+  Widget? _resolveRowTrailing(BuildContext context, int? _) {
+    return morphResolveListTrailing(context: context, trailing: trailing);
   }
 
   Widget? _resolveLeadingSlot(

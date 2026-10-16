@@ -1,27 +1,31 @@
-# Publishing checklist: 0.2.0
+# Publishing checklist: 0.3.0
 
-The source version is prepared as **0.2.0**, but changing `pubspec.yaml`,
-committing to Git, and publishing on pub.dev are **three separate operations**.
-A published version cannot be overwritten. Do not publish until each step
-below has been reviewed.
+`0.2.0` is already published on pub.dev and must remain unchanged. This
+repository targets the **next release, 0.3.0**. Publishing requires a clean
+repository, a successful dry-run, and explicit confirmation; neither a Git
+commit nor a Git tag publishes a package automatically by itself.
 
-## 1. Validate both Flutter packages
+## 1. Verify package and example
 
-From the repository root:
+From the package root:
 
 ```bash
+flutter analyze
 bash tool/check.sh
 ```
 
-This runs the source/API/branding/motion/coverage checks plus `flutter analyze`
-and `flutter test` for both the library and `preview/`. A previous 725-test
-success is valuable, but repeat the checks after applying the release patch.
+The previous full validation passed 731 library tests and 30 preview tests.
+Repeat it after applying this patch. This release also updates
+`example/main.dart`: verify its public API on Flutter 3.47+/Dart 3.13+ before
+publishing. The example imports `material_ui` and `morph_expressive` only; for
+standalone app setup see [`../example/README.md`](../example/README.md).
 
-## 2. Confirm GIF assets and examples
+## 2. Review media and tracked files
 
-Review `doc/assets/gifs/chips.gif` and `textfields.gif` in the actual checkout.
-They must show all three variants each and have been captured using the
-updated release scenes. Confirm that the six other GIFs remain intact.
+The repository contains ten generated GIFs in `doc/assets/gifs/`, and the
+package metadata selects eight for the pub.dev screenshots. Check the newest
+`lists.gif` and `dialogs.gif` (along with the earlier chips/textfields GIFs),
+including the absence of a trailing overflow icon on swipeable rows.
 
 ```bash
 python3 tool/check_gif_branding.py
@@ -29,53 +33,63 @@ git status --short
 git diff --check
 ```
 
-The first pub.dev screenshot is the new chips scene; the second is the new
-text-fields scene. Both are animated GIFs, which pub.dev supports as package
-screenshots (up to 4 MB each). Do not stage Playwright caches, Web builds or
-other temporary files.
+Do **not** stage backups such as `test/carousel_widget_states_test.dart.bak`,
+IDE files, caches, compiled Web output, or capture tool downloads. Confirm
+`example/main.dart`, `LICENSE`, `NOTICE` and the declared GIF files exist.
 
-Confirm that `example/main.dart`, the root `LICENSE`, `NOTICE`, and all
-references in the README exist in the checkout. The README dependency
-constraint `^0.2.0` is usable only **after** pub.dev publication.
+## 3. Commit and push the reviewed changes
 
-## 3. Inspect the publishing archive
+Stage only intended release files, including the new source and GIFs. Inspect
+what Git will record before committing:
 
-Use `.pubignore` to exclude generated builds, preview runtime, tests,
-tooling, local caches and transient files. A `.gitignore` alone is not a
-substitute for publication-specific exclusions. Keep `lib/`, `example/`,
-README, CHANGELOG, LICENSE, NOTICE and maintained `doc/` sources and GIFs.
+```bash
+git diff --cached --check
+git diff --cached --stat
+git status --short
+# Commit and push after reviewing the staged paths.
+```
+
+`git add -A` indiscriminately can include temporary `.bak` files. Prefer
+explicit staging. Do not create a `v0.3.0` tag before the release commit.
+
+## 4. Inspect the package archive
+
+With a clean Git worktree:
 
 ```bash
 dart pub publish --dry-run
 ```
 
-Inspect **all** warnings and listed archive files; ensure the package
-metadata, SDK constraints, dependency ranges, version and screenshot paths
-are correct. A dry-run checks the archive but does not upload it. The package
-must not use `publish_to: none` in the root; that value belongs to the
-unpublished `preview/` app only.
+Confirm the command reports **Publishing morph_expressive 0.3.0** and includes
+only the intended source, example, docs, metadata and media. Review every
+warning. The `.pubignore` must exclude generated output, tests and preview
+runtime, while retaining the maintained documentation, screenshots and
+`example/` source.
 
-## 4. GitHub commit and publication (later step)
+## 5. Publish and tag
 
-After verification, review the staged changes, including both refreshed
-GIFs, and make a release commit. Push the reviewed branch and confirm the
-README image URLs resolve on GitHub before publishing:
+Confirm `0.3.0` is not already listed at
+<https://pub.dev/packages/morph_expressive/versions>, then run:
 
 ```bash
-git status --short
-git diff --check
-# Review, stage and commit the release changes deliberately.
-# Push to GitHub only after the full validation and asset review.
+dart pub publish
 ```
 
-Then run `dart pub publish` interactively from the package root; read the
-archive listing before confirming. Do not use `--force` or bypass validation.
-Publication is not complete until pub.dev confirms version 0.2.0 is live.
+Approve only after reviewing the package summary. Do not use `--force`.
+When pub.dev confirms the new version and the matching release commit is
+pushed, tag that commit:
 
-## 5. Hosting caveat
+```bash
+git tag -a v0.3.0 -m "Morph Expressive v0.3.0"
+git push origin v0.3.0
+```
 
-Older source snapshots included a built Web app in `docs/`. If GitHub Pages
-still deploys from the `/docs` branch directory, change its deployment
-source before removing generated files. Deploy future Web previews through
-a CI artifact or dedicated deployment branch rather than adding compiled
-Flutter output to maintained reference documentation.
+If the repository has workflows triggered by tags, inspect them before pushing
+the tag to avoid an unintended second release attempt.
+
+## Hosting note
+
+Older snapshots placed compiled Web output under `docs/`. If GitHub Pages still
+points there, update the deployment configuration before deleting build
+artifacts. Use a dedicated deployment branch or CI artifact for future Web
+previews; maintained reference docs are under `doc/`.

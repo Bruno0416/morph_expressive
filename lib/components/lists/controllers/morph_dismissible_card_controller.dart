@@ -102,6 +102,7 @@ mixin MorphDismissibleCardMixin<T extends StatefulWidget>
   double _roundnessFraction = 0;
   double _detachPush = 0;
   int _collapsingCount = 0;
+  bool _dismissPending = false;
   final Stopwatch _hapticStopwatch = Stopwatch()..start();
   final Map<MorphDismissibleSlot, GlobalKey> _measureKeys = {};
 
@@ -129,6 +130,9 @@ mixin MorphDismissibleCardMixin<T extends StatefulWidget>
 
   /// Which direction a manual swipe is allowed to dismiss.
   MorphListSwipeEdge get dismissEdge => MorphListSwipeEdge.both;
+
+  /// Whether this row is permitted to respond to swipe gestures or commands.
+  bool swipeItemEnabled(int dataIndex) => true;
 
   /// When true, [swipeItemBuilder] already paints the row surface.
   bool swipeItemPaintsSurface(int dataIndex) => false;

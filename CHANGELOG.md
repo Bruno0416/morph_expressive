@@ -1,6 +1,39 @@
 # Changelog
 
-## 0.2.0 (pending publication)
+## 0.3.0
+
+### Added
+
+- Swipe action controls for `MorphListItem` with configurable leading and
+  trailing `MorphListSwipeAction` pills, optional tooltips, semantic labels,
+  disabled actions, and automatic preview closure. Uses Morph's own spring
+  animations rather than an additional slidable dependency.
+- Optional `MorphTextField.errorIcon` in filled and outlined variants, with
+  `MorphTextFieldErrorIconPosition.prefix` and `.suffix` to place the icon.
+- Carousel interaction regression coverage, safe asynchronous swipe-dismissal
+  tests, and text-field error icon position/semantics coverage.
+- Animated list-items and floating-dialog GIF captures, along with a more
+  complete interactive Flutter example of commonly used components.
+
+### Changed
+
+- `MorphTextField` now omits the error glyph by default while retaining error
+  colors, helper text and accessibility information. Set `errorIcon` or
+  `showErrorIcon: true` to opt in to a glyph.
+- Swipe action pills use consistent 4dp spacing between adjacent actions and
+  between the card and its nearest revealed action; swipeable rows no longer
+  insert a trailing overflow icon automatically.
+
+### Fixed
+
+- Carousel `WidgetStatesController` notifications no longer trigger
+  `setState()` during Flutter's build phase. Unsafe notifications are
+  coalesced into a post-frame rebuild with mounted checks.
+- List dismissal awaits `onDismiss` before collapsing a row or executing its
+  primary action. Cancelled and pending confirmations do not dismiss rows;
+  disabled rows reject swipe gestures and programmatic commands.
+
+## 0.2.0
 
 ### Added
 
@@ -44,13 +77,6 @@
 - Landscape date picker input height with an exterior filled label.
 - Duplicate `enableFeedback` arguments in split-button/carousel paths and an
   invalid `const` icon in the preview.
-
-### Release status
-
-Version and documentation are prepared for 0.2.0. Publication requires the
-full library + preview checks, reviewed regenerated GIFs, `dart pub publish
---dry-run`, and an explicit publish step. This entry is not a publication
-confirmation.
 
 ## 0.1.0
 

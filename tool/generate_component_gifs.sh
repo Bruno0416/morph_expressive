@@ -14,13 +14,15 @@ while (($#)); do
   case "$1" in
     --only)
       if (($# < 2)); then echo 'Falta el nombre tras --only' >&2; exit 2; fi
-      ONLY=(--only "$2"); shift 2 ;;
+      ONLY+=(--only "$2"); shift 2 ;;
     --skip-build) SKIP_BUILD=1; shift ;;
     -h|--help)
       cat <<'HELP'
-Uso: bash tool/generate_component_gifs.sh [--only ESCENA] [--skip-build]
-Escenas: buttons dropdown segmented textfields chips sliders loading navigation
+Uso: bash tool/generate_component_gifs.sh [--only ESCENA ...] [--skip-build]
+Escenas: buttons dropdown segmented textfields chips sliders loading navigation lists dialogs
 Escenas chips/textfields: 640x480, 8.7s/8.2s para mostrar todas las variantes.
+Escena lists: 640x360, 5.8s para mostrar el reveal/close de swipe actions.
+Escena dialogs: 640x420, 6.5s para mostrar las animaciones del modal.
 Otras escenas: 640x360, 4.8s (sin cambios).
 Variables: MORPH_GIF_FPS=15, MORPH_GIF_SECONDS=duración opcional, MORPH_GIF_PORT=8765
 Requiere: flutter, npm/node, python3 y ffmpeg. Primera ejecución instala Playwright/Chromium.

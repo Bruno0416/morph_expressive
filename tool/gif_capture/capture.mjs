@@ -11,7 +11,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const scenarios = ['buttons', 'dropdown', 'segmented', 'textfields', 'chips', 'sliders', 'loading', 'navigation'];
+const scenarios = ['buttons', 'dropdown', 'segmented', 'textfields', 'chips', 'sliders', 'loading', 'navigation', 'lists', 'dialogs'];
 const themes = ['purple', 'teal', 'blue'];
 const here = fileURLToPath(new URL('.', import.meta.url));
 const root = resolve(here, '../..');
@@ -23,11 +23,14 @@ const fps = Number(process.env.MORPH_GIF_FPS ?? 15);
 const sceneSettings = {
   chips: { width: 640, height: 480, seconds: 8.7, theme: 'teal' },
   textfields: { width: 640, height: 480, seconds: 8.2, theme: 'purple' },
+  lists: { width: 640, height: 360, seconds: 5.8, theme: 'purple' },
+  dialogs: { width: 640, height: 420, seconds: 6.5, theme: 'blue' },
 };
 const secondsOverride = process.env.MORPH_GIF_SECONDS;
 const delayMs = 400;
-const onlyAt = process.argv.indexOf('--only');
-const selected = onlyAt >= 0 ? [process.argv[onlyAt + 1]] : scenarios;
+const requested = process.argv.flatMap((arg, index, args) =>
+  arg === '--only' ? [args[index + 1]] : []);
+const selected = requested.length ? [...new Set(requested)] : scenarios;
 
 if (!selected.length || selected.some((s) => !scenarios.includes(s))) {
   console.error(`Escena inválida. Valores: ${scenarios.join(', ')}`);

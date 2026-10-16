@@ -401,7 +401,8 @@ mixin MorphDismissibleCardBuildMixin<T extends StatefulWidget>
     if (listReorderEnabled && !isActionPreviewOpen) {
       return;
     }
-    if (MorphListReorderSessionScope.isActive(context) || _collapsingCount > 0) {
+    if (MorphListReorderSessionScope.isActive(context) ||
+        _collapsingCount > 0) {
       return;
     }
     handleDragStart(slot);
@@ -433,7 +434,8 @@ mixin MorphDismissibleCardBuildMixin<T extends StatefulWidget>
 
   void _onForegroundDragEnd(BuildContext context, DragEndDetails details) {
     _dismissDxAcc = 0;
-    if (_dragSlotRef == null || MorphListReorderSessionScope.isActive(context)) {
+    if (_dragSlotRef == null ||
+        MorphListReorderSessionScope.isActive(context)) {
       return;
     }
     handleDragEnd(details);
@@ -466,7 +468,11 @@ mixin MorphDismissibleCardBuildMixin<T extends StatefulWidget>
     final VoidCallback? onPressed = _foregroundPress(slotPos, boundPress);
     final suppressHover = _suppressCardHover;
     final BorderRadius radius =
-        morphSelectionRadius(context, slotPos, outerRadius: style.outerRadius) ??
+        morphSelectionRadius(
+          context,
+          slotPos,
+          outerRadius: style.outerRadius,
+        ) ??
         layoutRadius;
     final selected = morphSelectionFill(context, slotPos) != null;
     final inDragProxy = MorphListDragProxyScope.maybeOf(context) != null;
@@ -550,7 +556,8 @@ mixin MorphDismissibleCardBuildMixin<T extends StatefulWidget>
   ) {
     if (features == null ||
         !features.selectionEnabled ||
-        features.selectionState.trigger != MorphListSelectionTrigger.doubleTap) {
+        features.selectionState.trigger !=
+            MorphListSelectionTrigger.doubleTap) {
       return null;
     }
     return () => features.onToggleSelection(slotPos);

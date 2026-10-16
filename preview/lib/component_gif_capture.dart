@@ -54,6 +54,8 @@ class _CaptureSceneState extends State<_CaptureScene> {
   final TextEditingController _search = TextEditingController();
   final TextEditingController _email = TextEditingController();
   final TextEditingController _filled = TextEditingController();
+  final MorphDismissibleListController _listController =
+      MorphDismissibleListController();
   final FocusNode _searchFocus = FocusNode();
   final FocusNode _emailFocus = FocusNode();
   final FocusNode _filledFocus = FocusNode();
@@ -234,6 +236,27 @@ class _CaptureSceneState extends State<_CaptureScene> {
           ]) {
             _at(event.atMs, event.action);
           }
+        case 'dialogs':
+          // Capture MorphDialog's own animated route transition and scrim.
+          for (final event in <({int atMs, VoidCallback action})>[
+            (atMs: 250, action: _showCaptureDialog),
+            (atMs: 1900, action: () => Navigator.of(context).maybePop()),
+            (atMs: 3100, action: _showCaptureDialog),
+            (atMs: 4750, action: () => Navigator.of(context).maybePop()),
+          ]) {
+            _at(event.atMs, event.action);
+          }
+        case 'lists':
+          _scheduleLoop(
+            cycleMs: 2800,
+            cycles: 2,
+            events: [
+              (atMs: 360, action: () => _listController.reveal(1, leading: false)),
+              (atMs: 1540, action: _listController.close),
+              (atMs: 1940, action: () => _listController.reveal(2, leading: true)),
+              (atMs: 2440, action: _listController.close),
+            ],
+          );
         case 'sliders':
           _scheduleDoubleSequence(const [
             0.30, 0.32, 0.35, 0.38, 0.41, 0.44, 0.47, 0.50, 0.53, 0.56,
@@ -270,6 +293,28 @@ class _CaptureSceneState extends State<_CaptureScene> {
     });
   }
 
+  void _showCaptureDialog() {
+    MorphDialog.show<void>(
+      context,
+      dialog: MorphDialog(
+        title: 'Save your changes?',
+        icon: Icon(FluentIcons.line.info),
+        content: const Text('Your edits will be saved to the current project.'),
+        actions: <Widget>[
+          MorphButton(
+            style: MorphButtonStyle.text,
+            label: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          MorphButton(
+            label: const Text('Save'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     for (final timer in _timers) {
@@ -298,6 +343,8 @@ class _CaptureSceneState extends State<_CaptureScene> {
       'sliders' => ('Sliders', 'Linear and animated wavy tracks'),
       'loading' => ('Progress + loading', 'Progress indicators and expressive loaders'),
       'navigation' => ('Navigation', 'Compact and wide layouts'),
+      'lists' => ('MorphList', 'Swipe to reveal expressive actions'),
+      'dialogs' => ('Floating dialogs', 'Expressive modal entrances and exits'),
       _ => ('Morph Expressive', 'Component capture'),
     };
 
@@ -476,6 +523,60 @@ class _CaptureSceneState extends State<_CaptureScene> {
             variant: MorphTextFieldVariant.filled,
           ),
         ],
+      ),
+    ),
+    'dialogs' => SizedBox(
+      width: 560,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 12),
+          const Text('A rounded modal dialog with a spring entrance.'),
+          const SizedBox(height: 18),
+          MorphButton(
+            label: const Text('Open floating dialog'),
+            icon: Icon(FluentIcons.line.info),
+            onPressed: _showCaptureDialog,
+          ),
+        ],
+      ),
+    ),
+    'lists' => SizedBox(
+      width: 560,
+      child: MorphList(
+        dismissController: _listController,
+        itemCount: 3,
+        itemBuilder: (context, index) => MorphListItem(
+          headline: index == 0 ? 'Regular item' : 'Swipe item $index',
+          supportingText: index == 0
+              ? 'Standard MorphList row'
+              : 'Reveal Morph action pills',
+          leading: const Icon(MorphIcons.star),
+          swipe: index == 0 ? null : MorphListItemSwipe(
+            mode: MorphListSwipeMode.reveal,
+            leading: [
+              MorphListSwipeAction(
+                icon: const Icon(MorphIcons.star),
+                tooltip: 'Favorite',
+                onPressed: () {},
+              ),
+            ],
+            trailing: [
+              MorphListSwipeAction(
+                icon: const Icon(MorphIcons.archive),
+                tooltip: 'Archive',
+                onPressed: () {},
+              ),
+              MorphListSwipeAction(
+                icon: const Icon(MorphIcons.delete),
+                tooltip: 'Delete',
+                backgroundColor: MorphTheme.of(context).colorScheme.error,
+                foregroundColor: MorphTheme.of(context).colorScheme.onError,
+                onPressed: () {},
+              ),
+            ],
+          ),
+        ),
       ),
     ),
     'chips' => Column(
