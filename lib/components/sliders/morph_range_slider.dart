@@ -10,8 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:morph_expressive/components/sliders/morph_sliders.dart'
     show MorphSlider;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphSlider;
+import 'package:morph_expressive/morph_components.dart' show MorphSlider;
 
 import '../../foundations/foundations.dart';
 import 'components/morph_range_slider_track.dart';

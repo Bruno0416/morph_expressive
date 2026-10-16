@@ -84,6 +84,7 @@ class MorphInputDateRangePickerFormField extends StatelessWidget {
             fieldLabelText:
                 fieldStartLabelText ?? localizations.dateRangeStartLabel,
             autofocus: true,
+            reserveFloatingLabelSpace: true,
           ),
         ),
         const SizedBox(width: 8),
@@ -99,6 +100,7 @@ class MorphInputDateRangePickerFormField extends StatelessWidget {
             fieldHintText: fieldEndHintText,
             fieldLabelText:
                 fieldEndLabelText ?? localizations.dateRangeEndLabel,
+            reserveFloatingLabelSpace: true,
           ),
         ),
       ],

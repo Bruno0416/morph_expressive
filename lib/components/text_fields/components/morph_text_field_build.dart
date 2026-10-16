@@ -10,7 +10,8 @@ extension _MorphTextFieldBuild on _MorphTextFieldState {
   TextStyle _floatingLabelStyle(
     MorphThemeData theme,
     MorphTextFieldTheme fieldTheme,
-  ) => widget.floatingLabelTextStyle ??
+  ) =>
+      widget.floatingLabelTextStyle ??
       fieldTheme.floatingLabelTextStyle ??
       (_outlined
           ? theme.typeScale.bodySmall
@@ -31,7 +32,10 @@ extension _MorphTextFieldBuild on _MorphTextFieldState {
     };
   }
 
-  Widget _buildInteractive(MorphThemeData theme, MorphTextFieldTheme fieldTheme) {
+  Widget _buildInteractive(
+    MorphThemeData theme,
+    MorphTextFieldTheme fieldTheme,
+  ) {
     final bool enabled = widget.enabled;
     Widget field = ListenableBuilder(
       listenable: _motion,
@@ -47,7 +51,9 @@ extension _MorphTextFieldBuild on _MorphTextFieldState {
         final double topInset = widget.label == null
             ? 0
             : (floatingLine + fieldTheme.supportingTopPadding) *
-                _labelMotion.value.clamp(0.0, 1.0);
+                  (widget.reserveFloatingLabelSpace
+                      ? 1.0
+                      : _labelMotion.value.clamp(0.0, 1.0));
         return Padding(
           padding: EdgeInsets.only(top: topInset),
           child: MorphFocusRing(
@@ -141,12 +147,17 @@ extension _MorphTextFieldBuild on _MorphTextFieldState {
     // El notch debe empezar en el tramo recto del borde superior; con
     // esquinas Morph de 24 dp no puede comenzar en x=12 como en MD3E.
     final floatingStart = _outlined
-        ? (radius.topLeft.x + fieldTheme.notchPadding +
-                colors.strokeWidth / 2).clamp(start, double.infinity).toDouble()
+        ? (radius.topLeft.x + fieldTheme.notchPadding + colors.strokeWidth / 2)
+              .clamp(start, double.infinity)
+              .toDouble()
         : 0.0; // Align with the parent field column, not the input/icon slot.
     final labelStart = lerpDouble(start, floatingStart, progress)!;
-    final _MorphTextFieldNotch notch =
-        _notch(theme, fieldTheme, labelStart, progress);
+    final _MorphTextFieldNotch notch = _notch(
+      theme,
+      fieldTheme,
+      labelStart,
+      progress,
+    );
 
     return CustomPaint(
       painter: MorphTextFieldContainerPainter(
@@ -264,17 +275,23 @@ extension _MorphTextFieldBuild on _MorphTextFieldState {
 
   /// Both error-placement options are available in filled and outlined fields.
   /// The default is no icon at all, even when there is validation error text.
-  bool get _hasErrorGlyph => widget.hasError &&
+  bool get _hasErrorGlyph =>
+      widget.hasError &&
       (widget.errorIcon != null ||
           (widget.showErrorIcon && widget.trailing == null));
 
-  bool get _hasPrefixErrorIcon => _hasErrorGlyph &&
+  bool get _hasPrefixErrorIcon =>
+      _hasErrorGlyph &&
       widget.errorIconPosition == MorphTextFieldErrorIconPosition.prefix;
 
-  bool get _hasSuffixErrorIcon => _hasErrorGlyph &&
+  bool get _hasSuffixErrorIcon =>
+      _hasErrorGlyph &&
       widget.errorIconPosition == MorphTextFieldErrorIconPosition.suffix;
 
-  Widget _errorGlyph(MorphTextFieldTheme fieldTheme, MorphTextFieldColors colors) {
+  Widget _errorGlyph(
+    MorphTextFieldTheme fieldTheme,
+    MorphTextFieldColors colors,
+  ) {
     return Semantics(
       label: widget.errorIconSemanticsLabel,
       child: ExcludeSemantics(
@@ -364,8 +381,7 @@ extension _MorphTextFieldBuild on _MorphTextFieldState {
         ),
       // Explicit icons may coexist with a trailing action; the legacy
       // showErrorIcon fallback still yields to custom trailing content.
-      if (_hasSuffixErrorIcon)
-        _errorGlyph(fieldTheme, colors),
+      if (_hasSuffixErrorIcon) _errorGlyph(fieldTheme, colors),
     ];
     return <Widget>[
       for (final Widget slot in slots)
@@ -553,7 +569,10 @@ extension _MorphTextFieldBuild on _MorphTextFieldState {
       ? widget.supportingText
       : null;
 
-  Widget _buildSupporting(MorphThemeData theme, MorphTextFieldTheme fieldTheme) {
+  Widget _buildSupporting(
+    MorphThemeData theme,
+    MorphTextFieldTheme fieldTheme,
+  ) {
     final int? maxLength = widget.maxLength;
     final bool counter = maxLength != null && (widget.showCounter ?? true);
     final int count = _controller.text.characters.length;

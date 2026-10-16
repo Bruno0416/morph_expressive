@@ -3,8 +3,7 @@ import 'package:morph_expressive/components/sliders/morph_range_slider.dart'
     show MorphRangeSlider;
 import 'package:morph_expressive/components/sliders/morph_sliders.dart'
     show MorphRangeSlider;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphRangeSlider;
+import 'package:morph_expressive/morph_components.dart' show MorphRangeSlider;
 
 /// A continuous range with [start] ≤ [end], used by [MorphRangeSlider].
 @immutable
@@ -28,7 +27,9 @@ class MorphSliderRange {
 
   @override
   bool operator ==(Object other) {
-    return other is MorphSliderRange && other.start == start && other.end == end;
+    return other is MorphSliderRange &&
+        other.start == start &&
+        other.end == end;
   }
 
   @override

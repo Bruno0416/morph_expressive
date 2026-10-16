@@ -461,7 +461,8 @@ class MorphSlider extends StatefulWidget {
   State<MorphSlider> createState() => _MorphSliderState();
 }
 
-class _MorphSliderState extends State<MorphSlider> with TickerProviderStateMixin {
+class _MorphSliderState extends State<MorphSlider>
+    with TickerProviderStateMixin {
   bool _pressed = false;
   bool _hovered = false;
   bool _dragging = false;

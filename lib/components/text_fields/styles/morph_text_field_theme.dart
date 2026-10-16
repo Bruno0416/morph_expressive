@@ -185,7 +185,11 @@ class MorphTextFieldTheme extends MorphThemeExtension<MorphTextFieldTheme> {
     final focused = variant == MorphTextFieldVariant.outlined
         ? focusedOutlinedShape
         : focusedFilledShape;
-    return BorderRadius.lerp(resting, focused, focusProgress.clamp(0.0, 1.0).toDouble())!;
+    return BorderRadius.lerp(
+      resting,
+      focused,
+      focusProgress.clamp(0.0, 1.0).toDouble(),
+    )!;
   }
 
   /// Resolved input style.
@@ -328,19 +332,31 @@ class MorphTextFieldTheme extends MorphThemeExtension<MorphTextFieldTheme> {
       iconSize: l((MorphTextFieldTheme x) => x.iconSize),
       iconTextGap: l((MorphTextFieldTheme x) => x.iconTextGap),
       notchPadding: l((MorphTextFieldTheme x) => x.notchPadding),
-      supportingTopPadding: l((MorphTextFieldTheme x) => x.supportingTopPadding),
+      supportingTopPadding: l(
+        (MorphTextFieldTheme x) => x.supportingTopPadding,
+      ),
       supportingHorizontalPadding: l(
         (MorphTextFieldTheme x) => x.supportingHorizontalPadding,
       ),
-      supportingCounterGap: l((MorphTextFieldTheme x) => x.supportingCounterGap),
+      supportingCounterGap: l(
+        (MorphTextFieldTheme x) => x.supportingCounterGap,
+      ),
       densityStep: l((MorphTextFieldTheme x) => x.densityStep),
       filledShape: BorderRadius.lerp(filledShape, other.filledShape, t),
       outlinedShape: BorderRadius.lerp(outlinedShape, other.outlinedShape, t),
       focusedFilledShape: BorderRadius.lerp(
-        focusedFilledShape, other.focusedFilledShape, t),
+        focusedFilledShape,
+        other.focusedFilledShape,
+        t,
+      ),
       focusedOutlinedShape: BorderRadius.lerp(
-        focusedOutlinedShape, other.focusedOutlinedShape, t),
-      activeIndicatorWidth: l((MorphTextFieldTheme x) => x.activeIndicatorWidth),
+        focusedOutlinedShape,
+        other.focusedOutlinedShape,
+        t,
+      ),
+      activeIndicatorWidth: l(
+        (MorphTextFieldTheme x) => x.activeIndicatorWidth,
+      ),
       focusActiveIndicatorWidth: l(
         (MorphTextFieldTheme x) => x.focusActiveIndicatorWidth,
       ),

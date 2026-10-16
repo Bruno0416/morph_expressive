@@ -462,9 +462,13 @@ extension on _MorphSliderState {
             Positioned(
               left: _vertical
                   ? cross / 2 + resolved.thumbLength / 2 + 8
-                  : thumbPrimary - MorphSliderValueIndicator.widthFor(
-                      context, resolved.indicatorLabel, resolved.sliderTheme,
-                    ) / 2,
+                  : thumbPrimary -
+                        MorphSliderValueIndicator.widthFor(
+                              context,
+                              resolved.indicatorLabel,
+                              resolved.sliderTheme,
+                            ) /
+                            2,
               bottom: _vertical
                   ? null
                   : cross / 2 +

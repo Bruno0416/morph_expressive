@@ -78,6 +78,28 @@ MorphTextField(
 Customize `floatingLabelTextStyle` on the widget or through
 `MorphTextFieldTheme`; the inline label and typed content are unaffected.
 
+When placing two filled inputs side by side, enable
+`reserveFloatingLabelSpace: true` on both. The field then reserves its
+floating-label slot even when empty, keeping the painted surfaces level as
+focus and content change. This is opt-in; ordinary single fields keep their
+original compact layout. The date-range input dialog uses it automatically.
+
+```dart
+Row(
+  children: [
+    Expanded(child: MorphTextField(
+      label: 'Start',
+      reserveFloatingLabelSpace: true,
+    )),
+    const SizedBox(width: 8),
+    Expanded(child: MorphTextField(
+      label: 'End',
+      reserveFloatingLabelSpace: true,
+    )),
+  ],
+)
+```
+
 ![Search, outlined and filled text fields](assets/gifs/textfields.gif)
 
 ### Validation error icons

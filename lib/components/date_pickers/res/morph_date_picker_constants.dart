@@ -13,16 +13,14 @@ abstract final class MorphDatePickerConstants {
   /// calendarLandscapeDialogSize.
   static const Size calendarLandscapeDialogSize = Size(496, 346);
 
-  /// inputPortraitDialogSize.
-  static const Size inputPortraitDialogSize = Size(328, 270);
+  /// Input dialogs reserve height for filled field labels and validation text.
+  static const Size inputPortraitDialogSize = Size(328, 328);
 
-  /// Input dialog height includes the 56dp filled field, its floating label,
-  /// the 52dp actions row and the surrounding 16dp top/bottom insets.
-  /// Leave a little extra room for the focused label's spring transition.
-  static const Size inputLandscapeDialogSize = Size(496, 168);
+  /// Input mode reserves space for the floating label and a validation line.
+  static const Size inputLandscapeDialogSize = Size(496, 224);
 
-  /// inputRangeLandscapeDialogSize.
-  static const Size inputRangeLandscapeDialogSize = Size(496, 160);
+  /// Both range fields may display a validation message simultaneously.
+  static const Size inputRangeLandscapeDialogSize = Size(496, 224);
 
   /// dialogSizeAnimationDuration.
 
@@ -30,13 +28,6 @@ abstract final class MorphDatePickerConstants {
 
   /// monthScrollDuration.
   static const Duration monthScrollDuration = MorphMotion.short4;
-
-  /// inputFormPortraitHeight.
-
-  static const double inputFormPortraitHeight = 98;
-
-  /// inputFormLandscapeHeight.
-  static const double inputFormLandscapeHeight = 108;
 
   /// maxTextScaleFactor.
 

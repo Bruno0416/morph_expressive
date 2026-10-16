@@ -100,8 +100,12 @@ class MorphTextFieldContainerPainter extends CustomPainter {
     final double fullStart = textDirection == TextDirection.rtl
         ? size.width - notchStart - notchWidth
         : notchStart;
-    return Rect.fromLTWH(fullStart, -strokeWidth - 2,
-        notchWidth, strokeWidth * 2 + 4);
+    return Rect.fromLTWH(
+      fullStart,
+      -strokeWidth - 2,
+      notchWidth,
+      strokeWidth * 2 + 4,
+    );
   }
 
   @override

@@ -7,8 +7,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:morph_expressive/components/sliders/morph_sliders.dart'
     show MorphSlider;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphSlider;
+import 'package:morph_expressive/morph_components.dart' show MorphSlider;
 
 import '../enums/morph_slider_enums.dart';
 import '../styles/morph_slider_theme.dart';

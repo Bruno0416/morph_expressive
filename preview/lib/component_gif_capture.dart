@@ -27,10 +27,8 @@ class MorphGifCaptureApp extends StatelessWidget {
       title: 'Morph Expressive — $scene',
       debugShowCheckedModeBanner: false,
       theme: theme.toThemeData(),
-      builder: (context, child) => MorphTheme(
-        data: theme,
-        child: child ?? const SizedBox.shrink(),
-      ),
+      builder: (context, child) =>
+          MorphTheme(data: theme, child: child ?? const SizedBox.shrink()),
       home: Scaffold(
         backgroundColor: theme.colorScheme.surface,
         body: _CaptureScene(scene: scene),
@@ -50,7 +48,8 @@ class _CaptureScene extends StatefulWidget {
 
 class _CaptureSceneState extends State<_CaptureScene> {
   final List<Timer> _timers = [];
-  final MorphDropdownController<String> _dropdown = MorphDropdownController<String>();
+  final MorphDropdownController<String> _dropdown =
+      MorphDropdownController<String>();
   final TextEditingController _search = TextEditingController();
   final TextEditingController _email = TextEditingController();
   final TextEditingController _filled = TextEditingController();
@@ -79,9 +78,11 @@ class _CaptureSceneState extends State<_CaptureScene> {
   }
 
   void _at(int offsetMs, VoidCallback action) {
-    _timers.add(Timer(Duration(milliseconds: _delayMs + offsetMs), () {
-      if (mounted) action();
-    }));
+    _timers.add(
+      Timer(Duration(milliseconds: _delayMs + offsetMs), () {
+        if (mounted) action();
+      }),
+    );
   }
 
   // Enter text a character at a time so the focus/label transition is visible
@@ -144,7 +145,10 @@ class _CaptureSceneState extends State<_CaptureScene> {
             events: [
               (atMs: 0, action: () => setState(() => _buttonSelected = true)),
               (atMs: 420, action: () => setState(() => _favorite = true)),
-              (atMs: 960, action: () => setState(() => _buttonSelected = false)),
+              (
+                atMs: 960,
+                action: () => setState(() => _buttonSelected = false),
+              ),
               (atMs: 1500, action: () => setState(() => _favorite = false)),
             ],
           );
@@ -164,22 +168,34 @@ class _CaptureSceneState extends State<_CaptureScene> {
             cycleMs: 2200,
             cycles: 2,
             events: [
-              (atMs: 0, action: () => setState(() {
-                _segment = 'TV Shows';
-                _groupSelected = 1;
-              })),
-              (atMs: 560, action: () => setState(() {
-                _segment = 'Movies';
-                _groupSelected = 2;
-              })),
-              (atMs: 1120, action: () => setState(() {
-                _segment = 'TV Shows';
-                _groupSelected = 0;
-              })),
-              (atMs: 1680, action: () => setState(() {
-                _segment = 'Movies';
-                _groupSelected = 0;
-              })),
+              (
+                atMs: 0,
+                action: () => setState(() {
+                  _segment = 'TV Shows';
+                  _groupSelected = 1;
+                }),
+              ),
+              (
+                atMs: 560,
+                action: () => setState(() {
+                  _segment = 'Movies';
+                  _groupSelected = 2;
+                }),
+              ),
+              (
+                atMs: 1120,
+                action: () => setState(() {
+                  _segment = 'TV Shows';
+                  _groupSelected = 0;
+                }),
+              ),
+              (
+                atMs: 1680,
+                action: () => setState(() {
+                  _segment = 'Movies';
+                  _groupSelected = 0;
+                }),
+              ),
             ],
           );
         case 'textfields':
@@ -187,8 +203,12 @@ class _CaptureSceneState extends State<_CaptureScene> {
           // label transition: focus -> type -> blur (label stays outside) -> clear.
           // This scene needs a longer recording than the other components.
           _typeForCapture(_filled, 'hello@morph.dev', startMs: 3320);
-          _typeForCapture(_filled, 'morph@flutter.dev',
-              startMs: 6450, letterDelayMs: 40);
+          _typeForCapture(
+            _filled,
+            'morph@flutter.dev',
+            startMs: 6450,
+            letterDelayMs: 40,
+          );
           for (final event in <({int atMs, VoidCallback action})>[
             (atMs: 0, action: _searchFocus.requestFocus),
             (atMs: 300, action: () => _search.text = 'Morph Expressive'),
@@ -209,10 +229,13 @@ class _CaptureSceneState extends State<_CaptureScene> {
           // Multi: 0->1 bloom, 1->2->3 borrowed-pill morph, 3->2->1
           // fusion, 1->0 bloom, then replay both behaviors for visibility.
           for (final event in <({int atMs, VoidCallback action})>[
-            (atMs: 0, action: () => setState(() {
-              _filterSelected = true;
-              _chipToggle = 'Weekly';
-            })),
+            (
+              atMs: 0,
+              action: () => setState(() {
+                _filterSelected = true;
+                _chipToggle = 'Weekly';
+              }),
+            ),
             (atMs: 620, action: () => _addMultiChip('Daily')),
             (atMs: 1150, action: () => setState(() => _chipToggle = 'Monthly')),
             (atMs: 1460, action: () => _addMultiChip('Weekly')),
@@ -228,11 +251,14 @@ class _CaptureSceneState extends State<_CaptureScene> {
             (atMs: 6450, action: () => _removeMultiChip('Monthly')),
             (atMs: 6980, action: () => _removeMultiChip('Daily')),
             (atMs: 7490, action: () => _addMultiChip('Daily')),
-            (atMs: 7850, action: () => setState(() {
-              _filterSelected = false;
-              _inputSelected = false;
-              _chipToggle = 'Daily';
-            })),
+            (
+              atMs: 7850,
+              action: () => setState(() {
+                _filterSelected = false;
+                _inputSelected = false;
+                _chipToggle = 'Daily';
+              }),
+            ),
           ]) {
             _at(event.atMs, event.action);
           }
@@ -251,19 +277,59 @@ class _CaptureSceneState extends State<_CaptureScene> {
             cycleMs: 2800,
             cycles: 2,
             events: [
-              (atMs: 360, action: () => _listController.reveal(1, leading: false)),
+              (
+                atMs: 360,
+                action: () => _listController.reveal(1, leading: false),
+              ),
               (atMs: 1540, action: _listController.close),
-              (atMs: 1940, action: () => _listController.reveal(2, leading: true)),
+              (
+                atMs: 1940,
+                action: () => _listController.reveal(2, leading: true),
+              ),
               (atMs: 2440, action: _listController.close),
             ],
           );
         case 'sliders':
-          _scheduleDoubleSequence(const [
-            0.30, 0.32, 0.35, 0.38, 0.41, 0.44, 0.47, 0.50, 0.53, 0.56,
-            0.59, 0.62, 0.65, 0.68, 0.71, 0.74, 0.71, 0.68, 0.65, 0.62,
-            0.59, 0.56, 0.53, 0.50, 0.47, 0.44, 0.41, 0.38, 0.35, 0.32, 0.30,
-            0.32, 0.35, 0.38, 0.41, 0.44, 0.47, 0.50, 0.53, 0.56, 0.59,
-          ], apply: (value) => _sliderValue = value, stepMs: 90);
+          // Slow down near the upper threshold to make the 90–98% smoothstep
+          // flattening clearly visible on both wavy slider variants.
+          _scheduleDoubleSequence(
+            const [
+              0.52,
+              0.72,
+              0.86,
+              0.90,
+              0.91,
+              0.92,
+              0.93,
+              0.94,
+              0.95,
+              0.96,
+              0.97,
+              0.98,
+              1.00,
+              0.98,
+              0.97,
+              0.96,
+              0.95,
+              0.94,
+              0.93,
+              0.92,
+              0.91,
+              0.90,
+              0.85,
+              0.65,
+              0.50,
+              0.72,
+              0.88,
+              0.90,
+              0.92,
+              0.94,
+              0.96,
+              0.98,
+            ],
+            apply: (value) => _sliderValue = value,
+            stepMs: 178,
+          );
         case 'navigation':
           _scheduleLoop(
             cycleMs: 2200,
@@ -276,17 +342,57 @@ class _CaptureSceneState extends State<_CaptureScene> {
             ],
           );
         case 'loading':
-          _scheduleDoubleSequence(const [
-            0.32, 0.38, 0.44, 0.50, 0.56, 0.62, 0.68, 0.74, 0.68, 0.62, 0.56,
-            0.50, 0.44, 0.38, 0.32, 0.38, 0.44, 0.50, 0.56, 0.62, 0.68, 0.74,
-            0.68, 0.62, 0.56, 0.50, 0.44, 0.38, 0.32,
-          ], apply: (value) => _progressValue = value, stepMs: 140);
+          // Both determinate wavy indicators now sweep all the way through
+          // the 90–98% envelope instead of topping out around 70%.
+          _scheduleDoubleSequence(
+            const [
+              0.50,
+              0.70,
+              0.87,
+              0.90,
+              0.91,
+              0.92,
+              0.93,
+              0.94,
+              0.95,
+              0.96,
+              0.97,
+              0.98,
+              1.00,
+              0.98,
+              0.97,
+              0.96,
+              0.95,
+              0.94,
+              0.93,
+              0.92,
+              0.91,
+              0.90,
+              0.80,
+              0.60,
+              0.75,
+              0.88,
+              0.90,
+              0.92,
+              0.94,
+              0.96,
+              0.98,
+            ],
+            apply: (value) => _progressValue = value,
+            stepMs: 180,
+          );
           _scheduleLoop(
-            cycleMs: 2200,
-            cycles: 2,
+            cycleMs: 2300,
+            cycles: 3,
             events: [
-              (atMs: 720, action: () => setState(() => _showContainedLoaders = true)),
-              (atMs: 1540, action: () => setState(() => _showContainedLoaders = false)),
+              (
+                atMs: 720,
+                action: () => setState(() => _showContainedLoaders = true),
+              ),
+              (
+                atMs: 1540,
+                action: () => setState(() => _showContainedLoaders = false),
+              ),
             ],
           );
       }
@@ -338,10 +444,16 @@ class _CaptureSceneState extends State<_CaptureScene> {
       'buttons' => ('Buttons', 'Expressive actions and selection'),
       'dropdown' => ('Dropdown', 'Spring-powered expand and collapse'),
       'segmented' => ('Segmented toggle', 'Elastic selection indicator'),
-      'textfields' => ('Text fields', 'Search, outlined and animated filled labels'),
+      'textfields' => (
+        'Text fields',
+        'Search, outlined and animated filled labels',
+      ),
       'chips' => ('Chips', 'M3 Expressive, single and multi-selection'),
       'sliders' => ('Sliders', 'Linear and animated wavy tracks'),
-      'loading' => ('Progress + loading', 'Progress indicators and expressive loaders'),
+      'loading' => (
+        'Progress + loading',
+        'Progress indicators and expressive loaders',
+      ),
       'navigation' => ('Navigation', 'Compact and wide layouts'),
       'lists' => ('MorphList', 'Swipe to reveal expressive actions'),
       'dialogs' => ('Floating dialogs', 'Expressive modal entrances and exits'),
@@ -359,10 +471,10 @@ class _CaptureSceneState extends State<_CaptureScene> {
             children: [
               Text(title, style: morph.textTheme.headlineMedium),
               const SizedBox(height: 6),
-              Text(subtitle,
-                style: (morph.textTheme.bodyMedium ?? const TextStyle()).copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
+              Text(
+                subtitle,
+                style: (morph.textTheme.bodyMedium ?? const TextStyle())
+                    .copyWith(color: scheme.onSurfaceVariant),
               ),
             ],
           ),
@@ -372,19 +484,19 @@ class _CaptureSceneState extends State<_CaptureScene> {
           left: 34,
           child: SizedBox(
             width: 572,
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: _content(),
-            ),
+            child: Align(alignment: Alignment.topLeft, child: _content()),
           ),
         ),
         Positioned(
           bottom: 19,
           right: 30,
-          child: Text('MORPH EXPRESSIVE', style: (morph.textTheme.labelSmall ?? const TextStyle()).copyWith(
-            color: scheme.onSurfaceVariant,
-            letterSpacing: 2,
-          )),
+          child: Text(
+            'MORPH EXPRESSIVE',
+            style: (morph.textTheme.labelSmall ?? const TextStyle()).copyWith(
+              color: scheme.onSurfaceVariant,
+              letterSpacing: 2,
+            ),
+          ),
         ),
       ],
     );
@@ -405,40 +517,49 @@ class _CaptureSceneState extends State<_CaptureScene> {
     'buttons' => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Wrap(spacing: 12, runSpacing: 16, children: [
-          MorphButton(
-            onPressed: () => setState(() => _buttonSelected = !_buttonSelected),
-            isSelected: _buttonSelected,
-            label: const Text('Select'),
-            selectedLabel: const Text('Selected'),
-            icon: const Icon(MorphIcons.check),
-          ),
-          MorphButton(
-            onPressed: () {},
-            style: MorphButtonStyle.outlined,
-            label: const Text('Outlined'),
-            icon: const Icon(MorphIcons.add),
-          ),
-          MorphButton(
-            onPressed: () {},
-            style: MorphButtonStyle.tonal,
-            label: const Text('Tonal'),
-          ),
-        ]),
+        Wrap(
+          spacing: 12,
+          runSpacing: 16,
+          children: [
+            MorphButton(
+              onPressed: () =>
+                  setState(() => _buttonSelected = !_buttonSelected),
+              isSelected: _buttonSelected,
+              label: const Text('Select'),
+              selectedLabel: const Text('Selected'),
+              icon: const Icon(MorphIcons.check),
+            ),
+            MorphButton(
+              onPressed: () {},
+              style: MorphButtonStyle.outlined,
+              label: const Text('Outlined'),
+              icon: const Icon(MorphIcons.add),
+            ),
+            MorphButton(
+              onPressed: () {},
+              style: MorphButtonStyle.tonal,
+              label: const Text('Tonal'),
+            ),
+          ],
+        ),
         const SizedBox(height: 30),
-        Row(children: [
-          MorphIconButton(
-            variant: MorphIconButtonVariant.filled,
-            icon: Icon(_favorite ? MorphIcons.favorite : MorphIcons.favorite_border),
-            onPressed: () => setState(() => _favorite = !_favorite),
-          ),
-          const SizedBox(width: 14),
-          MorphButton(
-            onPressed: () {},
-            style: MorphButtonStyle.text,
-            label: const Text('Text button'),
-          ),
-        ]),
+        Row(
+          children: [
+            MorphIconButton(
+              variant: MorphIconButtonVariant.filled,
+              icon: Icon(
+                _favorite ? MorphIcons.favorite : MorphIcons.favorite_border,
+              ),
+              onPressed: () => setState(() => _favorite = !_favorite),
+            ),
+            const SizedBox(width: 14),
+            MorphButton(
+              onPressed: () {},
+              style: MorphButtonStyle.text,
+              label: const Text('Text button'),
+            ),
+          ],
+        ),
       ],
     ),
     'dropdown' => SizedBox(
@@ -446,7 +567,9 @@ class _CaptureSceneState extends State<_CaptureScene> {
       child: MorphDropdownMenu<String>(
         controller: _dropdown,
         singleSelect: true,
-        fieldStyle: const MorphDropdownFieldStyle(hintText: 'Choose a framework'),
+        fieldStyle: const MorphDropdownFieldStyle(
+          hintText: 'Choose a framework',
+        ),
         items: const [
           MorphDropdownItem(label: 'Flutter', value: 'flutter'),
           MorphDropdownItem(label: 'Kotlin', value: 'kotlin'),
@@ -474,7 +597,8 @@ class _CaptureSceneState extends State<_CaptureScene> {
             neighborSquish: true,
             selectedIndex: _groupSelected,
             selectionRequired: true,
-            onSelectedIndexChanged: (next) => setState(() => _groupSelected = next),
+            onSelectedIndexChanged: (next) =>
+                setState(() => _groupSelected = next),
             actions: const [
               MorphButtonGroupAction(label: Text('Day')),
               MorphButtonGroupAction(label: Text('Week')),
@@ -552,30 +676,34 @@ class _CaptureSceneState extends State<_CaptureScene> {
               ? 'Standard MorphList row'
               : 'Reveal Morph action pills',
           leading: const Icon(MorphIcons.star),
-          swipe: index == 0 ? null : MorphListItemSwipe(
-            mode: MorphListSwipeMode.reveal,
-            leading: [
-              MorphListSwipeAction(
-                icon: const Icon(MorphIcons.star),
-                tooltip: 'Favorite',
-                onPressed: () {},
-              ),
-            ],
-            trailing: [
-              MorphListSwipeAction(
-                icon: const Icon(MorphIcons.archive),
-                tooltip: 'Archive',
-                onPressed: () {},
-              ),
-              MorphListSwipeAction(
-                icon: const Icon(MorphIcons.delete),
-                tooltip: 'Delete',
-                backgroundColor: MorphTheme.of(context).colorScheme.error,
-                foregroundColor: MorphTheme.of(context).colorScheme.onError,
-                onPressed: () {},
-              ),
-            ],
-          ),
+          swipe: index == 0
+              ? null
+              : MorphListItemSwipe(
+                  mode: MorphListSwipeMode.reveal,
+                  leading: [
+                    MorphListSwipeAction(
+                      icon: const Icon(MorphIcons.star),
+                      tooltip: 'Favorite',
+                      onPressed: () {},
+                    ),
+                  ],
+                  trailing: [
+                    MorphListSwipeAction(
+                      icon: const Icon(MorphIcons.archive),
+                      tooltip: 'Archive',
+                      onPressed: () {},
+                    ),
+                    MorphListSwipeAction(
+                      icon: const Icon(MorphIcons.delete),
+                      tooltip: 'Delete',
+                      backgroundColor: MorphTheme.of(context).colorScheme.error,
+                      foregroundColor: MorphTheme.of(context)
+                          .colorScheme
+                          .onError,
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
         ),
       ),
     ),
@@ -584,21 +712,26 @@ class _CaptureSceneState extends State<_CaptureScene> {
       children: [
         _captureLabel('Material 3 Expressive · filter, input, assist'),
         const SizedBox(height: 10),
-        Wrap(spacing: 12, runSpacing: 12, children: [
-          MorphChip(
-            label: 'Filter',
-            type: MorphChipType.filter,
-            selected: _filterSelected,
-            onPressed: () => setState(() => _filterSelected = !_filterSelected),
-          ),
-          MorphChip(
-            label: 'Input',
-            type: MorphChipType.input,
-            selected: _inputSelected,
-            onPressed: () => setState(() => _inputSelected = !_inputSelected),
-          ),
-          MorphChip(label: 'Assist', onPressed: () {}),
-        ]),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: [
+            MorphChip(
+              label: 'Filter',
+              type: MorphChipType.filter,
+              selected: _filterSelected,
+              onPressed: () =>
+                  setState(() => _filterSelected = !_filterSelected),
+            ),
+            MorphChip(
+              label: 'Input',
+              type: MorphChipType.input,
+              selected: _inputSelected,
+              onPressed: () => setState(() => _inputSelected = !_inputSelected),
+            ),
+            MorphChip(label: 'Assist', onPressed: () {}),
+          ],
+        ),
         const SizedBox(height: 20),
         _captureLabel('Morph expressive · single'),
         const SizedBox(height: 10),
@@ -646,6 +779,13 @@ class _CaptureSceneState extends State<_CaptureScene> {
             value: _sliderValue,
             onChanged: (value) => setState(() => _sliderValue = value),
           ),
+          const SizedBox(height: 18),
+          const Text('Wavy range'),
+          const SizedBox(height: 6),
+          MorphRangeSlider.wavy(
+            values: MorphSliderRange(0.0, _sliderValue),
+            onChanged: (range) => setState(() => _sliderValue = range.end),
+          ),
         ],
       ),
     ),
@@ -661,7 +801,8 @@ class _CaptureSceneState extends State<_CaptureScene> {
               autoLayout: false,
               layout: MorphNavBarLayout.compact,
               selectedIndex: _navigationIndex,
-              onDestinationSelected: (index) => setState(() => _navigationIndex = index),
+              onDestinationSelected: (index) =>
+                  setState(() => _navigationIndex = index),
               destinations: const [
                 MorphNavigationBarDestination(
                   icon: Icon(MorphIcons.home),
@@ -686,7 +827,8 @@ class _CaptureSceneState extends State<_CaptureScene> {
               autoLayout: false,
               layout: MorphNavBarLayout.wide,
               selectedIndex: _navigationIndex,
-              onDestinationSelected: (index) => setState(() => _navigationIndex = index),
+              onDestinationSelected: (index) =>
+                  setState(() => _navigationIndex = index),
               destinations: const [
                 MorphNavigationBarDestination(
                   icon: Icon(MorphIcons.home),
@@ -717,7 +859,10 @@ class _CaptureSceneState extends State<_CaptureScene> {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               MorphProgressIndicator.circular(value: _progressValue, size: 44),
-              MorphProgressIndicator.circularWavy(value: ((_progressValue * 0.88).clamp(0.0, 1.0)).toDouble(), size: 44),
+              MorphProgressIndicator.circularWavy(
+                value: _progressValue,
+                size: 44,
+              ),
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 320),
                 switchInCurve: Curves.easeOutCubic,
@@ -747,7 +892,7 @@ class _CaptureSceneState extends State<_CaptureScene> {
           SizedBox(
             width: 310,
             child: MorphProgressIndicator.linearWavy(
-              value: ((_progressValue * 0.93).clamp(0.0, 1.0)).toDouble(),
+              value: _progressValue,
               linearSize: MorphProgressIndicatorSize.s,
             ),
           ),

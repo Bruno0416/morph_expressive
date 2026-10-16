@@ -1,7 +1,6 @@
 import 'package:morph_expressive/components/sliders/morph_sliders.dart'
     show MorphSlider;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphSlider;
+import 'package:morph_expressive/morph_components.dart' show MorphSlider;
 
 /// Which track geometry an [MorphSlider] paints.
 enum MorphSliderTrackKind {

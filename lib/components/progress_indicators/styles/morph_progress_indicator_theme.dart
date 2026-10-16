@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../foundations/foundations.dart';
+import '../../../foundations/interaction/morph_wavy_amplitude.dart';
 import '../enums/morph_progress_enums.dart';
 
 /// Measured layout values for a flat linear progress indicator.
@@ -34,7 +35,8 @@ class MorphLinearProgressLayout {
 
 /// Theme values for linear progress indicators.
 @immutable
-class MorphLinearProgressTheme extends MorphThemeExtension<MorphLinearProgressTheme> {
+class MorphLinearProgressTheme
+    extends MorphThemeExtension<MorphLinearProgressTheme> {
   /// MorphLinearProgressTheme.
   const MorphLinearProgressTheme({
     this.strokeWidth = 4,
@@ -102,13 +104,9 @@ class MorphLinearProgressTheme extends MorphThemeExtension<MorphLinearProgressTh
   /// Active / stop color. Spec: Primary.
   Color activeColor(MorphColorScheme scheme) => scheme.primary;
 
-  /// Compose wavy determinate amplitude: full mid-progress, zero near ends.
-  double amplitudeForProgress(double progress) {
-    if (progress <= 0.1 || progress >= 0.95) {
-      return 0;
-    }
-    return 1;
-  }
+  /// Determinate wave amplitude: smooth transitions at 10–15% and 90–98%.
+  double amplitudeForProgress(double progress) =>
+      morphWavyAmplitudeForProgress(progress);
 
   @override
   MorphLinearProgressTheme copyWith({
@@ -184,7 +182,8 @@ class MorphCircularProgressTheme
 
   /// defaults.
 
-  static const MorphCircularProgressTheme defaults = MorphCircularProgressTheme();
+  static const MorphCircularProgressTheme defaults =
+      MorphCircularProgressTheme();
 
   /// defaultSize.
 
@@ -216,13 +215,9 @@ class MorphCircularProgressTheme
 
   Color activeColor(MorphColorScheme scheme) => scheme.primary;
 
-  /// Compose wavy determinate amplitude: full mid-progress, zero near ends.
-  double amplitudeForProgress(double progress) {
-    if (progress <= 0.1 || progress >= 0.95) {
-      return 0;
-    }
-    return 1;
-  }
+  /// Determinate wave amplitude: smooth transitions at 10–15% and 90–98%.
+  double amplitudeForProgress(double progress) =>
+      morphWavyAmplitudeForProgress(progress);
 
   @override
   MorphCircularProgressTheme copyWith({
@@ -280,7 +275,8 @@ class MorphProgressIndicatorTheme
 
   /// defaults.
 
-  static const MorphProgressIndicatorTheme defaults = MorphProgressIndicatorTheme();
+  static const MorphProgressIndicatorTheme defaults =
+      MorphProgressIndicatorTheme();
 
   /// linear.
 
@@ -301,7 +297,10 @@ class MorphProgressIndicatorTheme
   }
 
   @override
-  MorphProgressIndicatorTheme lerp(MorphProgressIndicatorTheme? other, double t) {
+  MorphProgressIndicatorTheme lerp(
+    MorphProgressIndicatorTheme? other,
+    double t,
+  ) {
     if (other is! MorphProgressIndicatorTheme) {
       return this;
     }

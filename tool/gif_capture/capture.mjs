@@ -25,6 +25,8 @@ const sceneSettings = {
   textfields: { width: 640, height: 480, seconds: 8.2, theme: 'purple' },
   lists: { width: 640, height: 360, seconds: 5.8, theme: 'purple' },
   dialogs: { width: 640, height: 420, seconds: 6.5, theme: 'blue' },
+  sliders: { width: 640, height: 360, seconds: 6.8, theme: 'purple' },
+  loading: { width: 640, height: 360, seconds: 6.8, theme: 'teal' },
 };
 const secondsOverride = process.env.MORPH_GIF_SECONDS;
 const delayMs = 400;

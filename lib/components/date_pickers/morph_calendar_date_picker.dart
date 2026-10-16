@@ -58,7 +58,8 @@ class MorphCalendarDatePicker extends StatefulWidget {
   final bool expandToFit;
 
   @override
-  State<MorphCalendarDatePicker> createState() => _MorphCalendarDatePickerState();
+  State<MorphCalendarDatePicker> createState() =>
+      _MorphCalendarDatePickerState();
 }
 
 class _MorphCalendarDatePickerState extends State<MorphCalendarDatePicker> {

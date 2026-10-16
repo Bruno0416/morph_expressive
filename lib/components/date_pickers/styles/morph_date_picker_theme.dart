@@ -99,7 +99,8 @@ class MorphDatePickerTheme extends MorphThemeExtension<MorphDatePickerTheme> {
 
   /// headerForegroundColor.
 
-  Color headerForegroundColor(MorphColorScheme scheme) => scheme.onSurfaceVariant;
+  Color headerForegroundColor(MorphColorScheme scheme) =>
+      scheme.onSurfaceVariant;
 
   /// dividerColor.
 
@@ -148,7 +149,10 @@ class MorphDatePickerTheme extends MorphThemeExtension<MorphDatePickerTheme> {
 
   /// headerHeadlineStyle.
 
-  TextStyle headerHeadlineStyle(MorphTypeScale typeScale, MorphColorScheme scheme) {
+  TextStyle headerHeadlineStyle(
+    MorphTypeScale typeScale,
+    MorphColorScheme scheme,
+  ) {
     return typeScale.headlineLarge.copyWith(color: scheme.onSurface);
   }
 
@@ -181,7 +185,10 @@ class MorphDatePickerTheme extends MorphThemeExtension<MorphDatePickerTheme> {
 
   /// selectedYearStyle.
 
-  TextStyle selectedYearStyle(MorphTypeScale typeScale, MorphColorScheme scheme) {
+  TextStyle selectedYearStyle(
+    MorphTypeScale typeScale,
+    MorphColorScheme scheme,
+  ) {
     return typeScale.titleMedium.copyWith(color: scheme.onPrimary);
   }
 

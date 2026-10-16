@@ -6,6 +6,7 @@ import '../divider/morph_divider.dart';
 import 'components/morph_calendar_date_range_picker.dart';
 import 'components/morph_date_picker_actions.dart';
 import 'components/morph_date_picker_header.dart';
+import 'components/morph_date_picker_input_layout.dart';
 import 'components/morph_input_date_range_picker_form_field.dart';
 import 'enums/morph_date_picker_enums.dart';
 import 'models/morph_date_picker_models.dart';
@@ -227,22 +228,7 @@ class _MorphDateRangePickerDialogState extends State<MorphDateRangePickerDialog>
                 .scale(MorphDatePickerConstants.fontSizeToScale) /
             MorphDatePickerConstants.fontSizeToScale);
     final Widget pickerBody = isInputMode
-        ? Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Flexible(
-                  child: SizedBox(
-                    height: orientation == Orientation.portrait
-                        ? MorphDatePickerConstants.inputFormPortraitHeight
-                        : MorphDatePickerConstants.inputFormLandscapeHeight,
-                    child: resolved.picker,
-                  ),
-                ),
-              ],
-            ),
-          )
+        ? MorphDatePickerInputLayout(child: resolved.picker)
         : resolved.picker;
     final Widget header = MorphDatePickerHeader(
       helpText: widget.helpText ?? localizations.dateRangePickerHelpText,
@@ -270,41 +256,47 @@ class _MorphDateRangePickerDialogState extends State<MorphDateRangePickerDialog>
         ],
       ),
     );
+    final Widget dialog = Material(
+      color: dateTheme.backgroundColor(theme.colorScheme),
+      elevation: dateTheme.elevation,
+      shape: RoundedRectangleBorder(borderRadius: dateTheme.dialogShape),
+      clipBehavior: Clip.antiAlias,
+      child: SizedBox(
+        width: dialogSize.width,
+        height: dialogSize.height,
+        child: switch (orientation) {
+          Orientation.portrait => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              header,
+              MorphDivider(color: dateTheme.dividerColor(theme.colorScheme)),
+              Expanded(child: content),
+            ],
+          ),
+          Orientation.landscape => Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              header,
+              MorphDivider(
+                axis: MorphDividerAxis.vertical,
+                color: dateTheme.dividerColor(theme.colorScheme),
+              ),
+              Expanded(child: content),
+            ],
+          ),
+        },
+      ),
+    );
     return MorphDialogInset(
       padding: widget.insetPadding,
       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-      child: Material(
-        color: dateTheme.backgroundColor(theme.colorScheme),
-        elevation: dateTheme.elevation,
-        shape: RoundedRectangleBorder(borderRadius: dateTheme.dialogShape),
-        clipBehavior: Clip.antiAlias,
-        child: SizedBox(
-          width: dialogSize.width,
-          height: dialogSize.height,
-          child: switch (orientation) {
-            Orientation.portrait => Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                header,
-                MorphDivider(color: dateTheme.dividerColor(theme.colorScheme)),
-                Expanded(child: content),
-              ],
-            ),
-            Orientation.landscape => Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                header,
-                MorphDivider(
-                  axis: MorphDividerAxis.vertical,
-                  color: dateTheme.dividerColor(theme.colorScheme),
-                ),
-                Expanded(child: content),
-              ],
-            ),
-          },
-        ),
-      ),
+      child: isInputMode
+          ? SizedBox(
+              width: dialogSize.width,
+              child: SingleChildScrollView(child: dialog),
+            )
+          : dialog,
     );
   }
 

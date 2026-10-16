@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.3.1
+
+### Fixed
+
+- Date-range picker filled input fields keep a shared floating-label space,
+  so Start/End surfaces remain aligned when either field is focused, empty,
+  populated or invalid. The input form stays top-anchored when validation
+  text appears, with scrolling retained for small viewports.
+- Wavy sliders, range sliders, and linear/circular determinate progress
+  indicators smoothly fade their wave amplitude out between 90% and 98%,
+  rather than snapping to a flat track at 95%. The entrance now fades in
+  smoothly between 10% and 15%. Explicit amplitude overrides are unchanged.
+- Single-date and date-range picker input dialogs reserve adequate room for
+  filled text-field floating labels and validation messages. Input content
+  scrolls when text scaling, compact viewports, or the keyboard reduce
+  available space, keeping Cancel/OK and validation reachable. Calendar mode
+  layout is unchanged.
+
+### Preview
+
+- Refreshed `sliders` and `loading` GIF capture timelines to demonstrate
+  the 90–98% wave-to-flat transition at an observable pace. Wavy range
+  sliders and both determinate wavy progress indicators are included.
+
 ## 0.3.0
 
 ### Added

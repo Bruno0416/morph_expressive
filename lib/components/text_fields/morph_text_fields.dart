@@ -66,6 +66,7 @@ class MorphTextField extends StatefulWidget {
     this.focusNode,
     this.label,
     this.floatingLabelTextStyle,
+    this.reserveFloatingLabelSpace = false,
     this.supportingText,
     this.errorText,
     this.leading,
@@ -134,6 +135,13 @@ class MorphTextField extends StatefulWidget {
   /// Style of the label when focused or populated. Overrides the field theme.
   /// Filled defaults to bodyMedium; outlined keeps bodySmall.
   final TextStyle? floatingLabelTextStyle;
+
+  /// Always reserve the exterior floating-label space in filled fields.
+  ///
+  /// Useful when adjacent fields must keep their painted surfaces aligned
+  /// regardless of focus or content. Defaults to false for existing layouts.
+  /// Outlined fields are unaffected.
+  final bool reserveFloatingLabelSpace;
 
   /// Supporting text below the field.
   final String? supportingText;
@@ -374,7 +382,9 @@ class _MorphTextFieldState extends State<MorphTextField>
     FocusManager.instance.removeHighlightModeListener(
       _handleHighlightModeChange,
     );
-    MorphFocusInteraction.instance.removeListener(_handleFocusInteractionChanged);
+    MorphFocusInteraction.instance.removeListener(
+      _handleFocusInteractionChanged,
+    );
     _focusNode.removeListener(_handleFocusChange);
     _controller.removeListener(_handleTextChange);
     _labelMotion.dispose();

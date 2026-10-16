@@ -21,6 +21,7 @@ class MorphInputDatePickerFormField extends StatefulWidget {
     this.keyboardType,
     this.autofocus = false,
     this.acceptEmptyDate = false,
+    this.reserveFloatingLabelSpace = false,
     this.focusNode,
     super.key,
   });
@@ -65,6 +66,9 @@ class MorphInputDatePickerFormField extends StatefulWidget {
   /// acceptEmptyDate.
   final bool acceptEmptyDate;
 
+  /// Keep the filled field surface aligned with neighboring date fields.
+  final bool reserveFloatingLabelSpace;
+
   /// focusNode.
   final FocusNode? focusNode;
 
@@ -85,11 +89,6 @@ class _MorphInputDatePickerFormFieldState
     _selectedDate = widget.initialDate == null
         ? null
         : MorphDatePickerUtils.dateOnly(widget.initialDate!);
-    if (widget.autofocus) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        (widget.focusNode ?? FocusNode()).requestFocus();
-      });
-    }
   }
 
   @override
@@ -199,6 +198,8 @@ class _MorphInputDatePickerFormFieldState
         return MorphTextField(
           controller: _controller,
           focusNode: widget.focusNode,
+          autofocus: widget.autofocus,
+          reserveFloatingLabelSpace: widget.reserveFloatingLabelSpace,
           label: widget.fieldLabelText ?? localizations.dateInputLabel,
           keyboardType: widget.keyboardType ?? TextInputType.datetime,
           errorText: field.errorText,

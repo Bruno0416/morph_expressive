@@ -10,13 +10,13 @@
 
 ```yaml
 dependencies:
-  morph_expressive: ^0.3.0
+  morph_expressive: ^0.3.1
 ```
 
-**Release status:** `0.2.0` is already on pub.dev. The `^0.3.0`
-constraint works after the new release is published. Until then use the
-published `^0.2.0` version (without 0.3.0 features), or reference the
-repository through a Git/path dependency for pre-publication testing.
+**Release status:** `0.3.0` is published on pub.dev. The `^0.3.1`
+constraint works once the patch release is published. Until then use
+`^0.3.0`, or reference the repository through a Git/path dependency to
+try the fixes before publication.
 
 Run `flutter pub get` after selecting the appropriate version.
 

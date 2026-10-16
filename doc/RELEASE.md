@@ -1,7 +1,7 @@
-# Publishing checklist: 0.3.0
+# Publishing checklist: 0.3.1
 
-`0.2.0` is already published on pub.dev and must remain unchanged. This
-repository targets the **next release, 0.3.0**. Publishing requires a clean
+`0.3.0` is already published on pub.dev and must remain unchanged. This
+repository targets the **next patch release, 0.3.1**. Publishing requires a clean
 repository, a successful dry-run, and explicit confirmation; neither a Git
 commit nor a Git tag publishes a package automatically by itself.
 
@@ -15,17 +15,18 @@ bash tool/check.sh
 ```
 
 The previous full validation passed 731 library tests and 30 preview tests.
-Repeat it after applying this patch. This release also updates
-`example/main.dart`: verify its public API on Flutter 3.47+/Dart 3.13+ before
-publishing. The example imports `material_ui` and `morph_expressive` only; for
+Repeat it after applying this patch. The existing interactive
+`example/main.dart` remains the public API reference; recheck it with the
+current Flutter SDK before publishing. The example imports `material_ui` and `morph_expressive` only; for
 standalone app setup see [`../example/README.md`](../example/README.md).
 
 ## 2. Review media and tracked files
 
 The repository contains ten generated GIFs in `doc/assets/gifs/`, and the
 package metadata selects eight for the pub.dev screenshots. Check the newest
-`lists.gif` and `dialogs.gif` (along with the earlier chips/textfields GIFs),
-including the absence of a trailing overflow icon on swipeable rows.
+`sliders.gif` and `loading.gif` (along with lists/dialogs GIFs),
+including the smooth 90–98% wavy flattening and absence of a trailing
+overflow icon on swipeable rows.
 
 ```bash
 python3 tool/check_gif_branding.py
@@ -50,7 +51,7 @@ git status --short
 ```
 
 `git add -A` indiscriminately can include temporary `.bak` files. Prefer
-explicit staging. Do not create a `v0.3.0` tag before the release commit.
+explicit staging. Do not create a `v0.3.1` tag before the release commit.
 
 ## 4. Inspect the package archive
 
@@ -60,7 +61,7 @@ With a clean Git worktree:
 dart pub publish --dry-run
 ```
 
-Confirm the command reports **Publishing morph_expressive 0.3.0** and includes
+Confirm the command reports **Publishing morph_expressive 0.3.1** and includes
 only the intended source, example, docs, metadata and media. Review every
 warning. The `.pubignore` must exclude generated output, tests and preview
 runtime, while retaining the maintained documentation, screenshots and
@@ -68,7 +69,7 @@ runtime, while retaining the maintained documentation, screenshots and
 
 ## 5. Publish and tag
 
-Confirm `0.3.0` is not already listed at
+Confirm `0.3.1` is not already listed at
 <https://pub.dev/packages/morph_expressive/versions>, then run:
 
 ```bash
@@ -80,8 +81,8 @@ When pub.dev confirms the new version and the matching release commit is
 pushed, tag that commit:
 
 ```bash
-git tag -a v0.3.0 -m "Morph Expressive v0.3.0"
-git push origin v0.3.0
+git tag -a v0.3.1 -m "Morph Expressive v0.3.1"
+git push origin v0.3.1
 ```
 
 If the repository has workflows triggered by tags, inspect them before pushing

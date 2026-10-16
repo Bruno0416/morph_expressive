@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:morph_expressive/morph_components.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:morph_expressive/components/text_fields/components/morph_text_field_container_painter.dart';
+import 'package:morph_expressive/morph_components.dart';
 
 Widget _host(Widget child) {
   return MaterialApp(
@@ -46,6 +47,26 @@ void main() {
   testWidgets(
     'MorphCalendarDatePicker has no overflow paging into a 6-row month',
     _sixRowMonthPaging,
+  );
+  testWidgets(
+    'filled date input shows errors without overflow',
+    _filledDateInputValidation,
+  );
+  testWidgets(
+    'filled date range input shows errors without overflow',
+    _filledRangeInputValidation,
+  );
+  testWidgets(
+    'compact input dialog remains scrollable',
+    _compactDateInputLayout,
+  );
+  testWidgets(
+    'range filled surfaces stay aligned in portrait',
+    (tester) => _rangeSurfaceAlignment(tester, const Size(360, 640)),
+  );
+  testWidgets(
+    'range filled surfaces stay aligned in landscape',
+    (tester) => _rangeSurfaceAlignment(tester, const Size(800, 360)),
   );
 }
 
@@ -353,4 +374,139 @@ Future<void> _sixRowMonthPaging(WidgetTester tester) async {
   await tester.pumpAndSettle();
   expect(tester.takeException(), isNull);
   expect(find.text('August 2026'), findsWidgets);
+}
+
+Future<void> _filledDateInputValidation(WidgetTester tester) async {
+  await tester.binding.setSurfaceSize(const Size(360, 640));
+  addTearDown(() => tester.binding.setSurfaceSize(null));
+  await tester.pumpWidget(
+    _host(
+      MorphDatePickerDialog(
+        firstDate: DateTime(2026),
+        lastDate: DateTime(2027),
+        initialEntryMode: MorphDatePickerEntryMode.inputOnly,
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+  expect(find.byType(MorphTextField), findsOneWidget);
+  await tester.tap(find.text('OK'));
+  await tester.pumpAndSettle();
+  expect(tester.takeException(), isNull);
+  // The input retains its validation message rather than clipping it.
+  expect(
+    tester.widget<MorphTextField>(find.byType(MorphTextField)).errorText,
+    isNotNull,
+  );
+  expect(find.text('Cancel'), findsOneWidget);
+}
+
+Future<void> _filledRangeInputValidation(WidgetTester tester) async {
+  await tester.binding.setSurfaceSize(const Size(800, 360));
+  addTearDown(() => tester.binding.setSurfaceSize(null));
+  await tester.pumpWidget(
+    _host(
+      MorphDateRangePickerDialog(
+        firstDate: DateTime(2026),
+        lastDate: DateTime(2027),
+        initialEntryMode: MorphDatePickerEntryMode.inputOnly,
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+  expect(find.byType(MorphTextField), findsNWidgets(2));
+  await tester.tap(find.text('OK'));
+  await tester.pumpAndSettle();
+  expect(tester.takeException(), isNull);
+  for (final field in tester.widgetList<MorphTextField>(
+    find.byType(MorphTextField),
+  )) {
+    expect(field.errorText, isNotNull);
+  }
+  expect(find.text('Cancel'), findsOneWidget);
+}
+
+Future<void> _compactDateInputLayout(WidgetTester tester) async {
+  await tester.binding.setSurfaceSize(const Size(360, 260));
+  addTearDown(() => tester.binding.setSurfaceSize(null));
+  await tester.pumpWidget(
+    _host(
+      MorphDatePickerDialog(
+        firstDate: DateTime(2026),
+        lastDate: DateTime(2027),
+        initialEntryMode: MorphDatePickerEntryMode.inputOnly,
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+  expect(tester.takeException(), isNull);
+  expect(find.byType(MorphTextField), findsOneWidget);
+  await tester.ensureVisible(find.text('OK'));
+  await tester.pumpAndSettle();
+  expect(tester.takeException(), isNull);
+  await tester.tap(find.text('OK'));
+  await tester.pumpAndSettle();
+  expect(tester.takeException(), isNull);
+}
+
+/// Returns the painted surface rather than the outer field wrapper: filled
+/// labels used to add a state-dependent top inset before the CustomPaint.
+Rect _rangePaintedSurface(WidgetTester tester, int index) {
+  final Finder surface = find.descendant(
+    of: find.byType(MorphTextField).at(index),
+    matching: find.byWidgetPredicate(
+      (widget) =>
+          widget is CustomPaint &&
+          widget.painter is MorphTextFieldContainerPainter,
+    ),
+  );
+  expect(surface, findsOneWidget);
+  return tester.getRect(surface);
+}
+
+void _expectRangeSurfacesAligned(WidgetTester tester) {
+  expect(find.byType(MorphTextField), findsNWidgets(2));
+  final Rect start = _rangePaintedSurface(tester, 0);
+  final Rect end = _rangePaintedSurface(tester, 1);
+  expect(start.top, closeTo(end.top, 0.5));
+}
+
+Future<void> _rangeSurfaceAlignment(WidgetTester tester, Size surface) async {
+  await tester.binding.setSurfaceSize(surface);
+  addTearDown(() => tester.binding.setSurfaceSize(null));
+  await tester.pumpWidget(
+    _host(
+      MorphDateRangePickerDialog(
+        firstDate: DateTime(2026),
+        lastDate: DateTime(2027),
+        initialEntryMode: MorphDatePickerEntryMode.inputOnly,
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+  // Start focused automatically, End still empty: both surfaces align.
+  _expectRangeSurfacesAligned(tester);
+  expect(tester.takeException(), isNull);
+
+  await tester.tap(find.byType(MorphTextField).at(1));
+  await tester.pumpAndSettle();
+  _expectRangeSurfacesAligned(tester);
+  expect(tester.takeException(), isNull);
+
+  await tester.enterText(find.byType(EditableText).at(1), '12/15/2026');
+  await tester.pumpAndSettle();
+  _expectRangeSurfacesAligned(tester);
+  expect(tester.takeException(), isNull);
+
+  // Only Start is invalid. Error supporting text must not lift either surface.
+  await tester.ensureVisible(find.text('OK'));
+  await tester.tap(find.text('OK'));
+  await tester.pumpAndSettle();
+  expect(
+    tester.widget<MorphTextField>(find.byType(MorphTextField).first).errorText,
+    isNotNull,
+  );
+  _expectRangeSurfacesAligned(tester);
+  expect(tester.takeException(), isNull);
+  expect(find.text('Cancel'), findsOneWidget);
 }

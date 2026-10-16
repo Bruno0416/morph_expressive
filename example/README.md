@@ -21,9 +21,9 @@ flutter pub add morph_expressive material_ui
 ```
 
 Copy [`main.dart`](main.dart) into your application's `lib/main.dart` and
-run `flutter run`. Until `0.3.0` is available on pub.dev, point
-`morph_expressive` at your cloned package using a `path:` dependency in the
-app's `pubspec.yaml` instead of the published `0.2.0` release.
+run `flutter run`. The published `0.3.0` version already supports this example. To try the
+unreleased `0.3.1` fixes, point `morph_expressive` at your local cloned package
+using a `path:` dependency in the app's `pubspec.yaml`.
 
 For all available components and advanced APIs see
 [`../doc/COMPONENTS.md`](../doc/COMPONENTS.md). For the complete Web

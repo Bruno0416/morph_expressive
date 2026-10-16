@@ -6,6 +6,7 @@ import '../dialogs/components/morph_dialog_inset.dart';
 import '../divider/morph_divider.dart';
 import 'components/morph_date_picker_actions.dart';
 import 'components/morph_date_picker_header.dart';
+import 'components/morph_date_picker_input_layout.dart';
 import 'components/morph_input_date_picker_form_field.dart';
 import 'enums/morph_date_picker_enums.dart';
 import 'morph_calendar_date_picker.dart';
@@ -172,22 +173,7 @@ class _MorphDatePickerDialogState extends State<MorphDatePickerDialog>
     if (!isInputMode) {
       return picker;
     }
-    final orientation = MediaQuery.orientationOf(context);
-    final formHeight = orientation == Orientation.portrait
-        ? MorphDatePickerConstants.inputFormPortraitHeight
-        : MorphDatePickerConstants.inputFormLandscapeHeight;
-    // material_ui input form uses horizontal 24; content column already insets 16.
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Flexible(
-            child: SizedBox(height: formHeight, child: picker),
-          ),
-        ],
-      ),
-    );
+    return MorphDatePickerInputLayout(child: picker);
   }
 
   Widget _buildContentColumn({
@@ -212,7 +198,8 @@ class _MorphDatePickerDialogState extends State<MorphDatePickerDialog>
     final bool isCalendar = switch (_entryMode.value) {
       MorphDatePickerEntryMode.calendar ||
       MorphDatePickerEntryMode.calendarOnly => true,
-      MorphDatePickerEntryMode.input || MorphDatePickerEntryMode.inputOnly => false,
+      MorphDatePickerEntryMode.input ||
+      MorphDatePickerEntryMode.inputOnly => false,
     };
     final Orientation orientation = MediaQuery.orientationOf(context);
     return switch ((isCalendar, orientation)) {
@@ -277,53 +264,59 @@ class _MorphDatePickerDialogState extends State<MorphDatePickerDialog>
       picker: resolved.picker,
       isInputMode: isInputMode,
     );
+    final Widget dialog = Material(
+      color: dateTheme.backgroundColor(theme.colorScheme),
+      elevation: dateTheme.elevation,
+      shape: RoundedRectangleBorder(borderRadius: dateTheme.dialogShape),
+      clipBehavior: Clip.antiAlias,
+      child: AnimatedContainer(
+        width: dialogSize.width,
+        height: dialogSize.height,
+        duration: MorphDatePickerConstants.dialogSizeAnimationDuration,
+        curve: MorphMotion.exit,
+        child: switch (orientation) {
+          Orientation.portrait => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              header,
+              MorphDivider(color: dateTheme.dividerColor(theme.colorScheme)),
+              Expanded(
+                child: _buildContentColumn(
+                  pickerBody: pickerBody,
+                  actions: actions,
+                ),
+              ),
+            ],
+          ),
+          Orientation.landscape => Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              header,
+              MorphDivider(
+                axis: MorphDividerAxis.vertical,
+                color: dateTheme.dividerColor(theme.colorScheme),
+              ),
+              Expanded(
+                child: _buildContentColumn(
+                  pickerBody: pickerBody,
+                  actions: actions,
+                ),
+              ),
+            ],
+          ),
+        },
+      ),
+    );
     return MorphDialogInset(
       padding: widget.insetPadding,
       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-      child: Material(
-        color: dateTheme.backgroundColor(theme.colorScheme),
-        elevation: dateTheme.elevation,
-        shape: RoundedRectangleBorder(borderRadius: dateTheme.dialogShape),
-        clipBehavior: Clip.antiAlias,
-        child: AnimatedContainer(
-          width: dialogSize.width,
-          height: dialogSize.height,
-          duration: MorphDatePickerConstants.dialogSizeAnimationDuration,
-          curve: MorphMotion.exit,
-          child: switch (orientation) {
-            Orientation.portrait => Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                header,
-                MorphDivider(color: dateTheme.dividerColor(theme.colorScheme)),
-                Expanded(
-                  child: _buildContentColumn(
-                    pickerBody: pickerBody,
-                    actions: actions,
-                  ),
-                ),
-              ],
-            ),
-            Orientation.landscape => Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                header,
-                MorphDivider(
-                  axis: MorphDividerAxis.vertical,
-                  color: dateTheme.dividerColor(theme.colorScheme),
-                ),
-                Expanded(
-                  child: _buildContentColumn(
-                    pickerBody: pickerBody,
-                    actions: actions,
-                  ),
-                ),
-              ],
-            ),
-          },
-        ),
-      ),
+      child: isInputMode
+          ? SizedBox(
+              width: dialogSize.width,
+              child: SingleChildScrollView(child: dialog),
+            )
+          : dialog,
     );
   }
 

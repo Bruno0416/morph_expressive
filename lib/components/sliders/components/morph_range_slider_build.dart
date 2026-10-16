@@ -298,7 +298,8 @@ extension on _MorphRangeSliderState {
               child: _buildThumb(
                 pressed: _activeThumb == _MorphRangeThumb.start,
                 focused:
-                    _showFocusOutline && _keyboardThumb == _MorphRangeThumb.start,
+                    _showFocusOutline &&
+                    _keyboardThumb == _MorphRangeThumb.start,
                 overlap: overlap,
                 resolved: resolved,
               ),
@@ -320,9 +321,14 @@ extension on _MorphRangeSliderState {
           ),
           if (showValue)
             Positioned(
-              left: valueX - MorphSliderValueIndicator.widthFor(
-                    context, _indicatorLabel(), resolved.sliderTheme,
-                  ) / 2,
+              left:
+                  valueX -
+                  MorphSliderValueIndicator.widthFor(
+                        context,
+                        _indicatorLabel(),
+                        resolved.sliderTheme,
+                      ) /
+                      2,
               bottom:
                   height / 2 +
                   resolved.thumbLength / 2 +

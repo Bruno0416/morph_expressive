@@ -75,7 +75,8 @@ class MorphDatePickerHeader extends StatelessWidget {
     );
 
     if (orientation == Orientation.landscape) {
-      const double landscapePad = MorphDatePickerConstants.headerPaddingLandscape;
+      const double landscapePad =
+          MorphDatePickerConstants.headerPaddingLandscape;
       // Match the right content column: EdgeInsets.all(16) around picker +
       // actions. Calendar mode pins help to the month-label band; input mode
       // keeps a compact top so the headline ("Tue, Aug …") has more room.

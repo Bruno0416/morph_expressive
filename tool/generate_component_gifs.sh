@@ -23,6 +23,7 @@ Escenas: buttons dropdown segmented textfields chips sliders loading navigation 
 Escenas chips/textfields: 640x480, 8.7s/8.2s para mostrar todas las variantes.
 Escena lists: 640x360, 5.8s para mostrar el reveal/close de swipe actions.
 Escena dialogs: 640x420, 6.5s para mostrar las animaciones del modal.
+Escenas sliders/loading: 640x360, 6.8s para capturar el aplanamiento wavy 90–98%.
 Otras escenas: 640x360, 4.8s (sin cambios).
 Variables: MORPH_GIF_FPS=15, MORPH_GIF_SECONDS=duración opcional, MORPH_GIF_PORT=8765
 Requiere: flutter, npm/node, python3 y ffmpeg. Primera ejecución instala Playwright/Chromium.

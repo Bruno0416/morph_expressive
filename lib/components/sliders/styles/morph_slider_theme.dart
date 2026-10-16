@@ -3,6 +3,7 @@ import 'package:morph_expressive/morph_components.dart'
     show MorphRangeSlider, MorphSlider;
 
 import '../../../foundations/foundations.dart';
+import '../../../foundations/interaction/morph_wavy_amplitude.dart';
 import '../enums/morph_slider_enums.dart';
 import '../res/morph_slider_tokens.dart';
 
@@ -85,7 +86,8 @@ class MorphSliderTheme extends MorphThemeExtension<MorphSliderTheme> {
     this.tickOpacity = MorphSliderTokens.tickOpacity,
     this.overlapOutlineWidth = MorphSliderTokens.overlapOutlineWidth,
     this.disabledActiveOpacity = MorphSliderTokens.disabledActiveTrackOpacity,
-    this.disabledInactiveOpacity = MorphSliderTokens.disabledInactiveTrackOpacity,
+    this.disabledInactiveOpacity =
+        MorphSliderTokens.disabledInactiveTrackOpacity,
     this.waveAmplitude = MorphSliderTokens.waveAmplitude,
     this.wavelength = MorphSliderTokens.wavelength,
     this.dockSpring = MorphMotion.expressiveSpatialFast,
@@ -230,13 +232,9 @@ class MorphSliderTheme extends MorphThemeExtension<MorphSliderTheme> {
   /// Dock / undock spring for the handle.
   final MorphSpring dockSpring;
 
-  /// Compose wavy determinate amplitude: full mid-progress, zero near ends.
-  double amplitudeForProgress(double progress) {
-    if (progress <= 0.1 || progress >= 0.95) {
-      return 0;
-    }
-    return 1;
-  }
+  /// Determinate wave amplitude: smooth transitions at 10–15% and 90–98%.
+  double amplitudeForProgress(double progress) =>
+      morphWavyAmplitudeForProgress(progress);
 
   /// Resolves Compose-accurate slider colors for the current [scheme].
   MorphSliderColors colors(MorphColorScheme scheme, {required bool enabled}) {
@@ -245,7 +243,10 @@ class MorphSliderTheme extends MorphThemeExtension<MorphSliderTheme> {
         : MorphColorUtils.withOpacity(scheme.onSurface, disabledActiveOpacity);
     Color inactive(Color c) => enabled
         ? c
-        : MorphColorUtils.withOpacity(scheme.onSurface, disabledInactiveOpacity);
+        : MorphColorUtils.withOpacity(
+            scheme.onSurface,
+            disabledInactiveOpacity,
+          );
 
     final Color activeTrack = active(scheme.primary);
     final Color inactiveTrack = inactive(scheme.secondaryContainer);
@@ -293,7 +294,10 @@ class MorphSliderTheme extends MorphThemeExtension<MorphSliderTheme> {
     required bool enabled,
   }) {
     if (!enabled) {
-      return MorphColorUtils.withOpacity(scheme.onSurface, disabledActiveOpacity);
+      return MorphColorUtils.withOpacity(
+        scheme.onSurface,
+        disabledActiveOpacity,
+      );
     }
     return enabledColor;
   }
@@ -462,7 +466,10 @@ class MorphSliderTheme extends MorphThemeExtension<MorphSliderTheme> {
   }
 
   /// Value-indicator fields lerped for [lerp].
-  _MorphSliderIndicatorLerp _lerpValueIndicator(MorphSliderTheme other, double t) {
+  _MorphSliderIndicatorLerp _lerpValueIndicator(
+    MorphSliderTheme other,
+    double t,
+  ) {
     return (
       bottomSpace: _lerp(
         valueIndicatorBottomSpace,

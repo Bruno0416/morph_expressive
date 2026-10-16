@@ -7,7 +7,7 @@ and smooth animations.
 The goal is to make components look and feel consistent while exploring new
 styles and interactions beyond Material 3 Expressive.
 
-This README describes **version 0.3.0**. Version **0.2.0** is already
+This README describes **version 0.3.1**. Version **0.3.0** is already
 published; check the [pub.dev versions](https://pub.dev/packages/morph_expressive/versions)
 for the latest available release. Morph Expressive is still in the 0.x series,
 so APIs may evolve between releases.
@@ -27,11 +27,11 @@ of wrapped. See [NOTICE](NOTICE) and [LICENSE](LICENSE) for attribution.
 
 ```yaml
 dependencies:
-  morph_expressive: ^0.3.0
+  morph_expressive: ^0.3.1
 ```
 
-`^0.3.0` becomes available only after the new version is published on
-pub.dev. Until then, use `^0.2.0` for the published version or a Git/path
+`^0.3.1` becomes available only after the new version is published on
+pub.dev. Until then, use `^0.3.0` for the published version or a Git/path
 dependency to test the unreleased source. Run `flutter pub get` after updating.
 
 ## Quick start
@@ -66,7 +66,19 @@ void main() {
 This example uses a fixed light theme. For dynamic brightness, keep `MorphTheme`
 and the host Material theme synchronized. `MaterialApp.router` is supported.
 
-## What's new in 0.3.0
+## What's fixed in 0.3.1
+
+- **Wavy finishing:** Wavy slider and range slider tracks, along with linear
+  and circular progress indicators, now fade their curvature smoothly from
+  90% to 98% (and fade in from 10% to 15%) without a sudden shape jump.
+- **Aligned date-range inputs:** Start and End filled fields reserve the same
+  outside-label space, so focusing, entering dates or showing an error never
+  staggers their painted surfaces. Other filled fields keep their default layout.
+- **Date picker input:** Single-date and range entry dialogs accommodate
+  the filled field's floating label and validation messages, scrolling
+  safely on short screens and when the keyboard is visible.
+
+## Added in 0.3.0
 
 - **Swipeable lists:** `MorphListItemSwipe` reveals actions with Morph pill
   buttons, springs, configurable callbacks, and safe async dismissal without

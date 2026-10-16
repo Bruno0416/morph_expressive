@@ -9,8 +9,7 @@ import 'package:morph_expressive/components/sliders/morph_range_slider.dart'
     show MorphRangeSlider;
 import 'package:morph_expressive/components/sliders/morph_sliders.dart'
     show MorphRangeSlider;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphRangeSlider;
+import 'package:morph_expressive/morph_components.dart' show MorphRangeSlider;
 
 import '../enums/morph_slider_enums.dart';
 import '../styles/morph_slider_theme.dart';

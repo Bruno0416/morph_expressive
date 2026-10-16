@@ -33,6 +33,7 @@ From the repository root, regenerate **only the changed scenes you touched**:
 bash tool/generate_component_gifs.sh --only chips
 bash tool/generate_component_gifs.sh --only textfields
 bash tool/generate_component_gifs.sh --only lists --only dialogs
+bash tool/generate_component_gifs.sh --only sliders --only loading
 python3 tool/check_gif_branding.py
 ```
 
@@ -52,7 +53,11 @@ without an added trailing overflow icon.
 Dialogs uses **640 x 420 at 15 FPS over approximately 6.5 seconds** to show
 MorphDialog opening and closing with its scrim and spring transition.
 
-The other six scenes keep their established 640 x 360, ~4.8-second captures.
+Sliders and loading use **640 x 360 at 15 FPS over 6.8 seconds**; both now
+show the 90–98% smoothstep wave flattening, including the wavy range slider
+and the determinate circular/linear wavy indicators. Regenerate these GIFs
+after changing the wavy amplitude curve. The other four standard scenes
+retain their 640 x 360, ~4.8-second captures.
 The capture script requires Flutter, Node.js/npm, Python 3, curl and FFmpeg;
 it installs Playwright/Chromium on first use and builds the Web preview in
 release mode. No Playwright dependency is installed for library consumers.
@@ -85,3 +90,15 @@ From the repository root:
 ```bash
 bash tool/check.sh
 ```
+
+## 0.3.1 regression review
+
+- Scrub wavy slider and range slider progress through 10–15% and 90–98%; the
+  wave amplitude must change continuously without a step or flicker.
+- Repeat for determinate linear and circular wavy progress indicators.
+  Custom amplitude callbacks and indeterminate states must be unaffected.
+- Test both single-date and date-range input dialogs in portrait/landscape,
+  with validation errors, on-screen keyboard, narrow screens and text scaling.
+  Both range fields must share the same painted-surface top edge through
+  focus, content and errors, with no whole-form jump when validation appears.
+  Cancel/OK must remain reachable by scrolling.

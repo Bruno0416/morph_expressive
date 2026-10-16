@@ -4,7 +4,8 @@ import 'package:flutter/widgets.dart';
 ///
 /// Tap places the caret, double tap selects a word, and long press or drag
 /// selects text. [onTap] runs on every user tap.
-class MorphTextFieldSelectionBuilder extends TextSelectionGestureDetectorBuilder {
+class MorphTextFieldSelectionBuilder
+    extends TextSelectionGestureDetectorBuilder {
   /// Creates the gesture builder.
   MorphTextFieldSelectionBuilder({required super.delegate, this.onTap});
 

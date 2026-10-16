@@ -38,7 +38,8 @@ abstract final class MorphDatePicker {
     required DateTime firstDate,
     required DateTime lastDate,
     DateTime? currentDate,
-    MorphDatePickerEntryMode initialEntryMode = MorphDatePickerEntryMode.calendar,
+    MorphDatePickerEntryMode initialEntryMode =
+        MorphDatePickerEntryMode.calendar,
     MorphSelectableDayPredicate? selectableDayPredicate,
     String? helpText,
     String? cancelText,
@@ -125,7 +126,8 @@ abstract final class MorphDatePicker {
     required DateTime firstDate,
     required DateTime lastDate,
     DateTime? currentDate,
-    MorphDatePickerEntryMode initialEntryMode = MorphDatePickerEntryMode.calendar,
+    MorphDatePickerEntryMode initialEntryMode =
+        MorphDatePickerEntryMode.calendar,
     MorphSelectableDayForRangePredicate? selectableDayPredicate,
     String? helpText,
     String? cancelText,
