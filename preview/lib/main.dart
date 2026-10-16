@@ -26,14 +26,18 @@ class _MorphPreviewAppState extends State<MorphPreviewApp> {
   bool _darkMode = true;
   Color _seed = const Color(0xFF6750A4);
   bool _useSerif = false;
+  bool _hapticsEnabled = true;
+  MorphHapticFeedback _hapticFeedback = MorphHapticFeedback.light;
 
   @override
   Widget build(BuildContext context) {
     final fontTheme = _useSerif
         ? ThemeData().textTheme.apply(fontFamily: 'serif')
         : null;
-    final light = MorphThemeData.light(seedColor: _seed, textTheme: fontTheme);
-    final dark = MorphThemeData.dark(seedColor: _seed, textTheme: fontTheme);
+    final light = MorphThemeData.light(seedColor: _seed, textTheme: fontTheme)
+        .copyWith(hapticsEnabled: _hapticsEnabled, hapticFeedback: _hapticFeedback);
+    final dark = MorphThemeData.dark(seedColor: _seed, textTheme: fontTheme)
+        .copyWith(hapticsEnabled: _hapticsEnabled, hapticFeedback: _hapticFeedback);
     final current = _darkMode ? dark : light;
     final scheme = current.colorScheme;
 
@@ -67,6 +71,43 @@ class _MorphPreviewAppState extends State<MorphPreviewApp> {
             ],
           ),
           actions: [
+            PopupMenuButton<MorphHapticFeedback>(
+              tooltip: 'Haptic settings',
+              icon: Icon(FluentIcons.line.settings, size: 22),
+              initialValue: _hapticsEnabled
+                  ? _hapticFeedback
+                  : MorphHapticFeedback.none,
+              onSelected: (value) => setState(() {
+                if (value == MorphHapticFeedback.none) {
+                  _hapticsEnabled = false;
+                } else {
+                  _hapticsEnabled = true;
+                  _hapticFeedback = value;
+                }
+              }),
+              itemBuilder: (context) => [
+                const PopupMenuItem<MorphHapticFeedback>(
+                  enabled: false,
+                  child: Text('Haptics · try on a physical device'),
+                ),
+                const PopupMenuItem(
+                  value: MorphHapticFeedback.none,
+                  child: Text('Off'),
+                ),
+                const PopupMenuItem(
+                  value: MorphHapticFeedback.light,
+                  child: Text('Light'),
+                ),
+                const PopupMenuItem(
+                  value: MorphHapticFeedback.medium,
+                  child: Text('Medium'),
+                ),
+                const PopupMenuItem(
+                  value: MorphHapticFeedback.heavy,
+                  child: Text('Heavy'),
+                ),
+              ],
+            ),
             MorphTooltip(
               message: 'Toggle typography',
               child: IconButton(

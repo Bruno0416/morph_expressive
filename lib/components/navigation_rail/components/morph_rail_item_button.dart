@@ -30,7 +30,7 @@ class MorphRailItemButton extends StatelessWidget {
     this.short = false,
     this.focusNode,
     this.skipTraversal = false,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
   });
 
   /// Icon to display.
@@ -119,6 +119,7 @@ class MorphRailItemButton extends StatelessWidget {
                 inkContext,
               );
               return InkWell(
+      enableFeedback: false,
                 onTap: ink?.onTap,
                 onLongPress: ink?.onLongPress,
                 onHover: ink?.onHover,

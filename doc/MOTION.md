@@ -1,11 +1,14 @@
 # Morph Motion
 
+The 0.2.0 motion vocabulary adds expressive reusable curves and composable
+tweens while keeping per-component motion overrides available.
+
 `MorphMotion` centralizes the motion vocabulary of the fork. Components use
 these tokens directly; they are not wrappers around upstream widgets.
 
 ## Motion families
 
-- **Spatial motion:** shape, scale, width, and position can use restrained
+- **Spatial motion:** shape, scale, width, and position can use moderate
   overshoot (`expressiveSpatialDefault`, `spatialFast`, etc.).
 - **Effects:** opacity, color, and scrim animation stay within valid bounds
   (`effectsFast`, `effectsDefault`, `effectsSlow`, and bounded curves).
@@ -21,6 +24,31 @@ Existing component-level theme overrides take precedence over defaults.
 Avoid applying overshooting curves to opacity, color interpolation, or values
 that must stay in [0, 1]. Preserve delays needed for focus management,
 accessibility, and gesture sequencing.
+
+## Expressive choreography and tweens
+
+The shared `MorphMotion` curves now differentiate spatial travel from effects:
+`spatial` permits a measured overshoot, while `standard`, `enter`, `exit`,
+`emphasized`, and effect curves stay bounded for opacity and color. Expressive
+spatial spring defaults have slightly lower damping; effects springs remain
+critically damped. Existing widget/theme overrides are still respected. These helpers are
+available to components but do not imply that all 39 families have had their
+individual controllers replaced by tweens.
+
+Compose motion with `MorphMotion.spatialTween(begin:, end:)` for position and
+size, `MorphMotion.effectsTween(begin:, end:)` for bounded scalar effects, and
+`MorphMotion.staggeredTween(begin:, end:, delayFraction:)` when an edge must
+wait before catching up. The last helper uses `TweenSequence`, not a separate
+`Timer`, so the delay participates in the same animation timeline.
+
+`MorphChipToggle` defaults to 289 ms (15% below 340 ms) and an adjusted
+77 ms trailing-edge delay. Its 4 px circular growth/shrink is **only** for an
+empty selection becoming the first selected chip or the last chip being
+deselected. The circle grows uniformly before filling out the pill; intermediate
+selections never use that circular boundary animation.
+Adding a second/third selection duplicates from the nearest active pill and
+stretches with staggered tweens; removing a non-last selection merges into the
+nearest survivor. Explicit widget durations and curves remain customizable.
 
 ## Testing
 

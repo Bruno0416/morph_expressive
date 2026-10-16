@@ -1,53 +1,81 @@
-# Publishing checklist
+# Publishing checklist: 0.2.0
 
-Validate each version before publishing to pub.dev. Published versions cannot
-be overwritten.
+The source version is prepared as **0.2.0**, but changing `pubspec.yaml`,
+committing to Git, and publishing on pub.dev are **three separate operations**.
+A published version cannot be overwritten. Do not publish until each step
+below has been reviewed.
 
-## 1. Verification
+## 1. Validate both Flutter packages
 
-From the package root:
+From the repository root:
 
 ```bash
 bash tool/check.sh
 ```
 
-This runs the catalog coverage check plus `flutter analyze` and `flutter test`
-for the package and `preview/`. Confirm the command exits successfully.
+This runs the source/API/branding/motion/coverage checks plus `flutter analyze`
+and `flutter test` for both the library and `preview/`. A previous 725-test
+success is valuable, but repeat the checks after applying the release patch.
 
-## 2. Package contents
+## 2. Confirm GIF assets and examples
 
-Use `.pubignore` to exclude `build/` (including the large test cache), preview
-builds, tooling, and transient files from the pub.dev archive. A local
-`.gitignore` **does not replace** `.pubignore` for publication validation.
+Review `doc/assets/gifs/chips.gif` and `textfields.gif` in the actual checkout.
+They must show all three variants each and have been captured using the
+updated release scenes. Confirm that the six other GIFs remain intact.
+
+```bash
+python3 tool/check_gif_branding.py
+git status --short
+git diff --check
+```
+
+The first pub.dev screenshot is the new chips scene; the second is the new
+text-fields scene. Both are animated GIFs, which pub.dev supports as package
+screenshots (up to 4 MB each). Do not stage Playwright caches, Web builds or
+other temporary files.
+
+Confirm that `example/main.dart`, the root `LICENSE`, `NOTICE`, and all
+references in the README exist in the checkout. The README dependency
+constraint `^0.2.0` is usable only **after** pub.dev publication.
+
+## 3. Inspect the publishing archive
+
+Use `.pubignore` to exclude generated builds, preview runtime, tests,
+tooling, local caches and transient files. A `.gitignore` alone is not a
+substitute for publication-specific exclusions. Keep `lib/`, `example/`,
+README, CHANGELOG, LICENSE, NOTICE and maintained `doc/` sources and GIFs.
 
 ```bash
 dart pub publish --dry-run
 ```
 
-Inspect every entry listed. The archive should contain license, notice,
-README, changelog, package sources, and maintained reference documentation.
-There should be no compiled Web builds, native test caches, developer archives,
-or local path dependencies.
+Inspect **all** warnings and listed archive files; ensure the package
+metadata, SDK constraints, dependency ranges, version and screenshot paths
+are correct. A dry-run checks the archive but does not upload it. The package
+must not use `publish_to: none` in the root; that value belongs to the
+unpublished `preview/` app only.
 
-Check that `pubspec.yaml` has the intended SDK constraints, repository
-metadata, dependency bounds, and publishing destination. Check that the
-screenshots referenced in `pubspec.yaml` exist and meet pub.dev size limits.
-Do not publish with `publish_to: none`.
+## 4. GitHub commit and publication (later step)
 
-## 3. GitHub Pages, if applicable
+After verification, review the staged changes, including both refreshed
+GIFs, and make a release commit. Push the reviewed branch and confirm the
+README image URLs resolve on GitHub before publishing:
 
-Older snapshots included an approximately 59 MB compiled Flutter Web output in
-`docs/`. This is generated application code, not reference documentation.
-The cleanup script deletes only those known generated files. **If your GitHub
-Pages source is `/docs` on a branch, change its deployment first**, or the
-previous live site will stop working. Publish future showcase builds from a
-CI artifact or a dedicated deployment branch rather than committing output
-inside reference docs.
+```bash
+git status --short
+git diff --check
+# Review, stage and commit the release changes deliberately.
+# Push to GitHub only after the full validation and asset review.
+```
 
-## 4. Final release
+Then run `dart pub publish` interactively from the package root; read the
+archive listing before confirming. Do not use `--force` or bypass validation.
+Publication is not complete until pub.dev confirms version 0.2.0 is live.
 
-Review README, CHANGELOG, NOTICE, LICENSE, version, and generated API surface.
-Make sure the GitHub branch referenced by README images and documentation links
-contains the release contents before publishing. Then run `dart pub publish`
-interactively. A successful dry run is necessary but not proof of license or
-user-experience readiness.
+## 5. Hosting caveat
+
+Older source snapshots included a built Web app in `docs/`. If GitHub Pages
+still deploys from the `/docs` branch directory, change its deployment
+source before removing generated files. Deploy future Web previews through
+a CI artifact or dedicated deployment branch rather than adding compiled
+Flutter output to maintained reference documentation.

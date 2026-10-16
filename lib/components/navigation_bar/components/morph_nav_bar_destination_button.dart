@@ -42,7 +42,7 @@ class MorphNavBarDestinationButton extends StatelessWidget {
     this.horizontalInset = 0,
     this.focusNode,
     this.skipTraversal = false,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
     super.key,
   });
 
@@ -124,7 +124,7 @@ class MorphNavBarDestinationButton extends StatelessWidget {
   /// When true, Tab skips this destination.
   final bool skipTraversal;
 
-  /// Haptic intensity on tap. Defaults to [MorphHapticFeedback.none].
+  /// Haptic intensity on tap. Defaults to [MorphHapticFeedback.inherit].
   final MorphHapticFeedback haptic;
 
   bool get _showLabel {
@@ -180,6 +180,7 @@ class MorphNavBarDestinationButton extends StatelessWidget {
                 inkContext,
               );
               return InkWell(
+      enableFeedback: false,
                 onTap: ink?.onTap,
                 onLongPress: ink?.onLongPress,
                 onHover: ink?.onHover,

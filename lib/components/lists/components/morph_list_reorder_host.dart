@@ -322,7 +322,7 @@ class _MorphListReorderHostState extends State<MorphListReorderHost>
       _targetIndex = index;
     });
     _sessionActive.value = true;
-    MorphHaptics.trigger(MorphHapticFeedback.medium);
+    MorphHaptics.triggerFor(context, MorphHapticFeedback.medium);
     _lift
       ..stop()
       ..value = 0
@@ -361,7 +361,7 @@ class _MorphListReorderHostState extends State<MorphListReorderHost>
     if (best != _targetIndex) {
       _targetIndex = best;
       _retarget(from);
-      MorphHaptics.selection();
+      MorphHaptics.selectionFor(context);
     }
   }
 

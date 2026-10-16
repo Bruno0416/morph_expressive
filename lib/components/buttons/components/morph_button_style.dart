@@ -49,9 +49,9 @@ extension _MorphButtonStyle on _MorphButtonState {
       // [_withStateLayer] from live states instead.
       overlayColor: const WidgetStatePropertyAll<Color?>(Colors.transparent),
       surfaceTintColor: dec?.surfaceTintColor,
-      enableFeedback:
-          (dec?.haptic ?? MorphHapticFeedback.none) == MorphHapticFeedback.none &&
-          (dec?.enableFeedback ?? widget.enableFeedback),
+      // Haptics are emitted by MorphHaptics.triggerFor in the callback.
+      // Material's own feedback would bypass the MorphTheme global opt-out.
+      enableFeedback: false,
     );
   }
 

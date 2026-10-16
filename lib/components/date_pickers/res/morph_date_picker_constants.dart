@@ -16,8 +16,10 @@ abstract final class MorphDatePickerConstants {
   /// inputPortraitDialogSize.
   static const Size inputPortraitDialogSize = Size(328, 270);
 
-  /// inputLandscapeDialogSize.
-  static const Size inputLandscapeDialogSize = Size(496, 160);
+  /// Input dialog height includes the 56dp filled field, its floating label,
+  /// the 52dp actions row and the surrounding 16dp top/bottom insets.
+  /// Leave a little extra room for the focused label's spring transition.
+  static const Size inputLandscapeDialogSize = Size(496, 168);
 
   /// inputRangeLandscapeDialogSize.
   static const Size inputRangeLandscapeDialogSize = Size(496, 160);

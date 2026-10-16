@@ -20,7 +20,9 @@ while (($#)); do
       cat <<'HELP'
 Uso: bash tool/generate_component_gifs.sh [--only ESCENA] [--skip-build]
 Escenas: buttons dropdown segmented textfields chips sliders loading navigation
-Variables: MORPH_GIF_FPS=15, MORPH_GIF_SECONDS=4.8, MORPH_GIF_PORT=8765
+Escenas chips/textfields: 640x480, 8.7s/8.2s para mostrar todas las variantes.
+Otras escenas: 640x360, 4.8s (sin cambios).
+Variables: MORPH_GIF_FPS=15, MORPH_GIF_SECONDS=duración opcional, MORPH_GIF_PORT=8765
 Requiere: flutter, npm/node, python3 y ffmpeg. Primera ejecución instala Playwright/Chromium.
 HELP
       exit 0 ;;

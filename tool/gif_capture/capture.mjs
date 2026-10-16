@@ -18,7 +18,13 @@ const root = resolve(here, '../..');
 const output = resolve(root, 'doc/assets/gifs');
 const baseUrl = process.env.MORPH_GIF_URL ?? 'http://127.0.0.1:8765/';
 const fps = Number(process.env.MORPH_GIF_FPS ?? 15);
-const seconds = Number(process.env.MORPH_GIF_SECONDS ?? 4.8);
+// Taller/longer clips are needed to show all variants and transitions.
+// Other scenarios retain the existing 640x360 / 4.8s output.
+const sceneSettings = {
+  chips: { width: 640, height: 480, seconds: 8.7, theme: 'teal' },
+  textfields: { width: 640, height: 480, seconds: 8.2, theme: 'purple' },
+};
+const secondsOverride = process.env.MORPH_GIF_SECONDS;
 const delayMs = 400;
 const onlyAt = process.argv.indexOf('--only');
 const selected = onlyAt >= 0 ? [process.argv[onlyAt + 1]] : scenarios;
@@ -28,7 +34,10 @@ if (!selected.length || selected.some((s) => !scenarios.includes(s))) {
   process.exit(2);
 }
 if (!Number.isInteger(fps) || fps < 8 || fps > 30 ||
-    !Number.isFinite(seconds) || seconds < 4.5 || seconds > 12) {
+    selected.some((name) => {
+      const seconds = Number(secondsOverride ?? sceneSettings[name]?.seconds ?? 4.8);
+      return !Number.isFinite(seconds) || seconds < 4.5 || seconds > 12;
+    })) {
   console.error('Configura MORPH_GIF_FPS=8..30 y MORPH_GIF_SECONDS=4.5..12.');
   process.exit(2);
 }
@@ -50,10 +59,12 @@ try {
     ...(process.env.MORPH_GIF_BROWSER ? { executablePath: process.env.MORPH_GIF_BROWSER } : {}),
   });
   for (const [index, name] of selected.entries()) {
-    console.log(`\n[gif] ${name}: capturando ${seconds}s @ ${fps} fps`);
+    const settings = sceneSettings[name] ?? { width: 640, height: 360, seconds: 4.8 };
+    const seconds = Number(secondsOverride ?? settings.seconds);
+    console.log(`\n[gif] ${name}: ${settings.width}x${settings.height}, ${seconds}s @ ${fps} fps`);
     const temporary = await mkdtemp(join(tmpdir(), `morph-${name}-`));
     const context = await browser.newContext({
-      viewport: { width: 640, height: 360 },
+      viewport: { width: settings.width, height: settings.height },
       deviceScaleFactor: 1,
       reducedMotion: 'no-preference',
       colorScheme: 'dark',
@@ -62,13 +73,13 @@ try {
       const page = await context.newPage();
       const url = new URL(baseUrl);
       url.searchParams.set('capture', name);
-      url.searchParams.set('theme', themes[index % themes.length]);
+      url.searchParams.set('theme', settings.theme ?? themes[index % themes.length]);
       url.searchParams.set('delayMs', String(delayMs));
       await page.goto(url.href, { waitUntil: 'domcontentloaded', timeout: 60000 });
       // Flutter web monta <flutter-view> cuando su motor está activo.
       await page.locator('flutter-view').waitFor({ state: 'visible', timeout: 60000 });
       await page.addStyleTag({ content: 'html, body, flutter-view, * { cursor: none !important; }' });
-      await page.mouse.move(639, 359);
+      await page.mouse.move(settings.width - 1, settings.height - 1);
       await page.waitForTimeout(220);
 
       const frames = Math.ceil(seconds * fps);

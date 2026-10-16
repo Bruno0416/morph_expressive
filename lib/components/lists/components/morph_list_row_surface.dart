@@ -38,7 +38,7 @@ class MorphListRowSurface extends StatefulWidget {
     this.minHeight = 0,
     this.mouseCursor,
     this.semanticLabel,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
     this.semanticButton = true,
     this.semanticChecked,
     this.semanticInMutuallyExclusiveGroup = false,

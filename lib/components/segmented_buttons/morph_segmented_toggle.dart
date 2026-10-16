@@ -198,8 +198,12 @@ class _MorphSegmentedToggleState<T> extends State<MorphSegmentedToggle<T>> {
                                   selected: i == index,
                                   button: true,
                                   child: InkWell(
+                                    enableFeedback: false,
                                     borderRadius: BorderRadius.circular(innerRadius),
-                                    onTap: () => widget.onChanged(widget.options[i].value),
+                                    onTap: () {
+                                      MorphHaptics.triggerFor(context);
+                                      widget.onChanged(widget.options[i].value);
+                                    },
                                     child: Center(child: _ToggleOption(
                                       option: widget.options[i],
                                       selected: i == index,

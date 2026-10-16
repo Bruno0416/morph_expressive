@@ -224,8 +224,12 @@ mixin _ButtonGroupOverflowPresenterMixin on State<MorphButtonGroup> {
       shape: RoundedRectangleBorder(borderRadius: borderRadius),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
+        enableFeedback: false,
         onTap: action.enabled
-            ? () => Navigator.of(context).pop(actionIndex)
+            ? () {
+              MorphHaptics.triggerFor(context);
+              Navigator.of(context).pop(actionIndex);
+            }
             : null,
         borderRadius: borderRadius,
         child: Padding(
@@ -340,9 +344,13 @@ mixin _ButtonGroupOverflowPresenterMixin on State<MorphButtonGroup> {
           borderRadius: BorderRadius.circular(itemRadius),
         ),
         child: InkWell(
+          enableFeedback: false,
           borderRadius: BorderRadius.circular(itemRadius),
           onTap: action.enabled
-              ? () => Navigator.of(context).pop(actionIndex)
+              ? () {
+              MorphHaptics.triggerFor(context);
+              Navigator.of(context).pop(actionIndex);
+            }
               : null,
           child: Padding(
             padding: dec.itemPadding,

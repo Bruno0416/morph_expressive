@@ -426,6 +426,8 @@ class _MorphSearchBarState extends State<MorphSearchBar>
   }
 
   void _handleTap() {
+    if (!widget.enabled) return;
+    MorphHaptics.triggerFor(context);
     widget.onTap?.call();
     MorphFocusInteraction.instance.notePointerInteraction();
     // Read-only bars (e.g. SearchAnchor.bar) open a view and must not take

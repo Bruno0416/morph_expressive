@@ -351,7 +351,7 @@ class _MorphDialTimePickerState extends State<MorphDialTimePicker> {
           child: RepaintBoundary(
             child: GestureDetector(
               onTapDown: (TapDownDetails d) {
-                MorphHaptics.selection();
+                MorphHaptics.selectionFor(context);
                 _handleDial(
                   d.localPosition,
                   timeTheme,

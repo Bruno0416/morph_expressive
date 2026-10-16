@@ -335,6 +335,7 @@ extension _MorphDropdownMenuField<T> on _MorphDropdownMenuState<T> {
     required Widget child,
   }) {
     return InkWell(
+      enableFeedback: false,
       // Field Focus above owns keyboard focus; InkWell is pointer-only.
       canRequestFocus: false,
       excludeFromSemantics: true,

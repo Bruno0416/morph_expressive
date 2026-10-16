@@ -43,7 +43,7 @@ class MorphIconButton extends StatefulWidget {
     this.isSelected,
     this.selectedIcon,
     this.enableFeedback,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
     this.badgeValue,
     this.suppressInk = false,
     this.visualSize,
@@ -93,7 +93,7 @@ class MorphIconButton extends StatefulWidget {
   /// enableFeedback.
   final bool? enableFeedback;
 
-  /// Haptic intensity on press. Defaults to [MorphHapticFeedback.none].
+  /// Haptic intensity on press. Defaults to [MorphHapticFeedback.inherit].
   final MorphHapticFeedback haptic;
 
   /// badgeValue.

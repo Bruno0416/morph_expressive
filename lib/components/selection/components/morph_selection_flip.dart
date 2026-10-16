@@ -126,8 +126,12 @@ class _MorphSelectionFlipState extends State<MorphSelectionFlip>
     return Material(
       type: MaterialType.transparency,
       child: InkWell(
+        enableFeedback: false,
         customBorder: const CircleBorder(),
-        onTap: widget.onTap,
+        onTap: () {
+          MorphHaptics.triggerFor(context);
+          widget.onTap?.call();
+        },
         child: constrained,
       ),
     );

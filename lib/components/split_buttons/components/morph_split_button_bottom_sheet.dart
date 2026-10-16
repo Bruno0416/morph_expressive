@@ -286,8 +286,12 @@ class _MultiSelectBottomSheetState<T>
         checkboxStyle?.icon ?? const Icon(MorphIcons.check_rounded);
 
     return InkWell(
+      enableFeedback: false,
       autofocus: autofocus,
-      onTap: item.enabled ? () => _toggleValue(item.value) : null,
+      onTap: item.enabled ? () {
+              MorphHaptics.triggerFor(context);
+              _toggleValue(item.value);
+            } : null,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         child: Row(
@@ -466,8 +470,12 @@ Widget _buildBottomSheetItem<T>({
   }
 
   return InkWell(
+    enableFeedback: false,
     autofocus: autofocus,
-    onTap: item.enabled ? () => Navigator.of(context).pop(item.value) : null,
+    onTap: item.enabled ? () {
+              MorphHaptics.triggerFor(context);
+              Navigator.of(context).pop(item.value);
+            } : null,
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: child,

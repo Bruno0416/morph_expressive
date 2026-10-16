@@ -74,7 +74,7 @@ class MorphButtonGroup extends StatefulWidget {
     this.selectionRequired = false,
     this.neighborSquish = true,
     this.expandedRatio = 0.15,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
     this.enableFeedback = true,
     this.decoration,
     this.semanticLabel,

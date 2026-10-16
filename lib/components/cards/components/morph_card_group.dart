@@ -183,7 +183,7 @@ class _MorphCardGroupState extends State<MorphCardGroup>
       _pointer = pointer;
       _grab = pointer - origin;
     });
-    MorphHaptics.trigger(MorphHapticFeedback.medium);
+    MorphHaptics.triggerFor(context, MorphHapticFeedback.medium);
     _lift
       ..stop()
       ..value = 0
@@ -231,7 +231,7 @@ class _MorphCardGroupState extends State<MorphCardGroup>
     if (best != _targetIndex) {
       _targetIndex = best;
       _retarget(from);
-      MorphHaptics.selection();
+      MorphHaptics.selectionFor(context);
     }
   }
 

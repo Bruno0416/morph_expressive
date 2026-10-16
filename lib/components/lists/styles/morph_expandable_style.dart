@@ -188,7 +188,7 @@ class MorphExpandableStyle {
     this.tapBodyToCollapse = false,
     this.headerAlignment = CrossAxisAlignment.start,
     this.bodyAlignment = Alignment.topLeft,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
     this.splashColor,
     this.highlightColor,
     this.splashFactory,

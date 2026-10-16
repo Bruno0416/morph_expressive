@@ -174,7 +174,7 @@ extension _MorphSplitButtonSegments<T> on _MorphSplitButtonState<T> {
         enabled: enabled,
         segmentStates: segmentStates,
       ),
-      enableFeedback: widget.enableFeedback,
+      enableFeedback: false,
       splashFactory: _segmentHasOverlayGradient(trailing: false)
           ? NoSplash.splashFactory
           : (widget.splashFactory ?? InkSparkle.splashFactory),
@@ -419,7 +419,7 @@ extension _MorphSplitButtonSegments<T> on _MorphSplitButtonState<T> {
           ? () => setState(() => _trailingPressed = false)
           : null,
       canRequestFocus: false,
-      enableFeedback: widget.enableFeedback,
+      enableFeedback: false,
       splashFactory: _segmentHasOverlayGradient(trailing: true)
           ? NoSplash.splashFactory
           : (widget.splashFactory ?? InkSparkle.splashFactory),

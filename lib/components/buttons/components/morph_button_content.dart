@@ -214,7 +214,15 @@ extension _MorphButtonContent on _MorphButtonState {
     final button = _createMaterialButton(
       style: style,
       onPressed: _effectiveOnPressed,
-      onLongPress: widget.enabled ? widget.onLongPress : null,
+      onLongPress: widget.enabled && widget.onLongPress != null
+          ? () {
+              MorphHaptics.triggerFor(
+                context,
+                _decoration?.haptic ?? MorphHapticFeedback.inherit,
+              );
+              widget.onLongPress?.call();
+            }
+          : null,
       child: child,
     );
 
@@ -226,7 +234,10 @@ extension _MorphButtonContent on _MorphButtonState {
       return null;
     }
     return () {
-      MorphHaptics.trigger(_decoration?.haptic ?? MorphHapticFeedback.none);
+      MorphHaptics.triggerFor(
+        context,
+        _decoration?.haptic ?? MorphHapticFeedback.inherit,
+      );
       // Pointer taps hide rings in the press listener. Take focus here so the
       // next Tab continues from this button without painting a ring.
       effectiveFocusNode.requestFocus();

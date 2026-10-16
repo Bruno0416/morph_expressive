@@ -22,7 +22,7 @@ class MorphButtonMotion {
 
   static const MorphButtonMotion standard = MorphButtonMotion(
     stiffness: 1150,
-    damping: 0.86,
+    damping: 0.82,
   );
 
   /// standardOverflow.
@@ -61,7 +61,7 @@ class MorphButtonMotion {
   /// Morph de forma con overshoot sutil, igual que buttonMorph.
   static const MorphButtonMotion shapeMorph = MorphButtonMotion(
     stiffness: 1150,
-    damping: 0.86,
+    damping: 0.82,
   );
 
   /// standardSpatialFast.

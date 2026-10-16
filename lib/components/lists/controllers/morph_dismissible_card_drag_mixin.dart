@@ -126,7 +126,7 @@ mixin MorphDismissibleCardDragMixin<T extends StatefulWidget>
     if (crossedAction && !_pastActionThreshold) {
       _pastActionThreshold = true;
       if (style.enableFeedback) {
-        MorphHaptics.trigger(style.hapticOnThreshold);
+        MorphHaptics.triggerFor(context, style.hapticOnThreshold);
       }
     } else if (!crossedAction && _pastActionThreshold) {
       _pastActionThreshold = false;
@@ -418,7 +418,9 @@ mixin MorphDismissibleCardDragMixin<T extends StatefulWidget>
     _disposeDragControllers();
     _markSlotCollapsing(slot);
 
-    MorphHaptics.trigger(style.hapticOnThreshold);
+    if (style.enableFeedback) {
+      MorphHaptics.triggerFor(context, style.hapticOnThreshold);
+    }
 
     if (style.autoExecutePrimaryOnFullSwipe) {
       final swipingRight = direction == DismissDirection.startToEnd;

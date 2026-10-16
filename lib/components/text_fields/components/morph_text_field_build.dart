@@ -4,6 +4,20 @@ part of '../morph_text_fields.dart';
 extension _MorphTextFieldBuild on _MorphTextFieldState {
   bool get _outlined => widget.variant == MorphTextFieldVariant.outlined;
 
+  // The filled floating label is one logical pixel larger than bodyMedium.
+  // Both the per-widget style and the field theme take precedence; outlined
+  // retains bodySmall without the filled-only adjustment.
+  TextStyle _floatingLabelStyle(
+    MorphThemeData theme,
+    MorphTextFieldTheme fieldTheme,
+  ) => widget.floatingLabelTextStyle ??
+      fieldTheme.floatingLabelTextStyle ??
+      (_outlined
+          ? theme.typeScale.bodySmall
+          : theme.typeScale.bodyMedium.copyWith(
+              fontSize: (theme.typeScale.bodyMedium.fontSize ?? 14) + 1,
+            ));
+
   /// Row alignment for [alignment]; [baseline] lines text up on its first line.
   static CrossAxisAlignment _crossAxisFor(
     MorphTextFieldSlotAlignment alignment, {
@@ -21,8 +35,31 @@ extension _MorphTextFieldBuild on _MorphTextFieldState {
     final bool enabled = widget.enabled;
     Widget field = ListenableBuilder(
       listenable: _motion,
-      builder: (BuildContext context, Widget? _) =>
-          _buildContainer(theme, fieldTheme),
+      builder: (BuildContext context, Widget? _) {
+        final Widget container = _buildContainer(theme, fieldTheme);
+        if (_outlined) return container;
+
+        // Filled labels live outside the painted surface once focused or
+        // populated. Grow their reserved area using the existing label spring.
+        final double floatingLine = MorphTextFieldTheme.lineHeightOf(
+          _floatingLabelStyle(theme, fieldTheme),
+        );
+        final double topInset = widget.label == null
+            ? 0
+            : (floatingLine + fieldTheme.supportingTopPadding) *
+                _labelMotion.value.clamp(0.0, 1.0);
+        return Padding(
+          padding: EdgeInsets.only(top: topInset),
+          child: MorphFocusRing(
+            focused: _showFocusRing,
+            radius: fieldTheme.shapeAt(widget.variant, _shapeMotion.value),
+            color: _toColors?.focusRing,
+            width: fieldTheme.focusRingWidth,
+            gap: fieldTheme.focusRingGap,
+            child: container,
+          ),
+        );
+      },
     );
     // Outlined labels float on the top edge; keep them inside the bounds.
     if (_outlined && widget.label != null) {
@@ -58,19 +95,23 @@ extension _MorphTextFieldBuild on _MorphTextFieldState {
               ignoring: !enabled,
               child: _selectionBuilder.buildGestureDetector(
                 behavior: HitTestBehavior.translucent,
-                child: AnimatedBuilder(
-                  animation: _shapeMotion,
-                  child: field,
-                  builder: (context, child) => MorphFocusRing(
-                    focused: _showFocusRing,
-                    radius: fieldTheme.shapeAt(
-                      widget.variant, _shapeMotion.value),
-                    color: _toColors?.focusRing,
-                    width: fieldTheme.focusRingWidth,
-                    gap: fieldTheme.focusRingGap,
-                    child: child!,
-                  ),
-                ),
+                child: _outlined
+                    ? AnimatedBuilder(
+                        animation: _shapeMotion,
+                        child: field,
+                        builder: (context, child) => MorphFocusRing(
+                          focused: _showFocusRing,
+                          radius: fieldTheme.shapeAt(
+                            widget.variant,
+                            _shapeMotion.value,
+                          ),
+                          color: _toColors?.focusRing,
+                          width: fieldTheme.focusRingWidth,
+                          gap: fieldTheme.focusRingGap,
+                          child: child!,
+                        ),
+                      )
+                    : field,
               ),
             ),
           ),
@@ -98,7 +139,7 @@ extension _MorphTextFieldBuild on _MorphTextFieldState {
     final floatingStart = _outlined
         ? (radius.topLeft.x + fieldTheme.notchPadding +
                 colors.strokeWidth / 2).clamp(start, double.infinity).toDouble()
-        : start;
+        : 0.0; // Align with the parent field column, not the input/icon slot.
     final labelStart = lerpDouble(start, floatingStart, progress)!;
     final _MorphTextFieldNotch notch =
         _notch(theme, fieldTheme, labelStart, progress);
@@ -156,14 +197,13 @@ extension _MorphTextFieldBuild on _MorphTextFieldState {
     double end,
   ) {
     final TextStyle resting = fieldTheme.resolveLabelStyle(theme.typeScale);
-    final TextStyle floating = fieldTheme.resolveFloatingLabelStyle(
-      theme.typeScale,
-    );
+    final TextStyle floating = _floatingLabelStyle(theme, fieldTheme);
     final double restingTop =
         (height - MorphTextFieldTheme.lineHeightOf(resting)) / 2;
     final double floatingTop = _outlined
         ? -MorphTextFieldTheme.lineHeightOf(floating) / 2
-        : fieldTheme.verticalPaddingFor(_densityOf(fieldTheme));
+        : -(MorphTextFieldTheme.lineHeightOf(floating) +
+              fieldTheme.supportingTopPadding);
     final double progress = _labelMotion.value;
     return PositionedDirectional(
       start: start,
@@ -327,21 +367,9 @@ extension _MorphTextFieldBuild on _MorphTextFieldState {
         .copyWith(color: colors.inputText);
     final double inputLine = MorphTextFieldTheme.lineHeightOf(input);
     final double centered = (height - inputLine) / 2;
-    final bool stacked = !_outlined && widget.label != null;
-    final double verticalPadding = fieldTheme.verticalPaddingFor(
-      _densityOf(fieldTheme),
-    );
-    // Filled: label row above the input. Outlined: input centered.
-    final padding = stacked
-        ? EdgeInsets.only(
-            top:
-                verticalPadding +
-                MorphTextFieldTheme.lineHeightOf(
-                  fieldTheme.resolveFloatingLabelStyle(theme.typeScale),
-                ),
-            bottom: verticalPadding,
-          )
-        : EdgeInsets.symmetric(vertical: centered);
+    // Both variants center the editable content in the painted surface.
+    // Filled's floating label is animated entirely outside that surface.
+    final padding = EdgeInsets.symmetric(vertical: centered);
     return Padding(
       padding: padding,
       child: _buildInputRow(theme, fieldTheme, colors, input),

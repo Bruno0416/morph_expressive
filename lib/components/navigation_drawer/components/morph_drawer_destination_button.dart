@@ -21,7 +21,7 @@ class MorphDrawerDestinationButton extends StatefulWidget {
     required this.onTap,
     this.focusNode,
     this.indent = 0,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
     super.key,
   });
 
@@ -40,7 +40,7 @@ class MorphDrawerDestinationButton extends StatefulWidget {
   /// Extra start inset for a nested section row.
   final double indent;
 
-  /// Haptic intensity on tap. Defaults to [MorphHapticFeedback.none].
+  /// Haptic intensity on tap. Defaults to [MorphHapticFeedback.inherit].
   final MorphHapticFeedback haptic;
 
   @override
@@ -117,7 +117,7 @@ class _MorphDrawerDestinationButtonState
       _node.requestFocus();
       _dismissRingForPointer();
     }
-    MorphHaptics.trigger(widget.haptic);
+    MorphHaptics.triggerFor(context, widget.haptic);
     widget.onTap();
   }
 
@@ -284,6 +284,7 @@ class _MorphDrawerDestinationButtonState
       shape: RoundedRectangleBorder(borderRadius: radius),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
+                enableFeedback: false,
         onTap: () => _select(fromPointer: true),
         onHover: (bool value) {
           _setHovered(value);

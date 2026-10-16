@@ -213,7 +213,7 @@ extension _MorphSplitButtonStyle<T> on _MorphSplitButtonState<T> {
   }
 
   void _triggerHaptic() {
-    MorphHaptics.trigger(widget.decorationHaptic);
+    MorphHaptics.triggerFor(context, widget.decorationHaptic);
   }
 
   MouseCursor _segmentMouseCursor({

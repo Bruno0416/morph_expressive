@@ -66,6 +66,7 @@ class _MorphComponentGalleryState extends State<MorphComponentGallery> {
   int _presses = 0;
   int? _groupSelected = 0;
   String _toggleChipSelection = 'Daily';
+  Set<String> _toggleChipMultiSelection = {'Daily', 'Monthly'};
   String _mediaSelection = 'Movies';
   Set<String> _segmented = {'One'};
   List<String> _multiValues = [];
@@ -476,8 +477,15 @@ class _MorphComponentGalleryState extends State<MorphComponentGallery> {
               ),
             ),
             const Gap(16),
+            MorphTextField(
+              label: 'Email',
+              placeholder: 'name@example.com',
+              leading: Icon(FluentIcons.line.mail),
+              variant: MorphTextFieldVariant.filled,
+            ),
+            const Gap(16),
             const MorphTextField(
-              label: 'Email', placeholder: 'example@mail.com',
+              label: 'Email (outlined)', placeholder: 'example@mail.com',
               variant: MorphTextFieldVariant.outlined,
               supportingText: 'Outlined fields use the same animated corners.',
             ),
@@ -547,7 +555,7 @@ class _MorphComponentGalleryState extends State<MorphComponentGallery> {
             const MorphChip(label: 'Disabled', type: MorphChipType.filter),
           ]),
         ));
-        samples.add(_panel('Animated chip toggle', MorphChipToggle<String>(
+        samples.add(_panel('Animated chip toggle · single', MorphChipToggle<String>(
           options: const [
             MorphChipToggleOption(value: 'Daily', label: 'Daily'),
             MorphChipToggleOption(value: 'Weekly', label: 'Weekly'),
@@ -555,6 +563,25 @@ class _MorphComponentGalleryState extends State<MorphComponentGallery> {
           ],
           selected: _toggleChipSelection,
           onChanged: (next) => setState(() => _toggleChipSelection = next),
+        )));
+        samples.add(_panel('Animated chip toggle · multiple', Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MorphChipToggle<String>(
+              key: const ValueKey('morph_multi_chip_preview'),
+              multiSelection: true,
+              options: const [
+                MorphChipToggleOption(value: 'Daily', label: 'Daily'),
+                MorphChipToggleOption(value: 'Weekly', label: 'Weekly'),
+                MorphChipToggleOption(value: 'Monthly', label: 'Monthly'),
+              ],
+              selectedValues: _toggleChipMultiSelection,
+              onSelectionChanged: (values) =>
+                  setState(() => _toggleChipMultiSelection = values),
+            ),
+            const Gap(10),
+            Text('Selected: ${_toggleChipMultiSelection.join(', ')}'),
+          ],
         )));
         break;
       case 'segmented_buttons':
@@ -950,6 +977,10 @@ class _MorphComponentGalleryState extends State<MorphComponentGallery> {
         samples.add(_panel('Navigation rail', SizedBox(
           height: 360, width: 280,
           child: MorphNavigationRail(
+            // This is an isolated demo. The neighboring swipeable tabs emit
+            // horizontal ScrollNotifications through the shared observer;
+            // they must not tint the rail as if its own content scrolled under.
+            scrollUnder: false,
             selectedIndex: _railIndex,
             onDestinationSelected: (i) => setState(() => _railIndex = i),
             sections: [MorphNavigationRailSection(destinations: [

@@ -1,12 +1,10 @@
 # Themes and typography
 
-## Dynamic seed schemes
+## Light, dark and dynamic colors
 
 `MorphThemeData.light(seedColor: ...)` and `.dark(seedColor: ...)` create
-matching seed-derived schemes. Avoid hard-coded accent colors inside custom
-components; use the colors from `MorphTheme.of(context).colorScheme`.
-
-Keep the Material layer in sync using each theme's `toThemeData()`:
+seed-derived schemes. Use `MorphTheme.of(context).colorScheme` instead of
+hard-coded accents in application components.
 
 ```dart
 final seed = const Color(0xFF6750A4);
@@ -14,14 +12,14 @@ final light = MorphThemeData.light(seedColor: seed);
 final dark = MorphThemeData.dark(seedColor: seed);
 ```
 
-Choose the matching theme for the active brightness, or enable adaptive
-handling with `MorphTheme` (`autoTheming`, `dynamicColoring`, and optionally a
-`MorphThemeController`). Theme changes should affect the package and the host
-Material surfaces together.
+Use the matching `toThemeData()` for the host `MaterialApp`. For device-driven
+brightness, configure adaptive handling with `MorphTheme` (`autoTheming`,
+`dynamicColoring` and optionally a `MorphThemeController`). Keep the host
+Material colors and Morph surface colors synchronized.
 
 ## Typography
 
-Pass an optional Flutter `TextTheme` to either factory:
+An optional Flutter `TextTheme` can be supplied to either theme factory:
 
 ```dart
 final theme = MorphThemeData.light(
@@ -30,14 +28,45 @@ final theme = MorphThemeData.light(
 );
 ```
 
-Google Fonts is optional, not a package dependency.
+Google Fonts is optional and is not a runtime dependency of this package.
+The default Fluent icons use `fluent_icons_kit`; substitute component icons
+via their documented APIs.
 
-## Component-specific styling
+## Haptics (0.2.0)
 
-Components expose `Morph*Theme` settings for shapes, colors, sizes, and
-motion. A local widget or theme override takes precedence over package
-defaults. Prefer these settings over compensating offsets and hard-coded
-colors in application wrappers.
+Configure the feedback intensity and global opt-out at the nearest Morph theme:
 
-The default Fluent icons come from `fluent_icons_kit`; swap icons at the
-component API level when customization is needed.
+```dart
+final theme = MorphThemeData.light(
+  seedColor: const Color(0xFF6750A4),
+).copyWith(
+  hapticsEnabled: true,
+  hapticFeedback: MorphHapticFeedback.medium,
+);
+
+final quietTheme = theme.copyWith(hapticsEnabled: false);
+```
+
+The defaults are `hapticsEnabled: true` and
+`hapticFeedback: MorphHapticFeedback.light`. A control exposing a `haptic`
+property can use `MorphHapticFeedback.inherit` to follow its theme or `none`
+to suppress feedback. `light`, `medium` and `heavy` select explicit strength
+**only while global Morph haptics are enabled**.
+
+For custom Morph widgets, prefer `MorphHaptics.triggerFor(context, level)`
+and `MorphHaptics.selectionFor(context)` to legacy context-free calls.
+Selection ticks are distinct from impact strength; `selectionFor` respects
+`hapticsEnabled` without turning a tick into a heavy impact.
+
+The override governs **Morph-managed feedback**. Native host/platform
+feedback may require separate configuration. Browser previews often have no
+physical haptic capability; verify intensity on a real device.
+
+## Component overrides and filled-label styling
+
+`Morph*Theme` classes expose component-specific shapes, sizes, colors and
+motion; a widget-level override takes precedence over its theme defaults.
+For filled text fields, the default exterior label is slightly larger than
+`bodyMedium` and uses `onSurface` when focused. Override its typography with
+`floatingLabelTextStyle` on `MorphTextField` or `MorphTextFieldTheme`. The
+outlined variant retains its established label treatment.

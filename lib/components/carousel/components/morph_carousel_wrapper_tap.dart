@@ -8,7 +8,7 @@ part of 'morph_carousel_wrapper.dart';
 extension _MorphCarouselWrapperTap on _MorphCarouselWrapperState {
   Future<void> _handleTap(int index) async {
     if (widget.onTap != null) {
-      MorphHaptics.trigger(widget.haptic);
+      MorphHaptics.triggerFor(context, widget.haptic);
     }
     widget.onTap?.call(index);
     if (_pulseController.isAnimating) {

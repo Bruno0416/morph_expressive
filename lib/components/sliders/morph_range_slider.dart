@@ -55,7 +55,7 @@ class MorphRangeSlider extends StatefulWidget {
     this.enabled = true,
     this.focusNode,
     this.autofocus = false,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
     this.size = MorphSliderSize.xs,
     this.semanticLabel,
     super.key,
@@ -93,7 +93,7 @@ class MorphRangeSlider extends StatefulWidget {
     this.enabled = true,
     this.focusNode,
     this.autofocus = false,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
     this.size = MorphSliderSize.xs,
     this.semanticLabel,
     super.key,
@@ -391,7 +391,7 @@ class _MorphRangeSliderState extends State<MorphRangeSlider>
     }
     if (widget.divisions != null) {
       if (widget.haptic != MorphHapticFeedback.none) {
-        MorphHaptics.trigger(widget.haptic);
+        MorphHaptics.triggerFor(context, widget.haptic);
       }
     } else if (widget.haptic != MorphHapticFeedback.none && _dragging) {
       _maybeContinuousHaptic();
@@ -402,7 +402,7 @@ class _MorphRangeSliderState extends State<MorphRangeSlider>
   void _maybeContinuousHaptic() {
     if (!_hapticStopwatch.isRunning ||
         _hapticStopwatch.elapsedMilliseconds >= 60) {
-      MorphHaptics.selection();
+      MorphHaptics.selectionFor(context);
       _hapticStopwatch
         ..reset()
         ..start();

@@ -50,10 +50,34 @@ void main() {
       expect(MorphMotion.medium2.inMilliseconds, 300);
     });
 
+    test('shared tweens choreograph fast chips with bounded effects', () {
+      expect(MorphMotion.chipDuration.inMilliseconds, 289);
+      expect(MorphMotion.chipStretchDelay.inMilliseconds, 77);
+      final trailing = MorphMotion.staggeredTween(
+        begin: 10,
+        end: 60,
+        delayFraction: 0.3,
+      );
+      expect(trailing.transform(0), 10);
+      expect(trailing.transform(0.2), 10);
+      expect(trailing.transform(1), closeTo(60, 0.0001));
+      final leading = MorphMotion.spatialTween(begin: 10, end: 60);
+      expect(leading.transform(0.3), greaterThan(10));
+      expect(leading.transform(1), closeTo(60, 0.0001));
+      final effect = MorphMotion.effectsTween(begin: 0, end: 1);
+      for (var i = 0; i <= 20; i++) {
+        expect(effect.transform(i / 20), inInclusiveRange(0, 1));
+      }
+    });
+
     test('button presets retain the extensible custom spring API', () {
       expect(MorphButtonMotion.standard.stiffness,
           MorphMotion.buttonMorph.stiffness);
       expect(MorphButtonMotion.standard.damping,
+          MorphMotion.buttonMorph.damping);
+      expect(MorphButtonMotion.shapeMorph.stiffness,
+          MorphMotion.buttonMorph.stiffness);
+      expect(MorphButtonMotion.shapeMorph.damping,
           MorphMotion.buttonMorph.damping);
       const custom = MorphButtonMotion(stiffness: 820, damping: 0.91);
       expect(custom.toMotion(), isA<SpringMotion>());

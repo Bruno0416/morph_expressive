@@ -159,7 +159,7 @@ extension MorphDismissibleCardSpringSettle<T extends StatefulWidget>
       return;
     }
     _hapticStopwatch.reset();
-    MorphHaptics.selection();
+    MorphHaptics.selectionFor(context);
   }
 
   void _springBack(double speedMul) {

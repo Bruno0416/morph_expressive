@@ -70,7 +70,7 @@ class MorphCarousel extends StatefulWidget {
         MorphCarouselTheme.defaultSingleSwipeGestureSensitivityRange,
     this.onTap,
     this.onChange,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
     this.header,
     this.showAll = false,
     required this.children,
@@ -152,7 +152,7 @@ class MorphCarousel extends StatefulWidget {
   /// Called when the leading or focal item index changes after scrolling.
   final ValueChanged<MorphCarouselChangeDetails>? onChange;
 
-  /// Haptic intensity on item tap. Defaults to [MorphHapticFeedback.none].
+  /// Haptic intensity on item tap. Defaults to [MorphHapticFeedback.inherit].
   final MorphHapticFeedback haptic;
 
   /// Title shown above the items, with an arrow that opens every item.

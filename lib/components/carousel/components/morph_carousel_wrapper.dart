@@ -51,7 +51,7 @@ class MorphCarouselWrapper extends StatefulWidget {
     this.scrollDirection = Axis.horizontal,
     this.reverse = false,
     this.onTap,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
     this.enableSplash = true,
     this.infinite = false,
     this.itemExtent,
@@ -126,7 +126,7 @@ class MorphCarouselWrapper extends StatefulWidget {
   /// Called when an item is tapped.
   final void Function(int)? onTap;
 
-  /// Haptic intensity on item tap. Defaults to [MorphHapticFeedback.none].
+  /// Haptic intensity on item tap. Defaults to [MorphHapticFeedback.inherit].
   final MorphHapticFeedback haptic;
 
   /// Whether the wrapper ink layer reports splash feedback.

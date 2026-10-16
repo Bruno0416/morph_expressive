@@ -164,7 +164,7 @@ extension _MorphListExpand on _MorphListState {
     required bool allowMultiple,
     required MorphHapticFeedback haptic,
   }) {
-    MorphHaptics.trigger(haptic);
+    MorphHaptics.triggerFor(context, haptic);
     final bool opening = !_expandedIndices.contains(index);
     setState(() {
       if (opening) {

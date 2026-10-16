@@ -42,7 +42,7 @@ class MorphListSwipeActionButton extends StatelessWidget {
         : MorphIconButtonVariant.tonal;
 
     void handlePress() {
-      MorphHaptics.trigger(action.haptic);
+      MorphHaptics.triggerFor(context, action.haptic);
       action.onPressed?.call();
       onTriggered();
     }
@@ -73,6 +73,7 @@ class MorphListSwipeActionButton extends StatelessWidget {
           child: MorphIconButton(
             icon: action.icon,
             onPressed: handlePress,
+            haptic: MorphHapticFeedback.none,
             variant: variant,
             enableFeedback: false,
             visualSize: Size(visualWidth, resolvedHeight),

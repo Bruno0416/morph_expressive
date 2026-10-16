@@ -105,6 +105,7 @@ extension _MorphTabsIndicator on _MorphTabsState {
   }
 
   void _reveal(int index) {
+    if (!widget.autoScrollToFocusedTab) return;
     final BuildContext? target = _slotKeys[index].currentContext;
     if (target == null) {
       return;

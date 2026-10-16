@@ -44,7 +44,7 @@ class MorphCarouselView extends StatefulWidget {
     this.scrollDirection = Axis.horizontal,
     this.reverse = false,
     this.onTap,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
     this.enableSplash = true,
     this.infinite = false,
     this.physics,
@@ -77,7 +77,7 @@ class MorphCarouselView extends StatefulWidget {
     this.reverse = false,
     this.consumeMaxWeight = true,
     this.onTap,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
     this.enableSplash = true,
     this.infinite = false,
     this.physics,
@@ -107,7 +107,7 @@ class MorphCarouselView extends StatefulWidget {
     this.scrollDirection = Axis.horizontal,
     this.reverse = false,
     this.onTap,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
     this.enableSplash = true,
     required double this.itemExtent,
     required this.itemBuilder,
@@ -139,7 +139,7 @@ class MorphCarouselView extends StatefulWidget {
     this.reverse = false,
     this.consumeMaxWeight = true,
     this.onTap,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
     this.enableSplash = true,
     required List<int> this.flexWeights,
     required this.itemBuilder,
@@ -249,7 +249,7 @@ class MorphCarouselView extends StatefulWidget {
   /// Called when one of the [children] is tapped.
   final ValueChanged<int>? onTap;
 
-  /// Haptic intensity on item tap. Defaults to [MorphHapticFeedback.none].
+  /// Haptic intensity on item tap. Defaults to [MorphHapticFeedback.inherit].
   final MorphHapticFeedback haptic;
 
   /// Determines whether an [InkWell] will cover each Carousel item.
@@ -517,10 +517,11 @@ class _CarouselViewState extends State<MorphCarouselView> {
           Material(
             color: Colors.transparent,
             child: InkWell(
+              enableFeedback: false,
               onTap: widget.onTap == null
                   ? null
                   : () {
-                      MorphHaptics.trigger(widget.haptic);
+                      MorphHaptics.triggerFor(context, widget.haptic);
                       widget.onTap!(itemIndex);
                     },
               overlayColor: effectiveOverlayColor,
@@ -531,7 +532,7 @@ class _CarouselViewState extends State<MorphCarouselView> {
     } else if (widget.onTap != null) {
       contents = GestureDetector(
         onTap: () {
-          MorphHaptics.trigger(widget.haptic);
+          MorphHaptics.triggerFor(context, widget.haptic);
           widget.onTap!(index);
         },
         child: contents,

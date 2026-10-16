@@ -396,7 +396,7 @@ class MorphButton extends StatefulWidget {
 
   /// decorationHaptic.
   MorphHapticFeedback get decorationHaptic =>
-      decoration?.haptic ?? MorphHapticFeedback.none;
+      decoration?.haptic ?? MorphHapticFeedback.inherit;
 
   /// decorationMouseCursor.
   WidgetStateProperty<MouseCursor?>? get decorationMouseCursor =>

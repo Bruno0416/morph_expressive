@@ -37,6 +37,7 @@ class MorphTabs extends StatefulWidget {
     required this.onTabSelected,
     this.variant = MorphTabsVariant.primary,
     this.scrollable,
+    this.autoScrollToFocusedTab = false,
     this.alignment = MorphTabsAlignment.fill,
     this.controller,
     super.key,
@@ -54,6 +55,7 @@ class MorphTabs extends StatefulWidget {
     required this.onTabSelected,
     this.variant = MorphTabsVariant.primary,
     this.scrollable,
+    this.autoScrollToFocusedTab = false,
     this.alignment = MorphTabsAlignment.fill,
     this.controller,
     this.floating = true,
@@ -77,6 +79,11 @@ class MorphTabs extends StatefulWidget {
   ///
   /// Null scrolls only when a label does not fit its equal slot.
   final bool? scrollable;
+
+  /// Automatically reveals the focused tab in its enclosing scrollables.
+  /// Disabled by default so selecting a tab does not shift the page scroll.
+  /// Set to true to retain the previous focus-following scroll behavior.
+  final bool autoScrollToFocusedTab;
 
   /// How fixed tabs share the width. Ignored while scrolling.
   final MorphTabsAlignment alignment;

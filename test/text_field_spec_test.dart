@@ -50,6 +50,9 @@ void main() {
   tearDown(tearDownFocusRingTests);
   testWidgets('filled measurements match the spec', _filledMeasurements);
   testWidgets('outlined notch and 2dp focus outline', _outlinedNotch);
+  testWidgets('filled label exits only on focus or populated', _filledExternalLabel);
+  testWidgets('filled label shifts diagonally and respects theme style',
+      _filledDiagonalLabel);
   test('color roles resolve per state', _colorRoles);
   testWidgets('hover darkens the filled indicator', _hoverState);
   testWidgets('counter limits input and is labelled', _counter);
@@ -88,11 +91,101 @@ Future<void> _filledMeasurements(WidgetTester tester) async {
   final Rect input = tester.getRect(find.byType(EditableText));
   expect(input.left - leading.right, 16);
   expect(trailing.left - input.right, 16);
-  expect(input.bottom, box.bottom - 8);
-  expect(tester.getRect(find.text('Label')).top, box.top + 8);
-  expect(tester.getRect(find.text('Label')).left, input.left);
+  expect(input.center.dy, closeTo(box.center.dy, 0.5));
+  expect(tester.getRect(find.text('Label')).bottom,
+      lessThanOrEqualTo(box.top));
+  expect(tester.getRect(find.text('Label')).left, closeTo(box.left, 0.5));
   expect(_painter(tester).strokeWidth, 0);
   expect(_painter(tester).strokeColor, _scheme.onSurfaceVariant);
+}
+
+Future<void> _filledExternalLabel(WidgetTester tester) async {
+  final controller = TextEditingController();
+  final node = FocusNode();
+  addTearDown(controller.dispose);
+  addTearDown(node.dispose);
+  await tester.pumpWidget(_app(MorphTextField(
+    label: 'Email',
+    placeholder: 'name@example.com',
+    controller: controller,
+    focusNode: node,
+  )));
+  await tester.pumpAndSettle();
+  Rect box = _container(tester);
+  expect(tester.getRect(find.text('Email')).center.dy,
+      closeTo(box.center.dy, 0.5));
+  expect(find.text('name@example.com'), findsNothing);
+
+  node.requestFocus();
+  await tester.pumpAndSettle();
+  box = _container(tester);
+  expect(tester.getRect(find.text('Email')).bottom,
+      lessThanOrEqualTo(box.top));
+  expect(find.text('name@example.com'), findsOneWidget);
+  expect(tester.getRect(find.byType(EditableText)).center.dy,
+      closeTo(box.center.dy, 0.5));
+
+  controller.text = 'user@example.com';
+  await tester.pumpAndSettle();
+  node.unfocus();
+  await tester.pumpAndSettle();
+  expect(tester.getRect(find.text('Email')).bottom,
+      lessThanOrEqualTo(_container(tester).top));
+  expect(find.text('name@example.com'), findsNothing);
+
+  controller.clear();
+  await tester.pumpAndSettle();
+  box = _container(tester);
+  expect(tester.getRect(find.text('Email')).center.dy,
+      closeTo(box.center.dy, 0.5));
+}
+
+Future<void> _filledDiagonalLabel(WidgetTester tester) async {
+  final node = FocusNode();
+  addTearDown(node.dispose);
+  await tester.pumpWidget(_app(
+    MorphTextField(
+      label: 'Email',
+      leading: const Icon(MorphIcons.search),
+      focusNode: node,
+    ),
+  ));
+  await tester.pumpAndSettle();
+  final Rect initial = tester.getRect(find.text('Email'));
+  final Rect box = _container(tester);
+  expect(initial.left, greaterThan(box.left + 20));
+
+  node.requestFocus();
+  await tester.pumpAndSettle();
+  final Rect floated = tester.getRect(find.text('Email'));
+  expect(floated.left, closeTo(_container(tester).left, 0.5));
+  expect(floated.top, lessThan(initial.top));
+  expect(floated.bottom, lessThanOrEqualTo(_container(tester).top));
+  final Text label = tester.widget<Text>(find.text('Email'));
+  expect(label.style!.color, _scheme.onSurface);
+  expect(label.style!.fontSize, (_theme.typeScale.bodyMedium.fontSize ?? 14) + 1);
+
+  final custom = _theme.copyWith(
+    textFieldTheme: _theme.textFieldTheme.copyWith(
+      floatingLabelTextStyle: const TextStyle(fontSize: 19),
+    ),
+  );
+  final populated = TextEditingController(text: 'value');
+  addTearDown(populated.dispose);
+  await tester.pumpWidget(MorphMaterialApp(
+    data: custom,
+    home: Scaffold(body: SizedBox(
+      width: 320,
+      child: MorphTextField(
+        label: 'Email',
+        controller: populated,
+        floatingLabelTextStyle: const TextStyle(fontSize: 21),
+      ),
+    )),
+  ));
+  await tester.pumpAndSettle();
+  // Per-widget override wins over the theme's floatingLabelTextStyle.
+  expect(tester.widget<Text>(find.text('Email')).style!.fontSize, 21);
 }
 
 Future<void> _outlinedNotch(WidgetTester tester) async {
@@ -141,7 +234,7 @@ void _colorRoles() {
   expect(enabled.caret, _scheme.primary);
   expect(enabled.focusRing, _scheme.secondary);
   final focus = filled(const MorphTextFieldStates(focused: true));
-  expect(focus.label, _scheme.primary);
+  expect(focus.label, _scheme.onSurface);
   expect(focus.strokeWidth, 0); // Morph filled: no underline on focus.
   final customFocus = theme.copyWith(focusActiveIndicatorWidth: 2).resolveColors(
     _scheme,

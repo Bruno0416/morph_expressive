@@ -35,7 +35,7 @@ extension _MorphSliderInteraction on _MorphSliderState {
     }
     if (widget.divisions != null) {
       if (widget.haptic != MorphHapticFeedback.none) {
-        MorphHaptics.trigger(widget.haptic);
+        MorphHaptics.triggerFor(context, widget.haptic);
       }
     } else if (widget.haptic != MorphHapticFeedback.none && _dragging) {
       _maybeContinuousHaptic();
@@ -46,7 +46,7 @@ extension _MorphSliderInteraction on _MorphSliderState {
   void _maybeContinuousHaptic() {
     if (!_hapticStopwatch.isRunning ||
         _hapticStopwatch.elapsedMilliseconds >= 60) {
-      MorphHaptics.selection();
+      MorphHaptics.selectionFor(context);
       _hapticStopwatch
         ..reset()
         ..start();

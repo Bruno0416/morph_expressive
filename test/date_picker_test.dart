@@ -324,6 +324,8 @@ Future<void> _landscapeDialogLayout(WidgetTester tester) async {
 
   await tester.tap(_tooltip('Switch to input'));
   await tester.pumpAndSettle();
+  // The focused filled field reserves room above the surface for its label.
+  expect(find.byType(MorphTextField), findsOneWidget);
   expect(tester.takeException(), isNull);
   expect(find.byType(MorphDatePickerHeader), findsOneWidget);
 }

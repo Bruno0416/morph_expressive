@@ -53,13 +53,16 @@ class _CaptureSceneState extends State<_CaptureScene> {
   final MorphDropdownController<String> _dropdown = MorphDropdownController<String>();
   final TextEditingController _search = TextEditingController();
   final TextEditingController _email = TextEditingController();
+  final TextEditingController _filled = TextEditingController();
   final FocusNode _searchFocus = FocusNode();
   final FocusNode _emailFocus = FocusNode();
+  final FocusNode _filledFocus = FocusNode();
 
   bool _buttonSelected = false;
   bool _favorite = false;
   String _segment = 'Movies';
   String _chipToggle = 'Daily';
+  Set<String> _chipMulti = <String>{};
   int? _groupSelected = 0;
   bool _filterSelected = false;
   bool _inputSelected = false;
@@ -78,6 +81,29 @@ class _CaptureSceneState extends State<_CaptureScene> {
       if (mounted) action();
     }));
   }
+
+  // Enter text a character at a time so the focus/label transition is visible
+  // in the exported GIF rather than jumping to the final value in one frame.
+  void _typeForCapture(
+    TextEditingController controller,
+    String text, {
+    required int startMs,
+    int letterDelayMs = 46,
+  }) {
+    for (var i = 1; i <= text.length; i++) {
+      final value = text.substring(0, i);
+      _at(startMs + (i - 1) * letterDelayMs, () => controller.text = value);
+    }
+  }
+
+  // Keep the multi selector externally controlled, exactly like the gallery.
+  void _addMultiChip(String value) => setState(() {
+    _chipMulti = <String>{..._chipMulti, value};
+  });
+
+  void _removeMultiChip(String value) => setState(() {
+    _chipMulti = <String>{..._chipMulti}..remove(value);
+  });
 
   void _scheduleDoubleSequence(
     List<double> values, {
@@ -155,39 +181,59 @@ class _CaptureSceneState extends State<_CaptureScene> {
             ],
           );
         case 'textfields':
-          _scheduleLoop(
-            cycleMs: 2200,
-            cycles: 2,
-            events: [
-              (atMs: 0, action: _searchFocus.requestFocus),
-              (atMs: 220, action: () => _search.text = 'Morph Expressive'),
-              (atMs: 700, action: () => _search.clear()),
-              (atMs: 960, action: _emailFocus.requestFocus),
-              (atMs: 1320, action: () => _email.text = 'hello@morph.dev'),
-              (atMs: 1760, action: () {
-                _email.clear();
-                _emailFocus.unfocus();
-              }),
-            ],
-          );
+          // Show the existing search and outlined fields, then the new filled
+          // label transition: focus -> type -> blur (label stays outside) -> clear.
+          // This scene needs a longer recording than the other components.
+          _typeForCapture(_filled, 'hello@morph.dev', startMs: 3320);
+          _typeForCapture(_filled, 'morph@flutter.dev',
+              startMs: 6450, letterDelayMs: 40);
+          for (final event in <({int atMs, VoidCallback action})>[
+            (atMs: 0, action: _searchFocus.requestFocus),
+            (atMs: 300, action: () => _search.text = 'Morph Expressive'),
+            (atMs: 1050, action: _search.clear),
+            (atMs: 1250, action: _emailFocus.requestFocus),
+            (atMs: 1570, action: () => _email.text = 'hello@morph.dev'),
+            (atMs: 2250, action: _emailFocus.unfocus),
+            (atMs: 2670, action: _filledFocus.requestFocus),
+            (atMs: 4430, action: _filledFocus.unfocus),
+            (atMs: 5580, action: _filled.clear),
+            (atMs: 5970, action: _filledFocus.requestFocus),
+            (atMs: 7420, action: _filledFocus.unfocus),
+          ]) {
+            _at(event.atMs, event.action);
+          }
         case 'chips':
-          _scheduleLoop(
-            cycleMs: 2200,
-            cycles: 2,
-            events: [
-              (atMs: 0, action: () => setState(() => _filterSelected = true)),
-              (atMs: 460, action: () => setState(() => _chipToggle = 'Weekly')),
-              (atMs: 920, action: () => setState(() => _inputSelected = true)),
-              (atMs: 1380, action: () => setState(() {
-                _chipToggle = 'Monthly';
-                _filterSelected = false;
-              })),
-              (atMs: 1840, action: () => setState(() {
-                _chipToggle = 'Daily';
-                _inputSelected = false;
-              })),
-            ],
-          );
+          // Material 3 Expressive chips + moving single + independent multi.
+          // Multi: 0->1 bloom, 1->2->3 borrowed-pill morph, 3->2->1
+          // fusion, 1->0 bloom, then replay both behaviors for visibility.
+          for (final event in <({int atMs, VoidCallback action})>[
+            (atMs: 0, action: () => setState(() {
+              _filterSelected = true;
+              _chipToggle = 'Weekly';
+            })),
+            (atMs: 620, action: () => _addMultiChip('Daily')),
+            (atMs: 1150, action: () => setState(() => _chipToggle = 'Monthly')),
+            (atMs: 1460, action: () => _addMultiChip('Weekly')),
+            (atMs: 2020, action: () => setState(() => _inputSelected = true)),
+            (atMs: 2280, action: () => _addMultiChip('Monthly')),
+            (atMs: 2860, action: () => setState(() => _chipToggle = 'Daily')),
+            (atMs: 3150, action: () => _removeMultiChip('Weekly')),
+            (atMs: 3820, action: () => _removeMultiChip('Monthly')),
+            (atMs: 4480, action: () => _removeMultiChip('Daily')),
+            (atMs: 5150, action: () => _addMultiChip('Monthly')),
+            (atMs: 5810, action: () => _addMultiChip('Daily')),
+            (atMs: 6250, action: () => setState(() => _chipToggle = 'Weekly')),
+            (atMs: 6450, action: () => _removeMultiChip('Monthly')),
+            (atMs: 6980, action: () => _removeMultiChip('Daily')),
+            (atMs: 7490, action: () => _addMultiChip('Daily')),
+            (atMs: 7850, action: () => setState(() {
+              _filterSelected = false;
+              _inputSelected = false;
+              _chipToggle = 'Daily';
+            })),
+          ]) {
+            _at(event.atMs, event.action);
+          }
         case 'sliders':
           _scheduleDoubleSequence(const [
             0.30, 0.32, 0.35, 0.38, 0.41, 0.44, 0.47, 0.50, 0.53, 0.56,
@@ -232,8 +278,10 @@ class _CaptureSceneState extends State<_CaptureScene> {
     _dropdown.dispose();
     _search.dispose();
     _email.dispose();
+    _filled.dispose();
     _searchFocus.dispose();
     _emailFocus.dispose();
+    _filledFocus.dispose();
     super.dispose();
   }
 
@@ -245,8 +293,8 @@ class _CaptureSceneState extends State<_CaptureScene> {
       'buttons' => ('Buttons', 'Expressive actions and selection'),
       'dropdown' => ('Dropdown', 'Spring-powered expand and collapse'),
       'segmented' => ('Segmented toggle', 'Elastic selection indicator'),
-      'textfields' => ('Text fields', 'Animated focus and outline'),
-      'chips' => ('Chips', 'Filter, input and connected selection'),
+      'textfields' => ('Text fields', 'Search, outlined and animated filled labels'),
+      'chips' => ('Chips', 'M3 Expressive, single and multi-selection'),
       'sliders' => ('Sliders', 'Linear and animated wavy tracks'),
       'loading' => ('Progress + loading', 'Progress indicators and expressive loaders'),
       'navigation' => ('Navigation', 'Compact and wide layouts'),
@@ -292,6 +340,17 @@ class _CaptureSceneState extends State<_CaptureScene> {
           )),
         ),
       ],
+    );
+  }
+
+  Widget _captureLabel(String label) {
+    final theme = MorphTheme.of(context);
+    return Text(
+      label,
+      style: (theme.textTheme.labelMedium ?? const TextStyle()).copyWith(
+        color: theme.colorScheme.onSurfaceVariant,
+        letterSpacing: 0.3,
+      ),
     );
   }
 
@@ -381,21 +440,40 @@ class _CaptureSceneState extends State<_CaptureScene> {
     'textfields' => SizedBox(
       width: 535,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _captureLabel('Search'),
+          const SizedBox(height: 8),
           MorphTextField(
+            key: const ValueKey('gif_textfield_search'),
             controller: _search,
             focusNode: _searchFocus,
             placeholder: 'Search for a movie',
             leading: const Icon(MorphIcons.search),
             showClearButton: true,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
+          _captureLabel('Outlined'),
+          const SizedBox(height: 8),
           MorphTextField(
+            key: const ValueKey('gif_textfield_outlined'),
             controller: _email,
             focusNode: _emailFocus,
             label: 'Email',
             placeholder: 'hello@example.com',
             variant: MorphTextFieldVariant.outlined,
+          ),
+          const SizedBox(height: 26),
+          _captureLabel('Filled · floating label'),
+          const SizedBox(height: 8),
+          MorphTextField(
+            key: const ValueKey('gif_textfield_filled'),
+            controller: _filled,
+            focusNode: _filledFocus,
+            label: 'Email address',
+            placeholder: 'name@example.com',
+            leading: Icon(FluentIcons.line.mail),
+            variant: MorphTextFieldVariant.filled,
           ),
         ],
       ),
@@ -403,6 +481,8 @@ class _CaptureSceneState extends State<_CaptureScene> {
     'chips' => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _captureLabel('Material 3 Expressive · filter, input, assist'),
+        const SizedBox(height: 10),
         Wrap(spacing: 12, runSpacing: 12, children: [
           MorphChip(
             label: 'Filter',
@@ -418,8 +498,11 @@ class _CaptureSceneState extends State<_CaptureScene> {
           ),
           MorphChip(label: 'Assist', onPressed: () {}),
         ]),
-        const SizedBox(height: 28),
+        const SizedBox(height: 20),
+        _captureLabel('Morph expressive · single'),
+        const SizedBox(height: 10),
         MorphChipToggle<String>(
+          key: const ValueKey('gif_chips_single'),
           options: const [
             MorphChipToggleOption(value: 'Daily', label: 'Daily'),
             MorphChipToggleOption(value: 'Weekly', label: 'Weekly'),
@@ -427,6 +510,20 @@ class _CaptureSceneState extends State<_CaptureScene> {
           ],
           selected: _chipToggle,
           onChanged: (value) => setState(() => _chipToggle = value),
+        ),
+        const SizedBox(height: 20),
+        _captureLabel('Morph expressive · multiple'),
+        const SizedBox(height: 10),
+        MorphChipToggle<String>(
+          key: const ValueKey('gif_chips_multi'),
+          multiSelection: true,
+          options: const [
+            MorphChipToggleOption(value: 'Daily', label: 'Daily'),
+            MorphChipToggleOption(value: 'Weekly', label: 'Weekly'),
+            MorphChipToggleOption(value: 'Monthly', label: 'Monthly'),
+          ],
+          selectedValues: _chipMulti,
+          onSelectionChanged: (values) => setState(() => _chipMulti = values),
         ),
       ],
     ),

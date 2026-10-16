@@ -440,7 +440,11 @@ class _MorphSwitchState extends State<MorphSwitch> with TickerProviderStateMixin
       shape: const CircleBorder(),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: _toggle,
+        enableFeedback: false,
+        onTap: () {
+          MorphHaptics.triggerFor(context);
+          _toggle();
+        },
         canRequestFocus: false,
         excludeFromSemantics: true,
         customBorder: const CircleBorder(),

@@ -101,6 +101,7 @@ class MorphBottomSheetDragHandle extends StatelessWidget {
       shape: shape,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
+        enableFeedback: false,
         onTap: ink.onTap,
         onTapDown: ink.onTapDown,
         onTapUp: ink.onTapUp,

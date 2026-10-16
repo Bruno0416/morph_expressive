@@ -1,7 +1,7 @@
 name: morph_expressive_preview
 description: Web-only component preview for the Morph Expressive package.
 publish_to: none
-version: 0.1.0+1
+version: 0.2.0+1
 
 environment:
   sdk: ^3.13.0

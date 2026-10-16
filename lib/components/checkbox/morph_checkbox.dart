@@ -342,7 +342,11 @@ class _MorphCheckboxState extends State<MorphCheckbox>
       shape: const CircleBorder(),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: _handleTap,
+        enableFeedback: false,
+        onTap: () {
+          MorphHaptics.triggerFor(context);
+          _handleTap();
+        },
         canRequestFocus: false,
         excludeFromSemantics: true,
         customBorder: const CircleBorder(),

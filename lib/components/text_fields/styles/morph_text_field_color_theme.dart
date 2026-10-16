@@ -49,8 +49,8 @@ class MorphTextFieldColorTheme {
   /// [disabledOutlineOpacity].
   final WidgetStateProperty<Color?>? outlineColor;
 
-  /// Label. Default: on surface variant; outlined hover on surface; focus
-  /// primary; error error; error hover on error container.
+  /// Label. Default: on surface variant; filled focus on surface; outlined
+  /// focus primary; error error; error hover on error container.
   final WidgetStateProperty<Color?>? labelColor;
 
   /// Leading icon. Default: on surface variant.
@@ -213,7 +213,7 @@ class MorphTextFieldColorTheme {
       return error;
     }
     if (states.isFocused) {
-      return scheme.primary;
+      return outlined ? scheme.primary : scheme.onSurface;
     }
     return outlined && states.isHovered
         ? scheme.onSurface

@@ -43,6 +43,7 @@ import '../../components/toolbars/styles/morph_toolbar_theme.dart';
 import '../../components/tooltips/styles/morph_tooltip_theme.dart';
 import '../color/morph_color_scheme.dart';
 import '../interaction/morph_focus_ring_theme.dart';
+import '../interaction/morph_haptics.dart';
 import '../tokens/morph_spacing.dart';
 import '../type/morph_typography.dart';
 import '../type/morph_variable_font_config.dart';
@@ -66,6 +67,8 @@ class MorphThemeData {
     this.splashColor,
     this.highlightColor,
     this.keyboardFocusIndicators = true,
+    this.hapticsEnabled = true,
+    this.hapticFeedback = MorphHapticFeedback.light,
     this.focusRingTheme = MorphFocusRingTheme.defaults,
     this.appBarTheme = MorphAppBarTheme.defaults,
     this.badgeTheme = MorphBadgeTheme.defaults,
@@ -216,6 +219,14 @@ class MorphThemeData {
   /// When false, Tab traversal and activation still work, but no focus ring or
   /// focus state-layer indicators are painted. Defaults to true.
   final bool keyboardFocusIndicators;
+
+  /// Whether Morph interactions emit haptic feedback. Defaults to true.
+  /// This setting overrides all component-level feedback preferences.
+  final bool hapticsEnabled;
+
+  /// Default impact intensity inherited by Morph components.
+  /// A component may explicitly use [MorphHapticFeedback.none] to opt out.
+  final MorphHapticFeedback hapticFeedback;
 
   /// Shared keyboard focus ring tokens for actionable controls.
   final MorphFocusRingTheme focusRingTheme;
@@ -379,6 +390,8 @@ class MorphThemeData {
     Color? splashColor,
     Color? highlightColor,
     bool? keyboardFocusIndicators,
+    bool? hapticsEnabled,
+    MorphHapticFeedback? hapticFeedback,
     MorphFocusRingTheme? focusRingTheme,
     MorphAppBarTheme? appBarTheme,
     MorphBadgeTheme? badgeTheme,
@@ -438,6 +451,8 @@ class MorphThemeData {
     splashColor: splashColor,
     highlightColor: highlightColor,
     keyboardFocusIndicators: keyboardFocusIndicators,
+    hapticsEnabled: hapticsEnabled,
+    hapticFeedback: hapticFeedback,
     focusRingTheme: focusRingTheme,
     appBarTheme: appBarTheme,
     badgeTheme: badgeTheme,

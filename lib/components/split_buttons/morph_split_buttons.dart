@@ -354,7 +354,7 @@ class MorphSplitButton<T> extends StatefulWidget {
 
   /// MorphHapticFeedback.
   MorphHapticFeedback get decorationHaptic =>
-      decoration?.haptic ?? MorphHapticFeedback.none;
+      decoration?.haptic ?? MorphHapticFeedback.inherit;
 
   /// Duration. Zero keeps the segment clip on the spring, not Material's tween.
   Duration get decorationAnimationDuration =>

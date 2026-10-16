@@ -233,6 +233,7 @@ extension _MorphSearchBarContentBuild on _MorphSearchBarState {
           child: Material(
             type: MaterialType.transparency,
             child: InkWell(
+              enableFeedback: false,
               onTap: _handleTap,
               canRequestFocus: false,
               mouseCursor: _barCursor(),

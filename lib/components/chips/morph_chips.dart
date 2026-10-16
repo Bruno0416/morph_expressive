@@ -537,7 +537,11 @@ class _MorphChipState extends State<MorphChip> {
       shape: shape,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: onTap,
+        enableFeedback: false,
+        onTap: () {
+          MorphHaptics.triggerFor(context);
+          onTap();
+        },
         canRequestFocus: false,
         excludeFromSemantics: true,
         customBorder: shape,

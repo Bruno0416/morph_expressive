@@ -101,7 +101,7 @@ class _MorphCalendarDateRangePickerState
   }
 
   void _updateSelection(DateTime date) {
-    MorphHaptics.selection();
+    MorphHaptics.selectionFor(context);
     setState(() {
       if (_startDate != null &&
           _endDate == null &&

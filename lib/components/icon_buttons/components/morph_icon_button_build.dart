@@ -422,16 +422,14 @@ extension _MorphIconButtonBuild on _MorphIconButtonState {
               onPressed: widget.onPressed == null
                   ? null
                   : () {
-                      MorphHaptics.trigger(widget.haptic);
+                      MorphHaptics.triggerFor(context, widget.haptic);
                       widget.onPressed!();
                     },
               isSelected: widget.isSelected,
               iconSize: iconSize,
               selectedIcon: displaySelectedIcon,
               icon: displayIcon,
-              enableFeedback: widget.haptic != MorphHapticFeedback.none
-                  ? false
-                  : widget.enableFeedback,
+              enableFeedback: false,
               statesController: _statesController,
               style: _morphButtonStyle(
                 visual: visual,

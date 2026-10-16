@@ -46,7 +46,7 @@ class MorphTappable extends StatefulWidget {
     this.spring = MorphMotion.expressiveSpatialPress,
     this.onStateChanged,
     this.materialInk = false,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
     super.key,
   });
 
@@ -403,7 +403,7 @@ class _MorphTappableState extends State<MorphTappable>
   }
 
   void _fireHaptic() {
-    MorphHaptics.trigger(widget.haptic);
+    MorphHaptics.triggerFor(context, widget.haptic);
   }
 
   VoidCallback? _wrapTap(VoidCallback? callback) {

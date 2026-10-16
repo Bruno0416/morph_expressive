@@ -63,6 +63,7 @@ class MorphTextField extends StatefulWidget {
     this.controller,
     this.focusNode,
     this.label,
+    this.floatingLabelTextStyle,
     this.supportingText,
     this.errorText,
     this.leading,
@@ -125,6 +126,10 @@ class MorphTextField extends StatefulWidget {
 
   /// Label text. It is also the field's accessibility label.
   final String? label;
+
+  /// Style of the label when focused or populated. Overrides the field theme.
+  /// Filled defaults to bodyMedium; outlined keeps bodySmall.
+  final TextStyle? floatingLabelTextStyle;
 
   /// Supporting text below the field.
   final String? supportingText;

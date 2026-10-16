@@ -112,7 +112,7 @@ extension _MorphDropdownMenuActions<T> on _MorphDropdownMenuState<T> {
   }
 
   void _applyHaptic() {
-    MorphHaptics.trigger(widget.haptic);
+    MorphHaptics.triggerFor(context, widget.haptic);
   }
 
   void _onItemTap(MorphDropdownItem<T> item) {

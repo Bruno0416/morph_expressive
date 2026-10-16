@@ -243,7 +243,7 @@ class MorphDropdownMenu<T> extends StatefulWidget {
     this.openMotion,
     this.closeMotion,
     this.splashFactory = NoSplash.splashFactory,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
   }) : future = null,
        assert(
          limit == null || limit > 0,
@@ -280,7 +280,7 @@ class MorphDropdownMenu<T> extends StatefulWidget {
     this.openMotion,
     this.closeMotion,
     this.splashFactory = NoSplash.splashFactory,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
   }) : items = const [],
        assert(
          limit == null || limit > 0,

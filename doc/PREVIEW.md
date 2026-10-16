@@ -14,52 +14,61 @@ flutter pub get
 flutter run -d web-server --web-port 8080
 ```
 
-Open <http://localhost:8080>. The current **development** gallery displays
-examples by category with theme, typography, and seed controls. The source
-coverage check verifies that families have samples; it does not certify
-independent visual coverage of every exported helper class.
+Open <http://localhost:8080>. The responsive gallery covers 39 component
+families with independent theme/brightness, typography and seed controls.
+Coverage checks establish family samples, not independent visual coverage
+for every exported helper type. For realistic animation performance, compare
+against a release Web build, not only a debug run.
 
-## Verification
+## Reproducible animated GIF scenes
+
+The eight isolated capture scenes are `buttons`, `dropdown`, `segmented`,
+`textfields`, `chips`, `sliders`, `loading` and `navigation`; their source
+lives in `preview/lib/component_gif_capture.dart`. The URL query
+`?capture=<scene>` selects a scene without altering the normal gallery.
+
+From the repository root, regenerate **only the two changed scenes**:
 
 ```bash
-# From the repository root
-bash tool/check.sh
+bash tool/generate_component_gifs.sh --only chips
+bash tool/generate_component_gifs.sh --only textfields
+python3 tool/check_gif_branding.py
 ```
 
-For more realistic Web animation performance, compare with
-`flutter build web --release` instead of relying only on debug Web.
+Chips uses **640 x 480 at 15 FPS over approximately 8.7 seconds** and shows
+three variants: MD3-inspired filter/input/assist, expressive single selection,
+and expressive multiple selection. The multiple sequence shows a circular
+first/last transition and connected duplicate/merge between active pills.
 
-## Continuous showcase
+Text fields uses **640 x 480 at 15 FPS over approximately 8.2 seconds** and
+preserves search and outlined fields while adding the filled exterior-label
+sequence (focus, placeholder, typing and blur).
 
-The preview displays all component families in one lazy, vertically scrolling
-showcase. Responsive rows place multiple families side by side when space allows.
-It includes interactive examples and independent light/dark, typography and
-seed controls; it does not include the removed Fluent icon-grid diagnostic.
+The other six scenes keep their established 640 x 360, ~4.8-second captures.
+The capture script requires Flutter, Node.js/npm, Python 3, curl and FFmpeg;
+it installs Playwright/Chromium on first use and builds the Web preview in
+release mode. No Playwright dependency is installed for library consumers.
 
-## Automatic GIF previews
+You can override `MORPH_GIF_FPS` (8-30), `MORPH_GIF_SECONDS` or the local server
+port. `--skip-build` reuses a previously built release preview and **must not**
+be used after editing scene source. Review the generated files before a
+release, and commit GIF changes together with their README references.
+
+## 0.2.0 interaction review
+
+- Multi-selection: verify 0 -> 1 and 1 -> 0 circular bloom, and non-boundary
+  duplicate/merge movement with nearest selected chip.
+- Filled text fields: verify empty, focused, populated and blurred label
+  positions, including no overlap with a placeholder or entered value.
+- Haptics: use the preview app bar preferences (Off/Light/Medium/Heavy), then
+  verify physical intensity on a device because Web may lack feedback.
+- Tabs and rail: tab focus should not scroll the outer page unexpectedly; the
+  isolated rail demo should not tint itself from neighboring tab-body scroll.
+
+## Verification
 
 From the repository root:
 
 ```bash
-bash tool/generate_component_gifs.sh
-# Optional: regenerate only dropdown, reuse an existing Web build
-bash tool/generate_component_gifs.sh --only dropdown --skip-build
+bash tool/check.sh
 ```
-
-Requirements: Flutter, Node.js/npm, Python 3, curl and FFmpeg. The script
-installs Playwright/Chromium the first time, builds `preview/` in release mode,
-starts a temporary local HTTP server, captures eight isolated 640x360 scenes at
-15 FPS without a visible mouse cursor, and optimizes them into
-`doc/assets/gifs/*.gif` using FFmpeg. Every scene automatically performs
-interactions through its own Flutter state; there are no brittle pixel-based
-Playwright clicks.
-
-The eight scenes are `buttons`, `dropdown`, `segmented`, `textfields`,
-`chips`, `sliders`, `loading`, and `navigation`. Their implementation lives in
-`preview/lib/component_gif_capture.dart`.
-They are selected by `?capture=<scene>` so the regular showcase is unchanged.
-
-You can adjust `MORPH_GIF_FPS` (8–30) and `MORPH_GIF_SECONDS` (4.5–12).
-Generated GIFs are README assets: review them and commit the files with the
-README to avoid broken images on GitHub. The capture tooling is developer-only;
-no Playwright dependency is required by consumers of `morph_expressive`.

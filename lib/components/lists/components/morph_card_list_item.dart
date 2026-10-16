@@ -77,7 +77,7 @@ class MorphCardListItem extends StatelessWidget {
     this.onLongPress,
     this.semanticLabel,
     this.mouseCursor,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
     this.variant = MorphCardVariant.filled,
     this.border,
     this.resolvedColor,

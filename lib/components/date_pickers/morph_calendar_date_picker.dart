@@ -90,7 +90,7 @@ class _MorphCalendarDatePickerState extends State<MorphCalendarDatePicker> {
   }
 
   void _handleModeChanged(MorphDatePickerMode mode) {
-    MorphHaptics.selection();
+    MorphHaptics.selectionFor(context);
     setState(() => _mode = mode);
     widget.onCalendarModeChanged?.call(mode);
   }
@@ -101,7 +101,7 @@ class _MorphCalendarDatePickerState extends State<MorphCalendarDatePicker> {
   }
 
   void _handleYearChanged(DateTime value) {
-    MorphHaptics.selection();
+    MorphHaptics.selectionFor(context);
     final DateTime clamped = MorphDatePickerUtils.clampDate(
       value,
       _firstDate,
@@ -128,7 +128,7 @@ class _MorphCalendarDatePickerState extends State<MorphCalendarDatePicker> {
   }
 
   void _handleDayChanged(DateTime value) {
-    MorphHaptics.selection();
+    MorphHaptics.selectionFor(context);
     setState(() {
       _selectedDate = value;
       widget.onDateChanged(value);

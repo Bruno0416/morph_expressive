@@ -82,7 +82,7 @@ class MorphCard extends StatefulWidget {
     this.trackHover = true,
     this.semanticLabel,
     this.semanticLink = false,
-    this.haptic = MorphHapticFeedback.none,
+    this.haptic = MorphHapticFeedback.inherit,
     this.onStateChanged,
     this.media,
     this.vertical,

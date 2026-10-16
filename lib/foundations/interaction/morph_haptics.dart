@@ -1,42 +1,70 @@
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 
-/// Haptic feedback intensity levels for Morph interactions.
+import '../theme/morph_theme.dart';
+
+/// Haptic preference for an interactive Morph control.
 ///
-/// Use with [MorphHaptics.trigger], component decoration / style haptic fields,
-/// or the shared tappable interaction primitive.
-///
-/// ## Levels
-/// - [none] — No haptic feedback (default)
-/// - [light] — Light tap feedback for subtle interactions
-/// - [medium] — Medium impact for standard presses
-/// - [heavy] — Heavy impact for significant actions
+/// [inherit] takes the nearest [MorphTheme] default, [none] opts out locally,
+/// and a concrete impact overrides the default while the theme is enabled.
 enum MorphHapticFeedback {
-  /// No haptic feedback.
+  /// Use the nearest MorphThemeData.hapticFeedback.
+  inherit(-1),
+
+  /// Suppress haptics for this interaction.
   none(0),
 
-  /// Light tap feedback.
+  /// Light impact.
   light(1),
 
-  /// Medium impact feedback.
+  /// Medium impact.
   medium(2),
 
-  /// Heavy impact feedback.
+  /// Heavy impact.
   heavy(3);
 
-  /// Ordinal value for the level.
   final int value;
-
   const MorphHapticFeedback(this.value);
 }
 
-/// Shared haptic helpers for Material 3 Expressive components.
+/// Feedback centralization for Morph components.
 ///
-/// Prefer this API over raw [HapticFeedback] calls so intensity stays consistent
-/// and platform no-ops remain centralized.
+/// Components should use the context-aware methods. The legacy context-free
+/// methods remain available for callers who intentionally manage feedback
+/// outside a MorphTheme, but cannot obey an inherited opt-out.
 abstract final class MorphHaptics {
   const MorphHaptics._();
 
-  /// Fires impact feedback for [level]. [MorphHapticFeedback.none] is a no-op.
+  /// Resolves a component override against the nearest theme.
+  static MorphHapticFeedback resolve(
+    BuildContext context, [
+    MorphHapticFeedback level = MorphHapticFeedback.inherit,
+  ]) {
+    final theme = MorphTheme.of(context);
+    if (!theme.hapticsEnabled) return MorphHapticFeedback.none;
+    final effective = level == MorphHapticFeedback.inherit
+        ? theme.hapticFeedback
+        : level;
+    return effective == MorphHapticFeedback.inherit
+        ? MorphHapticFeedback.light
+        : effective;
+  }
+
+  /// Emits a theme-aware impact, or nothing when disabled.
+  static void triggerFor(
+    BuildContext context, [
+    MorphHapticFeedback level = MorphHapticFeedback.inherit,
+  ]) {
+    trigger(resolve(context, level));
+  }
+
+  /// Emits a selection tick only when the nearest MorphTheme allows haptics.
+  static void selectionFor(BuildContext context) {
+    if (MorphTheme.of(context).hapticsEnabled) selection();
+  }
+
+  /// Emits an explicit impact without inherited theme resolution.
+  /// Prefer [triggerFor] inside the Morph widget tree.
   static void trigger(MorphHapticFeedback level) {
     switch (level) {
       case MorphHapticFeedback.light:
@@ -46,11 +74,12 @@ abstract final class MorphHaptics {
       case MorphHapticFeedback.heavy:
         HapticFeedback.heavyImpact();
       case MorphHapticFeedback.none:
+      case MorphHapticFeedback.inherit:
         break;
     }
   }
 
-  /// Fires selection feedback (e.g. discrete slider ticks, picker selection).
+  /// Raw selection tick. Prefer [selectionFor] from Morph components.
   static void selection() {
     HapticFeedback.selectionClick();
   }
