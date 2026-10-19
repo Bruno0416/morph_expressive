@@ -7,10 +7,10 @@ and smooth animations.
 The goal is to make components look and feel consistent while exploring new
 styles and interactions beyond Material 3 Expressive.
 
-This README describes **version 0.3.1**. Version **0.3.0** is already
-published; check the [pub.dev versions](https://pub.dev/packages/morph_expressive/versions)
-for the latest available release. Morph Expressive is still in the 0.x series,
-so APIs may evolve between releases.
+This README describes the **0.4.0** release. Check the
+[pub.dev versions](https://pub.dev/packages/morph_expressive/versions) for the
+latest published release. Morph Expressive is still in the 0.x series, so
+public APIs and defaults may evolve between minor versions.
 
 Morph Expressive is an independent fork of
 [Material 3 Expressive](https://github.com/paadevelopments/material_3_expressive)
@@ -27,12 +27,12 @@ of wrapped. See [NOTICE](NOTICE) and [LICENSE](LICENSE) for attribution.
 
 ```yaml
 dependencies:
-  morph_expressive: ^0.3.1
+  morph_expressive: ^0.4.0
 ```
 
-`^0.3.1` becomes available only after the new version is published on
-pub.dev. Until then, use `^0.3.0` for the published version or a Git/path
-dependency to test the unreleased source. Run `flutter pub get` after updating.
+`^0.4.0` resolves from pub.dev after 0.4.0 is published. Until then, use
+the latest available published version or a Git/path dependency for release
+candidate testing. Run `flutter pub get` after changing the constraint.
 
 ## Quick start
 
@@ -66,7 +66,36 @@ void main() {
 This example uses a fixed light theme. For dynamic brightness, keep `MorphTheme`
 and the host Material theme synchronized. `MaterialApp.router` is supported.
 
-## What's fixed in 0.3.1
+## New in 0.4.0
+
+- **Text-field validation on focus loss:** `MorphTextField.onUnfocus`
+  provides the current value when focus leaves a field, allowing custom
+  validation through `errorText`. Inline expression-based errors still work.
+- **Theme-aware haptics:** Light, Medium, Heavy and Off are applied consistently
+  to Morph-managed interactions, including selection, buttons, list actions,
+  navigation, sheet gestures, refresh and discrete sliders. No native haptics
+  plugin, custom FFI binary, or manual iOS Swift package installation is needed.
+- **Expressive refresh:** shorter configurable pull distance via
+  `armThreshold` and `pullSensitivity`; a determinate reveal ring,
+  an indeterminate refreshing ring, a completion spin and a distinct completion
+  impact. Existing background/foreground theme colors are respected.
+- **List swipe choreography:** spring-animated reveal and close, a trailing
+  three-dot affordance where enabled, and simultaneous closing/opening when
+  moving between rows. Default feedback occurs at meaningful thresholds, not
+  on every drag increment.
+- **Buttons and navigation:** smoother, interruptible radius transitions,
+  geometrically centered AppBar titles, adjusted drawer destination spacing,
+  and theme-aware haptics for automatic back navigation and sheets.
+- **Snackbar:** optional horizontal swipe-to-dismiss, animated release and a
+  correctly styled close action.
+- **Circular indicators:** size-aware stroke rendering for compact and large
+  circular/wavy variants. The iPhone touch lab now compares 16/24/48/64 dp
+  standard and wavy indicators, sliders with/without divisions, and refresh.
+
+See the [changelog](CHANGELOG.md) for the release history and the
+[release checklist](doc/RELEASE.md) for publication verification.
+
+## What was fixed in 0.3.1
 
 - **Wavy finishing:** Wavy slider and range slider tracks, along with linear
   and circular progress indicators, now fade their curvature smoothly from
@@ -82,7 +111,8 @@ and the host Material theme synchronized. `MaterialApp.router` is supported.
 
 - **Swipeable lists:** `MorphListItemSwipe` reveals actions with Morph pill
   buttons, springs, configurable callbacks, and safe async dismissal without
-  adding `flutter_slidable`. No extra overflow icon is inserted on the row.
+  adding `flutter_slidable`. The optional trailing overflow affordance was
+  restored in 0.4.0; see the current component guide.
 - **Validation icons:** `MorphTextField` now shows no error glyph by default.
   Opt in with `errorIcon` and position it with
   `MorphTextFieldErrorIconPosition.prefix` or `.suffix`, in both filled and

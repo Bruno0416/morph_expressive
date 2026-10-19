@@ -16,7 +16,7 @@ class MorphNavigationDrawerTheme
     this.headlineVerticalPadding = 16,
     this.iconSize = 24,
     this.destinationHorizontalPadding = 12,
-    this.destinationVerticalPadding = 0,
+    this.destinationVerticalPadding = 4,
     this.destinationInnerHorizontalPadding = 16,
     this.iconLabelGap = 12,
     this.contentPadding = 28,
@@ -57,7 +57,8 @@ class MorphNavigationDrawerTheme
 
   /// defaults.
 
-  static const MorphNavigationDrawerTheme defaults = MorphNavigationDrawerTheme();
+  static const MorphNavigationDrawerTheme defaults =
+      MorphNavigationDrawerTheme();
 
   /// Drawer width. The sheet is this wide even while a slide clips it.
   final double width;
@@ -211,7 +212,8 @@ class MorphNavigationDrawerTheme
       : (inactiveForegroundColor ?? scheme.onSurfaceVariant);
 
   /// Badge color. Selected badges use on secondary container.
-  Color badgeColor(MorphColorScheme scheme, {required bool selected}) => selected
+  Color badgeColor(MorphColorScheme scheme, {required bool selected}) =>
+      selected
       ? (selectedBadgeColor ?? scheme.onSecondaryContainer)
       : (unselectedBadgeColor ?? scheme.onSurfaceVariant);
 
@@ -250,7 +252,8 @@ class MorphNavigationDrawerTheme
       focusRingColor ?? scheme.secondary;
 
   /// Divider color.
-  Color resolveDivider(MorphColorScheme scheme) => dividerColor ?? scheme.outline;
+  Color resolveDivider(MorphColorScheme scheme) =>
+      dividerColor ?? scheme.outline;
 
   /// Modal scrim color before opacity is applied.
   Color resolveScrim(MorphColorScheme scheme) => scrimColor ?? scheme.scrim;

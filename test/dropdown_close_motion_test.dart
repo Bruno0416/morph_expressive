@@ -3,8 +3,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:morph_expressive/morph_components.dart';
 
 void main() {
-  testWidgets('dropdown stays visible during close and can reopen mid-exit',
-      (tester) async {
+  testWidgets('dropdown stays visible during close and can reopen mid-exit', (
+    tester,
+  ) async {
     final controller = MorphDropdownController<String>();
     addTearDown(controller.dispose);
 

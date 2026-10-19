@@ -11,7 +11,7 @@ Flutter Web output or historical patch reports.
 | [Components](COMPONENTS.md) | Public component families and composition |
 | [Motion](MOTION.md) | Expressive curves, tweens, choreography, and customization |
 | [Preview](PREVIEW.md) | Browser gallery, expanded GIF capture scenes, and testing |
-| [Release](RELEASE.md) | 0.3.1 verification, GIF review, and pub.dev preflight |
+| [Release](RELEASE.md) | 0.4.0 verification, GIF review, and pub.dev preflight |
 
 Morph Expressive is an independent fork of Material 3 Expressive by Paa Developments.
 See the root [NOTICE](../NOTICE) and [LICENSE](../LICENSE) for attribution.

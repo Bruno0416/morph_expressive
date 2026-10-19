@@ -1,147 +1,13 @@
-import 'dart:ui';
-
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
-/// kAnimationDeltaThreshold.
-
+/// Kept for compatibility with callers that import the motion constants.
 const double kAnimationDeltaThreshold = 0.005;
-
-/// kSpringRetargetTolerance.
 const double kSpringRetargetTolerance = 0.1;
 
-class _CachedLerpResult {
-  double tl = 0;
-  double tr = 0;
-  double bl = 0;
-  double br = 0;
-  double l = 0;
-  double r = 0;
-  double t = 0;
-  double b = 0;
-  EdgeInsets? cachedInsets;
-  BorderRadius? cachedRadius;
-
-  _CachedLerpResult();
-
-  bool hasChangedSignificantly(_CachedLerpResult other) {
-    return (tl - other.tl).abs() > kAnimationDeltaThreshold ||
-        (tr - other.tr).abs() > kAnimationDeltaThreshold ||
-        (bl - other.bl).abs() > kAnimationDeltaThreshold ||
-        (br - other.br).abs() > kAnimationDeltaThreshold ||
-        (l - other.l).abs() > kAnimationDeltaThreshold ||
-        (r - other.r).abs() > kAnimationDeltaThreshold ||
-        (t - other.t).abs() > kAnimationDeltaThreshold ||
-        (b - other.b).abs() > kAnimationDeltaThreshold;
-  }
-}
-
-abstract final class _MotionConstants {
-  static const double tolerance = kSpringRetargetTolerance;
-}
-
-class _RadiusAndPaddingMotionKeys {
-  final double internalLeft;
-  final double internalRight;
-  final double internalTop;
-  final double internalBottom;
-  final double topLeft;
-  final double topRight;
-  final double bottomLeft;
-  final double bottomRight;
-
-  const _RadiusAndPaddingMotionKeys({
-    required this.internalLeft,
-    required this.internalRight,
-    required this.internalTop,
-    required this.internalBottom,
-    required this.topLeft,
-    required this.topRight,
-    required this.bottomLeft,
-    required this.bottomRight,
-  });
-
-  factory _RadiusAndPaddingMotionKeys.from(
-    double iL,
-    double iR,
-    double iT,
-    double iB,
-    BorderRadius radius,
-  ) {
-    return _RadiusAndPaddingMotionKeys(
-      internalLeft: iL,
-      internalRight: iR,
-      internalTop: iT,
-      internalBottom: iB,
-      topLeft: radius.topLeft.x,
-      topRight: radius.topRight.x,
-      bottomLeft: radius.bottomLeft.x,
-      bottomRight: radius.bottomRight.x,
-    );
-  }
-
-  bool matches(
-    double iL,
-    double iR,
-    double iT,
-    double iB,
-    BorderRadius radius, {
-    double tolerance = _MotionConstants.tolerance,
-  }) {
-    return (internalLeft - iL).abs() <= tolerance &&
-        (internalRight - iR).abs() <= tolerance &&
-        (internalTop - iT).abs() <= tolerance &&
-        (internalBottom - iB).abs() <= tolerance &&
-        (topLeft - radius.topLeft.x).abs() <= tolerance &&
-        (topRight - radius.topRight.x).abs() <= tolerance &&
-        (bottomLeft - radius.bottomLeft.x).abs() <= tolerance &&
-        (bottomRight - radius.bottomRight.x).abs() <= tolerance;
-  }
-}
-
-/// Animates shape and padding changes using a single spring progress value (0→1)
-/// that drives ALL corners and padding edges simultaneously.
+/// Animates the radius and padding together and retargets from the visible
+/// geometry, including when the user releases during an unfinished press.
 class MorphRadiusAndPaddingMotion extends StatefulWidget {
-  /// motion.
-  final SpringMotion motion;
-
-  /// internalLeft.
-  final double internalLeft;
-
-  /// internalRight.
-  final double internalRight;
-
-  /// internalTop.
-  final double internalTop;
-
-  /// internalBottom.
-  final double internalBottom;
-
-  /// targetRadius.
-  final BorderRadius targetRadius;
-
-  /// freezeTopLeft.
-
-  final bool freezeTopLeft;
-
-  /// freezeTopRight.
-  final bool freezeTopRight;
-
-  /// freezeBottomLeft.
-  final bool freezeBottomLeft;
-
-  /// freezeBottomRight.
-  final bool freezeBottomRight;
-
-  /// When true, target changes apply instantly instead of springing in.
-  final bool snapToTarget;
-
-  /// Function.
-
-  final Widget Function(EdgeInsets padding, BorderRadius radius) builder;
-
-  /// MorphRadiusAndPaddingMotion.
-
   const MorphRadiusAndPaddingMotion({
     super.key,
     required this.motion,
@@ -150,6 +16,7 @@ class MorphRadiusAndPaddingMotion extends StatefulWidget {
     required this.internalTop,
     required this.internalBottom,
     required this.targetRadius,
+    this.pressed = false,
     this.freezeTopLeft = false,
     this.freezeTopRight = false,
     this.freezeBottomLeft = false,
@@ -158,317 +25,179 @@ class MorphRadiusAndPaddingMotion extends StatefulWidget {
     required this.builder,
   });
 
+  /// Retained for compatibility with the shared button motion API.
+  final SpringMotion motion;
+  final double internalLeft;
+  final double internalRight;
+  final double internalTop;
+  final double internalBottom;
+  final BorderRadius targetRadius;
+  final bool pressed;
+  final bool freezeTopLeft;
+  final bool freezeTopRight;
+  final bool freezeBottomLeft;
+  final bool freezeBottomRight;
+  final bool snapToTarget;
+  final Widget Function(EdgeInsets padding, BorderRadius radius) builder;
+
   @override
   State<MorphRadiusAndPaddingMotion> createState() =>
       _MorphRadiusAndPaddingMotionState();
 }
 
-class _MorphRadiusAndPaddingMotionState extends State<MorphRadiusAndPaddingMotion> {
-  late double _srcTopLeft, _srcTopRight, _srcBottomLeft, _srcBottomRight;
-  late double _srcLeft, _srcRight, _srcTop, _srcBottom;
+class _MorphRadiusAndPaddingMotionState
+    extends State<MorphRadiusAndPaddingMotion>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late _MorphShapeTween _tween;
 
-  late double _curTopLeft, _curTopRight, _curBottomLeft, _curBottomRight;
-  late double _curLeft, _curRight, _curTop, _curBottom;
-
-  double _progressTarget = 1;
-
-  final _CachedLerpResult _lastFrame = _CachedLerpResult();
-  _RadiusAndPaddingMotionKeys? _lastKeys;
+  // Press should react promptly; release needs room to visibly round back.
+  static const Curve _pressCurve = _MorphShapeCurve();
+  static const Curve _releaseCurve = Curves.easeInOutSine;
+  late Curve _activeCurve;
 
   @override
   void initState() {
     super.initState();
-    _initValues();
+    final target = _target();
+    _tween = _MorphShapeTween(begin: target, end: target);
+    _activeCurve = widget.pressed ? _pressCurve : _releaseCurve;
+    _controller = AnimationController(vsync: this, value: 1);
   }
 
-  void _initValues() {
-    _curTopLeft = _srcTopLeft = widget.targetRadius.topLeft.x;
-    _curTopRight = _srcTopRight = widget.targetRadius.topRight.x;
-    _curBottomLeft = _srcBottomLeft = widget.targetRadius.bottomLeft.x;
-    _curBottomRight = _srcBottomRight = widget.targetRadius.bottomRight.x;
-
-    _curLeft = _srcLeft = widget.internalLeft;
-    _curRight = _srcRight = widget.internalRight;
-    _curTop = _srcTop = widget.internalTop;
-    _curBottom = _srcBottom = widget.internalBottom;
-
-    _lastKeys = _RadiusAndPaddingMotionKeys.from(
+  _MorphShapeGeometry _target() => _MorphShapeGeometry(
+    padding: EdgeInsets.fromLTRB(
       widget.internalLeft,
-      widget.internalRight,
       widget.internalTop,
+      widget.internalRight,
       widget.internalBottom,
-      widget.targetRadius,
-    );
-  }
+    ),
+    radius: widget.targetRadius,
+  );
+
+  _MorphShapeGeometry get _visible =>
+      _tween.transform(_activeCurve.transform(_controller.value));
 
   @override
   void didUpdateWidget(covariant MorphRadiusAndPaddingMotion oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    if (_targetsChanged(oldWidget)) {
-      final newKeys = _RadiusAndPaddingMotionKeys.from(
-        widget.internalLeft,
-        widget.internalRight,
-        widget.internalTop,
-        widget.internalBottom,
-        widget.targetRadius,
-      );
-
-      if (_lastKeys != null &&
-          _lastKeys!.matches(
-            widget.internalLeft,
-            widget.internalRight,
-            widget.internalTop,
-            widget.internalBottom,
-            widget.targetRadius,
-          )) {
-        return;
-      }
-
-      final bool paddingChanged =
-          widget.internalLeft != oldWidget.internalLeft ||
-          widget.internalRight != oldWidget.internalRight ||
-          widget.internalTop != oldWidget.internalTop ||
-          widget.internalBottom != oldWidget.internalBottom;
-
-      final bool frozenCornersChanged = _frozenCornersChanged(oldWidget);
-
-      if (!paddingChanged && frozenCornersChanged) {
-        _updateFrozenCornerValues();
-        _lastKeys = newKeys;
-        return;
-      }
-
-      _lastKeys = newKeys;
-
-      if (widget.snapToTarget) {
-        _applyTargetImmediately();
-        return;
-      }
-
-      _srcTopLeft = _curTopLeft;
-      _srcTopRight = _curTopRight;
-      _srcBottomLeft = _curBottomLeft;
-      _srcBottomRight = _curBottomRight;
-      _srcLeft = _curLeft;
-      _srcRight = _curRight;
-      _srcTop = _curTop;
-      _srcBottom = _curBottom;
-
-      _progressTarget = _progressTarget == 0.0 ? 1.0 : 0.0;
+    if (widget.targetRadius == oldWidget.targetRadius &&
+        widget.internalLeft == oldWidget.internalLeft &&
+        widget.internalRight == oldWidget.internalRight &&
+        widget.internalTop == oldWidget.internalTop &&
+        widget.internalBottom == oldWidget.internalBottom &&
+        widget.snapToTarget == oldWidget.snapToTarget) {
+      return;
     }
+
+    final current = _visible;
+    final next = _target();
+    _tween = _MorphShapeTween(begin: current, end: next);
+    _activeCurve = widget.pressed ? _pressCurve : _releaseCurve;
+    if (widget.snapToTarget ||
+        (MediaQuery.maybeOf(context)?.disableAnimations ?? false)) {
+      _controller.stop();
+      _controller.value = 1;
+      return;
+    }
+    // A slower ease-in/out on release prevents the default radius from
+    // reappearing almost immediately after lifting a finger.
+    _controller.duration = Duration(milliseconds: widget.pressed ? 165 : 380);
+    _controller.forward(from: 0);
   }
 
-  bool _frozenCornersChanged(MorphRadiusAndPaddingMotion old) {
-    if (widget.freezeTopLeft &&
-        widget.targetRadius.topLeft.x != old.targetRadius.topLeft.x) {
-      return true;
-    }
-    if (widget.freezeTopRight &&
-        widget.targetRadius.topRight.x != old.targetRadius.topRight.x) {
-      return true;
-    }
-    if (widget.freezeBottomLeft &&
-        widget.targetRadius.bottomLeft.x != old.targetRadius.bottomLeft.x) {
-      return true;
-    }
-    if (widget.freezeBottomRight &&
-        widget.targetRadius.bottomRight.x != old.targetRadius.bottomRight.x) {
-      return true;
-    }
-    return false;
-  }
-
-  void _updateFrozenCornerValues() {
-    if (widget.freezeTopLeft) {
-      _curTopLeft = _srcTopLeft = widget.targetRadius.topLeft.x;
-    }
-    if (widget.freezeTopRight) {
-      _curTopRight = _srcTopRight = widget.targetRadius.topRight.x;
-    }
-    if (widget.freezeBottomLeft) {
-      _curBottomLeft = _srcBottomLeft = widget.targetRadius.bottomLeft.x;
-    }
-    if (widget.freezeBottomRight) {
-      _curBottomRight = _srcBottomRight = widget.targetRadius.bottomRight.x;
-    }
-  }
-
-  void _applyTargetImmediately() {
-    _curTopLeft = _srcTopLeft = widget.targetRadius.topLeft.x;
-    _curTopRight = _srcTopRight = widget.targetRadius.topRight.x;
-    _curBottomLeft = _srcBottomLeft = widget.targetRadius.bottomLeft.x;
-    _curBottomRight = _srcBottomRight = widget.targetRadius.bottomRight.x;
-
-    _curLeft = _srcLeft = widget.internalLeft;
-    _curRight = _srcRight = widget.internalRight;
-    _curTop = _srcTop = widget.internalTop;
-    _curBottom = _srcBottom = widget.internalBottom;
-
-    _progressTarget = 1.0;
-
-    _lastFrame.cachedInsets = EdgeInsets.fromLTRB(
-      _curLeft,
-      _curTop,
-      _curRight,
-      _curBottom,
+  BorderRadius _radius(BorderRadius animated) {
+    double corner(double value, double target, bool frozen) =>
+        frozen ? target : value.clamp(0.0, double.infinity).toDouble();
+    return BorderRadius.only(
+      topLeft: Radius.circular(
+        corner(
+          animated.topLeft.x,
+          widget.targetRadius.topLeft.x,
+          widget.freezeTopLeft,
+        ),
+      ),
+      topRight: Radius.circular(
+        corner(
+          animated.topRight.x,
+          widget.targetRadius.topRight.x,
+          widget.freezeTopRight,
+        ),
+      ),
+      bottomLeft: Radius.circular(
+        corner(
+          animated.bottomLeft.x,
+          widget.targetRadius.bottomLeft.x,
+          widget.freezeBottomLeft,
+        ),
+      ),
+      bottomRight: Radius.circular(
+        corner(
+          animated.bottomRight.x,
+          widget.targetRadius.bottomRight.x,
+          widget.freezeBottomRight,
+        ),
+      ),
     );
-    _lastFrame.cachedRadius = BorderRadius.only(
-      topLeft: Radius.circular(_curTopLeft),
-      topRight: Radius.circular(_curTopRight),
-      bottomLeft: Radius.circular(_curBottomLeft),
-      bottomRight: Radius.circular(_curBottomRight),
-    );
-  }
-
-  bool _targetsChanged(MorphRadiusAndPaddingMotion old) {
-    return widget.targetRadius != old.targetRadius ||
-        widget.internalLeft != old.internalLeft ||
-        widget.internalRight != old.internalRight ||
-        widget.internalTop != old.internalTop ||
-        widget.internalBottom != old.internalBottom;
-  }
-
-  void _onFrame({
-    required double tl,
-    required double tr,
-    required double bl,
-    required double br,
-    required double l,
-    required double r,
-    required double t,
-    required double b,
-  }) {
-    _curTopLeft = tl;
-    _curTopRight = tr;
-    _curBottomLeft = bl;
-    _curBottomRight = br;
-    _curLeft = l;
-    _curRight = r;
-    _curTop = t;
-    _curBottom = b;
-  }
-
-  bool _shouldThrottleUpdate(
-    double tl,
-    double tr,
-    double bl,
-    double br,
-    double l,
-    double r,
-    double t,
-    double b,
-  ) {
-    final current = _CachedLerpResult()
-      ..tl = tl
-      ..tr = tr
-      ..bl = bl
-      ..br = br
-      ..l = l
-      ..r = r
-      ..t = t
-      ..b = b;
-
-    if (_lastFrame.hasChangedSignificantly(current)) {
-      _lastFrame.tl = tl;
-      _lastFrame.tr = tr;
-      _lastFrame.bl = bl;
-      _lastFrame.br = br;
-      _lastFrame.l = l;
-      _lastFrame.r = r;
-      _lastFrame.t = t;
-      _lastFrame.b = b;
-      return false;
-    }
-    return true;
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool instant =
+        widget.snapToTarget ||
+        (MediaQuery.maybeOf(context)?.disableAnimations ?? false);
     return RepaintBoundary(
-      child: SingleMotionBuilder(
-        motion: widget.motion,
-        value: _progressTarget,
-        builder: (context, t, _) {
-          // Allow spatial overshoot past the target (toolbar/FAB recipe).
-          final double rawFactor = _progressTarget == 1.0 ? t : 1.0 - t;
-          final double factor = rawFactor.isFinite
-              ? rawFactor.clamp(0.0, 1.5)
-              : 0.0;
-
-          double corner(double from, double to) {
-            final double v = lerpDouble(from, to, factor)!;
-            return v < 0 ? 0.0 : v;
-          }
-
-          final double tl = widget.freezeTopLeft
-              ? widget.targetRadius.topLeft.x
-              : corner(_srcTopLeft, widget.targetRadius.topLeft.x);
-          final double tr = widget.freezeTopRight
-              ? widget.targetRadius.topRight.x
-              : corner(_srcTopRight, widget.targetRadius.topRight.x);
-          final double bl = widget.freezeBottomLeft
-              ? widget.targetRadius.bottomLeft.x
-              : corner(_srcBottomLeft, widget.targetRadius.bottomLeft.x);
-          final double br = widget.freezeBottomRight
-              ? widget.targetRadius.bottomRight.x
-              : corner(_srcBottomRight, widget.targetRadius.bottomRight.x);
-          final double curL = lerpDouble(
-            _srcLeft,
-            widget.internalLeft,
-            factor,
-          )!;
-          final double curR = lerpDouble(
-            _srcRight,
-            widget.internalRight,
-            factor,
-          )!;
-          final double curT = lerpDouble(_srcTop, widget.internalTop, factor)!;
-          final double curB = lerpDouble(
-            _srcBottom,
-            widget.internalBottom,
-            factor,
-          )!;
-
-          _onFrame(
-            tl: tl,
-            tr: tr,
-            bl: bl,
-            br: br,
-            l: curL,
-            r: curR,
-            t: curT,
-            b: curB,
-          );
-
-          if (_shouldThrottleUpdate(tl, tr, bl, br, curL, curR, curT, curB)) {
-            return widget.builder(
-              _lastFrame.cachedInsets ??
-                  EdgeInsets.fromLTRB(curL, curT, curR, curB),
-              _lastFrame.cachedRadius ??
-                  BorderRadius.only(
-                    topLeft: Radius.circular(tl),
-                    topRight: Radius.circular(tr),
-                    bottomLeft: Radius.circular(bl),
-                    bottomRight: Radius.circular(br),
-                  ),
-            );
-          }
-
-          _lastFrame.cachedInsets = EdgeInsets.fromLTRB(curL, curT, curR, curB);
-          _lastFrame.cachedRadius = BorderRadius.only(
-            topLeft: Radius.circular(tl),
-            topRight: Radius.circular(tr),
-            bottomLeft: Radius.circular(bl),
-            bottomRight: Radius.circular(br),
-          );
-
-          return widget.builder(
-            _lastFrame.cachedInsets!,
-            _lastFrame.cachedRadius!,
-          );
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, _) {
+          final value = instant ? _target() : _visible;
+          return widget.builder(value.padding, _radius(value.radius));
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+}
+
+@immutable
+class _MorphShapeGeometry {
+  const _MorphShapeGeometry({required this.padding, required this.radius});
+  final EdgeInsets padding;
+  final BorderRadius radius;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _MorphShapeGeometry &&
+      padding == other.padding &&
+      radius == other.radius;
+
+  @override
+  int get hashCode => Object.hash(padding, radius);
+}
+
+class _MorphShapeTween extends Tween<_MorphShapeGeometry> {
+  _MorphShapeTween({required super.begin, required super.end});
+
+  @override
+  _MorphShapeGeometry lerp(double t) => _MorphShapeGeometry(
+    padding: EdgeInsets.lerp(begin!.padding, end!.padding, t)!,
+    radius: BorderRadius.lerp(begin!.radius, end!.radius, t)!,
+  );
+}
+
+/// A restrained overshoot on the geometry transition.
+class _MorphShapeCurve extends Curve {
+  const _MorphShapeCurve();
+
+  @override
+  double transformInternal(double t) {
+    final cubic = Curves.easeOutCubic.transform(t);
+    final back = Curves.easeOutBack.transform(t);
+    return cubic + (back - cubic) * 0.45;
   }
 }

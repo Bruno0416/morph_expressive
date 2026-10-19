@@ -97,8 +97,9 @@ class MorphFabContainerTransformScope extends InheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(covariant MorphFabContainerTransformScope oldWidget) =>
-      close != oldWidget.close;
+  bool updateShouldNotify(
+    covariant MorphFabContainerTransformScope oldWidget,
+  ) => close != oldWidget.close;
 }
 
 class _MorphFabContainerTransformPageRoute<T> extends PageRoute<T> {

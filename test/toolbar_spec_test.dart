@@ -355,7 +355,11 @@ Future<void> _selectedActionsAreTonalAndTheEmphasisActionIsFilled(
       child: const MorphToolbar.docked(
         safeArea: false,
         actions: <MorphToolbarItem>[
-          MorphToolbarAction(icon: MorphIcons.edit, onPressed: _noop, active: true),
+          MorphToolbarAction(
+            icon: MorphIcons.edit,
+            onPressed: _noop,
+            active: true,
+          ),
         ],
       ),
     ),

@@ -209,7 +209,10 @@ class MorphFabMenuTheme extends MorphThemeExtension<MorphFabMenuTheme> {
   }
 
   /// Close icon color for [set] (on-filled role).
-  Color closeForegroundColor(MorphColorScheme scheme, MorphFabMenuColorSet set) {
+  Color closeForegroundColor(
+    MorphColorScheme scheme,
+    MorphFabMenuColorSet set,
+  ) {
     switch (set) {
       case MorphFabMenuColorSet.primary:
         return scheme.onPrimary;

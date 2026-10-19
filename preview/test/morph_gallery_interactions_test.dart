@@ -20,17 +20,23 @@ void main() {
     await revealShowcaseCategory(tester, value);
   }
 
-  testWidgets('connected buttons default to exclusive selection', (tester) async {
+  testWidgets('connected buttons default to exclusive selection', (
+    tester,
+  ) async {
     await start(tester);
     await category(tester, 'button_group');
-    final widget = tester.widget<MorphButtonGroup>(find.byType(MorphButtonGroup));
+    final widget = tester.widget<MorphButtonGroup>(
+      find.byType(MorphButtonGroup),
+    );
     expect(widget.multiSelect, isFalse);
     expect(widget.selectedIndex, 0);
     expect(widget.selectedIndices, isNull);
     expect(widget.selectionRequired, isTrue);
   });
 
-  testWidgets('filter and input chips maintain independent state', (tester) async {
+  testWidgets('filter and input chips maintain independent state', (
+    tester,
+  ) async {
     await start(tester);
     await category(tester, 'chips');
     final filter = find.byKey(const ValueKey('chip_filter'));
@@ -51,7 +57,9 @@ void main() {
     expect(tester.widget<MorphChip>(input).selected, isTrue);
   });
 
-  testWidgets('assist and suggestion chips show visible action feedback', (tester) async {
+  testWidgets('assist and suggestion chips show visible action feedback', (
+    tester,
+  ) async {
     await start(tester);
     await category(tester, 'chips');
     await tester.tap(find.byKey(const ValueKey('chip_assist')));
@@ -62,19 +70,25 @@ void main() {
     expect(find.text('Last action: suggestion (2)'), findsOneWidget);
   });
 
-  testWidgets('slider preview includes wave and range constructors', (tester) async {
+  testWidgets('slider preview includes wave and range constructors', (
+    tester,
+  ) async {
     await start(tester);
     await category(tester, 'sliders');
-    final sliders = tester.widgetList<MorphSlider>(find.byType(MorphSlider)).toList();
+    final sliders = tester
+        .widgetList<MorphSlider>(find.byType(MorphSlider))
+        .toList();
     expect(sliders.where((item) => item.wavy).length, 2);
-    final ranges = tester.widgetList<MorphRangeSlider>(
-      find.byType(MorphRangeSlider),
-    ).toList();
+    final ranges = tester
+        .widgetList<MorphRangeSlider>(find.byType(MorphRangeSlider))
+        .toList();
     expect(ranges.length, 2);
     expect(ranges.where((item) => item.wavy).length, 1);
   });
 
-  testWidgets('tab preview includes secondary tabs and a swipeable view', (tester) async {
+  testWidgets('tab preview includes secondary tabs and a swipeable view', (
+    tester,
+  ) async {
     await start(tester);
     await category(tester, 'tabs');
     expect(find.byType(MorphTabs), findsNWidgets(2));
@@ -107,20 +121,26 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('Select all'), findsOneWidget);
-    expect(find.descendant(
-      of: find.byType(MorphSelectionAppBar),
-      matching: find.text('1'),
-    ), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(MorphSelectionAppBar),
+        matching: find.text('1'),
+      ),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
 
     await tester.tap(find.text('Select all'));
     expect(scope.controller.selectedIndices, unorderedEquals(<int>[0, 1, 2]));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.descendant(
-      of: find.byType(MorphSelectionAppBar),
-      matching: find.text('3'),
-    ), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(MorphSelectionAppBar),
+        matching: find.text('3'),
+      ),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
 
     // MorphIconButton utiliza MorphTooltip, no el Tooltip de Flutter.
@@ -128,7 +148,8 @@ void main() {
     final clearSelection = find.descendant(
       of: find.byType(MorphSelectionAppBar),
       matching: find.byWidgetPredicate(
-        (widget) => widget is MorphIconButton &&
+        (widget) =>
+            widget is MorphIconButton &&
             widget.semanticLabel == 'Clear selection',
       ),
     );
@@ -144,8 +165,10 @@ void main() {
   testWidgets('card preview includes every variant and group', (tester) async {
     await start(tester);
     await category(tester, 'cards');
-    final variants = tester.widgetList<MorphCard>(find.byType(MorphCard))
-        .map((card) => card.variant).toSet();
+    final variants = tester
+        .widgetList<MorphCard>(find.byType(MorphCard))
+        .map((card) => card.variant)
+        .toSet();
     expect(variants, containsAll(MorphCardVariant.values));
     expect(find.byType(MorphCardGroup), findsOneWidget);
   });

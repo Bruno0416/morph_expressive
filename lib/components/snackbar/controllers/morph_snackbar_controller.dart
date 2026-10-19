@@ -40,6 +40,7 @@ class MorphSnackbarController extends ChangeNotifier {
     BuildContext context, {
     required Widget child,
     Duration? duration,
+    bool swipeDismissible = false,
   }) {
     if (_disposed) {
       return;
@@ -52,6 +53,7 @@ class MorphSnackbarController extends ChangeNotifier {
       builder: (BuildContext context) {
         return MorphSnackbarHost(
           duration: duration,
+          swipeDismissible: swipeDismissible,
           entry: entry,
           controller: this,
           child: child,

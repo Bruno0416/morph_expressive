@@ -208,7 +208,10 @@ Future<void> _defaultsToCircleBorderContainerShape(WidgetTester tester) async {
   );
   final decoration = decoratedBox.decoration as ShapeDecoration;
   expect(decoration.shape, isA<CircleBorder>());
-  expect(MorphLoadingIndicatorTheme.defaults.containerShape, isA<CircleBorder>());
+  expect(
+    MorphLoadingIndicatorTheme.defaults.containerShape,
+    isA<CircleBorder>(),
+  );
 }
 
 Future<void> _sizeScalesOuterAndActiveWith3848Ratio(WidgetTester tester) async {
@@ -263,7 +266,9 @@ Future<void> _resolvesDefaultAndContainedColorsFromTheme(
 
   await tester.pumpWidget(
     _host(
-      const MorphLoadingIndicator(variant: MorphLoadingIndicatorVariant.contained),
+      const MorphLoadingIndicator(
+        variant: MorphLoadingIndicatorVariant.contained,
+      ),
       theme: theme,
     ),
   );
@@ -287,7 +292,9 @@ Future<void> _supportsSingleAndMultipleIndicatorColors(
   ];
   const updatedColors = <Color>[Color(0xffffff00), Color(0xffff00ff)];
 
-  await tester.pumpWidget(_host(const MorphLoadingIndicator(color: singleColor)));
+  await tester.pumpWidget(
+    _host(const MorphLoadingIndicator(color: singleColor)),
+  );
   var indicator = tester.widget<MorphExpressiveLoadingIndicator>(
     find.byType(MorphExpressiveLoadingIndicator),
   );

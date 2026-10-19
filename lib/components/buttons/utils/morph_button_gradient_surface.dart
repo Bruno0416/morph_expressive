@@ -42,7 +42,10 @@ ButtonLayerBuilder? morphGradientSurfaceBuilder({
     );
     final Gradient? outline = outlineGradient?.resolve(states);
     final BorderSide? side = outlineSide?.resolve(states);
-    final double width = morphOutlineWidth(side, fallback: outlineFallbackWidth);
+    final double width = morphOutlineWidth(
+      side,
+      fallback: outlineFallbackWidth,
+    );
     if (outline != null ||
         (side != null && side.style != BorderStyle.none && outline == null)) {
       result = morphGradientOutlineLayer(

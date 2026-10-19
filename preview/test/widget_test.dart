@@ -14,7 +14,9 @@ void main() {
     await tester.pumpWidget(const MorphPreviewApp());
   }
 
-  testWidgets('showcase theme and seed controls remain interactive', (tester) async {
+  testWidgets('showcase theme and seed controls remain interactive', (
+    tester,
+  ) async {
     await start(tester);
     // El nombre aparece en el AppBar y en el encabezado del catalogo.
     // Comprobar la identidad del titulo de la barra evita un falso fallo.
@@ -30,9 +32,12 @@ void main() {
     expect(find.byKey(const ValueKey('seed_Teal')), findsOneWidget);
 
     final dark = tester.widget<Scaffold>(find.byType(Scaffold).first);
-    expect(dark.backgroundColor, MorphThemeData.dark(
-      seedColor: const Color(0xFF6750A4),
-    ).colorScheme.surface);
+    expect(
+      dark.backgroundColor,
+      MorphThemeData.dark(seedColor: const Color(0xFF6750A4))
+          .colorScheme
+          .surface,
+    );
 
     await tester.tap(find.byTooltip('Switch theme'));
     await tester.pump();
@@ -40,8 +45,9 @@ void main() {
     expect(light.backgroundColor, isNot(dark.backgroundColor));
   });
 
-  testWidgets('the gallery scrolls without a sidebar or icon diagnostics',
-      (tester) async {
+  testWidgets('the gallery scrolls without a sidebar or icon diagnostics', (
+    tester,
+  ) async {
     await start(tester);
     expect(find.byKey(const ValueKey('morph_showcase_scroll')), findsOneWidget);
     expect(find.byKey(const ValueKey('category_icon_lab')), findsNothing);

@@ -26,7 +26,10 @@ Iterable<Widget> _results(BuildContext context, MorphSearchController c) {
 }
 
 Finder get _barMaterial => find
-    .descendant(of: find.byType(MorphSearchBar), matching: find.byType(Material))
+    .descendant(
+      of: find.byType(MorphSearchBar),
+      matching: find.byType(Material),
+    )
     .first;
 
 Finder get _viewBar => find.byWidgetPredicate(
@@ -297,7 +300,9 @@ Future<void> _dividedFullScreenView72HeaderAndDivider(
     find.descendant(of: _viewBar, matching: find.byType(Material)).first,
   );
   expect(bar.height, closeTo(72, 0.1));
-  final MorphDivider divider = tester.widget<MorphDivider>(find.byType(MorphDivider));
+  final MorphDivider divider = tester.widget<MorphDivider>(
+    find.byType(MorphDivider),
+  );
   expect(divider.color, _theme.colorScheme.outline);
   // Results line up with the header's 16 space.
   expect(tester.getRect(find.byType(ListTile).first).left, closeTo(16, 0.1));

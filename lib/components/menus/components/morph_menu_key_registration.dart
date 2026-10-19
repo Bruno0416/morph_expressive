@@ -28,7 +28,8 @@ class MorphMenuKeyRegistration extends StatefulWidget {
   final Widget Function(FocusNode node) builder;
 
   @override
-  State<MorphMenuKeyRegistration> createState() => _MorphMenuKeyRegistrationState();
+  State<MorphMenuKeyRegistration> createState() =>
+      _MorphMenuKeyRegistrationState();
 }
 
 class _MorphMenuKeyRegistrationState extends State<MorphMenuKeyRegistration> {

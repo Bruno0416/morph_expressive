@@ -33,7 +33,8 @@ class _MorphSideSheetModalHost extends StatefulWidget {
   final MorphSideSheetController? controller;
 
   @override
-  State<_MorphSideSheetModalHost> createState() => _MorphSideSheetModalHostState();
+  State<_MorphSideSheetModalHost> createState() =>
+      _MorphSideSheetModalHostState();
 }
 
 class _MorphSideSheetModalHostState extends State<_MorphSideSheetModalHost>
@@ -58,6 +59,8 @@ class _MorphSideSheetModalHostState extends State<_MorphSideSheetModalHost>
   bool _dismissing = false;
   bool _started = false;
   bool _fromAnchor = false;
+  bool _dragTranslation = false;
+  bool _dragArmed = false;
 
   MorphSideSheetMotion get _motion => widget.theme.motion;
 
@@ -112,7 +115,12 @@ class _MorphSideSheetModalHostState extends State<_MorphSideSheetModalHost>
 
   void _onStatus(AnimationStatus status) {
     final bool open = status.isForwardOrCompleted;
-    morphSideSheetAnimate(context, _entrance, _motion.enterSpring, open ? 1 : 0);
+    morphSideSheetAnimate(
+      context,
+      _entrance,
+      _motion.enterSpring,
+      open ? 1 : 0,
+    );
     morphSideSheetAnimate(context, _scrim, _motion.scrimSpring, open ? 1 : 0);
     widget.controller?.updateOpen(isOpen: open);
   }
@@ -151,6 +159,8 @@ class _MorphSideSheetModalHostState extends State<_MorphSideSheetModalHost>
       final bool allowed = guard == null || await guard();
       if (allowed && mounted) {
         _pop();
+      } else if (mounted && _dragTranslation) {
+        _settleDragBack();
       }
     } finally {
       _dismissing = false;
@@ -164,6 +174,51 @@ class _MorphSideSheetModalHostState extends State<_MorphSideSheetModalHost>
 
   bool get _onRight => _morphSideSheetOnRight(context, widget.sheet.edge);
 
+  void _armDragHaptic(double progress) {
+    if (progress >= 0.3 && !_dragArmed) {
+      _dragArmed = true;
+      MorphHaptics.selectionFor(context);
+    } else if (progress < 0.3) {
+      _dragArmed = false;
+    }
+  }
+
+  void _onSheetDragStart(DragStartDetails details) {
+    _dragTranslation = true;
+    _dragArmed = false;
+    _fromAnchor = true;
+    _back
+      ..stop()
+      ..value = 0;
+  }
+
+  void _onSheetDragUpdate(DragUpdateDetails details) {
+    final double width = widget.theme.resolveWidth(
+      widget.sheet.width,
+      MediaQuery.sizeOf(context).width,
+    );
+    if (width <= 0) return;
+    final double delta = (details.primaryDelta ?? 0) * (_onRight ? 1 : -1);
+    _back.value = (_back.value + delta / width).clamp(0.0, 1.0);
+    _armDragHaptic(_back.value);
+  }
+
+  void _onSheetDragEnd(DragEndDetails details) {
+    final double velocity =
+        (details.primaryVelocity ?? 0) * (_onRight ? 1 : -1);
+    if (_back.value >= 0.3 || velocity > 650) {
+      if (!_dragArmed) MorphHaptics.selectionFor(context);
+      _requestDismiss();
+    } else {
+      _settleDragBack();
+    }
+  }
+
+  void _settleDragBack() {
+    if (!mounted) return;
+    morphSideSheetAnimate(context, _back, _motion.settleSpring, 0);
+  }
+
   // ── Predictive back ────────────────────────────────────────────────────
 
   @override
@@ -173,6 +228,8 @@ class _MorphSideSheetModalHostState extends State<_MorphSideSheetModalHost>
       return false;
     }
     _fromAnchor = (backEvent.swipeEdge == SwipeEdge.right) == _onRight;
+    _dragTranslation = false;
+    _dragArmed = false;
     _back
       ..stop()
       ..value = backEvent.progress;
@@ -182,6 +239,7 @@ class _MorphSideSheetModalHostState extends State<_MorphSideSheetModalHost>
   @override
   void handleUpdateBackGestureProgress(PredictiveBackEvent backEvent) {
     _back.value = backEvent.progress;
+    _armDragHaptic(backEvent.progress);
   }
 
   @override
@@ -244,18 +302,40 @@ class _MorphSideSheetModalHostState extends State<_MorphSideSheetModalHost>
         ),
         Align(
           alignment: right ? Alignment.centerRight : Alignment.centerLeft,
-          child: FractionalTranslation(
-            translation: Offset((right ? 1 : -1) * (1 - _entrance.value), 0),
-            child: _morphSideSheetLightBars(
-              context,
-              _MorphSideSheetScope(
-                modal: 1,
-                back: _back.value,
-                fromAnchoredEdge: _fromAnchor,
-                onClose: _onClosePressed,
-                autofocus: _keyboard,
-                routeScope: true,
-                child: widget.sheet,
+          child: GestureDetector(
+            behavior: HitTestBehavior.deferToChild,
+            onHorizontalDragStart: widget.isDismissible
+                ? _onSheetDragStart
+                : null,
+            onHorizontalDragUpdate: widget.isDismissible
+                ? _onSheetDragUpdate
+                : null,
+            onHorizontalDragEnd: widget.isDismissible ? _onSheetDragEnd : null,
+            onHorizontalDragCancel: widget.isDismissible
+                ? _settleDragBack
+                : null,
+            child: Transform.translate(
+              offset: Offset(
+                _dragTranslation ? (right ? 1 : -1) * _back.value * 80 : 0,
+                0,
+              ),
+              child: FractionalTranslation(
+                translation: Offset(
+                  (right ? 1 : -1) * (1 - _entrance.value),
+                  0,
+                ),
+                child: _morphSideSheetLightBars(
+                  context,
+                  _MorphSideSheetScope(
+                    modal: 1,
+                    back: _back.value,
+                    fromAnchoredEdge: _fromAnchor,
+                    onClose: _onClosePressed,
+                    autofocus: _keyboard,
+                    routeScope: true,
+                    child: widget.sheet,
+                  ),
+                ),
               ),
             ),
           ),

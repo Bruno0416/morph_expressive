@@ -1,7 +1,6 @@
 import 'package:morph_expressive/components/button_group/morph_button_group.dart'
     show MorphButtonGroup;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphButtonGroup;
+import 'package:morph_expressive/morph_components.dart' show MorphButtonGroup;
 import 'package:material_ui/material_ui.dart';
 
 import 'morph_button_motion.dart';

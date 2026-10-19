@@ -104,6 +104,7 @@ mixin MorphDismissibleCardMixin<T extends StatefulWidget>
   int _collapsingCount = 0;
   bool _dismissPending = false;
   final Stopwatch _hapticStopwatch = Stopwatch()..start();
+  double _lastHapticOffset = 0;
   final Map<MorphDismissibleSlot, GlobalKey> _measureKeys = {};
 
   SingleMotionController? _springCtrl;

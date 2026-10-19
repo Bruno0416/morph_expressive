@@ -98,6 +98,7 @@ extension MorphDismissibleCardSpringSettle<T extends StatefulWidget>
           ..addListener(() {
             if (mounted) {
               setState(() => _dragOffset = _springCtrl!.value);
+              _playPullHaptics();
             }
           })
           ..addStatusListener(_onMotionSettled)
@@ -152,12 +153,13 @@ extension MorphDismissibleCardSpringSettle<T extends StatefulWidget>
   }
 
   void _playPullHaptics() {
-    if (!style.enableFeedback) {
+    if (!style.enableFeedback ||
+        !style.dismissHapticStream ||
+        (_dragOffset - _lastHapticOffset).abs() < 12 ||
+        _hapticStopwatch.elapsedMilliseconds < _kVibrationThresholdMs) {
       return;
     }
-    if (_hapticStopwatch.elapsedMilliseconds < _kVibrationThresholdMs) {
-      return;
-    }
+    _lastHapticOffset = _dragOffset;
     _hapticStopwatch.reset();
     MorphHaptics.selectionFor(context);
   }
@@ -184,6 +186,7 @@ extension MorphDismissibleCardSpringSettle<T extends StatefulWidget>
           ..addListener(() {
             if (mounted) {
               setState(() => _dragOffset = _springCtrl!.value);
+              _playPullHaptics();
             }
           })
           ..addStatusListener((s) {

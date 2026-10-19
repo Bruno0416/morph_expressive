@@ -3,8 +3,7 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:morph_expressive/components/dropdown_menus/morph_dropdown_menus.dart'
     show MorphDropdownMenu;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphDropdownMenu;
+import 'package:morph_expressive/morph_components.dart' show MorphDropdownMenu;
 import 'package:material_ui/material_ui.dart';
 
 import '../enums/morph_dropdown_expand_direction.dart';

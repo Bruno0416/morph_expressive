@@ -102,6 +102,52 @@ Row(
 
 ![Search, outlined and filled text fields](assets/gifs/textfields.gif)
 
+### Validation: onUnfocus or an errorText expression (0.4.0)
+
+`MorphTextField.onUnfocus` is an optional `ValueChanged<String>` callback.
+It receives the field's latest text once when focus is lost (tap outside,
+keyboard Tab navigation, or an explicit `FocusNode.unfocus()`). It does not
+run on the initial build, on text changes while focused, or when the widget
+is disposed. `onTapOutside` is separate: it responds to taps, while
+`onUnfocus` also works for keyboard and programmatic focus changes.
+
+**Validate on unfocus:** store a message in the surrounding `State` and pass
+it to `errorText`. The field automatically handles the error color, supporting
+message and accessibility semantics when `errorText` is non-null:
+
+```dart
+String? emailError; // State field
+
+MorphTextField(
+  label: 'Email',
+  onUnfocus: (value) {
+    setState(() {
+      emailError = value.trim().contains('@') ? null : 'Enter a valid email';
+    });
+  },
+  errorText: emailError,
+)
+```
+
+**Validate by expression:** keep the previous approach if validation should
+update as the user types. `onUnfocus` is not required:
+
+```dart
+String email = ''; // State field
+
+MorphTextField(
+  label: 'Email',
+  onChanged: (value) => setState(() => email = value),
+  errorText: email.isNotEmpty && !email.contains('@')
+      ? 'Enter a valid email'
+      : null,
+)
+```
+
+Both approaches use the same `errorText` rendering. `onUnfocus` is a focus
+notification, not an internal validation engine, and does not return an error
+message. A parent may combine the approaches when needed.
+
 ### Validation error icons
 
 `errorText` applies error styling and an accessible error message without
@@ -130,14 +176,45 @@ tab does not automatically move its enclosing scroll viewport. Opt in with
 `autoScrollToFocusedTab: true` if the app needs focus-following scrolling.
 The animated indicator and keyboard focus behavior remain available.
 
+## Refresh, progress indicators and sliders (0.4.0)
+
+`MorphRefreshIndicator` includes an animated circular progress ring during
+pull, an indeterminate ring while `onRefresh` is running, and a completion
+spin and impact on success. The default pull distance is more responsive;
+`armThreshold` (0 < value <= 1) and `pullSensitivity` (> 0) are configurable:
+
+```dart
+MorphRefreshIndicator(
+  armThreshold: 0.78,
+  pullSensitivity: 1.25,
+  onRefresh: reload,
+  child: scrollable,
+)
+```
+
+`reload` must return a `Future<void>` and `scrollable` must support an
+overscroll/pull gesture. Theme-managed haptics can be disabled globally.
+
+Circular indicators already accept `size` on both standard and wavy
+constructors, and 0.4.0 scales the stroke for compact use:
+
+```dart
+const MorphProgressIndicator.circular(size: 20)
+const MorphProgressIndicator.circularWavy(size: 64)
+```
+
+`MorphSlider` / `MorphRangeSlider` without `divisions` do not generate
+repeated detent haptics. Set `divisions` for feedback at each discrete value
+change. The native touch lab illustrates both modes in the same screen.
+
 ## Swipe actions on Morph lists
 
 Swipe actions are built into `MorphList`; no dependency on `flutter_slidable`
 is required. Set `swipe` on each `MorphListItem` (a standalone item does
 not provide the drag host). Swipe actions retain the standard Morph card
 surface, spring motion, radii, pill buttons, and list spacing. Swipeable
-rows do not inject a default trailing overflow icon; reveal them directly by
-gesture or through a dismiss controller to keep the row chrome clean.
+rows can expose an automatic trailing three-dot affordance when enabled by
+the list host. Gesture reveal or a dismiss controller remain available.
 
 ```dart
 MorphList(
@@ -185,8 +262,9 @@ when items can reorder. A disabled `MorphListItem` ignores swipe commands.
 ## Haptic feedback
 
 `MorphThemeData.hapticsEnabled` defaults to `true`; its
-`hapticFeedback` defaults to `MorphHapticFeedback.light`. Globally disabling
-haptics prevents Morph-managed controls from forcing a local impact. Local
+`hapticFeedback` defaults to `MorphHapticFeedback.light`. The resolved Light,
+Medium or Heavy setting also governs list actions and selection ticks in 0.4.0.
+Globally disabling haptics prevents Morph-managed controls from forcing a local impact. Local
 component overrides support `inherit` and `none` where provided. See
 [Theming](THEMING.md) for details and device limitations.
 

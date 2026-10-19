@@ -5,24 +5,30 @@ import 'package:morph_expressive/morph_expressive.dart';
 void main() {
   final theme = MorphThemeData.light(seedColor: const Color(0xFF6750A4));
 
-  testWidgets('MorphSegmentedToggle updates exclusive selection', (tester) async {
+  testWidgets('MorphSegmentedToggle updates exclusive selection', (
+    tester,
+  ) async {
     String value = 'Movies';
-    await tester.pumpWidget(MorphMaterialApp(
-      data: theme,
-      home: Scaffold(body: StatefulBuilder(
-        builder: (context, setState) => SizedBox(
-          width: 360,
-          child: MorphSegmentedToggle<String>(
-            options: const [
-              MorphSegmentedToggleOption(value: 'Movies', label: 'Movies'),
-              MorphSegmentedToggleOption(value: 'TV', label: 'TV Shows'),
-            ],
-            selected: value,
-            onChanged: (next) => setState(() => value = next),
+    await tester.pumpWidget(
+      MorphMaterialApp(
+        data: theme,
+        home: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, setState) => SizedBox(
+              width: 360,
+              child: MorphSegmentedToggle<String>(
+                options: const [
+                  MorphSegmentedToggleOption(value: 'Movies', label: 'Movies'),
+                  MorphSegmentedToggleOption(value: 'TV', label: 'TV Shows'),
+                ],
+                selected: value,
+                onChanged: (next) => setState(() => value = next),
+              ),
+            ),
           ),
         ),
-      )),
-    ));
+      ),
+    );
     expect(value, 'Movies');
     await tester.tap(find.text('TV Shows'));
     await tester.pump();
@@ -31,24 +37,30 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('MorphSegmentedToggle keeps the latest rapid selection', (tester) async {
+  testWidgets('MorphSegmentedToggle keeps the latest rapid selection', (
+    tester,
+  ) async {
     String value = 'Movies';
-    await tester.pumpWidget(MorphMaterialApp(
-      data: theme,
-      home: Scaffold(body: StatefulBuilder(
-        builder: (context, setState) => SizedBox(
-          width: 360,
-          child: MorphSegmentedToggle<String>(
-            options: const [
-              MorphSegmentedToggleOption(value: 'Movies', label: 'Movies'),
-              MorphSegmentedToggleOption(value: 'TV', label: 'TV Shows'),
-            ],
-            selected: value,
-            onChanged: (next) => setState(() => value = next),
+    await tester.pumpWidget(
+      MorphMaterialApp(
+        data: theme,
+        home: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, setState) => SizedBox(
+              width: 360,
+              child: MorphSegmentedToggle<String>(
+                options: const [
+                  MorphSegmentedToggleOption(value: 'Movies', label: 'Movies'),
+                  MorphSegmentedToggleOption(value: 'TV', label: 'TV Shows'),
+                ],
+                selected: value,
+                onChanged: (next) => setState(() => value = next),
+              ),
+            ),
           ),
         ),
-      )),
-    ));
+      ),
+    );
     await tester.tap(find.text('TV Shows'));
     await tester.pump(const Duration(milliseconds: 20));
     await tester.tap(find.text('Movies'));

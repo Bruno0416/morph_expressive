@@ -91,7 +91,8 @@ class MorphToolbarExpandingActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int triggerIndex = actions.indexWhere(
-      (MorphToolbarItem item) => item is MorphToolbarAction && item.isExpandTrigger,
+      (MorphToolbarItem item) =>
+          item is MorphToolbarAction && item.isExpandTrigger,
     );
 
     // No trigger → always show full actions row (no expand morph).
@@ -108,7 +109,8 @@ class MorphToolbarExpandingActions extends StatelessWidget {
     final List<MorphToolbarAction> overflow = partitioned.overflow;
 
     final int inlineTriggerIndex = inline.indexWhere(
-      (MorphToolbarItem item) => item is MorphToolbarAction && item.isExpandTrigger,
+      (MorphToolbarItem item) =>
+          item is MorphToolbarAction && item.isExpandTrigger,
     );
     final List<MorphToolbarItem> before = inline.sublist(0, inlineTriggerIndex);
     final trigger = inline[inlineTriggerIndex] as MorphToolbarAction;

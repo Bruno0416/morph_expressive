@@ -158,7 +158,8 @@ class MorphNavBarDestinationButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final MorphNavigationBarTheme theme = MorphTheme.of(context).navigationBarTheme;
+    final MorphNavigationBarTheme theme = MorphTheme.of(context)
+        .navigationBarTheme;
     return Semantics(
       role: SemanticsRole.tab,
       selected: selected,
@@ -180,7 +181,7 @@ class MorphNavBarDestinationButton extends StatelessWidget {
                 inkContext,
               );
               return InkWell(
-      enableFeedback: false,
+                enableFeedback: false,
                 onTap: ink?.onTap,
                 onLongPress: ink?.onLongPress,
                 onHover: ink?.onHover,
@@ -340,7 +341,10 @@ class MorphNavBarDestinationButton extends StatelessWidget {
     return state.hovered || state.focused || state.pressed;
   }
 
-  double _layerOpacity(MorphInteractionState state, MorphNavigationBarTheme theme) {
+  double _layerOpacity(
+    MorphInteractionState state,
+    MorphNavigationBarTheme theme,
+  ) {
     if (state.pressed) {
       return theme.pressedOpacity;
     }

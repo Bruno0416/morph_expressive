@@ -138,7 +138,10 @@ class _MorphChipGroupState extends State<MorphChipGroup> {
         _members
             .where((_MorphChipGroupRegistration member) => member._enabled)
             .toList()
-          ..sort((_MorphChipGroupRegistration a, _MorphChipGroupRegistration b) {
+          ..sort((
+            _MorphChipGroupRegistration a,
+            _MorphChipGroupRegistration b,
+          ) {
             final ao = a.focusNode.offset;
             final bo = b.focusNode.offset;
             final dy = ao.dy.compareTo(bo.dy);

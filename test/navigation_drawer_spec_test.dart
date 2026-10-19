@@ -7,21 +7,25 @@ import 'package:morph_expressive/components/navigation_rail/components/morph_nav
 import 'package:morph_expressive/morph_components.dart';
 import 'package:material_ui/material_ui.dart';
 
-const List<MorphNavigationDestination> _destinations = <MorphNavigationDestination>[
-  MorphNavigationDestination(icon: Icon(MorphIcons.home), label: 'Home'),
-  MorphNavigationDestination(icon: Icon(MorphIcons.search), label: 'Search'),
-  MorphNavigationDestination(
-    icon: Icon(MorphIcons.mail),
-    label: 'Inbox',
-    badgeLabel: '24',
-  ),
-];
+const List<MorphNavigationDestination> _destinations =
+    <MorphNavigationDestination>[
+      MorphNavigationDestination(icon: Icon(MorphIcons.home), label: 'Home'),
+      MorphNavigationDestination(
+        icon: Icon(MorphIcons.search),
+        label: 'Search',
+      ),
+      MorphNavigationDestination(
+        icon: Icon(MorphIcons.mail),
+        label: 'Inbox',
+        badgeLabel: '24',
+      ),
+    ];
 
 void main() {
   setUp(MorphFocusInteraction.resetForTest);
 
   testWidgets('width, pill, icon origin, and end radius', _geometry);
-  testWidgets('rows sit flush and labels stay on one line', _rows);
+  testWidgets('rows keep pill spacing and labels stay on one line', _rows);
   testWidgets('colors follow the drawer roles', _colors);
   testWidgets('hover and press use the state layers', _stateLayers);
   testWidgets(
@@ -111,8 +115,18 @@ Future<void> _rows(WidgetTester tester) async {
   final Finder buttons = find.byType(MorphDrawerDestinationButton);
   final first = tester.getRect(buttons.at(0));
   final second = tester.getRect(buttons.at(1));
-  expect(first.height, closeTo(56, 0.5));
+  // Each 56 dp destination has 4 dp of padding above and below,
+  // leaving an 8 dp gap between the visible destination pills.
+  expect(first.height, closeTo(64, 0.5));
   expect(second.top - first.bottom, closeTo(0, 0.5));
+  final pill = tester.getRect(
+    find.descendant(
+      of: buttons.at(0),
+      matching: find.byType(MorphSelectionIndicator),
+    ),
+  );
+  expect(pill.height, closeTo(56, 0.5));
+  expect(pill.top - first.top, closeTo(4, 0.5));
   expect(tester.widget<Text>(find.text('Home')).maxLines, 1);
   expect(
     tester.widget<Text>(find.text('Home')).style?.fontWeight,
@@ -400,7 +414,10 @@ Future<void> _controller(WidgetTester tester) async {
     controller.close();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
-    expect(tester.getSize(find.byType(MorphNavigationDrawer)).width, lessThan(1));
+    expect(
+      tester.getSize(find.byType(MorphNavigationDrawer)).width,
+      lessThan(1),
+    );
   } finally {
     await tester.pumpWidget(const SizedBox.shrink());
     controller.dispose();

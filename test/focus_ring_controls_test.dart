@@ -127,7 +127,9 @@ void registerFocusRingSearchBarKeyboardRingTests() {
 
     expect(focusNode.hasPrimaryFocus, isTrue);
     expect(MorphFocusRing.shouldShow(focusNode), isTrue);
-    final rings = tester.widgetList<MorphFocusRing>(find.byType(MorphFocusRing));
+    final rings = tester.widgetList<MorphFocusRing>(
+      find.byType(MorphFocusRing),
+    );
     expect(rings.any((MorphFocusRing r) => r.focused), isTrue);
   });
 }

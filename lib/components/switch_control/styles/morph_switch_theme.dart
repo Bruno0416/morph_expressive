@@ -177,7 +177,10 @@ class MorphSwitchTheme extends MorphThemeExtension<MorphSwitchTheme> {
           disabledSelectedHandleOpacity,
         );
       }
-      return MorphColorUtils.withOpacity(scheme.onSurface, disabledThumbOpacity);
+      return MorphColorUtils.withOpacity(
+        scheme.onSurface,
+        disabledThumbOpacity,
+      );
     }
     if (hovered || focused || pressed) {
       return value ? scheme.primaryContainer : scheme.onSurfaceVariant;

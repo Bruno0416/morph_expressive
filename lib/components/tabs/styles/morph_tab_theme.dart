@@ -276,7 +276,8 @@ class MorphTabTheme extends MorphThemeExtension<MorphTabTheme> {
       labelMaxLines: labelMaxLines ?? this.labelMaxLines,
       focusThickness: focusThickness ?? this.focusThickness,
       focusInset: focusInset ?? this.focusInset,
-      interactionCornerRadius: interactionCornerRadius ?? this.interactionCornerRadius,
+      interactionCornerRadius:
+          interactionCornerRadius ?? this.interactionCornerRadius,
       hoverOpacity: hoverOpacity ?? this.hoverOpacity,
       focusOpacity: focusOpacity ?? this.focusOpacity,
       pressedOpacity: pressedOpacity ?? this.pressedOpacity,
@@ -313,7 +314,11 @@ class MorphTabTheme extends MorphThemeExtension<MorphTabTheme> {
       labelMaxLines: spacing.labelMaxLines,
       focusThickness: interaction.focusThickness,
       focusInset: interaction.focusInset,
-      interactionCornerRadius: _lerpDouble(interactionCornerRadius, other.interactionCornerRadius, t),
+      interactionCornerRadius: _lerpDouble(
+        interactionCornerRadius,
+        other.interactionCornerRadius,
+        t,
+      ),
       hoverOpacity: interaction.hoverOpacity,
       focusOpacity: interaction.focusOpacity,
       pressedOpacity: interaction.pressedOpacity,

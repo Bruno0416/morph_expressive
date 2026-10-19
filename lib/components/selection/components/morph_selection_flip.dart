@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 import 'package:material_ui/material_ui.dart'
     show CircleBorder, InkWell, Material, MaterialType;
+
 import '../../../foundations/foundations.dart';
 
 /// Minimum layout size for an interactive selection flip.

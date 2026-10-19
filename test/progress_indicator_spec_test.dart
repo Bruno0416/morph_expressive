@@ -96,7 +96,9 @@ void _linearTrackColorIsSecondaryContainer() {
 Future<void> _linearUsesSecondaryContainerTrackByDefault(
   WidgetTester tester,
 ) async {
-  await tester.pumpWidget(_host(const MorphProgressIndicator.linear(value: 0.5)));
+  await tester.pumpWidget(
+    _host(const MorphProgressIndicator.linear(value: 0.5)),
+  );
   final scheme = MorphThemeData.light().colorScheme;
   expect(_linearPainter(tester).track, scheme.secondaryContainer);
 }
@@ -104,7 +106,10 @@ Future<void> _linearUsesSecondaryContainerTrackByDefault(
 Future<void> _exposesProgressBarSemantics(WidgetTester tester) async {
   await tester.pumpWidget(
     _host(
-      const MorphProgressIndicator.circular(value: 0.6, semanticsLabel: 'Upload'),
+      const MorphProgressIndicator.circular(
+        value: 0.6,
+        semanticsLabel: 'Upload',
+      ),
     ),
   );
 
@@ -150,7 +155,9 @@ Future<void> _showTrackFalseIsPassedToLinearPainter(WidgetTester tester) async {
 }
 
 Future<void> _determinateLinearDrawsWithAStopSize(WidgetTester tester) async {
-  await tester.pumpWidget(_host(const MorphProgressIndicator.linear(value: 0.5)));
+  await tester.pumpWidget(
+    _host(const MorphProgressIndicator.linear(value: 0.5)),
+  );
   final painter = _linearPainter(tester);
   expect(painter.value, 0.5);
   expect(painter.stopSize, greaterThan(0));

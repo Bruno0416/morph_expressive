@@ -2,8 +2,7 @@ import 'package:morph_expressive/components/toolbars/morph_toolbars.dart'
     show MorphToolbar;
 import 'package:morph_expressive/components/toolbars/models/morph_toolbar_item.dart'
     show MorphToolbarAction;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphToolbar;
+import 'package:morph_expressive/morph_components.dart' show MorphToolbar;
 
 /// Whether the toolbar floats over content or docks to an edge.
 enum MorphToolbarPlacement {

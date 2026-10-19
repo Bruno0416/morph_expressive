@@ -1,7 +1,8 @@
 part of '../morph_button_group.dart';
 
 /// Sets cross-axis alignment for a child inside an [MorphButtonGroup].
-class MorphButtonGroupAlign extends ParentDataWidget<MorphButtonGroupParentData> {
+class MorphButtonGroupAlign
+    extends ParentDataWidget<MorphButtonGroupParentData> {
   /// Creates an alignment widget for a group child.
   const MorphButtonGroupAlign({
     super.key,

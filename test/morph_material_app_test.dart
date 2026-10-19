@@ -77,7 +77,9 @@ Future<void> _morphthemescopeCachesDarkTemplateAcrossResolveCalls(
         autoTheming: true,
         child: Builder(
           builder: (BuildContext context) {
-            final MorphThemeScopeState? scope = MorphThemeScope.maybeOf(context);
+            final MorphThemeScopeState? scope = MorphThemeScope.maybeOf(
+              context,
+            );
             final MorphThemeData first = scope!.resolve(context);
             final MorphThemeData second = scope.resolve(context);
             expect(identical(first, second), isTrue);

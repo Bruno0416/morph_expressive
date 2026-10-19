@@ -83,7 +83,10 @@ Future<void> _dismissibleDefaultTap(WidgetTester tester) async {
           onDismiss: (DismissDirection direction) async => false,
           trailing: index == 0
               ? const <MorphListSwipeAction>[
-                  MorphListSwipeAction(icon: Icon(MorphIcons.archive), width: 56),
+                  MorphListSwipeAction(
+                    icon: Icon(MorphIcons.archive),
+                    width: 56,
+                  ),
                 ]
               : const <MorphListSwipeAction>[],
         ),

@@ -384,7 +384,8 @@ class MorphToolbar extends StatefulWidget implements PreferredSizeWidget {
   State<MorphToolbar> createState() => _MorphToolbarState();
 }
 
-class _MorphToolbarState extends State<MorphToolbar> with TickerProviderStateMixin {
+class _MorphToolbarState extends State<MorphToolbar>
+    with TickerProviderStateMixin {
   late bool _expanded;
   late SingleMotionController _expandCtrl;
   double _fabSize = MorphToolbarTokens.fabBaseline;
@@ -403,7 +404,8 @@ class _MorphToolbarState extends State<MorphToolbar> with TickerProviderStateMix
           widget.fabExpandIcon != null ||
           widget.fabCollapseIcon != null);
   bool get _hasTrigger => widget.actions.any(
-    (MorphToolbarItem item) => item is MorphToolbarAction && item.isExpandTrigger,
+    (MorphToolbarItem item) =>
+        item is MorphToolbarAction && item.isExpandTrigger,
   );
 
   /// Scroll-collapse (collapse to the adjacent FAB / expand-trigger action
@@ -610,7 +612,8 @@ class _MorphToolbarState extends State<MorphToolbar> with TickerProviderStateMix
       return MorphToolbarTokens.fabBaseline;
     }
     return MorphToolbarTokens.fabMedium +
-        (MorphToolbarTokens.fabBaseline - MorphToolbarTokens.fabMedium) * progress;
+        (MorphToolbarTokens.fabBaseline - MorphToolbarTokens.fabMedium) *
+            progress;
   }
 
   double get _fabLayoutProgress => _usesFabExpand ? _expandCtrl.value : 1.0;

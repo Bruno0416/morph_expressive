@@ -17,7 +17,8 @@ void main() {
   });
 
   test('bottomSheetOverlayStyle uses light status bar icons only', () {
-    const SystemUiOverlayStyle style = MorphScrimSystemUi.bottomSheetOverlayStyle;
+    const SystemUiOverlayStyle style =
+        MorphScrimSystemUi.bottomSheetOverlayStyle;
 
     expect(style.statusBarColor, Colors.transparent);
     expect(style.statusBarIconBrightness, Brightness.light);

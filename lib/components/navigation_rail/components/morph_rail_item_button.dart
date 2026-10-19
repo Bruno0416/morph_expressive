@@ -119,7 +119,7 @@ class MorphRailItemButton extends StatelessWidget {
                 inkContext,
               );
               return InkWell(
-      enableFeedback: false,
+                enableFeedback: false,
                 onTap: ink?.onTap,
                 onLongPress: ink?.onLongPress,
                 onHover: ink?.onHover,

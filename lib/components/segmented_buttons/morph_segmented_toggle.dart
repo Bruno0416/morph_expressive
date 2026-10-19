@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:material_ui/material_ui.dart' show InkWell, Material, MaterialType;
+import 'package:material_ui/material_ui.dart'
+    show InkWell, Material, MaterialType;
 import 'package:motor/motor.dart';
 
 import '../../foundations/foundations.dart';
@@ -86,9 +87,11 @@ class _MorphSegmentedToggleState<T> extends State<MorphSegmentedToggle<T>> {
   @override
   void didUpdateWidget(covariant MorphSegmentedToggle<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final changedOptions = oldWidget.options.length != widget.options.length ||
-        !oldWidget.options.asMap().entries.every((entry) =>
-            entry.value.value == widget.options[entry.key].value);
+    final changedOptions =
+        oldWidget.options.length != widget.options.length ||
+        !oldWidget.options.asMap().entries.every(
+          (entry) => entry.value.value == widget.options[entry.key].value,
+        );
     if (changedOptions) {
       _stretchTimer?.cancel();
       _width = null;
@@ -110,13 +113,19 @@ class _MorphSegmentedToggleState<T> extends State<MorphSegmentedToggle<T>> {
     final targetLeft = newIndex * segment;
     final targetRight = (newIndex + 1) * segment;
     if (oldIndex == newIndex) {
-      setState(() { _left = targetLeft; _right = targetRight; });
+      setState(() {
+        _left = targetLeft;
+        _right = targetRight;
+      });
       return;
     }
     final rightward = newIndex > oldIndex;
     setState(() {
-      if (rightward) { _right = targetRight; }
-      else { _left = targetLeft; }
+      if (rightward) {
+        _right = targetRight;
+      } else {
+        _left = targetLeft;
+      }
     });
     _stretchTimer = Timer(widget.stretchDelay, () {
       if (!mounted) return;
@@ -125,8 +134,11 @@ class _MorphSegmentedToggleState<T> extends State<MorphSegmentedToggle<T>> {
       if (currentWidth == null || currentIndex == -1) return;
       final step = currentWidth / widget.options.length;
       setState(() {
-        if (rightward) { _left = currentIndex * step; }
-        else { _right = (currentIndex + 1) * step; }
+        if (rightward) {
+          _left = currentIndex * step;
+        } else {
+          _right = (currentIndex + 1) * step;
+        }
       });
     });
   }
@@ -155,76 +167,103 @@ class _MorphSegmentedToggleState<T> extends State<MorphSegmentedToggle<T>> {
           Text(widget.label!, style: theme.textTheme.labelMedium),
           const SizedBox(height: 8),
         ],
-        LayoutBuilder(builder: (context, constraints) {
-          if (!constraints.hasBoundedWidth) {
-            throw FlutterError('MorphSegmentedToggle needs a bounded width.');
-          }
-          final width = constraints.maxWidth;
-          if (_width != width) _align(width);
-          final motion = Motion.curved(widget.duration, widget.curve);
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(radius),
-            child: SizedBox(
-              height: widget.height,
-              child: ColoredBox(
-                color: widget.backgroundColor ?? scheme.surfaceContainerHighest,
-                child: SingleMotionBuilder(
-                  motion: motion,
-                  value: _left,
-                  builder: (context, left, _) => SingleMotionBuilder(
+        LayoutBuilder(
+          builder: (context, constraints) {
+            if (!constraints.hasBoundedWidth) {
+              throw FlutterError('MorphSegmentedToggle needs a bounded width.');
+            }
+            final width = constraints.maxWidth;
+            if (_width != width) _align(width);
+            final motion = Motion.curved(widget.duration, widget.curve);
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(radius),
+              child: SizedBox(
+                height: widget.height,
+                child: ColoredBox(
+                  color:
+                      widget.backgroundColor ?? scheme.surfaceContainerHighest,
+                  child: SingleMotionBuilder(
                     motion: motion,
-                    value: _right,
-                    builder: (context, right, _) => Stack(children: [
-                      Positioned(
-                        left: left + widget.padding,
-                        top: widget.padding,
-                        height: widget.height - 2 * widget.padding,
-                        width: (right - left - 2 * widget.padding)
-                            .clamp(0.0, width).toDouble(),
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: widget.selectedColor ?? scheme.primary,
-                            borderRadius: BorderRadius.circular(innerRadius),
-                          ),
-                        ),
-                      ),
-                      Positioned.fill(
-                        child: Material(
-                          type: MaterialType.transparency,
-                          child: Row(children: [
-                            for (var i = 0; i < widget.options.length; i++)
-                              Expanded(
-                                child: Semantics(
-                                  selected: i == index,
-                                  button: true,
-                                  child: InkWell(
-                                    enableFeedback: false,
-                                    borderRadius: BorderRadius.circular(innerRadius),
-                                    onTap: () {
-                                      MorphHaptics.triggerFor(context);
-                                      widget.onChanged(widget.options[i].value);
-                                    },
-                                    child: Center(child: _ToggleOption(
-                                      option: widget.options[i],
-                                      selected: i == index,
-                                      duration: widget.duration,
-                                      selectedColor: widget.selectedForegroundColor ?? scheme.onPrimary,
-                                      unselectedColor: widget.unselectedForegroundColor ?? scheme.onSurfaceVariant,
-                                      textStyle: theme.textTheme.labelLarge,
-                                    )),
-                                  ),
+                    value: _left,
+                    builder: (context, left, _) => SingleMotionBuilder(
+                      motion: motion,
+                      value: _right,
+                      builder: (context, right, _) => Stack(
+                        children: [
+                          Positioned(
+                            left: left + widget.padding,
+                            top: widget.padding,
+                            height: widget.height - 2 * widget.padding,
+                            width: (right - left - 2 * widget.padding)
+                                .clamp(0.0, width)
+                                .toDouble(),
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: widget.selectedColor ?? scheme.primary,
+                                borderRadius: BorderRadius.circular(
+                                  innerRadius,
                                 ),
                               ),
-                          ]),
-                        ),
+                            ),
+                          ),
+                          Positioned.fill(
+                            child: Material(
+                              type: MaterialType.transparency,
+                              child: Row(
+                                children: [
+                                  for (
+                                    var i = 0;
+                                    i < widget.options.length;
+                                    i++
+                                  )
+                                    Expanded(
+                                      child: Semantics(
+                                        selected: i == index,
+                                        button: true,
+                                        child: InkWell(
+                                          enableFeedback: false,
+                                          borderRadius: BorderRadius.circular(
+                                            innerRadius,
+                                          ),
+                                          onTap: () {
+                                            MorphHaptics.triggerFor(context);
+                                            widget.onChanged(
+                                              widget.options[i].value,
+                                            );
+                                          },
+                                          child: Center(
+                                            child: _ToggleOption(
+                                              option: widget.options[i],
+                                              selected: i == index,
+                                              duration: widget.duration,
+                                              selectedColor:
+                                                  widget
+                                                      .selectedForegroundColor ??
+                                                  scheme.onPrimary,
+                                              unselectedColor:
+                                                  widget
+                                                      .unselectedForegroundColor ??
+                                                  scheme.onSurfaceVariant,
+                                              textStyle:
+                                                  theme.textTheme.labelLarge,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ]),
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        }),
+            );
+          },
+        ),
       ],
     );
   }
@@ -260,12 +299,17 @@ class _ToggleOption<T> extends StatelessWidget {
           Icon(option.icon, size: 18, color: color),
           const SizedBox(width: 6),
         ],
-        Flexible(child: Text(
-          option.label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: textStyle?.copyWith(color: color, fontWeight: FontWeight.w600),
-        )),
+        Flexible(
+          child: Text(
+            option.label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: textStyle?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
       ],
     ),
   );

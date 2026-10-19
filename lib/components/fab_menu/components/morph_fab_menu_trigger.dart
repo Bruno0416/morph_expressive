@@ -39,9 +39,8 @@ class _MorphFabMenuTrigger {
                 final double t = menu._fabShapeCtrl.value;
                 final double radius = lerpDouble(closedRadius, openRadius, t)!;
                 final double fabSize = lerpDouble(closedSize, openSize, t)!;
-                final MorphFabColor closeColor = MorphFabMenuTheme.closeFabColor(
-                  menu._colorSet,
-                );
+                final MorphFabColor closeColor =
+                    MorphFabMenuTheme.closeFabColor(menu._colorSet);
                 final bool showClose = t > 0.5;
                 final double regularIcon = fabTheme
                     .resolve(

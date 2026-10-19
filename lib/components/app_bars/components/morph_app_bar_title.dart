@@ -2,7 +2,10 @@ part of '../morph_app_bars.dart';
 
 /// Reports whether the app bar's content has scrolled under it.
 class _MorphScrolledUnder extends InheritedWidget {
-  const _MorphScrolledUnder({required this.scrolledUnder, required super.child});
+  const _MorphScrolledUnder({
+    required this.scrolledUnder,
+    required super.child,
+  });
 
   final bool scrolledUnder;
 
@@ -109,7 +112,10 @@ Widget? _collapsingHeadline({
   if (text == null) {
     return null;
   }
-  return _MorphScaledBox(scale: lerpDouble(small / big, 1, t) ?? 1, child: text);
+  return _MorphScaledBox(
+    scale: lerpDouble(small / big, 1, t) ?? 1,
+    child: text,
+  );
 }
 
 /// Lays [child] out in `1 / scale` of the space and paints it scaled by
@@ -248,7 +254,11 @@ Widget? _maybeBackButton(BuildContext context, Color color) {
     child: IconButton(
       icon: const BackButtonIcon(),
       color: color,
-      onPressed: () => Navigator.maybeOf(context)?.maybePop(),
+      enableFeedback: false,
+      onPressed: () {
+        MorphHaptics.triggerFor(context);
+        Navigator.maybeOf(context)?.maybePop();
+      },
     ),
   );
 }

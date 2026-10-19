@@ -3,8 +3,7 @@ import 'package:morph_expressive/components/search/morph_search.dart'
     show MorphSearchBar;
 import 'package:morph_expressive/components/search/morph_search_bar.dart'
     show MorphSearchBar;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphSearchBar;
+import 'package:morph_expressive/morph_components.dart' show MorphSearchBar;
 import 'package:material_ui/material_ui.dart'
     show InkSparkle, InteractiveInkFeatureFactory;
 

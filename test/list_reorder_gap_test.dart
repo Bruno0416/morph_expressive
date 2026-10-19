@@ -56,7 +56,10 @@ Future<void> _placeholderFillsDestinationSlot(WidgetTester tester) async {
 
   Rect cardRect(String label) => tester.getRect(
     find
-        .ancestor(of: find.text(label), matching: find.byType(MorphCardListItem))
+        .ancestor(
+          of: find.text(label),
+          matching: find.byType(MorphCardListItem),
+        )
         .first,
   );
   final Finder fill = find.descendant(
@@ -83,8 +86,16 @@ Future<void> _placeholderFillsDestinationSlot(WidgetTester tester) async {
     moreOrLessEquals(c.top, epsilon: 0.5),
     reason: 'fill moves to the destination slot',
   );
-  expect(target.size.width, moreOrLessEquals(a.width, epsilon: 0.05), reason: 'fill width matches the dragged row');
-  expect(target.size.height, moreOrLessEquals(a.height, epsilon: 0.05), reason: 'fill height matches the dragged row');
+  expect(
+    target.size.width,
+    moreOrLessEquals(a.width, epsilon: 0.05),
+    reason: 'fill width matches the dragged row',
+  );
+  expect(
+    target.size.height,
+    moreOrLessEquals(a.height, epsilon: 0.05),
+    reason: 'fill height matches the dragged row',
+  );
 
   final DecoratedBox box = tester.widget<DecoratedBox>(fill);
   final MorphThemeData theme = MorphTheme.of(tester.element(fill));
@@ -198,7 +209,10 @@ Future<void> _draggedDismissibleProxyExcludesGap(WidgetTester tester) async {
   // The still-resting sibling's own card surface, for the same content shape.
   final Size restingSize = tester.getSize(
     find
-        .ancestor(of: find.text('B'), matching: find.byType(MorphListRowSurface))
+        .ancestor(
+          of: find.text('B'),
+          matching: find.byType(MorphListRowSurface),
+        )
         .first,
   );
 
@@ -311,7 +325,9 @@ Future<void> _expandableSublistGapSurvivesReorder(WidgetTester tester) async {
         .first,
   );
 
-  final MorphThemeData theme = MorphTheme.of(tester.element(find.text('Parent')));
+  final MorphThemeData theme = MorphTheme.of(
+    tester.element(find.text('Parent')),
+  );
   expect(gapBox.height, theme.listTheme.expandable.gap);
   expect(gapBox.height, greaterThan(0));
 }

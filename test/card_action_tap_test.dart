@@ -369,7 +369,10 @@ Future<void> _arrowKeysShowAndHideSwipeActionAfterCard(
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 500));
   expect(_shift(tester), greaterThan(40));
-  expect(_nearestFocus(<Type>[MorphCard, MorphButton, MorphIconButton]), MorphCard);
+  expect(
+    _nearestFocus(<Type>[MorphCard, MorphButton, MorphIconButton]),
+    MorphCard,
+  );
 
   await _tabUntil(tester, MorphButton);
   await _tabUntil(tester, MorphIconButton);
@@ -378,7 +381,10 @@ Future<void> _arrowKeysShowAndHideSwipeActionAfterCard(
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 500));
   expect(_shift(tester).abs(), lessThan(24));
-  expect(_nearestFocus(<Type>[MorphCard, MorphButton, MorphIconButton]), MorphCard);
+  expect(
+    _nearestFocus(<Type>[MorphCard, MorphButton, MorphIconButton]),
+    MorphCard,
+  );
 }
 
 Future<void> _revealedSwipeActionIsATabStop(WidgetTester tester) async {
@@ -440,7 +446,8 @@ bool _ringClipped(WidgetTester tester) {
   ) {
     var insideButton = false;
     element.visitAncestorElements((Element ancestor) {
-      if (ancestor.widget is MorphIconButton || ancestor.widget is MorphButton) {
+      if (ancestor.widget is MorphIconButton ||
+          ancestor.widget is MorphButton) {
         insideButton = true;
         return false;
       }

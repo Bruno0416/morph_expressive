@@ -12,8 +12,9 @@ void main() {
     await tester.pump();
   }
 
-  testWidgets('wide gallery places several button families on one row',
-      (tester) async {
+  testWidgets('wide gallery places several button families on one row', (
+    tester,
+  ) async {
     await startAtWidth(tester, 1440);
     final buttons = find.byKey(const ValueKey('showcase_buttons'));
     final icons = find.byKey(const ValueKey('showcase_icon_buttons'));
@@ -31,15 +32,18 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('narrow gallery wraps families instead of overflowing',
-      (tester) async {
+  testWidgets('narrow gallery wraps families instead of overflowing', (
+    tester,
+  ) async {
     await startAtWidth(tester, 720);
     final buttons = find.byKey(const ValueKey('showcase_buttons'));
     final icons = find.byKey(const ValueKey('showcase_icon_buttons'));
     expect(buttons, findsOneWidget);
     expect(icons, findsOneWidget);
-    expect(tester.getTopLeft(icons).dy,
-        greaterThan(tester.getTopLeft(buttons).dy));
+    expect(
+      tester.getTopLeft(icons).dy,
+      greaterThan(tester.getTopLeft(buttons).dy),
+    );
     expect(tester.takeException(), isNull);
   });
 }

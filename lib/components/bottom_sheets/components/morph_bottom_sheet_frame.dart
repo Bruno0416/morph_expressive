@@ -302,6 +302,11 @@ class _MorphBottomSheetFrameState extends State<MorphBottomSheetFrame>
       spring ?? _theme.settleSpring,
     );
     if (done && mounted) {
+      if (!_modal &&
+          _value == MorphBottomSheetValue.hidden &&
+          target != MorphBottomSheetValue.hidden) {
+        MorphHaptics.triggerFor(context);
+      }
       _setValue(target);
     }
   }

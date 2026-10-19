@@ -87,7 +87,11 @@ MorphMenuTheme _lerpMenuTheme(MorphMenuTheme a, MorphMenuTheme b, double t) {
   );
 }
 
-MorphMenuTheme _lerpMenuThemeMetrics(MorphMenuTheme a, MorphMenuTheme b, double t) {
+MorphMenuTheme _lerpMenuThemeMetrics(
+  MorphMenuTheme a,
+  MorphMenuTheme b,
+  double t,
+) {
   return MorphMenuTheme(
     minWidth: _menuLerpDouble(a.minWidth, b.minWidth, t),
     maxWidth: _menuLerpDouble(a.maxWidth, b.maxWidth, t),

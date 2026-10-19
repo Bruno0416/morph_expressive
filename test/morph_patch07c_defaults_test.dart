@@ -6,7 +6,10 @@ void main() {
   test('sliders keep the compact 4dp track and explicit customization', () {
     expect(const MorphSliderTheme().trackHeight, 4);
     expect(const MorphSliderTheme().copyWith(trackHeight: 12).trackHeight, 12);
-    expect(const MorphSliderTheme().applyingSize(MorphSliderSize.xs).trackHeight, 4);
+    expect(
+      const MorphSliderTheme().applyingSize(MorphSliderSize.xs).trackHeight,
+      4,
+    );
   });
 
   test('list items use 5dp spacing and 12.5% softer inside corners', () {

@@ -131,7 +131,8 @@ class _MorphExpressiveLoadingIndicatorState
   double get _morphRotationDegrees =>
       widget.morphRotationDegrees ?? _loadingTheme.morphRotationDegrees;
 
-  MorphSpring get _morphSpring => widget.morphSpring ?? _loadingTheme.morphSpring;
+  MorphSpring get _morphSpring =>
+      widget.morphSpring ?? _loadingTheme.morphSpring;
 
   double get _morphSpringVelocity =>
       widget.morphSpringVelocity ?? _loadingTheme.morphSpringVelocity;
@@ -139,7 +140,8 @@ class _MorphExpressiveLoadingIndicatorState
   double get _pulseStartScale =>
       widget.pulseStartScale ?? _loadingTheme.pulseStartScale;
 
-  MorphSpring get _pulseSpring => widget.pulseSpring ?? _loadingTheme.pulseSpring;
+  MorphSpring get _pulseSpring =>
+      widget.pulseSpring ?? _loadingTheme.pulseSpring;
 
   double get _pulseSpringVelocity =>
       widget.pulseSpringVelocity ?? _loadingTheme.pulseSpringVelocity;

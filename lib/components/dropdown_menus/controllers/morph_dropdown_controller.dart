@@ -1,8 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:morph_expressive/components/dropdown_menus/morph_dropdown_menus.dart'
     show MorphDropdownMenu;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphDropdownMenu;
+import 'package:morph_expressive/morph_components.dart' show MorphDropdownMenu;
 
 import '../models/morph_dropdown_item.dart';
 
@@ -341,5 +340,6 @@ class MorphDropdownController<T> extends ChangeNotifier {
   }
 
   @override
-  String toString() => 'MorphDropdownController(items: $_items, open: $_isOpen)';
+  String toString() =>
+      'MorphDropdownController(items: $_items, open: $_isOpen)';
 }

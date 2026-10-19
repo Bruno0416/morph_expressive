@@ -58,7 +58,8 @@ class MorphSegmentedButton<T> extends StatefulWidget {
   final String? semanticLabel;
 
   @override
-  State<MorphSegmentedButton<T>> createState() => _MorphSegmentedButtonState<T>();
+  State<MorphSegmentedButton<T>> createState() =>
+      _MorphSegmentedButtonState<T>();
 
   void _handleTap(T value) {
     if (multiSelect) {
@@ -367,7 +368,9 @@ class _MorphSegmentedButtonState<T> extends State<MorphSegmentedButton<T>> {
 
   /// Mirrors the segment row's flex structure so the ring of the focused
   /// segment lines up with it without measuring anything.
-  Widget _buildFocusRingOverlay(MorphSegmentedButtonTheme segmentedButtonTheme) {
+  Widget _buildFocusRingOverlay(
+    MorphSegmentedButtonTheme segmentedButtonTheme,
+  ) {
     return IgnorePointer(
       child: ValueListenableBuilder<int?>(
         valueListenable: _focusedIndex,

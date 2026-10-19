@@ -415,7 +415,9 @@ Future<void> _semantics(WidgetTester tester) async {
   await _show(
     tester,
     context,
-    actions: <Widget>[MorphButton(onPressed: () {}, child: const Text('Cancel'))],
+    actions: <Widget>[
+      MorphButton(onPressed: () {}, child: const Text('Cancel')),
+    ],
   );
   final SemanticsNode dialog = tester.getSemantics(
     find.bySemanticsLabel('Filters').first,

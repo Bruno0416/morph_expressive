@@ -80,7 +80,8 @@ class _MorphRadioGroupScope<T> extends InheritedWidget {
 
   /// The nearest group of type [T], if any.
   static _MorphRadioGroupScope<T>? maybeOf<T>(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_MorphRadioGroupScope<T>>();
+    return context
+        .dependOnInheritedWidgetOfExactType<_MorphRadioGroupScope<T>>();
   }
 
   /// Registers [focusNode] and returns a handle the radio keeps updated.

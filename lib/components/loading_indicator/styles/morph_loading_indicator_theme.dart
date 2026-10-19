@@ -30,7 +30,8 @@ class MorphLoadingIndicatorTheme
 
   /// defaults.
 
-  static const MorphLoadingIndicatorTheme defaults = MorphLoadingIndicatorTheme();
+  static const MorphLoadingIndicatorTheme defaults =
+      MorphLoadingIndicatorTheme();
 
   /// containerWidth.
 

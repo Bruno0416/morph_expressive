@@ -76,7 +76,8 @@ class MorphMenuItem extends StatelessWidget {
     final scheme = theme.colorScheme;
     final style = MorphMenuStyleScope.styleOf(context);
     final palette =
-        MorphMenuStyleScope.colorsOf(context) ?? menuTheme.colors(scheme, style);
+        MorphMenuStyleScope.colorsOf(context) ??
+        menuTheme.colors(scheme, style);
     final radius = menuTheme.itemBorderRadius;
 
     return Padding(

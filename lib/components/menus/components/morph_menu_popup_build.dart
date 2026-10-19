@@ -12,7 +12,9 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
       theme: menuTheme,
       position: widget.position,
       textDirection: Directionality.of(context),
-      approximateItemCount: MorphMenuPlacer.approximateItemCount(widget.children),
+      approximateItemCount: MorphMenuPlacer.approximateItemCount(
+        widget.children,
+      ),
       preferredWidth: widget.preferredWidth,
     );
     final scaleAlignment = placement.opensAbove
@@ -196,7 +198,9 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
     final surfaces = morphMenuPartitionSurfaces(widget.children);
     final scrolling = _estimatedHeight(menuTheme, widget.children) > maxHeight;
     final cards = scrolling
-        ? <MorphMenuGroup>[MorphMenuGroup(children: _flattenForScroll(surfaces))]
+        ? <MorphMenuGroup>[
+            MorphMenuGroup(children: _flattenForScroll(surfaces)),
+          ]
         : surfaces;
     final painted = <Widget>[];
     for (var i = 0; i < cards.length; i++) {

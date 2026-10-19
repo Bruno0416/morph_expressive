@@ -7,6 +7,5 @@ import '../../../foundations/foundations.dart';
 /// Identical to the dropdown menu conversion so expand/collapse feel matches.
 extension MorphMenuSpringMotion on MorphSpring {
   /// toMotion.
-  SpringMotion toMotion() =>
-      MorphMotion.springMotion(this);
+  SpringMotion toMotion() => MorphMotion.springMotion(this);
 }

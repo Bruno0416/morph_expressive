@@ -12,20 +12,24 @@ const _options = <MorphChipToggleOption<String>>[
 ];
 
 void main() {
-  testWidgets('multi selection adds independent animated pills', (tester) async {
+  testWidgets('multi selection adds independent animated pills', (
+    tester,
+  ) async {
     var selected = <String>{'A'};
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: StatefulBuilder(builder: (context, update) =>
-          MorphChipToggle<String>(
-            multiSelection: true,
-            options: _options,
-            selectedValues: selected,
-            onSelectionChanged: (next) => update(() => selected = next),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, update) => MorphChipToggle<String>(
+              multiSelection: true,
+              options: _options,
+              selectedValues: selected,
+              onSelectionChanged: (next) => update(() => selected = next),
+            ),
           ),
         ),
       ),
-    ));
+    );
     expect(find.byKey(const ValueKey<String>('A')), findsOneWidget);
     expect(find.byKey(const ValueKey<String>('B')), findsNothing);
     await tester.tap(find.text('Beta'));
@@ -53,18 +57,24 @@ void main() {
     expect(find.byKey(const ValueKey<String>('C')), findsOneWidget);
   });
 
-  testWidgets('last pill collapses, then a fresh selection can begin', (tester) async {
+  testWidgets('last pill collapses, then a fresh selection can begin', (
+    tester,
+  ) async {
     var selected = <String>{'A'};
-    await tester.pumpWidget(MaterialApp(home: Scaffold(
-      body: StatefulBuilder(builder: (context, update) =>
-        MorphChipToggle<String>(
-          multiSelection: true,
-          options: _options,
-          selectedValues: selected,
-          onSelectionChanged: (next) => update(() => selected = next),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, update) => MorphChipToggle<String>(
+              multiSelection: true,
+              options: _options,
+              selectedValues: selected,
+              onSelectionChanged: (next) => update(() => selected = next),
+            ),
+          ),
         ),
       ),
-    )));
+    );
     await tester.tap(find.text('Alpha'));
     await tester.pump();
     expect(selected, isEmpty);
@@ -79,18 +89,24 @@ void main() {
     expect(find.byKey(const ValueKey<String>('B')), findsOneWidget);
   });
 
-  testWidgets('rapid toggle reverses a closing indicator safely', (tester) async {
+  testWidgets('rapid toggle reverses a closing indicator safely', (
+    tester,
+  ) async {
     var selected = <String>{'A', 'B'};
-    await tester.pumpWidget(MaterialApp(home: Scaffold(
-      body: StatefulBuilder(builder: (context, update) =>
-        MorphChipToggle<String>(
-          multiSelection: true,
-          options: _options,
-          selectedValues: selected,
-          onSelectionChanged: (next) => update(() => selected = next),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, update) => MorphChipToggle<String>(
+              multiSelection: true,
+              options: _options,
+              selectedValues: selected,
+              onSelectionChanged: (next) => update(() => selected = next),
+            ),
+          ),
         ),
       ),
-    )));
+    );
     await tester.tap(find.text('Beta'));
     await tester.pump(const Duration(milliseconds: 30));
     await tester.tap(find.text('Beta'));
@@ -104,30 +120,34 @@ void main() {
 
   // Captures actual pixels in a true 0 -> 1 -> 0 boundary transition.
   // Adding a second chip deliberately uses the stretched transfer instead.
-  testWidgets('boundary pills bloom visibly from a small circle', (tester) async {
+  testWidgets('boundary pills bloom visibly from a small circle', (
+    tester,
+  ) async {
     var selected = <String>{};
     const captureKey = ValueKey<String>('chip-bloom-capture');
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: SizedBox(
-            width: 390,
-            height: 44,
-            child: RepaintBoundary(
-              key: captureKey,
-              child: StatefulBuilder(
-                builder: (context, update) => MorphChipToggle<String>(
-                  multiSelection: true,
-                  options: _options,
-                  selectedValues: selected,
-                  onSelectionChanged: (next) => update(() => selected = next),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 390,
+              height: 44,
+              child: RepaintBoundary(
+                key: captureKey,
+                child: StatefulBuilder(
+                  builder: (context, update) => MorphChipToggle<String>(
+                    multiSelection: true,
+                    options: _options,
+                    selectedValues: selected,
+                    onSelectionChanged: (next) => update(() => selected = next),
+                  ),
                 ),
               ),
             ),
           ),
         ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
 
     final capture = find.byKey(captureKey);
@@ -143,8 +163,11 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 95));
     expect(selected, {'B'});
-    expect(await _pixelAt(tester, capture, topPixel), background,
-        reason: 'A new chip must not paint at full height immediately.');
+    expect(
+      await _pixelAt(tester, capture, topPixel),
+      background,
+      reason: 'A new chip must not paint at full height immediately.',
+    );
 
     await tester.pumpAndSettle();
     final fullPill = await _pixelAt(tester, capture, topPixel);
@@ -156,43 +179,56 @@ void main() {
     // antialiased rim is grazing the sample point.
     await tester.pump(const Duration(milliseconds: 180));
     expect(selected, isEmpty);
-    expect(await _pixelAt(tester, capture, topPixel), background,
-        reason: 'The shrinking indicator must return to a circle.');
+    expect(
+      await _pixelAt(tester, capture, topPixel),
+      background,
+      reason: 'The shrinking indicator must return to a circle.',
+    );
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey<String>('B')), findsNothing);
   });
 
-  testWidgets('second and non-last chips use nearest-pill transfer', (tester) async {
+  testWidgets('second and non-last chips use nearest-pill transfer', (
+    tester,
+  ) async {
     var selected = <String>{'A'};
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: StatefulBuilder(
-          builder: (context, update) => MorphChipToggle<String>(
-            multiSelection: true,
-            options: _options,
-            selectedValues: selected,
-            onSelectionChanged: (next) => update(() => selected = next),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, update) => MorphChipToggle<String>(
+              multiSelection: true,
+              options: _options,
+              selectedValues: selected,
+              onSelectionChanged: (next) => update(() => selected = next),
+            ),
           ),
         ),
       ),
-    ));
+    );
     await tester.tap(find.text('Beta'));
     await tester.pump();
     expect(selected, {'A', 'B'});
     // A transferring pill has full-height, two-edge tween geometry, not a dot.
-    expect(find.descendant(
-      of: find.byKey(const ValueKey<String>('B')),
-      matching: find.byType(CustomPaint),
-    ), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey<String>('B')),
+        matching: find.byType(CustomPaint),
+      ),
+      findsNothing,
+    );
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Beta'));
     await tester.pump();
     expect(selected, {'A'});
-    expect(find.descendant(
-      of: find.byKey(const ValueKey<String>('B')),
-      matching: find.byType(CustomPaint),
-    ), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey<String>('B')),
+        matching: find.byType(CustomPaint),
+      ),
+      findsNothing,
+    );
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey<String>('B')), findsNothing);
 
@@ -200,67 +236,83 @@ void main() {
     await tester.tap(find.text('Alpha'));
     await tester.pump();
     expect(selected, isEmpty);
-    expect(find.descendant(
-      of: find.byKey(const ValueKey<String>('A')),
-      matching: find.byType(CustomPaint),
-    ), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey<String>('A')),
+        matching: find.byType(CustomPaint),
+      ),
+      findsOneWidget,
+    );
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey<String>('A')), findsNothing);
   });
 
   testWidgets('preview case duplicates rather than blooms', (tester) async {
     var selected = <String>{'A', 'C'};
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: StatefulBuilder(
-          builder: (context, update) => MorphChipToggle<String>(
-            multiSelection: true,
-            options: _options,
-            selectedValues: selected,
-            onSelectionChanged: (next) => update(() => selected = next),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, update) => MorphChipToggle<String>(
+              multiSelection: true,
+              options: _options,
+              selectedValues: selected,
+              onSelectionChanged: (next) => update(() => selected = next),
+            ),
           ),
         ),
       ),
-    ));
+    );
     await tester.tap(find.text('Beta'));
     await tester.pump();
     expect(selected, {'A', 'B', 'C'});
-    expect(find.descendant(
-      of: find.byKey(const ValueKey<String>('B')),
-      matching: find.byType(CustomPaint),
-    ), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey<String>('B')),
+        matching: find.byType(CustomPaint),
+      ),
+      findsNothing,
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Beta'));
     await tester.pump();
     expect(selected, {'A', 'C'});
-    expect(find.descendant(
-      of: find.byKey(const ValueKey<String>('B')),
-      matching: find.byType(CustomPaint),
-    ), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey<String>('B')),
+        matching: find.byType(CustomPaint),
+      ),
+      findsNothing,
+    );
     await tester.pumpAndSettle();
   });
 
   testWidgets('last selected chip also blooms from a dot', (tester) async {
     var selected = <String>{};
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: StatefulBuilder(
-          builder: (context, update) => MorphChipToggle<String>(
-            multiSelection: true,
-            options: _options,
-            selectedValues: selected,
-            onSelectionChanged: (next) => update(() => selected = next),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, update) => MorphChipToggle<String>(
+              multiSelection: true,
+              options: _options,
+              selectedValues: selected,
+              onSelectionChanged: (next) => update(() => selected = next),
+            ),
           ),
         ),
       ),
-    ));
+    );
     await tester.tap(find.text('Alpha'));
     await tester.pump();
     expect(selected, {'A'});
-    expect(find.descendant(
-      of: find.byKey(const ValueKey<String>('A')),
-      matching: find.byType(CustomPaint),
-    ), findsWidgets);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey<String>('A')),
+        matching: find.byType(CustomPaint),
+      ),
+      findsWidgets,
+    );
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Alpha'));
@@ -270,17 +322,23 @@ void main() {
     expect(find.byKey(const ValueKey<String>('A')), findsNothing);
   });
 
-  testWidgets('single selection preserves its original callback', (tester) async {
+  testWidgets('single selection preserves its original callback', (
+    tester,
+  ) async {
     var selected = 'A';
-    await tester.pumpWidget(MaterialApp(home: Scaffold(
-      body: StatefulBuilder(builder: (context, update) =>
-        MorphChipToggle<String>(
-          options: _options,
-          selected: selected,
-          onChanged: (next) => update(() => selected = next),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, update) => MorphChipToggle<String>(
+              options: _options,
+              selected: selected,
+              onChanged: (next) => update(() => selected = next),
+            ),
+          ),
         ),
       ),
-    )));
+    );
     await tester.tap(find.text('Gamma'));
     await tester.pump();
     expect(selected, 'C');
@@ -307,7 +365,9 @@ Future<List<int>> _pixelAt(
       final data = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
       if (data == null) throw StateError('Could not capture chip paint.');
       if (x < 0 || y < 0 || x >= image.width || y >= image.height) {
-        throw RangeError('Pixel ($x, $y) outside ${image.width}×${image.height}');
+        throw RangeError(
+          'Pixel ($x, $y) outside ${image.width}×${image.height}',
+        );
       }
       final index = (y * image.width + x) * 4;
       return [for (var i = 0; i < 4; i++) data.getUint8(index + i)];

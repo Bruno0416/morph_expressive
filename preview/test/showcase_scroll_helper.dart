@@ -15,10 +15,9 @@ Future<Finder> revealShowcaseCategory(
   final gallery = find.byKey(const ValueKey('morph_showcase_scroll'));
   expect(gallery, findsOneWidget);
 
-  final scrollable = find.descendant(
-    of: gallery,
-    matching: find.byType(Scrollable),
-  ).first;
+  final scrollable = find
+      .descendant(of: gallery, matching: find.byType(Scrollable))
+      .first;
   final position = tester.state<ScrollableState>(scrollable).position;
 
   // A step smaller than the viewport prevents skipping short sliver rows.
@@ -39,7 +38,8 @@ Future<Finder> revealShowcaseCategory(
   expect(
     target,
     findsOneWidget,
-    reason: 'The showcase did not build the family "$category" while scrolling.',
+    reason:
+        'The showcase did not build the family "$category" while scrolling.',
   );
   await tester.ensureVisible(target);
   await tester.pump();

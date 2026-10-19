@@ -227,9 +227,11 @@ mixin _ButtonGroupOverflowPresenterMixin on State<MorphButtonGroup> {
         enableFeedback: false,
         onTap: action.enabled
             ? () {
-              MorphHaptics.triggerFor(context);
-              Navigator.of(context).pop(actionIndex);
-            }
+                if (action.enableFeedback ?? widget.enableFeedback) {
+                  MorphHaptics.triggerFor(context);
+                }
+                Navigator.of(context).pop(actionIndex);
+              }
             : null,
         borderRadius: borderRadius,
         child: Padding(
@@ -348,9 +350,11 @@ mixin _ButtonGroupOverflowPresenterMixin on State<MorphButtonGroup> {
           borderRadius: BorderRadius.circular(itemRadius),
           onTap: action.enabled
               ? () {
-              MorphHaptics.triggerFor(context);
-              Navigator.of(context).pop(actionIndex);
-            }
+                  if (action.enableFeedback ?? widget.enableFeedback) {
+                    MorphHaptics.triggerFor(context);
+                  }
+                  Navigator.of(context).pop(actionIndex);
+                }
               : null,
           child: Padding(
             padding: dec.itemPadding,
@@ -362,7 +366,8 @@ mixin _ButtonGroupOverflowPresenterMixin on State<MorphButtonGroup> {
                     color: action.enabled
                         ? fgColor
                         : fgColor.withValues(
-                            alpha: MorphButtonConstants.kDisabledForegroundAlpha,
+                            alpha:
+                                MorphButtonConstants.kDisabledForegroundAlpha,
                           ),
                   ),
                   child: _overflowMenuLeading(actionIndex),

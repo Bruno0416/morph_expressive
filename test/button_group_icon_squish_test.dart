@@ -207,10 +207,16 @@ Future<void> _sizeTokensDriveVisualHeightAndStandardBetweenSpace(
   expect(mdGap, closeTo(8, 0.5));
 
   await _pumpStandardPair(tester, MorphButtonSize.lg);
-  expect(tester.getSize(find.byType(MorphButton).hitTestable().first).height, 96);
+  expect(
+    tester.getSize(find.byType(MorphButton).hitTestable().first).height,
+    96,
+  );
 }
 
-Future<void> _pumpStandardPair(WidgetTester tester, MorphButtonSize size) async {
+Future<void> _pumpStandardPair(
+  WidgetTester tester,
+  MorphButtonSize size,
+) async {
   await tester.pumpWidget(
     _host(
       MorphButtonGroup(
@@ -241,7 +247,10 @@ Future<void> _connectedSizeTokensDriveVisualHeightAnd2dpGap(
   expect(xsGap, closeTo(2, 0.5));
 
   await _pumpConnectedPair(tester, MorphButtonSize.md);
-  expect(tester.getSize(find.byType(MorphButton).hitTestable().first).height, 56);
+  expect(
+    tester.getSize(find.byType(MorphButton).hitTestable().first).height,
+    56,
+  );
 
   await _pumpConnectedPair(tester, MorphButtonSize.xl);
   final xlButtons = find.byType(MorphButton).hitTestable();
@@ -252,7 +261,10 @@ Future<void> _connectedSizeTokensDriveVisualHeightAnd2dpGap(
   expect(xlGap, closeTo(2, 0.5));
 }
 
-Future<void> _pumpConnectedPair(WidgetTester tester, MorphButtonSize size) async {
+Future<void> _pumpConnectedPair(
+  WidgetTester tester,
+  MorphButtonSize size,
+) async {
   await tester.pumpWidget(
     _host(
       SizedBox(
@@ -332,7 +344,10 @@ Future<void> _sizeChangeRecomputesTextIconGroupWidth(
   );
 }
 
-Future<void> _pumpLabeledGroup(WidgetTester tester, MorphButtonSize size) async {
+Future<void> _pumpLabeledGroup(
+  WidgetTester tester,
+  MorphButtonSize size,
+) async {
   await tester.pumpWidget(
     _host(
       MorphButtonGroup(

@@ -54,7 +54,11 @@ Future<void> _singleLineSnackbarWithActionStaysAtMinHeight(
 ) async {
   await tester.pumpWidget(
     _host(
-      MorphSnackbar(message: 'Draft saved', actionLabel: 'Undo', onAction: () {}),
+      MorphSnackbar(
+        message: 'Draft saved',
+        actionLabel: 'Undo',
+        onAction: () {},
+      ),
     ),
   );
 
@@ -104,7 +108,8 @@ void _themeDefaultsMatchTheSnackbarSpec() {
   expect(theme.messageStyle(type, scheme).color, scheme.onSurface);
   expect(theme.actionStyle(type, scheme).color, scheme.primary);
   expect(theme.closeIconColor(scheme), scheme.onSurfaceVariant);
-  final dark = MorphThemeData.dark(seedColor: const Color(0xFF6750A4)).colorScheme;
+  final dark = MorphThemeData.dark(seedColor: const Color(0xFF6750A4))
+      .colorScheme;
   expect(theme.containerColor(dark), dark.surfaceContainerHigh);
   expect(theme.messageStyle(type, dark).color, dark.onSurface);
 }
@@ -145,9 +150,12 @@ Future<void> _morphsnackbarPositionsAboveSystemNavigationInset(
     ),
   );
 
-  final BuildContext hostContext = tester.element(find.byType(MorphSnackbarHost));
+  final BuildContext hostContext = tester.element(
+    find.byType(MorphSnackbarHost),
+  );
   final MediaQueryData media = MediaQuery.of(hostContext);
-  final MorphSnackbarTheme snackTheme = MorphTheme.of(hostContext).snackBarTheme;
+  final MorphSnackbarTheme snackTheme = MorphTheme.of(hostContext)
+      .snackBarTheme;
 
   expect(
     positioned.bottom,
@@ -263,7 +271,8 @@ Future<void> _plainSnackbarAutoDismissesAfterDefaultDuration(
       Builder(
         builder: (BuildContext context) {
           return MorphButton(
-            onPressed: () => MorphSnackbar.show(context, message: 'Draft saved'),
+            onPressed: () =>
+                MorphSnackbar.show(context, message: 'Draft saved'),
             child: const Text('Show'),
           );
         },

@@ -297,7 +297,9 @@ class _MorphSearchBarState extends State<MorphSearchBar>
     FocusManager.instance.removeHighlightModeListener(
       _handleHighlightModeChange,
     );
-    MorphFocusInteraction.instance.removeListener(_handleFocusInteractionChanged);
+    MorphFocusInteraction.instance.removeListener(
+      _handleFocusInteractionChanged,
+    );
     _focusNode.removeListener(_handleFocusChange);
     _controller.removeListener(_handleTextChange);
     if (_surfaceContext != null) {

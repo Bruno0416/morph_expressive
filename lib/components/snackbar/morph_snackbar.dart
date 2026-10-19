@@ -24,6 +24,7 @@ class MorphSnackbar extends StatelessWidget {
     this.actionLabel,
     this.onAction,
     this.showCloseButton = false,
+    this.swipeDismissible = false,
     this.onClose,
     super.key,
   });
@@ -44,6 +45,10 @@ class MorphSnackbar extends StatelessWidget {
   /// Whether to show the optional close icon.
   final bool showCloseButton;
 
+  /// Allows horizontal swipe in either direction to dismiss the overlay.
+  /// This setting applies when using [show]. Defaults to false.
+  final bool swipeDismissible;
+
   /// Called when close is pressed (then the host dismisses if shown).
   final VoidCallback? onClose;
 
@@ -58,6 +63,7 @@ class MorphSnackbar extends StatelessWidget {
     String? actionLabel,
     VoidCallback? onAction,
     bool showCloseButton = false,
+    bool swipeDismissible = false,
     VoidCallback? onClose,
     Duration? duration,
     MorphSnackbarController? controller,
@@ -74,6 +80,7 @@ class MorphSnackbar extends StatelessWidget {
           actionLabel: actionLabel,
           onAction: onAction,
           showCloseButton: showCloseButton,
+          swipeDismissible: swipeDismissible,
           onClose: onClose,
         );
       },
@@ -81,6 +88,7 @@ class MorphSnackbar extends StatelessWidget {
     (controller ?? MorphSnackbar.defaultController).present(
       context,
       duration: resolvedDuration,
+      swipeDismissible: swipeDismissible,
       child: snackbar,
     );
   }
@@ -375,22 +383,28 @@ class MorphSnackbar extends StatelessWidget {
     required double height,
     required double width,
   }) {
-    return MorphIconButton(
-      variant: MorphIconButtonVariant.standard,
-      visualSize: Size(width, height),
-      inflateHitTarget: false,
-      semanticLabel: 'Dismiss',
-      decoration: MorphIconButtonDecoration(
-        foregroundColor: WidgetStateProperty.all(
-          snackTheme.closeIconColor(scheme),
+    return SizedBox(
+      width: width,
+      height: height,
+      child: Center(
+        child: MorphIconButton(
+          variant: MorphIconButtonVariant.standard,
+          visualSize: Size.square(height),
+          inflateHitTarget: false,
+          semanticLabel: 'Dismiss',
+          decoration: MorphIconButtonDecoration(
+            foregroundColor: WidgetStateProperty.all(
+              snackTheme.closeIconColor(scheme),
+            ),
+            backgroundColor: const WidgetStatePropertyAll<Color?>(null),
+          ),
+          icon: Icon(MorphIcons.close, size: snackTheme.closeIconSize),
+          onPressed: () {
+            onClose?.call();
+            MorphSnackbarDismissScope.maybeOf(context)?.call();
+          },
         ),
-        backgroundColor: const WidgetStatePropertyAll<Color?>(null),
       ),
-      icon: Icon(MorphIcons.close, size: snackTheme.closeIconSize),
-      onPressed: () {
-        onClose?.call();
-        MorphSnackbarDismissScope.maybeOf(context)?.call();
-      },
     );
   }
 }

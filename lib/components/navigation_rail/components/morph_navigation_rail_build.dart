@@ -32,7 +32,10 @@ extension _MorphNavigationRailBuild on _MorphNavigationRailState {
       decoration: BoxDecoration(
         color: color,
         borderRadius: radius,
-        boxShadow: MorphElevation.shadows(elevation, shadowColor: scheme.shadow),
+        boxShadow: MorphElevation.shadows(
+          elevation,
+          shadowColor: scheme.shadow,
+        ),
       ),
       child: Material(type: MaterialType.transparency, child: _body(context)),
     );

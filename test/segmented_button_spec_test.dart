@@ -211,7 +211,9 @@ void _segmentCountAssertRejectsFewerThan2() {
     () => MorphSegmentedButton<int>(
       selected: const <int>{},
       onSelectionChanged: (_) {},
-      segments: const <MorphSegment<int>>[MorphSegment<int>(value: 0, label: 'A')],
+      segments: const <MorphSegment<int>>[
+        MorphSegment<int>(value: 0, label: 'A'),
+      ],
     ),
     throwsAssertionError,
   );

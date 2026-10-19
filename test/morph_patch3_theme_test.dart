@@ -16,13 +16,19 @@ void main() {
     const tooltip = MorphTooltipTheme();
     expect(tooltip.plainShape, isA<StadiumBorder>());
     for (final theme in [MorphThemeData.light(), MorphThemeData.dark()]) {
-      expect(tooltip.plainContainerColor(theme.colorScheme),
-          theme.colorScheme.surfaceContainerHigh);
-      expect(tooltip.plainMessageStyle(theme.typeScale, theme.colorScheme).color,
-          theme.colorScheme.onSurface);
+      expect(
+        tooltip.plainContainerColor(theme.colorScheme),
+        theme.colorScheme.surfaceContainerHigh,
+      );
+      expect(
+        tooltip.plainMessageStyle(theme.typeScale, theme.colorScheme).color,
+        theme.colorScheme.onSurface,
+      );
     }
-    expect(tooltip.copyWith(plainShape: const CircleBorder()).plainShape,
-        isA<CircleBorder>());
+    expect(
+      tooltip.copyWith(plainShape: const CircleBorder()).plainShape,
+      isA<CircleBorder>(),
+    );
   });
 
   test('dropdown search minimum height is configurable', () {
@@ -31,28 +37,34 @@ void main() {
     expect(search.copyWith(minHeight: 52).minHeight, 52);
   });
 
-  testWidgets('MorphChipToggle exposes the Morph selection API', (tester) async {
+  testWidgets('MorphChipToggle exposes the Morph selection API', (
+    tester,
+  ) async {
     String selected = 'flutter';
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: MorphChipToggle<String>(
-          selected: selected,
-          onChanged: (value) => selected = value,
-          options: const [
-            MorphChipToggleOption(value: 'flutter', label: 'Flutter'),
-            MorphChipToggleOption(value: 'dart', label: 'Dart'),
-          ],
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: MorphChipToggle<String>(
+            selected: selected,
+            onChanged: (value) => selected = value,
+            options: const [
+              MorphChipToggleOption(value: 'flutter', label: 'Flutter'),
+              MorphChipToggleOption(value: 'dart', label: 'Dart'),
+            ],
+          ),
         ),
       ),
-    ));
+    );
     await tester.tap(find.text('Dart'));
     expect(selected, 'dart');
   });
 
   test('dropdown uses a softer, non-bouncing closing spring', () {
     expect(MorphMotion.dropdownOpen.damping, lessThan(1));
-    expect(MorphMotion.dropdownClose.stiffness,
-        lessThan(MorphMotion.dropdownOpen.stiffness));
+    expect(
+      MorphMotion.dropdownClose.stiffness,
+      lessThan(MorphMotion.dropdownOpen.stiffness),
+    );
     expect(MorphMotion.dropdownClose.damping, greaterThanOrEqualTo(1));
     expect(MorphMotion.buttonMorph.damping, lessThan(1));
   });

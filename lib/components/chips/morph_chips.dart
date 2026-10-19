@@ -81,7 +81,8 @@ class _MorphChipState extends State<MorphChip> {
 
   bool get _selectable =>
       widget.onPressed != null &&
-      (widget.type == MorphChipType.filter || widget.type == MorphChipType.input);
+      (widget.type == MorphChipType.filter ||
+          widget.type == MorphChipType.input);
 
   bool get _removeOnly => widget.onPressed == null && widget.onDeleted != null;
 
@@ -353,7 +354,10 @@ class _MorphChipState extends State<MorphChip> {
       elevated: widget.elevated,
       dragged: state.dragged,
     );
-    final shadows = MorphElevation.shadows(elevation, shadowColor: scheme.shadow);
+    final shadows = MorphElevation.shadows(
+      elevation,
+      shadowColor: scheme.shadow,
+    );
     final Widget surface = _chipMaterial(
       chipTheme: chipTheme,
       scheme: scheme,

@@ -18,7 +18,9 @@ void main() {
     expect(find.byType(ListView), findsWidgets);
   });
 
-  testWidgets('Segmented category displays the Morph elastic toggle', (tester) async {
+  testWidgets('Segmented category displays the Morph elastic toggle', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(1440, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -28,11 +30,19 @@ void main() {
     expect(find.byType(MorphSegmentedToggle<String>), findsOneWidget);
     await tester.tap(find.text('TV Shows'));
     await tester.pump();
-    expect(tester.widget<MorphSegmentedToggle<String>>(
-      find.byType(MorphSegmentedToggle<String>)).selected, 'TV Shows');
+    expect(
+      tester
+          .widget<MorphSegmentedToggle<String>>(
+            find.byType(MorphSegmentedToggle<String>),
+          )
+          .selected,
+      'TV Shows',
+    );
   });
 
-  testWidgets('Showcase distributes categories in two columns on desktop', (tester) async {
+  testWidgets('Showcase distributes categories in two columns on desktop', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(1600, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -42,8 +52,7 @@ void main() {
     final icons = find.byKey(const ValueKey('showcase_icon_buttons'));
     expect(buttons, findsOneWidget);
     expect(icons, findsOneWidget);
-    expect(tester.getTopLeft(buttons).dx,
-        isNot(tester.getTopLeft(icons).dx));
+    expect(tester.getTopLeft(buttons).dx, isNot(tester.getTopLeft(icons).dx));
   });
 
   testWidgets('Showcase stays one column on mobile widths', (tester) async {
@@ -56,8 +65,10 @@ void main() {
     final icons = find.byKey(const ValueKey('showcase_icon_buttons'));
     expect(buttons, findsOneWidget);
     expect(icons, findsOneWidget);
-    expect(tester.getTopLeft(buttons).dx,
-        closeTo(tester.getTopLeft(icons).dx, 0.01));
+    expect(
+      tester.getTopLeft(buttons).dx,
+      closeTo(tester.getTopLeft(icons).dx, 0.01),
+    );
   });
 
   testWidgets('Preview brand fits a compact app bar', (tester) async {
@@ -78,29 +89,34 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Filled search field uses one centered placeholder', (tester) async {
+  testWidgets('Filled search field uses one centered placeholder', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(1440, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(const MorphPreviewApp());
     final target = await revealShowcaseCategory(tester, 'text_fields');
-    final filled = find.descendant(
-      of: target, matching: find.byType(MorphTextField),
-    ).first;
+    final filled = find
+        .descendant(of: target, matching: find.byType(MorphTextField))
+        .first;
     final field = tester.widget<MorphTextField>(filled);
     expect(field.variant, MorphTextFieldVariant.filled);
     expect(field.label, isNull);
     expect(field.placeholder, 'Search for a movie');
     expect(field.leading, isNotNull);
     final leading = find.descendant(
-      of: filled, matching: find.byIcon(MorphIcons.search),
+      of: filled,
+      matching: find.byIcon(MorphIcons.search),
     );
     final editable = find.descendant(
-      of: filled, matching: find.byType(EditableText),
+      of: filled,
+      matching: find.byType(EditableText),
     );
-    expect((tester.getCenter(leading).dy - tester.getCenter(editable).dy).abs(),
-        lessThan(6));
+    expect(
+      (tester.getCenter(leading).dy - tester.getCenter(editable).dy).abs(),
+      lessThan(6),
+    );
   });
-
 }

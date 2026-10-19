@@ -211,7 +211,10 @@ void _expectChipThemeRemainingColors(
     ),
     0,
   );
-  expect(theme.elevation(elevated: true, dragged: false), MorphElevation.level1);
+  expect(
+    theme.elevation(elevated: true, dragged: false),
+    MorphElevation.level1,
+  );
   expect(theme.elevation(elevated: true, dragged: true), MorphElevation.level4);
 }
 
@@ -322,7 +325,10 @@ Future<void> _inputChipWithBothActionsIsAtLeast88Wide(
   );
 
   expect(tester.getSize(find.byType(MorphChip)).height, 32);
-  expect(tester.getSize(find.byType(MorphChip)).width, greaterThanOrEqualTo(88));
+  expect(
+    tester.getSize(find.byType(MorphChip)).width,
+    greaterThanOrEqualTo(88),
+  );
   expect(
     tester.getSize(
       find.byWidgetPredicate(

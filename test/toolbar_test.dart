@@ -289,7 +289,9 @@ Future<void> _dockedIconsOnlyPinsFirstLastToPaddedEdges(
 
   final double editX = tester.getCenter(find.byIcon(MorphIcons.edit)).dx;
   final double shareX = tester.getCenter(find.byIcon(MorphIcons.share)).dx;
-  final double favoriteX = tester.getCenter(find.byIcon(MorphIcons.favorite)).dx;
+  final double favoriteX = tester
+      .getCenter(find.byIcon(MorphIcons.favorite))
+      .dx;
   expect(shareX - editX, closeTo(80, 1));
   expect(favoriteX - shareX, closeTo(shareX - editX, 0.5));
 }
@@ -439,7 +441,10 @@ Future<void> _visibilityControllerHideMovesOffsetToLimit(
   expect(controller.offsetLimit, -80);
   await tester.pumpWidget(
     _host(
-      child: MorphToolbar(actions: _actions(), visibilityController: controller),
+      child: MorphToolbar(
+        actions: _actions(),
+        visibilityController: controller,
+      ),
     ),
   );
   await tester.pumpAndSettle();

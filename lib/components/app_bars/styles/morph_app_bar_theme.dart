@@ -72,7 +72,10 @@ class MorphAppBarMetrics {
   ///
   /// A small bar keeps [smallHeight] when a subtitle is present. Other
   /// variants add the subtitle line on top of the base height.
-  double expandedHeight(MorphAppBarVariant variant, {required bool hasSubtitle}) {
+  double expandedHeight(
+    MorphAppBarVariant variant, {
+    required bool hasSubtitle,
+  }) {
     final double base = switch (variant) {
       MorphAppBarVariant.small => smallHeight,
       MorphAppBarVariant.medium => mediumExpanded,
@@ -283,7 +286,8 @@ class MorphAppBarTheme extends MorphThemeExtension<MorphAppBarTheme> {
 
   /// bottomBackgroundColor.
 
-  Color bottomBackgroundColor(MorphColorScheme scheme) => scheme.surfaceContainer;
+  Color bottomBackgroundColor(MorphColorScheme scheme) =>
+      scheme.surfaceContainer;
 
   /// Title color.
   Color titleColor(MorphColorScheme scheme) => scheme.onSurface;
@@ -298,7 +302,10 @@ class MorphAppBarTheme extends MorphThemeExtension<MorphAppBarTheme> {
   Color trailingColor(MorphColorScheme scheme) => scheme.onSurfaceVariant;
 
   /// Search field fill. Dark schemes may use [MorphColorScheme.surfaceBright].
-  Color searchFieldColor(MorphColorScheme scheme, {required bool scrolledUnder}) {
+  Color searchFieldColor(
+    MorphColorScheme scheme, {
+    required bool scrolledUnder,
+  }) {
     if (scrolledUnder) {
       return scheme.surfaceContainerHighest;
     }
@@ -312,7 +319,8 @@ class MorphAppBarTheme extends MorphThemeExtension<MorphAppBarTheme> {
   Color searchViewColor(MorphColorScheme scheme) => scheme.surfaceContainerHigh;
 
   /// Tonal fill behind actions while the rest of the bar is hidden.
-  Color actionsTonalColor(MorphColorScheme scheme) => scheme.surfaceContainerHigh;
+  Color actionsTonalColor(MorphColorScheme scheme) =>
+      scheme.surfaceContainerHigh;
 
   /// titleStyle.
 

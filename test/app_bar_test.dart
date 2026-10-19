@@ -58,6 +58,10 @@ void main() {
     'a title with no leading control starts 16 in',
     _titleWithNoLeadingControlStarts16In,
   );
+  testWidgets(
+    'centered title stays centered without a leading control',
+    _centeredTitleStaysCenteredWithoutLeading,
+  );
   testWidgets('search pill has no elevation', _searchPillHasNoElevation);
 }
 
@@ -144,7 +148,10 @@ Future<void> _compactDensityReducesTheBarHeight(WidgetTester tester) async {
 
   final box = tester.getSize(
     find
-        .descendant(of: find.byType(MorphAppBar), matching: find.byType(SizedBox))
+        .descendant(
+          of: find.byType(MorphAppBar),
+          matching: find.byType(SizedBox),
+        )
         .first,
   );
   expect(box.height, 56);
@@ -170,7 +177,10 @@ Future<void> _regularContentBandSitsBelowTheStatusBar(
 
   final Size band = tester.getSize(
     find
-        .descendant(of: find.byType(MorphAppBar), matching: find.byType(SizedBox))
+        .descendant(
+          of: find.byType(MorphAppBar),
+          matching: find.byType(SizedBox),
+        )
         .first,
   );
   expect(band.height, 64);
@@ -528,6 +538,25 @@ Future<void> _titleWithNoLeadingControlStarts16In(WidgetTester tester) async {
   final double dx = tester.getTopLeft(find.text(appBarInboxTitle)).dx;
   expect(dx, greaterThanOrEqualTo(16));
   expect(dx, lessThan(24));
+}
+
+Future<void> _centeredTitleStaysCenteredWithoutLeading(
+  WidgetTester tester,
+) async {
+  await tester.pumpWidget(
+    hostAppBar(
+      const MorphAppBar.top(
+        titleText: 'No leading',
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        actions: <Widget>[Icon(MorphIcons.search)],
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+  final double titleX = tester.getCenter(find.text('No leading')).dx;
+  final double barX = tester.getCenter(find.byType(MorphAppBar)).dx;
+  expect((titleX - barX).abs(), lessThanOrEqualTo(1));
 }
 
 Future<void> _searchPillHasNoElevation(WidgetTester tester) async {

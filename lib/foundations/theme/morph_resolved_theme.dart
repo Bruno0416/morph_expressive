@@ -13,7 +13,11 @@ import 'morph_theme.dart';
 /// (e.g. the first hero carousel item).
 class MorphResolvedTheme extends StatelessWidget {
   /// Creates a resolved theme projection for [child].
-  const MorphResolvedTheme({required this.data, required this.child, super.key});
+  const MorphResolvedTheme({
+    required this.data,
+    required this.child,
+    super.key,
+  });
 
   /// The expressive theme applied to [child].
   final MorphThemeData data;

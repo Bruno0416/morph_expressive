@@ -186,9 +186,7 @@ extension _MorphDropdownMenuPanel<T> on _MorphDropdownMenuState<T> {
             padding: const EdgeInsets.all(16),
             child: Text(
               dd.noItemsFoundText,
-              style: type.bodyMedium.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
+              style: type.bodyMedium.copyWith(color: scheme.onSurfaceVariant),
             ),
           );
     }
@@ -272,13 +270,23 @@ extension _MorphDropdownMenuPanel<T> on _MorphDropdownMenuState<T> {
         onTapOutside: (PointerDownEvent event) {
           FocusManager.instance.primaryFocus?.unfocus();
         },
-        style: sd.textStyle ?? type.bodyLarge.copyWith(
-          color: scheme.onSurface,
-          fontSize: ((type.bodyLarge.fontSize ?? 16) + 1.5).clamp(17.0, 23.0),
-        ),
+        style:
+            sd.textStyle ??
+            type.bodyLarge.copyWith(
+              color: scheme.onSurface,
+              fontSize: ((type.bodyLarge.fontSize ?? 16) + 1.5).clamp(
+                17.0,
+                23.0,
+              ),
+            ),
         cursorColor: scheme.primary,
         mouseCursor: sd.mouseCursor,
-        decoration: _buildSearchDecoration(sd, scheme, morphTheme, searchRadius),
+        decoration: _buildSearchDecoration(
+          sd,
+          scheme,
+          morphTheme,
+          searchRadius,
+        ),
         onChanged: _handleSearchChanged,
       ),
     );
@@ -293,10 +301,12 @@ extension _MorphDropdownMenuPanel<T> on _MorphDropdownMenuState<T> {
     final Color fillColor = sd.fillColor ?? scheme.surfaceContainerHigh;
     return InputDecoration(
       hintText: sd.hintText,
-      hintStyle: sd.hintStyle ??
+      hintStyle:
+          sd.hintStyle ??
           morphTheme.typeScale.bodyLarge.copyWith(
             color: scheme.onSurfaceVariant,
-            fontSize: ((morphTheme.typeScale.bodyLarge.fontSize ?? 16) + 1.5).clamp(17.0, 23.0),
+            fontSize: ((morphTheme.typeScale.bodyLarge.fontSize ?? 16) + 1.5)
+                .clamp(17.0, 23.0),
           ),
       isDense: true,
       constraints: BoxConstraints(minHeight: sd.minHeight),
@@ -306,7 +316,8 @@ extension _MorphDropdownMenuPanel<T> on _MorphDropdownMenuState<T> {
       ),
       filled: sd.filled || sd.fillColor != null,
       fillColor: fillColor,
-      prefixIcon: sd.searchIcon ??
+      prefixIcon:
+          sd.searchIcon ??
           Icon(
             MorphIcons.search,
             color: scheme.onSurface.withValues(alpha: 0.5),
@@ -316,7 +327,10 @@ extension _MorphDropdownMenuPanel<T> on _MorphDropdownMenuState<T> {
           ? IconButton(
               icon:
                   sd.clearIcon ??
-                  Icon(MorphIcons.close, size: morphTheme.resolvedIconTheme.size),
+                  Icon(
+                    MorphIcons.close,
+                    size: morphTheme.resolvedIconTheme.size,
+                  ),
               onPressed: () {
                 _searchTextController.clear();
                 _searchDebounce?.cancel();

@@ -197,8 +197,10 @@ class MorphButtonGroupTheme extends MorphThemeExtension<MorphButtonGroupTheme> {
   }
 
   /// Resting radius for a standard (non-connected) action.
-  BorderRadius standardRadiusFor(MorphButtonShape shape, MorphButtonSize size) =>
-      shape == MorphButtonShape.round
+  BorderRadius standardRadiusFor(
+    MorphButtonShape shape,
+    MorphButtonSize size,
+  ) => shape == MorphButtonShape.round
       ? BorderRadius.circular(fullRoundRadius)
       : BorderRadius.circular(connectedOuterSquareRadiusFor(size));
 

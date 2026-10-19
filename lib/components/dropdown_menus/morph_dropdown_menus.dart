@@ -171,7 +171,8 @@ class MorphDropdownMenu<T> extends StatefulWidget {
   /// Optional validator for form integration.
   ///
   /// Return a non-null string to indicate a validation error.
-  final String? Function(List<MorphDropdownItem<T>>? selectedOptions)? validator;
+  final String? Function(List<MorphDropdownItem<T>>? selectedOptions)?
+  validator;
 
   /// The autovalidate mode for the dropdown when used inside a [Form].
   final AutovalidateMode autovalidateMode;
@@ -339,7 +340,8 @@ class _MorphDropdownMenuState<T> extends State<MorphDropdownMenu<T>>
       widget.openMotion ?? MorphTheme.of(context).dropdownMenuTheme.openSpring;
 
   MorphSpring get _resolvedCloseMotion =>
-      widget.closeMotion ?? MorphTheme.of(context).dropdownMenuTheme.closeSpring;
+      widget.closeMotion ??
+      MorphTheme.of(context).dropdownMenuTheme.closeSpring;
 
   @override
   void initState() {

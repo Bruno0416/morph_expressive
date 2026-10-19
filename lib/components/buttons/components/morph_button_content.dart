@@ -134,6 +134,8 @@ extension _MorphButtonContent on _MorphButtonState {
         internalTop: baseInternalPadding.top,
         internalBottom: baseInternalPadding.bottom,
         targetRadius: targetRadius,
+        pressed: isPressed,
+        snapToTarget: MediaQuery.maybeDisableAnimationsOf(context) ?? false,
         freezeTopLeft: widget.isGroupConnected && shapes.freezeLeft,
         freezeBottomLeft: widget.isGroupConnected && shapes.freezeLeft,
         freezeTopRight: widget.isGroupConnected && shapes.freezeRight,
@@ -181,7 +183,10 @@ extension _MorphButtonContent on _MorphButtonState {
             size: widget.size,
             iconAlignment: _decoration?.iconAlignment ?? IconAlignment.start,
           )
-        : widget.child ?? widget.label ?? widget.icon ?? const SizedBox.shrink();
+        : widget.child ??
+              widget.label ??
+              widget.icon ??
+              const SizedBox.shrink();
     if (widget.semanticLabel != null) {
       child = ExcludeSemantics(child: child);
     }
@@ -216,10 +221,12 @@ extension _MorphButtonContent on _MorphButtonState {
       onPressed: _effectiveOnPressed,
       onLongPress: widget.enabled && widget.onLongPress != null
           ? () {
-              MorphHaptics.triggerFor(
-                context,
-                _decoration?.haptic ?? MorphHapticFeedback.inherit,
-              );
+              if (widget.enableFeedback) {
+                MorphHaptics.triggerFor(
+                  context,
+                  _decoration?.haptic ?? MorphHapticFeedback.inherit,
+                );
+              }
               widget.onLongPress?.call();
             }
           : null,
@@ -234,10 +241,12 @@ extension _MorphButtonContent on _MorphButtonState {
       return null;
     }
     return () {
-      MorphHaptics.triggerFor(
-        context,
-        _decoration?.haptic ?? MorphHapticFeedback.inherit,
-      );
+      if (widget.enableFeedback) {
+        MorphHaptics.triggerFor(
+          context,
+          _decoration?.haptic ?? MorphHapticFeedback.inherit,
+        );
+      }
       // Pointer taps hide rings in the press listener. Take focus here so the
       // next Tab continues from this button without painting a ring.
       effectiveFocusNode.requestFocus();

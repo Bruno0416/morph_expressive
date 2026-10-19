@@ -395,5 +395,4 @@ abstract final class MorphIcons {
     fontFamily: 'FluentKitLine',
     fontPackage: 'fluent_icons_kit',
   );
-
 }

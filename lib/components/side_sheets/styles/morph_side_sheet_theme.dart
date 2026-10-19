@@ -128,14 +128,18 @@ class MorphSideSheetTheme extends MorphThemeExtension<MorphSideSheetTheme> {
   final MorphSideSheetMotion motion;
 
   /// Container color for [variant].
-  Color containerColor(MorphColorScheme scheme, MorphSideSheetVariant variant) =>
-      variant == MorphSideSheetVariant.modal
+  Color containerColor(
+    MorphColorScheme scheme,
+    MorphSideSheetVariant variant,
+  ) => variant == MorphSideSheetVariant.modal
       ? colors.modalContainerColor ?? scheme.surfaceContainerLow
       : colors.standardContainerColor ?? scheme.surface;
 
   /// Container elevation for [variant].
   double elevationFor(MorphSideSheetVariant variant) =>
-      variant == MorphSideSheetVariant.modal ? modalElevation : standardElevation;
+      variant == MorphSideSheetVariant.modal
+      ? modalElevation
+      : standardElevation;
 
   /// Docked corner radius for [variant].
   double cornerRadiusFor(MorphSideSheetVariant variant) =>

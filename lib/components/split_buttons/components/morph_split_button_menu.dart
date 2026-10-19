@@ -99,9 +99,10 @@ extension _MorphSplitButtonMenu<T> on _MorphSplitButtonState<T> {
     // Al igual que el dropdown, el radio del elemento respeta la distancia
     // al borde del popup, evitando esquinas internas demasiado cuadradas.
     final popupPadding = popupDec.padding ?? _splitTheme.popupPadding;
-    final popupRadius = popupDec.borderRadius?.topLeft.x ??
-        _splitTheme.popupBorderRadius;
-    final itemRadius = popupDec.selectedBorderRadius?.topLeft.x ??
+    final popupRadius =
+        popupDec.borderRadius?.topLeft.x ?? _splitTheme.popupBorderRadius;
+    final itemRadius =
+        popupDec.selectedBorderRadius?.topLeft.x ??
         MorphDropdownGeometry.innerRadius(
           outerRadius: popupRadius,
           padding: popupPadding,

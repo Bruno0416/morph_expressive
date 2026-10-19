@@ -7,7 +7,10 @@ import 'package:material_ui/material_ui.dart';
 const List<MorphNavigationBarDestination> _destinations =
     <MorphNavigationBarDestination>[
       MorphNavigationBarDestination(icon: Icon(MorphIcons.home), label: 'Home'),
-      MorphNavigationBarDestination(icon: Icon(MorphIcons.search), label: 'Search'),
+      MorphNavigationBarDestination(
+        icon: Icon(MorphIcons.search),
+        label: 'Search',
+      ),
       MorphNavigationBarDestination(
         icon: Icon(MorphIcons.radio),
         label: 'Radio',
@@ -329,7 +332,10 @@ Future<void> _safeArea(WidgetTester tester) async {
 Future<void> _textScale(WidgetTester tester) async {
   await tester.pumpWidget(_bar(textScaler: const TextScaler.linear(1.5)));
   await tester.pumpAndSettle();
-  expect(tester.getSize(find.byType(MorphNavigationBar)).height, greaterThan(64));
+  expect(
+    tester.getSize(find.byType(MorphNavigationBar)).height,
+    greaterThan(64),
+  );
   expect(tester.widget<Text>(find.text('Home')).maxLines, 2);
   expect(tester.widget<Text>(find.text('Home')).overflow, TextOverflow.clip);
 

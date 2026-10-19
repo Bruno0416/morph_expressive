@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import '../../foundations/foundations.dart';
 import '../cards/morph_cards.dart';
+import '../icon_buttons/morph_icon_buttons.dart';
 import '../selection/controllers/morph_selection_controller.dart';
 import 'components/morph_card_list_item.dart';
 import 'components/morph_expandable_expanded.dart';
@@ -15,6 +16,8 @@ import 'components/morph_list_item_scope.dart';
 import 'components/morph_list_keyboard.dart';
 import 'components/morph_list_reorder_host.dart';
 import 'components/morph_list_row_surface.dart';
+import 'components/morph_list_swipe_overflow.dart';
+import 'components/morph_list_trailing_override.dart';
 import 'components/morph_list_transform_publisher.dart';
 import 'controllers/morph_dismissible_card_controller.dart';
 import 'controllers/morph_dismissible_list_controller.dart';
@@ -439,7 +442,35 @@ class MorphListItem extends StatelessWidget {
   }
 
   Widget? _resolveRowTrailing(BuildContext context, int? _) {
-    return morphResolveListTrailing(context: context, trailing: trailing);
+    final Widget? existing = morphResolveListTrailing(
+      context: context,
+      trailing: trailing,
+    );
+    final VoidCallback? reveal = MorphListSwipeOverflow.maybeOf(context)
+        ?.onReveal;
+    final features = MorphListFeatureScope.maybeOf(context);
+    final bool isReorderHandle =
+        features != null &&
+        features.reorderEnabled &&
+        features.reorderState.showDragHandle;
+    if (!enabled ||
+        reveal == null ||
+        MorphListTrailingOverride.maybeOf(context) != null ||
+        isReorderHandle) {
+      return existing;
+    }
+    final Widget overflow = MorphIconButton(
+      icon: const Icon(MorphIcons.more_vert),
+      semanticLabel: 'Show swipe actions',
+      tooltip: 'Reveal actions',
+      variant: MorphIconButtonVariant.standard,
+      onPressed: reveal,
+    );
+    if (existing == null) return overflow;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[existing, const SizedBox(width: 4), overflow],
+    );
   }
 
   Widget? _resolveLeadingSlot(

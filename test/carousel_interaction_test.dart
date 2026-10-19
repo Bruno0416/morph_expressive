@@ -415,8 +415,14 @@ Future<void> _itemTransform(WidgetTester tester) async {
                 transform: Text('opened-item'),
                 image: SizedBox.expand(child: Text('item0')),
               ),
-              MorphCarouselItem(onTap: enableCarouselItem, image: Text('item1')),
-              MorphCarouselItem(onTap: enableCarouselItem, image: Text('item2')),
+              MorphCarouselItem(
+                onTap: enableCarouselItem,
+                image: Text('item1'),
+              ),
+              MorphCarouselItem(
+                onTap: enableCarouselItem,
+                image: Text('item2'),
+              ),
             ],
           ),
         ),

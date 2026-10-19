@@ -192,7 +192,10 @@ Future<void> _focus(WidgetTester tester) async {
 Future<void> _rangeIndicator(WidgetTester tester) async {
   await tester.pumpWidget(
     _app(
-      MorphRangeSlider(values: const MorphSliderRange(0.2, 0.8), onChanged: (_) {}),
+      MorphRangeSlider(
+        values: const MorphSliderRange(0.2, 0.8),
+        onChanged: (_) {},
+      ),
     ),
   );
   await tester.pump();

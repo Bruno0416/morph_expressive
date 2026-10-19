@@ -99,7 +99,8 @@ class MorphDialogAppearance {
       );
 
   /// Resolved divider color.
-  Color resolveDivider(MorphColorScheme scheme) => dividerColor ?? scheme.outline;
+  Color resolveDivider(MorphColorScheme scheme) =>
+      dividerColor ?? scheme.outline;
 
   /// Resolved action color.
   Color resolveAction(MorphColorScheme scheme) => actionColor ?? scheme.primary;

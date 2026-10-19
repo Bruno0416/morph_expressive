@@ -311,7 +311,11 @@ class _MorphDialTimePickerState extends State<MorphDialTimePicker> {
     );
   }
 
-  Widget _buildField(MorphThemeData theme, String text, MorphTimePickerMode mode) {
+  Widget _buildField(
+    MorphThemeData theme,
+    String text,
+    MorphTimePickerMode mode,
+  ) {
     final scheme = theme.colorScheme;
     final timeTheme = theme.timePickerTheme;
     final active = _mode == mode;

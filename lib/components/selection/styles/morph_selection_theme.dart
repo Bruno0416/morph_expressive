@@ -62,7 +62,8 @@ class MorphSelectionTheme extends MorphThemeExtension<MorphSelectionTheme> {
       highlightColor ?? scheme.secondaryContainer;
 
   /// Contextual selection app bar container.
-  Color contextualBackground(MorphColorScheme scheme) => scheme.primaryContainer;
+  Color contextualBackground(MorphColorScheme scheme) =>
+      scheme.primaryContainer;
 
   /// Content on the contextual selection app bar.
   Color contextualForeground(MorphColorScheme scheme) =>

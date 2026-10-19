@@ -59,7 +59,10 @@ class MorphSideSheetHeader extends StatelessWidget {
                     title,
                     maxLines: theme.headlineMaxLines,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.headlineStyle(morph.typeScale, morph.colorScheme),
+                    style: theme.headlineStyle(
+                      morph.typeScale,
+                      morph.colorScheme,
+                    ),
                   ),
                 ),
               ),

@@ -72,7 +72,11 @@ class MorphSegmentDividerPainter extends CustomPainter {
       local,
       Paint()
         ..shader = gradient.createShader(
-          morphGradientSpanRect(hostKey: hostKey, context: context, local: local),
+          morphGradientSpanRect(
+            hostKey: hostKey,
+            context: context,
+            local: local,
+          ),
         ),
     );
   }

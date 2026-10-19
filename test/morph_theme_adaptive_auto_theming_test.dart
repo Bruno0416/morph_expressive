@@ -145,7 +145,9 @@ Future<void> _autothemingUpdatesCardPaintedColorWhenPlatformBrightn(
   await tester.pumpAndSettle();
 
   final Finder containerFinder = find.byType(AnimatedContainer);
-  MorphThemeData lightTheme = MorphTheme.of(tester.element(find.byType(MorphCard)));
+  MorphThemeData lightTheme = MorphTheme.of(
+    tester.element(find.byType(MorphCard)),
+  );
   final Color lightColor = lightTheme.cardTheme.backgroundColor(
     lightTheme.colorScheme,
     MorphCardVariant.elevated,
@@ -190,7 +192,10 @@ Future<void> _autothemingUpdatesIconButtonPaintedColorWhenPlatform(
           child: MorphTheme(
             data: base,
             autoTheming: true,
-            child: MorphIconButton(icon: const Icon(Icons.add), onPressed: () {}),
+            child: MorphIconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () {},
+            ),
           ),
         ),
       ),

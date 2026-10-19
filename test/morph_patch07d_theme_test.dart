@@ -19,24 +19,32 @@ void main() {
     }
   });
 
-  testWidgets('slider indicator fits the measured value and tooltip padding',
-      (WidgetTester tester) async {
+  testWidgets('slider indicator fits the measured value and tooltip padding', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       MorphMaterialApp(
         data: MorphThemeData.light(seedColor: const Color(0xFF6750A4)),
         home: Center(
-          child: Builder(builder: (BuildContext context) {
-            final theme = MorphTheme.of(context);
-            return MorphSliderValueIndicator(
-              label: '0.60',
-              colors: theme.sliderTheme.colors(theme.colorScheme, enabled: true),
-            );
-          }),
+          child: Builder(
+            builder: (BuildContext context) {
+              final theme = MorphTheme.of(context);
+              return MorphSliderValueIndicator(
+                label: '0.60',
+                colors: theme.sliderTheme.colors(
+                  theme.colorScheme,
+                  enabled: true,
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
-    expect(tester.getSize(find.byType(MorphSliderValueIndicator)).width,
-        greaterThan(48));
+    expect(
+      tester.getSize(find.byType(MorphSliderValueIndicator)).width,
+      greaterThan(48),
+    );
     expect(find.text('0.60'), findsOneWidget);
   });
 }

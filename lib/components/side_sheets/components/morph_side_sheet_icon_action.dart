@@ -35,7 +35,8 @@ class MorphSideSheetIconAction extends StatefulWidget {
   final bool autofocus;
 
   @override
-  State<MorphSideSheetIconAction> createState() => _MorphSideSheetIconActionState();
+  State<MorphSideSheetIconAction> createState() =>
+      _MorphSideSheetIconActionState();
 }
 
 class _MorphSideSheetIconActionState extends State<MorphSideSheetIconAction> {

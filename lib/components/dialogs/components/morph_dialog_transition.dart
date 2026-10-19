@@ -36,7 +36,10 @@ class MorphDialogTransition extends StatefulWidget {
   final Widget child;
 
   /// Route duration that covers the slowest spring for [variant].
-  static Duration durationFor(MorphDialogTheme theme, MorphDialogVariant variant) {
+  static Duration durationFor(
+    MorphDialogTheme theme,
+    MorphDialogVariant variant,
+  ) {
     if (variant == MorphDialogVariant.fullScreen) {
       return morphDialogSpringSettle(theme.fullScreen.enterSpring);
     }

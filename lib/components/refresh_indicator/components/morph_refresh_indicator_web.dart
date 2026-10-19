@@ -176,7 +176,8 @@ extension _MorphRefreshIndicatorWeb on MorphRefreshIndicatorState {
   Widget _buildPositionedIndicatorWeb(BuildContext context) {
     final bool atTop = _isIndicatorAtTop!;
     final bool showIndeterminate =
-        _status == MorphRefreshStatus.refresh || _status == MorphRefreshStatus.done;
+        _status == MorphRefreshStatus.refresh ||
+        _status == MorphRefreshStatus.done;
     final double reveal = _revealProgress(context);
     final double inset = _indicatorInset(context);
     final double bubble = switch (_status) {

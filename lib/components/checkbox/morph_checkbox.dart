@@ -454,7 +454,8 @@ class _MorphCheckboxState extends State<MorphCheckbox>
           child: SizedBox.square(
             dimension: checkboxTheme.markSize * sizeScale,
             child: Center(
-              child: widget.checkIcon ??
+              child:
+                  widget.checkIcon ??
                   Icon(
                     FluentIcons.filled.checkmark,
                     size: checkboxTheme.markSize * sizeScale,

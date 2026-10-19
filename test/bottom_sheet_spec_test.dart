@@ -102,7 +102,10 @@ Future<void> _themeDefaults(WidgetTester tester) async {
   final MorphColorScheme s = _theme.colorScheme;
   expect(t.containerColor(s), s.surfaceContainerLow);
   expect(t.focusRingColor(s), s.secondary);
-  expect(t.handleColor(s), MorphColorUtils.withOpacity(s.onSurfaceVariant, 0.4));
+  expect(
+    t.handleColor(s),
+    MorphColorUtils.withOpacity(s.onSurfaceVariant, 0.4),
+  );
   expect(t.scrimColor(s), s.scrim.withValues(alpha: 0.32));
 }
 
@@ -371,7 +374,11 @@ Future<void> _fullScreen(WidgetTester tester) async {
 Future<void> _adaptive(WidgetTester tester) async {
   for (final width in <double>[400, 1000]) {
     final BuildContext context = await _pump(tester, Size(width, 800));
-    MorphBottomSheet.showAdaptive<void>(context, title: 'Share', builder: _short);
+    MorphBottomSheet.showAdaptive<void>(
+      context,
+      title: 'Share',
+      builder: _short,
+    );
     await tester.pumpAndSettle();
     expect(
       find.byType(MorphSideSheet),

@@ -64,7 +64,10 @@ abstract final class MorphMenuNodeBuilders {
           leading:
               item.leading ??
               (selected
-                  ? Icon(MorphIcons.check_rounded, size: menuTheme.iconSize * 0.9)
+                  ? Icon(
+                      MorphIcons.check_rounded,
+                      size: menuTheme.iconSize * 0.9,
+                    )
                   : null),
           trailing: item.trailing,
           trailingText: item.trailingText,
@@ -181,7 +184,8 @@ abstract final class MorphMenuNodeBuilders {
     final scheme = MorphTheme.of(context).colorScheme;
     final style = MorphMenuStyleScope.styleOf(context);
     final palette =
-        MorphMenuStyleScope.colorsOf(context) ?? menuTheme.colors(scheme, style);
+        MorphMenuStyleScope.colorsOf(context) ??
+        menuTheme.colors(scheme, style);
     final radius = menuTheme.itemBorderRadius;
     return MorphMenuKeyRegistration(
       label: item.semanticLabel ?? 'menu item',

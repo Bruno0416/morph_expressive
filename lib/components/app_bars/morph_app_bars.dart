@@ -14,8 +14,7 @@ import 'package:flutter/rendering.dart'
 
 import 'package:morph_expressive/components/toolbars/morph_toolbars.dart'
     show MorphToolbar;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphToolbar;
+import 'package:morph_expressive/morph_components.dart' show MorphToolbar;
 import 'package:material_ui/material_ui.dart';
 
 import '../../foundations/foundations.dart';
@@ -339,7 +338,9 @@ class MorphAppBar extends StatelessWidget implements PreferredSizeWidget {
     if (toolbarHeight != null) {
       return toolbarHeight!;
     }
-    final MorphAppBarMetrics metrics = MorphAppBarTheme.defaults.metrics(density);
+    final MorphAppBarMetrics metrics = MorphAppBarTheme.defaults.metrics(
+      density,
+    );
     if (variant == MorphAppBarVariant.small) {
       return metrics.smallHeight;
     }

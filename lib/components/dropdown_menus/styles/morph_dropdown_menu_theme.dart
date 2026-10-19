@@ -1,14 +1,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:morph_expressive/components/dropdown_menus/morph_dropdown_menus.dart'
     show MorphDropdownMenu;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphDropdownMenu;
+import 'package:morph_expressive/morph_components.dart' show MorphDropdownMenu;
 
 import '../../../foundations/foundations.dart';
 
 /// Theme values for [MorphDropdownMenu].
 @immutable
-class MorphDropdownMenuTheme extends MorphThemeExtension<MorphDropdownMenuTheme> {
+class MorphDropdownMenuTheme
+    extends MorphThemeExtension<MorphDropdownMenuTheme> {
   /// MorphDropdownMenuTheme.
   const MorphDropdownMenuTheme({
     this.containerRadius = 28,
@@ -70,7 +70,8 @@ class MorphDropdownMenuTheme extends MorphThemeExtension<MorphDropdownMenuTheme>
 
   /// chipBackgroundColor.
 
-  Color chipBackgroundColor(MorphColorScheme scheme) => scheme.secondaryContainer;
+  Color chipBackgroundColor(MorphColorScheme scheme) =>
+      scheme.secondaryContainer;
 
   /// chipForegroundColor.
 

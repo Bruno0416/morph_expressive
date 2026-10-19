@@ -154,8 +154,10 @@ class _MorphTimePickerDialogState extends State<MorphTimePickerDialog>
 
   Size _dialogSize(BuildContext context) {
     final bool isDial = switch (_entryMode.value) {
-      MorphTimePickerEntryMode.dial || MorphTimePickerEntryMode.dialOnly => true,
-      MorphTimePickerEntryMode.input || MorphTimePickerEntryMode.inputOnly => false,
+      MorphTimePickerEntryMode.dial ||
+      MorphTimePickerEntryMode.dialOnly => true,
+      MorphTimePickerEntryMode.input ||
+      MorphTimePickerEntryMode.inputOnly => false,
     };
     final Orientation orientation =
         widget.orientation ?? MediaQuery.orientationOf(context);

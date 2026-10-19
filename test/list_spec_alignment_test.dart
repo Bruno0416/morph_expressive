@@ -229,7 +229,9 @@ Future<void> _anyListItemCanOptIntoAContainerTransform(
   await tester.pumpAndSettle();
   expect(find.text('From row'), findsOneWidget);
 
-  MorphCardContainerTransformScope.closeOf(tester.element(find.text('From row')));
+  MorphCardContainerTransformScope.closeOf(
+    tester.element(find.text('From row')),
+  );
   await tester.pumpAndSettle();
   expect(find.text('From row'), findsNothing);
 
@@ -290,7 +292,9 @@ Future<void> _oneRowCanSwipeExpandInPlaceAndOpenATransform(
   expand.open(0);
   await tester.pumpAndSettle();
   expect(find.text('Morphed'), findsOneWidget);
-  MorphCardContainerTransformScope.closeOf(tester.element(find.text('Morphed')));
+  MorphCardContainerTransformScope.closeOf(
+    tester.element(find.text('Morphed')),
+  );
   await tester.pumpAndSettle();
 }
 

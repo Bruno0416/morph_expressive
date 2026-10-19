@@ -1,8 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:morph_expressive/components/toolbars/morph_toolbars.dart'
     show MorphToolbar;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphToolbar;
+import 'package:morph_expressive/morph_components.dart' show MorphToolbar;
 
 /// A single slot in [MorphToolbar.actions] — icon action or custom widget.
 sealed class MorphToolbarItem {

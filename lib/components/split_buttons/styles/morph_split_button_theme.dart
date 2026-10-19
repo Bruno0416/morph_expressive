@@ -256,7 +256,8 @@ class MorphSplitButtonTheme extends MorphThemeExtension<MorphSplitButtonTheme> {
 
   /// splitInnerPadding.
 
-  double splitInnerPadding(MorphButtonSize size) => _splitInnerPadding[size] ?? 4;
+  double splitInnerPadding(MorphButtonSize size) =>
+      _splitInnerPadding[size] ?? 4;
 
   /// splitMenuIconOffset.
 
@@ -372,7 +373,8 @@ class MorphSplitButtonTheme extends MorphThemeExtension<MorphSplitButtonTheme> {
 
   /// popupBackgroundColor.
 
-  Color popupBackgroundColor(MorphColorScheme scheme) => scheme.surfaceContainer;
+  Color popupBackgroundColor(MorphColorScheme scheme) =>
+      scheme.surfaceContainer;
 
   /// menuBackgroundColor.
 

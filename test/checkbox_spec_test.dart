@@ -75,7 +75,10 @@ void _expectCheckboxThemeMetrics(
   expect(theme.resolveFocusIndicatorColor(scheme), scheme.secondary);
 }
 
-void _expectCheckboxThemeColors(MorphCheckboxTheme theme, MorphColorScheme scheme) {
+void _expectCheckboxThemeColors(
+  MorphCheckboxTheme theme,
+  MorphColorScheme scheme,
+) {
   expect(
     theme.borderColor(scheme, enabled: true, active: false, error: false),
     scheme.onSurfaceVariant,
@@ -149,7 +152,9 @@ bool _isCircleLayer(Widget widget) {
 }
 
 Future<void> _unselectedOutlineIs2dp(WidgetTester tester) async {
-  await tester.pumpWidget(_host(MorphCheckbox(value: false, onChanged: (_) {})));
+  await tester.pumpWidget(
+    _host(MorphCheckbox(value: false, onChanged: (_) {})),
+  );
 
   final box = tester.widget<AnimatedContainer>(find.byType(AnimatedContainer));
   final decoration = box.decoration! as BoxDecoration;
@@ -206,7 +211,11 @@ Future<void> _semanticsExposeCheckboxCheckedMixedAndTheLabel(
 ) async {
   await tester.pumpWidget(
     _host(
-      MorphCheckbox(value: true, label: const Text('Pickles'), onChanged: (_) {}),
+      MorphCheckbox(
+        value: true,
+        label: const Text('Pickles'),
+        onChanged: (_) {},
+      ),
     ),
   );
 

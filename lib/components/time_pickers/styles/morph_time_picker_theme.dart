@@ -104,7 +104,8 @@ class MorphTimePickerTheme extends MorphThemeExtension<MorphTimePickerTheme> {
 
   /// headerForegroundColor.
 
-  Color headerForegroundColor(MorphColorScheme scheme) => scheme.onSurfaceVariant;
+  Color headerForegroundColor(MorphColorScheme scheme) =>
+      scheme.onSurfaceVariant;
 
   /// dividerColor.
 
@@ -149,7 +150,10 @@ class MorphTimePickerTheme extends MorphThemeExtension<MorphTimePickerTheme> {
 
   /// headerHeadlineStyle.
 
-  TextStyle headerHeadlineStyle(MorphTypeScale typeScale, MorphColorScheme scheme) {
+  TextStyle headerHeadlineStyle(
+    MorphTypeScale typeScale,
+    MorphColorScheme scheme,
+  ) {
     return typeScale.headlineLarge.copyWith(color: scheme.onSurface);
   }
 

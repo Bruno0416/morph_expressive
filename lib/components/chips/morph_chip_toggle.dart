@@ -47,7 +47,10 @@ class MorphChipToggle<T> extends StatefulWidget {
     this.scrollPadding = EdgeInsets.zero,
   }) : assert(options.length >= 2),
        assert(multiSelection || (selected != null && onChanged != null)),
-       assert(!multiSelection || (selectedValues != null && onSelectionChanged != null));
+       assert(
+         !multiSelection ||
+             (selectedValues != null && onSelectionChanged != null),
+       );
 
   final List<MorphChipToggleOption<T>> options;
   final T? selected;
@@ -107,8 +110,7 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
     super.dispose();
   }
 
-  int _indexOf(T value) =>
-      widget.options.indexWhere((o) => o.value == value);
+  int _indexOf(T value) => widget.options.indexWhere((o) => o.value == value);
 
   double _chipWidth(
     BuildContext context,
@@ -198,8 +200,8 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
     final hPad = widget.horizontalPadding ?? theme.spacing.lg;
     return (
       style: theme.typeScale.labelLarge.copyWith(
-        fontSize: (theme.typeScale.labelLarge.fontSize ?? 14) +
-            widget.labelSizeBoost,
+        fontSize:
+            (theme.typeScale.labelLarge.fontSize ?? 14) + widget.labelSizeBoost,
         fontWeight: FontWeight.w600,
       ),
       padding: EdgeInsets.symmetric(horizontal: hPad, vertical: hPad / 2),
@@ -254,7 +256,8 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
       } else {
         _bloomEntries.remove(value);
         final sources = before.isEmpty ? current : before;
-        _entryOrigins[value] = _findNearest(value, sources, lefts, widths) ?? own;
+        _entryOrigins[value] =
+            _findNearest(value, sources, lefts, widths) ?? own;
       }
       _bloomExits.remove(value);
       _exiting.remove(value);
@@ -330,9 +333,10 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
       tokens.spacing,
     );
     _syncSingle(lefts, widths);
-    final double totalWidth = widths.isEmpty ? 0 :
-        lefts.reduce((a, b) => a > b ? a : b) +
-        widths[lefts.indexOf(lefts.reduce((a, b) => a > b ? a : b))];
+    final double totalWidth = widths.isEmpty
+        ? 0
+        : lefts.reduce((a, b) => a > b ? a : b) +
+              widths[lefts.indexOf(lefts.reduce((a, b) => a > b ? a : b))];
     final Set<T> selected = widget.multiSelection
         ? Set<T>.of(widget.selectedValues ?? <T>{})
         : <T>{if (widget.selected != null) widget.selected as T};
@@ -595,7 +599,8 @@ class _MorphTogglePillState extends State<_MorphTogglePill>
       _bloom.duration = widget.duration;
       _transfer.duration = widget.duration;
     }
-    final wasBloom = (oldWidget.bloomIn && !oldWidget.exiting) ||
+    final wasBloom =
+        (oldWidget.bloomIn && !oldWidget.exiting) ||
         (oldWidget.bloomOut && oldWidget.exiting);
     if (_usesBloom) {
       _transfer.stop();
@@ -647,10 +652,10 @@ class _MorphTogglePillState extends State<_MorphTogglePill>
       });
       return;
     }
-    final delayFraction = (widget.stretchDelay.inMicroseconds /
-            widget.duration.inMicroseconds)
-        .clamp(0.0, 0.85)
-        .toDouble();
+    final delayFraction =
+        (widget.stretchDelay.inMicroseconds / widget.duration.inMicroseconds)
+            .clamp(0.0, 0.85)
+            .toDouble();
     final rightward = (to.left + to.right) >= (fromLeft + fromRight);
     // The leading edge travels immediately; the trailing edge follows after
     // a real dwell interval. TweenSequence provides stable reversal mid-flight.
@@ -766,16 +771,16 @@ class _CircularChipBloomPainter extends CustomPainter {
       cornerRadius = diameter / 2;
     } else {
       // Expand sideways only after the circle has reached the chip's height.
-      final t = Curves.easeOutCubic.transform((p - circularPhase) / (1 - circularPhase));
+      final t = Curves.easeOutCubic.transform(
+        (p - circularPhase) / (1 - circularPhase),
+      );
       width = maxDiameter + (size.width - maxDiameter) * t;
       height = maxDiameter + (size.height - maxDiameter) * t;
       cornerRadius = maxDiameter / 2 + (radius - maxDiameter / 2) * t;
     }
 
     // Fade occurs only at the tiny-dot end, in both directions.
-    final alpha = _fadeTween.transform(
-      (p / 0.12).clamp(0.0, 1.0).toDouble(),
-    );
+    final alpha = _fadeTween.transform((p / 0.12).clamp(0.0, 1.0).toDouble());
     final paint = Paint()..color = color.withValues(alpha: color.a * alpha);
     final rect = Rect.fromCenter(
       center: Offset(size.width / 2, size.height / 2),
@@ -836,10 +841,7 @@ class _Chip<T> extends StatelessWidget {
                   Icon(option.icon, size: iconSize, color: c),
                   const Gap(6),
                 ],
-                Text(
-                  option.label,
-                  style: labelStyle?.copyWith(color: c),
-                ),
+                Text(option.label, style: labelStyle?.copyWith(color: c)),
               ],
             );
           },

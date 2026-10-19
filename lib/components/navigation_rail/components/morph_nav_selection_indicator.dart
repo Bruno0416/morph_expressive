@@ -33,7 +33,8 @@ class MorphSelectionIndicator extends StatefulWidget {
   final MorphSpring fadeSpring;
 
   @override
-  State<MorphSelectionIndicator> createState() => _MorphSelectionIndicatorState();
+  State<MorphSelectionIndicator> createState() =>
+      _MorphSelectionIndicatorState();
 }
 
 class _MorphSelectionIndicatorState extends State<MorphSelectionIndicator>

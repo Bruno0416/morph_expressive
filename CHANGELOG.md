@@ -1,5 +1,60 @@
 # Changelog
 
+## 0.4.0 - 2026-10-18
+
+### Added
+
+- `MorphTextField.onUnfocus` callback receives the current text exactly once
+  per loss of focus, supporting custom validation on blur without changing
+  existing expression-based `errorText` handling. Works with owned or external
+  focus nodes, tap outside, keyboard traversal and programmatic unfocus.
+- Expressive refresh feedback with a circular reveal-progress ring, an
+  indeterminate refreshing ring, a completion spin, and a distinct completion
+  impact. Added `armThreshold` and `pullSensitivity` for tuning the pull
+  distance and responsiveness; corrected the contained indicator background.
+- Optional horizontal swipe dismissal for `MorphSnackbar.show` through
+  `swipeDismissible: true`, with spring-back motion, haptic confirmation,
+  and a square close icon button.
+- Dedicated native touch lab in the preview to test theme strength, haptic
+  overrides, swipe actions, refresh, circular indicator sizes, and continuous
+  versus divided sliders. Standard and wavy circular variants are previewed
+  at 16, 24, 48 and 64 dp.
+- Theme-aware haptics for automatic AppBar back navigation, refresh activation
+  and completion, bottom sheet opening, and side sheet interactions.
+- Automatic three-dot reveal affordance for swipe-enabled list rows where the
+  host opts into it.
+
+### Changed
+
+- Slider and RangeSlider only emit step ticks when `divisions` is set;
+  continuous sliders no longer emit repetitive selection clicks as they move.
+- Selection feedback now reflects Light / Medium / Heavy theme intensity;
+  `none` and `hapticsEnabled: false` suppress Morph-managed feedback.
+  Components default to theme inheritance, with explicit local overrides.
+- Swipe list rows animate the previous row closed while the next row opens;
+  the default gesture does not emit repeated detent ticks. The optional
+  `dismissHapticStream` property retains deliberate discrete feedback.
+- Circular and circular-wavy progress indicator stroke geometry adapts to
+  smaller `size` values, including compact button use.
+- NavigationDrawer destinations have an 8 dp vertical gap.
+
+### Fixed
+
+- AppBar title centering uses the full bar geometry even when the leading and
+  trailing actions have asymmetric widths.
+- Button radius and padding animate smoothly in both directions, including
+  interrupted transitions and release after press.
+- ButtonGroup haptic overrides and globally disabled selection haptics.
+- List-action and reorder haptic calls that previously forced a fixed medium
+  strength now inherit the selected theme intensity.
+- Touch lab material surfaces render ListTile feedback without covering ink.
+
+### Dependencies
+
+- Morph-managed haptics use Flutter `HapticFeedback` only. No Core Haptics
+  FFI dependency or manual Xcode/Swift Package Manager configuration is
+  required for package consumers.
+
 ## 0.3.1
 
 ### Fixed

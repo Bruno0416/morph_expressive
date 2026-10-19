@@ -187,8 +187,10 @@ class MorphMenuGroup extends MorphMenuNode {
   const MorphMenuGroup({required this.children, this.label});
 
   /// Alias that names the item list [entries] (maps to [children]).
-  const MorphMenuGroup.entries({required List<MorphMenuNode> entries, this.label})
-    : children = entries;
+  const MorphMenuGroup.entries({
+    required List<MorphMenuNode> entries,
+    this.label,
+  }) : children = entries;
 
   /// label.
 

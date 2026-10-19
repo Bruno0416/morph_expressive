@@ -3,8 +3,7 @@ import 'package:morph_expressive/components/search/morph_search.dart'
     show MorphSearchAnchor;
 import 'package:morph_expressive/components/search/morph_search_anchor.dart'
     show MorphSearchAnchor;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphSearchAnchor;
+import 'package:morph_expressive/morph_components.dart' show MorphSearchAnchor;
 
 import '../../../foundations/foundations.dart';
 import '../enums/morph_search_enums.dart';
@@ -324,7 +323,9 @@ class MorphSearchViewTheme extends MorphThemeExtension<MorphSearchViewTheme> {
       headerHeight: l((MorphSearchViewTheme x) => x.headerHeight),
       minWidth: l((MorphSearchViewTheme x) => x.minWidth),
       minHeight: l((MorphSearchViewTheme x) => x.minHeight),
-      barHorizontalPadding: l((MorphSearchViewTheme x) => x.barHorizontalPadding),
+      barHorizontalPadding: l(
+        (MorphSearchViewTheme x) => x.barHorizontalPadding,
+      ),
       maxWidth: l((MorphSearchViewTheme x) => x.maxWidth),
       maxHeightFactor: l((MorphSearchViewTheme x) => x.maxHeightFactor),
       compactBreakpoint: l((MorphSearchViewTheme x) => x.compactBreakpoint),

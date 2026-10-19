@@ -234,7 +234,9 @@ extension _MorphButtonGroupMeasurement on _MorphButtonGroupState {
           VisualDensity.standard,
       mouseCursor:
           actionDecoration?.mouseCursor ?? groupDecoration?.mouseCursor,
-      motion: actionDecoration?.motion ?? groupDecoration?.motion ??
+      motion:
+          actionDecoration?.motion ??
+          groupDecoration?.motion ??
           (connected
               ? MorphButtonMotion(
                   stiffness: groupTheme.neighborSquishSpring.stiffness,

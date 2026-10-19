@@ -162,7 +162,8 @@ extension _MorphDropdownMenuField<T> on _MorphDropdownMenuState<T> {
       }
       return Text(
         selected.first.label,
-        style: fd.selectedTextStyle ??
+        style:
+            fd.selectedTextStyle ??
             type.bodyLarge.copyWith(color: scheme.onSurface),
         overflow: TextOverflow.ellipsis,
       );
@@ -180,7 +181,8 @@ extension _MorphDropdownMenuField<T> on _MorphDropdownMenuState<T> {
     // 3. aplicar onSurfaceVariant solo al placeholder
     return Text(
       fd.hintText ?? 'Select',
-      style: fd.hintStyle ??
+      style:
+          fd.hintStyle ??
           type.bodyLarge.copyWith(color: scheme.onSurfaceVariant),
       overflow: TextOverflow.ellipsis,
     );

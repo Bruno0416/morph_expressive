@@ -10,13 +10,13 @@
 
 ```yaml
 dependencies:
-  morph_expressive: ^0.3.1
+  morph_expressive: ^0.4.0
 ```
 
-**Release status:** `0.3.0` is published on pub.dev. The `^0.3.1`
-constraint works once the patch release is published. Until then use
-`^0.3.0`, or reference the repository through a Git/path dependency to
-try the fixes before publication.
+**Release status:** `^0.4.0` resolves after the 0.4.0 release is published
+on pub.dev. Before then, choose the latest available published version or a
+Git/path dependency for testing. Check the
+[version history](https://pub.dev/packages/morph_expressive/versions).
 
 Run `flutter pub get` after selecting the appropriate version.
 
@@ -65,6 +65,10 @@ final quietTheme = MorphThemeData.light(
   seedColor: const Color(0xFF6750A4),
 ).copyWith(hapticsEnabled: false);
 ```
+
+The 0.4.0 release uses Flutter's built-in haptics; no external haptics
+package or manual native framework linking is needed. For Light / Medium /
+Heavy and per-widget overrides, see [Theming](THEMING.md).
 
 For a runnable overview of selection, validation, swipe actions, and
 dialogs, see [`example/main.dart`](../example/main.dart) and the

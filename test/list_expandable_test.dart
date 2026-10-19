@@ -109,7 +109,10 @@ Future<void> _sublistBottomRounding(WidgetTester tester) async {
     return tester
         .widget<MorphCard>(
           find
-              .ancestor(of: find.text('Nest 1'), matching: find.byType(MorphCard))
+              .ancestor(
+                of: find.text('Nest 1'),
+                matching: find.byType(MorphCard),
+              )
               .first,
         )
         .borderRadius!
@@ -154,20 +157,33 @@ Color? _headerFill(WidgetTester tester) => tester
 
 Future<void> _expandedStateFill(WidgetTester tester) async {
   await pumpList(tester, _dataList(data: _parentWithChildren()));
-  final MorphColorScheme scheme = MorphTheme.of(tester.element(find.text('Parent')))
-      .colorScheme;
+  final MorphColorScheme scheme = MorphTheme.of(
+    tester.element(find.text('Parent')),
+  ).colorScheme;
 
-  expect(_headerFill(tester)?.toARGB32(), scheme.surfaceContainerHighest.toARGB32());
-
-  await tester.tap(find.text('Parent'));
-  await tester.pumpAndSettle();
-
-  expect(_headerFill(tester)?.toARGB32(), scheme.surfaceContainerHigh.toARGB32());
-  expect(rowColor(tester, 'Child')?.toARGB32(), scheme.surfaceContainerHigh.toARGB32());
+  expect(
+    _headerFill(tester)?.toARGB32(),
+    scheme.surfaceContainerHighest.toARGB32(),
+  );
 
   await tester.tap(find.text('Parent'));
   await tester.pumpAndSettle();
-  expect(_headerFill(tester)?.toARGB32(), scheme.surfaceContainerHighest.toARGB32());
+
+  expect(
+    _headerFill(tester)?.toARGB32(),
+    scheme.surfaceContainerHigh.toARGB32(),
+  );
+  expect(
+    rowColor(tester, 'Child')?.toARGB32(),
+    scheme.surfaceContainerHigh.toARGB32(),
+  );
+
+  await tester.tap(find.text('Parent'));
+  await tester.pumpAndSettle();
+  expect(
+    _headerFill(tester)?.toARGB32(),
+    scheme.surfaceContainerHighest.toARGB32(),
+  );
 }
 
 Future<void> _expandedStateFillOptOutAndOverride(WidgetTester tester) async {
@@ -179,10 +195,17 @@ Future<void> _expandedStateFillOptOutAndOverride(WidgetTester tester) async {
       expandStyle: const MorphExpandableStyle(expandedStateFill: false),
     ),
   );
-  final MorphColorScheme scheme = MorphTheme.of(tester.element(find.text('Parent')))
-      .colorScheme;
-  expect(_headerFill(tester)?.toARGB32(), scheme.surfaceContainerHighest.toARGB32());
-  expect(rowColor(tester, 'Child')?.toARGB32(), scheme.surfaceContainerHighest.toARGB32());
+  final MorphColorScheme scheme = MorphTheme.of(
+    tester.element(find.text('Parent')),
+  ).colorScheme;
+  expect(
+    _headerFill(tester)?.toARGB32(),
+    scheme.surfaceContainerHighest.toARGB32(),
+  );
+  expect(
+    rowColor(tester, 'Child')?.toARGB32(),
+    scheme.surfaceContainerHighest.toARGB32(),
+  );
 
   const override = Color(0xFFFFE0B2);
   await pumpList(
@@ -214,8 +237,9 @@ Future<void> _trailingChromeNarrowPill(WidgetTester tester) async {
   await tester.tap(find.text('Parent'));
   await tester.pumpAndSettle();
 
-  final MorphColorScheme scheme = MorphTheme.of(tester.element(find.text('Parent')))
-      .colorScheme;
+  final MorphColorScheme scheme = MorphTheme.of(
+    tester.element(find.text('Parent')),
+  ).colorScheme;
   expect(chromeColor().toARGB32(), scheme.surfaceContainer.toARGB32());
   expect(tester.getSize(chrome), const Size(32, 40));
 }

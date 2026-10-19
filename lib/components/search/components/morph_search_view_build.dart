@@ -141,7 +141,8 @@ extension _MorphSearchViewContentBuild on _MorphSearchViewContentState {
     required _ViewStyles s,
     required MorphSearchViewStyle style,
   }) {
-    final MorphSearchViewTheme viewTheme = MorphTheme.of(context).searchViewTheme;
+    final MorphSearchViewTheme viewTheme = MorphTheme.of(context)
+        .searchViewTheme;
     final double headerHeight = lerpDouble(
       g.begin.height,
       s.headerHeight,

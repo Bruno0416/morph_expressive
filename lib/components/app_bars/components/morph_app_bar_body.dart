@@ -47,10 +47,6 @@ class _MorphBarBody extends StatelessWidget {
     final EdgeInsets padding = contentPadding.resolve(
       Directionality.of(context),
     );
-    final double pad = padding.left;
-    final int actionCount = actions?.length ?? 0;
-    final double lead = leading == null ? titleInset : pad + 48;
-    final double trail = actionCount == 0 ? pad : pad + 48.0 * actionCount;
     final double shownExpand = expand.clamp(0.0, 1.0);
     final double boxTop =
         lerpDouble(0, topPadding + actionRow, shownExpand) ?? 0;
@@ -59,55 +55,166 @@ class _MorphBarBody extends StatelessWidget {
     final double alignY = search
         ? (lerpDouble(0, -1, shownExpand) ?? 0)
         : (lerpDouble(0, 1, shownExpand) ?? 0);
-    final Widget? titleBox = title == null
-        ? null
-        : PositionedDirectional(
-            start: lerpDouble(lead, titleInset, shownExpand),
-            end: lerpDouble(trail, titleInset, shownExpand),
-            top: boxTop,
-            bottom: boxBottom,
+    final Widget body = CustomMultiChildLayout(
+      delegate: _MorphBarTitleDelegate(
+        leadingPadding: padding.left,
+        trailingPadding: padding.right,
+        titleInset: titleInset,
+        actionTop: topPadding,
+        actionHeight: actionRow,
+        titleTop: boxTop,
+        titleBottom: boxBottom,
+        expand: shownExpand,
+        centerTitle: centerTitle && !search,
+        rightToLeft: Directionality.of(context) == TextDirection.rtl,
+        // The action band lives in its own sliver when separateActions is set.
+        // Never mount another copy of those widgets (GlobalKeys can be shared).
+        estimatedLeadingWidth: separateActions && leading != null ? 48 : 0,
+        estimatedActionsWidth: separateActions
+            ? (actions?.length ?? 0) * 48
+            : 0,
+      ),
+      children: <Widget>[
+        if (title != null)
+          LayoutId(
+            id: _MorphBarSlot.title,
             child: Align(
               alignment: AlignmentDirectional(centerTitle ? 0 : -1, alignY),
               child: search
                   ? SizedBox(width: double.infinity, child: title)
                   : title,
             ),
-          );
-    final controls = <Widget>[
-      PositionedDirectional(
-        top: topPadding,
-        start: pad,
-        height: actionRow,
-        child: IconTheme.merge(
-          data: IconThemeData(size: iconSize, color: leadingColor),
-          child: leading ?? const SizedBox.shrink(),
-        ),
-      ),
-      if (actions != null && actions!.isNotEmpty)
-        PositionedDirectional(
-          top: topPadding,
-          end: pad,
-          height: actionRow,
-          child: IconTheme.merge(
-            data: IconThemeData(size: iconSize, color: trailingColor),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[for (final Widget action in actions!) action],
+          ),
+        if (!separateActions && leading != null)
+          LayoutId(
+            id: _MorphBarSlot.leading,
+            child: IconTheme.merge(
+              data: IconThemeData(size: iconSize, color: leadingColor),
+              child: leading!,
             ),
           ),
-        ),
-    ];
-    if (!separateActions) {
-      return Stack(children: <Widget>[?titleBox, ...controls]);
-    }
+        if (!separateActions && actions != null && actions!.isNotEmpty)
+          LayoutId(
+            id: _MorphBarSlot.actions,
+            child: IconTheme.merge(
+              data: IconThemeData(size: iconSize, color: trailingColor),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[...actions!],
+              ),
+            ),
+          ),
+      ],
+    );
+    if (!separateActions) return body;
     return Material(
       color: containerColor,
       shadowColor: shadowColor,
       surfaceTintColor: const Color(0x00000000),
       shape: shape,
-      child: Stack(children: <Widget>[?titleBox]),
+      child: body,
     );
   }
+}
+
+enum _MorphBarSlot { title, leading, actions }
+
+/// Measures real action widths before reserving symmetric title space.
+/// Unlike aligning inside the space *remaining* between controls, this keeps
+/// the title centered on the actual app bar even with uneven action widths.
+class _MorphBarTitleDelegate extends MultiChildLayoutDelegate {
+  _MorphBarTitleDelegate({
+    required this.leadingPadding,
+    required this.trailingPadding,
+    required this.titleInset,
+    required this.actionTop,
+    required this.actionHeight,
+    required this.titleTop,
+    required this.titleBottom,
+    required this.expand,
+    required this.centerTitle,
+    required this.rightToLeft,
+    required this.estimatedLeadingWidth,
+    required this.estimatedActionsWidth,
+  });
+
+  final double leadingPadding;
+  final double trailingPadding;
+  final double titleInset;
+  final double actionTop;
+  final double actionHeight;
+  final double titleTop;
+  final double titleBottom;
+  final double expand;
+  final bool centerTitle;
+  final bool rightToLeft;
+  final double estimatedLeadingWidth;
+  final double estimatedActionsWidth;
+
+  @override
+  void performLayout(Size size) {
+    final BoxConstraints controlConstraints = BoxConstraints.loose(
+      Size(size.width, actionHeight.clamp(0, size.height).toDouble()),
+    );
+    double leftOccupied = estimatedLeadingWidth;
+    double rightOccupied = estimatedActionsWidth;
+    if (hasChild(_MorphBarSlot.leading)) {
+      final Size leading = layoutChild(
+        _MorphBarSlot.leading,
+        controlConstraints,
+      );
+      leftOccupied = leading.width;
+      positionChild(
+        _MorphBarSlot.leading,
+        Offset(
+          rightToLeft
+              ? size.width - trailingPadding - leading.width
+              : leadingPadding,
+          actionTop,
+        ),
+      );
+    }
+    if (hasChild(_MorphBarSlot.actions)) {
+      final Size actions = layoutChild(
+        _MorphBarSlot.actions,
+        controlConstraints,
+      );
+      rightOccupied = actions.width;
+      positionChild(
+        _MorphBarSlot.actions,
+        Offset(
+          rightToLeft
+              ? leadingPadding
+              : size.width - trailingPadding - actions.width,
+          actionTop,
+        ),
+      );
+    }
+    if (!hasChild(_MorphBarSlot.title)) return;
+
+    final double lead = leftOccupied == 0
+        ? titleInset
+        : (rightToLeft ? trailingPadding : leadingPadding) + leftOccupied;
+    final double trail = rightOccupied == 0
+        ? (rightToLeft ? leadingPadding : trailingPadding)
+        : (rightToLeft ? leadingPadding : trailingPadding) + rightOccupied;
+    final double startInset = lerpDouble(lead, titleInset, expand)!;
+    final double endInset = lerpDouble(trail, titleInset, expand)!;
+    final double safeInset = math.max(startInset, endInset);
+    final double left = centerTitle
+        ? safeInset
+        : (rightToLeft ? endInset : startInset);
+    final double right = centerTitle
+        ? safeInset
+        : (rightToLeft ? startInset : endInset);
+    final double width = math.max(0, size.width - left - right);
+    final double height = math.max(0, size.height - titleTop - titleBottom);
+    layoutChild(_MorphBarSlot.title, BoxConstraints.tight(Size(width, height)));
+    positionChild(_MorphBarSlot.title, Offset(left, titleTop));
+  }
+
+  @override
+  bool shouldRelayout(_MorphBarTitleDelegate oldDelegate) => true;
 }
 
 /// Paints the action band over the page. Behaves like a pinned header: it

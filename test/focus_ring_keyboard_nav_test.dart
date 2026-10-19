@@ -291,7 +291,9 @@ void registerFocusRingPointerTapOnCardTests() {
     expect(MorphFocusInteraction.instance.ringsAllowed, isFalse);
 
     // Ring chrome must not paint from pointer focus.
-    final rings = tester.widgetList<MorphFocusRing>(find.byType(MorphFocusRing));
+    final rings = tester.widgetList<MorphFocusRing>(
+      find.byType(MorphFocusRing),
+    );
     for (final ring in rings) {
       expect(ring.focused, isFalse);
     }

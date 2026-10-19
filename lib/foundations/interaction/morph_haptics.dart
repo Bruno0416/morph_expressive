@@ -60,7 +60,7 @@ abstract final class MorphHaptics {
 
   /// Emits a selection tick only when the nearest MorphTheme allows haptics.
   static void selectionFor(BuildContext context) {
-    if (MorphTheme.of(context).hapticsEnabled) selection();
+    if (resolve(context) != MorphHapticFeedback.none) selection();
   }
 
   /// Emits an explicit impact without inherited theme resolution.

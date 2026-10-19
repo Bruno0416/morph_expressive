@@ -78,7 +78,11 @@ extension _MorphSideSheetPanel on MorphSideSheet {
   }
 
   /// Sheet focus indicator: secondary, 3 thick, 2 from the target.
-  Widget _focusRingScope(MorphThemeData morph, MorphSideSheetTheme t, Widget c) {
+  Widget _focusRingScope(
+    MorphThemeData morph,
+    MorphSideSheetTheme t,
+    Widget c,
+  ) {
     final MorphSideSheetActionStyle a = t.action;
     return MorphTheme(
       data: morph.copyWith(

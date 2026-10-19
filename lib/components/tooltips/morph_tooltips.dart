@@ -206,7 +206,9 @@ class _MorphTooltipState extends State<MorphTooltip>
     if (widget.preferredPlacement != null) {
       return widget.preferredPlacement!;
     }
-    return _isRich ? MorphTooltipPlacement.bottomEnd : MorphTooltipPlacement.above;
+    return _isRich
+        ? MorphTooltipPlacement.bottomEnd
+        : MorphTooltipPlacement.above;
   }
 
   @override
@@ -310,11 +312,13 @@ class _MorphTooltipState extends State<MorphTooltip>
 
   Widget _buildPlain() {
     final message = widget.message!;
-    return _fade(Semantics(
-      container: true,
-      tooltip: message,
-      child: MorphTooltipPlainSurface(message: message, shape: widget.shape),
-    ));
+    return _fade(
+      Semantics(
+        container: true,
+        tooltip: message,
+        child: MorphTooltipPlainSurface(message: message, shape: widget.shape),
+      ),
+    );
   }
 
   Widget _buildRich(MorphThemeData theme, MorphTooltipTheme tooltipTheme) {

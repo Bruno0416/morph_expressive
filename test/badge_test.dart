@@ -93,7 +93,9 @@ Future<void> _morphbadgeAnchorsTheIndicatorToTheRequestedEdge(
   expect(indicator.center.dx, lessThan(content.center.dx));
 }
 
-Future<void> _morphbadgeDoesNotExpandOrShiftTheChild(WidgetTester tester) async {
+Future<void> _morphbadgeDoesNotExpandOrShiftTheChild(
+  WidgetTester tester,
+) async {
   await tester.pumpWidget(
     _host(const SizedBox(key: _contentKey, width: 40, height: 40)),
   );

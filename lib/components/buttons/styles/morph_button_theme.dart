@@ -82,7 +82,8 @@ class MorphButtonTheme extends MorphThemeExtension<MorphButtonTheme> {
     MorphButtonSize.xl: 120,
   };
 
-  static final Map<MorphButtonSize, MorphButtonMeasurements> _measurementsTable = {
+  static final Map<MorphButtonSize, MorphButtonMeasurements>
+  _measurementsTable = {
     MorphButtonSize.xs: const MorphButtonMeasurements(
       height: 32,
       hPadding: 12,

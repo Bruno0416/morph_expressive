@@ -18,8 +18,10 @@ void main() {
 
       expect(gentle.toDescription().stiffness, 720);
       expect(responsive.toDescription().stiffness, 1400);
-      expect(gentle.toDescription().damping,
-          lessThan(responsive.toDescription().damping));
+      expect(
+        gentle.toDescription().damping,
+        lessThan(responsive.toDescription().damping),
+      );
       expect(MorphMotion.springMotion(gentle), isA<SpringMotion>());
       expect(MorphMotion.springMotion(responsive), isA<SpringMotion>());
     });
@@ -71,14 +73,22 @@ void main() {
     });
 
     test('button presets retain the extensible custom spring API', () {
-      expect(MorphButtonMotion.standard.stiffness,
-          MorphMotion.buttonMorph.stiffness);
-      expect(MorphButtonMotion.standard.damping,
-          MorphMotion.buttonMorph.damping);
-      expect(MorphButtonMotion.shapeMorph.stiffness,
-          MorphMotion.buttonMorph.stiffness);
-      expect(MorphButtonMotion.shapeMorph.damping,
-          MorphMotion.buttonMorph.damping);
+      expect(
+        MorphButtonMotion.standard.stiffness,
+        MorphMotion.buttonMorph.stiffness,
+      );
+      expect(
+        MorphButtonMotion.standard.damping,
+        MorphMotion.buttonMorph.damping,
+      );
+      expect(
+        MorphButtonMotion.shapeMorph.stiffness,
+        MorphMotion.buttonMorph.stiffness,
+      );
+      expect(
+        MorphButtonMotion.shapeMorph.damping,
+        MorphMotion.buttonMorph.damping,
+      );
       const custom = MorphButtonMotion(stiffness: 820, damping: 0.91);
       expect(custom.toMotion(), isA<SpringMotion>());
       expect(custom, MorphButtonMotion.custom(820, 0.91));

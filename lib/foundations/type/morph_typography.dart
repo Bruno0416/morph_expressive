@@ -316,7 +316,10 @@ class MorphTypeScale {
     MorphTypeStyleTokens? overrides,
     MorphVariableFontConfig? variableFont,
   }) {
-    MorphTypeStyleTokens tokens = MorphTypeStyleConversion.tokensFor(role, variant);
+    MorphTypeStyleTokens tokens = MorphTypeStyleConversion.tokensFor(
+      role,
+      variant,
+    );
     if (overrides != null) {
       tokens = tokens.copyWith(
         fontSize: overrides.fontSize,

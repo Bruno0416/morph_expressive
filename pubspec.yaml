@@ -1,6 +1,6 @@
 name: morph_expressive
 description: A Flutter design system that builds on Material 3 Expressive with a focus on symmetry, rounded shapes, balanced colors, and smooth animations.
-version: 0.3.1
+version: 0.4.0
 homepage: https://github.com/Bruno0416/morph_expressive
 repository: https://github.com/Bruno0416/morph_expressive
 issue_tracker: https://github.com/Bruno0416/morph_expressive/issues

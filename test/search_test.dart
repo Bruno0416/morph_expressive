@@ -69,7 +69,9 @@ Future<void> _morphsearchbarLaysOutAtDefaultHeightWithoutOverflow(
   WidgetTester tester,
 ) async {
   await tester.pumpWidget(
-    _host(const SizedBox(width: 400, child: MorphSearchBar(hintText: 'Search'))),
+    _host(
+      const SizedBox(width: 400, child: MorphSearchBar(hintText: 'Search')),
+    ),
   );
 
   expect(find.text('Search'), findsOneWidget);
@@ -83,7 +85,9 @@ Future<void> _morphsearchbarAppliesHintInsetOnlyWithoutLeading(
   const double extraInset = 12;
 
   await tester.pumpWidget(
-    _host(const SizedBox(width: 400, child: MorphSearchBar(hintText: 'Search'))),
+    _host(
+      const SizedBox(width: 400, child: MorphSearchBar(hintText: 'Search')),
+    ),
   );
 
   final MorphSearchBarInput withoutLeading = tester.widget<MorphSearchBarInput>(
@@ -98,7 +102,10 @@ Future<void> _morphsearchbarAppliesHintInsetOnlyWithoutLeading(
     _host(
       const SizedBox(
         width: 400,
-        child: MorphSearchBar(hintText: 'Search', leading: Icon(MorphIcons.search)),
+        child: MorphSearchBar(
+          hintText: 'Search',
+          leading: Icon(MorphIcons.search),
+        ),
       ),
     ),
   );
@@ -448,7 +455,9 @@ Future<void> _morphsearchbarExpandsOnFocusInNarrowGalleryLayout(
       home: Scaffold(
         body: ListView(
           padding: const EdgeInsets.all(24),
-          children: const <Widget>[MorphSearchBar(hintText: 'Search components')],
+          children: const <Widget>[
+            MorphSearchBar(hintText: 'Search components'),
+          ],
         ),
       ),
     ),

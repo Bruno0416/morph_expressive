@@ -6,7 +6,10 @@ import 'package:material_ui/material_ui.dart';
 
 const List<MorphNavigationRailDestination> _destinations =
     <MorphNavigationRailDestination>[
-      MorphNavigationRailDestination(icon: Icon(MorphIcons.home), label: 'Home'),
+      MorphNavigationRailDestination(
+        icon: Icon(MorphIcons.home),
+        label: 'Home',
+      ),
       MorphNavigationRailDestination(
         icon: Icon(MorphIcons.search),
         label: 'Search',
@@ -100,7 +103,10 @@ Widget _rail({
 
 Future<void> _widths(WidgetTester tester) async {
   await tester.pumpWidget(
-    _rail(type: MorphNavigationRailType.alwaysCollapse, key: const Key('narrow')),
+    _rail(
+      type: MorphNavigationRailType.alwaysCollapse,
+      key: const Key('narrow'),
+    ),
   );
   await tester.pump();
   expect(tester.getSize(find.byType(MorphNavigationRail)).width, 96);
@@ -135,7 +141,9 @@ Future<void> _hugAndFill(WidgetTester tester) async {
   expect(hugged.height, greaterThanOrEqualTo(56));
   expect(hugged.width, lessThan(172));
   expect(hugged.width, greaterThan(56));
-  final double railLeft = tester.getTopLeft(find.byType(MorphNavigationRail)).dx;
+  final double railLeft = tester
+      .getTopLeft(find.byType(MorphNavigationRail))
+      .dx;
   final double home = tester.getTopLeft(find.byIcon(MorphIcons.home)).dx;
   final double search = tester.getTopLeft(find.byIcon(MorphIcons.search)).dx;
   expect(home, closeTo(railLeft + 40, 1));

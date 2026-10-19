@@ -42,6 +42,7 @@ class MorphSnackbarHost extends StatefulWidget {
     required this.child,
     required this.entry,
     this.duration,
+    this.swipeDismissible = false,
     this.controller,
     super.key,
   });
@@ -51,6 +52,9 @@ class MorphSnackbarHost extends StatefulWidget {
 
   /// Auto-dismiss duration. Null means persistent until dismissed.
   final Duration? duration;
+
+  /// Whether a horizontal swipe can dismiss the snackbar.
+  final bool swipeDismissible;
 
   /// Overlay entry to remove on dismiss.
   final OverlayEntry entry;
@@ -64,15 +68,18 @@ class MorphSnackbarHost extends StatefulWidget {
 
 /// State for [MorphSnackbarHost].
 class MorphSnackbarHostState extends State<MorphSnackbarHost>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<Offset> _offset;
+  late final AnimationController _horizontal;
+  double _barWidth = 0;
   Timer? _timer;
   bool _dismissing = false;
 
   @override
   void initState() {
     super.initState();
+    _horizontal = AnimationController.unbounded(vsync: this);
     widget.controller?.attachHost(this);
     _controller = AnimationController(
       vsync: this,
@@ -104,6 +111,7 @@ class MorphSnackbarHostState extends State<MorphSnackbarHost>
     _timer?.cancel();
     widget.controller?.detachHost(this);
     _controller.dispose();
+    _horizontal.dispose();
     super.dispose();
   }
 
@@ -119,6 +127,47 @@ class MorphSnackbarHostState extends State<MorphSnackbarHost>
       return;
     }
     await _controller.reverse();
+    _removeEntry();
+  }
+
+  void _onDragUpdate(DragUpdateDetails details) {
+    if (_dismissing) return;
+    _horizontal.stop();
+    _horizontal.value += details.primaryDelta ?? 0;
+  }
+
+  void _onDragEnd(DragEndDetails details) {
+    if (_dismissing) return;
+    final double velocity = details.primaryVelocity ?? 0;
+    final double distance = _horizontal.value;
+    final bool fling =
+        velocity.abs() > 650 &&
+        (distance == 0 || distance.sign == velocity.sign);
+    if (distance.abs() >= _barWidth * 0.28 || fling) {
+      _dismissFromSwipe(distance == 0 ? velocity : distance);
+      return;
+    }
+    _horizontal.animateTo(
+      0,
+      duration: MorphMotion.short4,
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  Future<void> _dismissFromSwipe(double direction) async {
+    if (_dismissing) return;
+    _dismissing = true;
+    _timer?.cancel();
+    MorphHaptics.selectionFor(context);
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+      _removeEntry();
+      return;
+    }
+    await _horizontal.animateTo(
+      direction.sign * (_barWidth + 80),
+      duration: MorphMotion.short4,
+      curve: Curves.easeOutCubic,
+    );
     _removeEntry();
   }
 
@@ -138,33 +187,66 @@ class MorphSnackbarHostState extends State<MorphSnackbarHost>
       left: snackTheme.overlayHorizontalInset + MorphSafeArea.leftOf(context),
       right: snackTheme.overlayHorizontalInset + MorphSafeArea.rightOf(context),
       bottom:
-          snackTheme.overlayBottomInset + MorphSafeArea.overlayBottomOf(context),
+          snackTheme.overlayBottomInset +
+          MorphSafeArea.overlayBottomOf(context),
       child: Align(
         alignment: snackTheme.overlayAlignment,
         child: SlideTransition(
           position: _offset,
-          child: FocusScope(
-            child: Shortcuts(
-              shortcuts: const <ShortcutActivator, Intent>{
-                SingleActivator(LogicalKeyboardKey.escape):
-                    _DismissSnackbarIntent(),
-              },
-              child: Actions(
-                actions: <Type, Action<Intent>>{
-                  _DismissSnackbarIntent:
-                      CallbackAction<_DismissSnackbarIntent>(
-                        onInvoke: (_DismissSnackbarIntent intent) {
-                          dismiss();
-                          return null;
-                        },
-                      ),
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              _barWidth = constraints.maxWidth.isFinite
+                  ? constraints.maxWidth
+                        .clamp(0, snackTheme.maxWidth)
+                        .toDouble()
+                  : snackTheme.maxWidth;
+              return AnimatedBuilder(
+                animation: _horizontal,
+                builder: (BuildContext context, Widget? child) {
+                  final double fade =
+                      (1 - _horizontal.value.abs() / (_barWidth + 80)).clamp(
+                        0.0,
+                        1.0,
+                      );
+                  return Transform.translate(
+                    offset: Offset(_horizontal.value, 0),
+                    child: Opacity(opacity: fade, child: child),
+                  );
                 },
-                child: MorphSnackbarDismissScope(
-                  dismiss: dismiss,
-                  child: widget.child,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onHorizontalDragUpdate: widget.swipeDismissible
+                      ? _onDragUpdate
+                      : null,
+                  onHorizontalDragEnd: widget.swipeDismissible
+                      ? _onDragEnd
+                      : null,
+                  child: FocusScope(
+                    child: Shortcuts(
+                      shortcuts: const <ShortcutActivator, Intent>{
+                        SingleActivator(LogicalKeyboardKey.escape):
+                            _DismissSnackbarIntent(),
+                      },
+                      child: Actions(
+                        actions: <Type, Action<Intent>>{
+                          _DismissSnackbarIntent:
+                              CallbackAction<_DismissSnackbarIntent>(
+                                onInvoke: (_) {
+                                  dismiss();
+                                  return null;
+                                },
+                              ),
+                        },
+                        child: MorphSnackbarDismissScope(
+                          dismiss: dismiss,
+                          child: widget.child,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ),
       ),

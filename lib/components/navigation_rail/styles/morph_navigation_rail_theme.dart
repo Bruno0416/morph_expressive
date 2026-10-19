@@ -8,7 +8,8 @@ part 'morph_navigation_rail_theme_resolve.dart';
 
 /// Theme values for `MorphNavigationRail`.
 @immutable
-class MorphNavigationRailTheme extends MorphThemeExtension<MorphNavigationRailTheme> {
+class MorphNavigationRailTheme
+    extends MorphThemeExtension<MorphNavigationRailTheme> {
   /// MorphNavigationRailTheme.
   const MorphNavigationRailTheme({
     this.collapsedWidth = 96,
@@ -75,7 +76,10 @@ class MorphNavigationRailTheme extends MorphThemeExtension<MorphNavigationRailTh
     this.scaledLabelMaxLines = 2,
     this.truncationTextScale = 2,
     this.indicatorLeadSpring = const MorphSpring(stiffness: 380, damping: 0.45),
-    this.indicatorTrailSpring = const MorphSpring(stiffness: 380, damping: 0.55),
+    this.indicatorTrailSpring = const MorphSpring(
+      stiffness: 380,
+      damping: 0.55,
+    ),
     this.indicatorScaleSpring = MorphMotion.expressiveSpatialDefault,
     this.indicatorFadeSpring = MorphMotion.effectsFast,
     this.iconScaleSpring = const MorphSpring(stiffness: 380, damping: 0.5),

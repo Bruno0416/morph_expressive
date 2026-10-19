@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:morph_expressive/morph_components.dart'
-    show MorphButton;
+import 'package:morph_expressive/morph_components.dart' show MorphButton;
 import 'package:motor/motor.dart';
 
 import '../../../foundations/interaction/morph_motion.dart';

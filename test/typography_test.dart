@@ -271,7 +271,9 @@ void _axesToVariationsOmitsNulls() {
 }
 
 void _globalWghtOverrideBeatsAutoSync() {
-  const config = MorphVariableFontConfig(global: MorphVariableFontAxes(wght: 600));
+  const config = MorphVariableFontConfig(
+    global: MorphVariableFontAxes(wght: 600),
+  );
   const style = TextStyle(fontSize: 16, fontWeight: FontWeight.w400);
   final variations = config.resolveForRole(
     MorphTypeRole.bodyLarge,

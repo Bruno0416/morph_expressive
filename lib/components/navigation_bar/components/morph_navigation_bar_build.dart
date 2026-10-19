@@ -18,7 +18,10 @@ typedef _NavBarBandMetrics = ({
 /// Widget-building helpers for `_MorphNavigationBarState`, split out to keep
 /// the state class under the component length guidelines.
 extension _MorphNavigationBarBuild on _MorphNavigationBarState {
-  MorphNavBarLayout _resolveLayout(double maxWidth, MorphNavigationBarTheme theme) {
+  MorphNavBarLayout _resolveLayout(
+    double maxWidth,
+    MorphNavigationBarTheme theme,
+  ) {
     if (!widget.autoLayout) {
       return widget.layout;
     }
@@ -98,7 +101,8 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
       return forced;
     }
     var widest = 0.0;
-    for (final MorphNavigationBarDestination destination in widget.destinations) {
+    for (final MorphNavigationBarDestination destination
+        in widget.destinations) {
       double widthFor({required bool icon, required bool label}) {
         var width = theme.horizontalIndicatorInset * 2;
         if (icon) {
@@ -139,7 +143,8 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
     required int maxLines,
   }) {
     var tallest = 0.0;
-    for (final MorphNavigationBarDestination destination in widget.destinations) {
+    for (final MorphNavigationBarDestination destination
+        in widget.destinations) {
       if (!_showsLabel(destination, true) && !_showsLabel(destination, false)) {
         continue;
       }
@@ -180,7 +185,10 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
     final MorphThemeData morph = MorphTheme.of(context);
     final MorphNavigationBarTheme theme = morph.navigationBarTheme;
     final MorphColorScheme scheme = morph.colorScheme;
-    final MorphNavMetrics metrics = theme.metrics(widget.density, morph.spacing);
+    final MorphNavMetrics metrics = theme.metrics(
+      widget.density,
+      morph.spacing,
+    );
     final Color background =
         widget.backgroundColor ?? theme.containerColor(scheme);
     final ShapeBorder shape = theme.containerShape(widget.shapeFamily);

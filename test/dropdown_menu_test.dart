@@ -47,11 +47,7 @@ void main() {
         const MorphDropdownMenu<String>(
           singleSelect: true,
           items: [
-            MorphDropdownItem(
-              label: 'Kotlin',
-              value: 'kotlin',
-              selected: true,
-            ),
+            MorphDropdownItem(label: 'Kotlin', value: 'kotlin', selected: true),
           ],
         ),
       ),
@@ -67,11 +63,7 @@ void main() {
         const MorphDropdownMenu<String>(
           singleSelect: false,
           items: [
-            MorphDropdownItem(
-              label: 'Kotlin',
-              value: 'kotlin',
-              selected: true,
-            ),
+            MorphDropdownItem(label: 'Kotlin', value: 'kotlin', selected: true),
           ],
         ),
       ),
@@ -325,10 +317,7 @@ Future<void> _systemBackClosesDropdownBeforeRoute(WidgetTester tester) async {
   expect(find.text('Dart'), findsOneWidget);
 
   await tester.binding.handlePopRoute();
-  await _pumpDropdown(
-    tester,
-    duration: const Duration(milliseconds: 900),
-  );
+  await _pumpDropdown(tester, duration: const Duration(milliseconds: 900));
 
   expect(find.text('Dart'), findsNothing);
   expect(find.text('Choose framework'), findsOneWidget);
@@ -368,10 +357,7 @@ Future<void> _outsideTapClosesDropdownWithoutActivatingPage(
   expect(find.text('Dart'), findsOneWidget);
 
   await tester.tap(find.text('Behind'), warnIfMissed: false);
-  await _pumpDropdown(
-    tester,
-    duration: const Duration(milliseconds: 900),
-  );
+  await _pumpDropdown(tester, duration: const Duration(milliseconds: 900));
 
   expect(behindTapped, isFalse);
   expect(find.text('Dart'), findsNothing);

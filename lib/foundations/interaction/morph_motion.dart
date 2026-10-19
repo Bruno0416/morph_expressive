@@ -85,17 +85,14 @@ abstract final class MorphMotion {
   static Animatable<double> spatialTween({
     required double begin,
     required double end,
-  }) => Tween<double>(begin: begin, end: end).chain(
-    CurveTween(curve: spatial),
-  );
+  }) => Tween<double>(begin: begin, end: end).chain(CurveTween(curve: spatial));
 
   /// Composable, bounded effect tween for opacity and other [0, 1] values.
   static Animatable<double> effectsTween({
     required double begin,
     required double end,
-  }) => Tween<double>(begin: begin, end: end).chain(
-    CurveTween(curve: standard),
-  );
+  }) =>
+      Tween<double>(begin: begin, end: end).chain(CurveTween(curve: standard));
 
   /// Choreographed two-stage edge movement: hold, then follow the leading
   /// edge. Each stage is a tween rather than an independently timed Timer.
@@ -211,7 +208,10 @@ abstract final class MorphMotion {
   static const Curve linear = Cubic(0, 0, 1, 1);
 
   /// Fast spatial spring for size, position, and shape morphs.
-  static const MorphSpring spatialFast = MorphSpring(stiffness: 1400, damping: 0.86);
+  static const MorphSpring spatialFast = MorphSpring(
+    stiffness: 1400,
+    damping: 0.86,
+  );
 
   /// Default spatial spring for size, position, and shape morphs.
   static const MorphSpring spatialDefault = MorphSpring(
@@ -220,12 +220,18 @@ abstract final class MorphMotion {
   );
 
   /// Slow spatial spring for size, position, and shape morphs.
-  static const MorphSpring spatialSlow = MorphSpring(stiffness: 300, damping: 0.91);
+  static const MorphSpring spatialSlow = MorphSpring(
+    stiffness: 300,
+    damping: 0.91,
+  );
 
   /// AOSP spatial spring (stiffness: 380, damping: 1.0).
   ///
   /// Matches AOSP notification-list expansion — no overshoot.
-  static const MorphSpring aospSpatial = MorphSpring(stiffness: 380, damping: 1);
+  static const MorphSpring aospSpatial = MorphSpring(
+    stiffness: 380,
+    damping: 1,
+  );
 
   /// Fast expressive spatial spring with slight overshoot.
   static const MorphSpring expressiveSpatialFast = MorphSpring(
@@ -252,7 +258,10 @@ abstract final class MorphMotion {
   );
 
   /// Fast effects spring for color and opacity (no overshoot).
-  static const MorphSpring effectsFast = MorphSpring(stiffness: 3800, damping: 1);
+  static const MorphSpring effectsFast = MorphSpring(
+    stiffness: 3800,
+    damping: 1,
+  );
 
   /// Default effects spring for color and opacity (no overshoot).
   static const MorphSpring effectsDefault = MorphSpring(
@@ -261,7 +270,10 @@ abstract final class MorphMotion {
   );
 
   /// Slow effects spring for color and opacity (no overshoot).
-  static const MorphSpring effectsSlow = MorphSpring(stiffness: 800, damping: 1);
+  static const MorphSpring effectsSlow = MorphSpring(
+    stiffness: 800,
+    damping: 1,
+  );
 }
 
 /// A serialisable description of a Material 3 Expressive spring.

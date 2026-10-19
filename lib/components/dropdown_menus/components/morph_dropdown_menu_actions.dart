@@ -74,7 +74,8 @@ extension _MorphDropdownMenuActions<T> on _MorphDropdownMenuState<T> {
 
   void _close() {
     _releaseOverlayHistory();
-    if (_closingPanel || (!_controller.isOpen && !_portalController.isShowing)) {
+    if (_closingPanel ||
+        (!_controller.isOpen && !_portalController.isShowing)) {
       return;
     }
 

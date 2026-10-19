@@ -75,7 +75,10 @@ Future<void> _morphnavigationbarRendersDestinationsAndReportsSelection(
   expect(selected, 1);
 }
 
-double _indicatorScaleX(WidgetTester tester, MorphSelectionIndicator indicator) {
+double _indicatorScaleX(
+  WidgetTester tester,
+  MorphSelectionIndicator indicator,
+) {
   final Transform transform = tester.widget<Transform>(
     find.descendant(
       of: find.byWidget(indicator),
@@ -85,7 +88,10 @@ double _indicatorScaleX(WidgetTester tester, MorphSelectionIndicator indicator) 
   return transform.transform.storage[0];
 }
 
-double _indicatorOpacity(WidgetTester tester, MorphSelectionIndicator indicator) {
+double _indicatorOpacity(
+  WidgetTester tester,
+  MorphSelectionIndicator indicator,
+) {
   final Opacity opacity = tester.widget<Opacity>(
     find.descendant(
       of: find.byWidget(indicator),
@@ -200,7 +206,10 @@ Future<void> _morphnavigationbarAutolayoutUsesWideAtWideBreakpoint(
 ) async {
   const destinations = <MorphNavigationBarDestination>[
     MorphNavigationBarDestination(icon: Icon(MorphIcons.home), label: 'Home'),
-    MorphNavigationBarDestination(icon: Icon(MorphIcons.search), label: 'Search'),
+    MorphNavigationBarDestination(
+      icon: Icon(MorphIcons.search),
+      label: 'Search',
+    ),
   ];
   const double breakpoint = MorphNavBarConstants.mediumWindowBreakpoint;
 
@@ -431,7 +440,10 @@ Future<void> _morphnavigationbarPillRemeasuresWhenAlignmentChanges(
 ) async {
   const destinations = <MorphNavigationBarDestination>[
     MorphNavigationBarDestination(icon: Icon(MorphIcons.home), label: 'Home'),
-    MorphNavigationBarDestination(icon: Icon(MorphIcons.search), label: 'Search'),
+    MorphNavigationBarDestination(
+      icon: Icon(MorphIcons.search),
+      label: 'Search',
+    ),
   ];
 
   await tester.pumpWidget(

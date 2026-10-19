@@ -182,7 +182,11 @@ Future<void> _appearMorphStartsBelowRestingScale(WidgetTester tester) async {
       data: MorphThemeData.light(),
       home: const Scaffold(
         body: Center(
-          child: MorphFab(appear: true, icon: Icon(Icons.add), onPressed: _noop),
+          child: MorphFab(
+            appear: true,
+            icon: Icon(Icons.add),
+            onPressed: _noop,
+          ),
         ),
       ),
     ),
@@ -190,7 +194,10 @@ Future<void> _appearMorphStartsBelowRestingScale(WidgetTester tester) async {
 
   await tester.pump();
   final transforms = tester.widgetList<Transform>(
-    find.descendant(of: find.byType(MorphFab), matching: find.byType(Transform)),
+    find.descendant(
+      of: find.byType(MorphFab),
+      matching: find.byType(Transform),
+    ),
   );
   final scales = transforms
       .map((Transform t) => t.transform.storage[0])

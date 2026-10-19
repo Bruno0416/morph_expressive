@@ -48,7 +48,8 @@ class MorphDialogDismissScope extends StatefulWidget {
   final bool autofocusFirst;
 
   @override
-  State<MorphDialogDismissScope> createState() => _MorphDialogDismissScopeState();
+  State<MorphDialogDismissScope> createState() =>
+      _MorphDialogDismissScopeState();
 }
 
 class _MorphDialogDismissScopeState extends State<MorphDialogDismissScope>

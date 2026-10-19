@@ -16,7 +16,9 @@ Widget _host({required Widget child}) {
 }
 
 void main() {
-  testWidgets('MorphRadio label tap selects value', (WidgetTester tester) async {
+  testWidgets('MorphRadio label tap selects value', (
+    WidgetTester tester,
+  ) async {
     String? plan = 'standard';
 
     await tester.pumpWidget(

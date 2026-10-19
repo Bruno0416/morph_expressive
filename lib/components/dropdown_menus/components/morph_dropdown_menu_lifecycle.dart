@@ -175,7 +175,9 @@ extension _MorphDropdownMenuLifecycle<T> on _MorphDropdownMenuState<T> {
 
     if (_controller.isOpen && (!_portalController.isShowing || _closingPanel)) {
       _open();
-    } else if (!_controller.isOpen && _portalController.isShowing && !_closingPanel) {
+    } else if (!_controller.isOpen &&
+        _portalController.isShowing &&
+        !_closingPanel) {
       _close();
     }
   }
@@ -190,7 +192,9 @@ extension _MorphDropdownMenuLifecycle<T> on _MorphDropdownMenuState<T> {
     }
   }
 
-  Widget _buildFormField(FormFieldState<List<MorphDropdownItem<T>>?> formState) {
+  Widget _buildFormField(
+    FormFieldState<List<MorphDropdownItem<T>>?> formState,
+  ) {
     return OverlayPortal(
       controller: _portalController,
       overlayChildBuilder: (_) => _buildOverlay(formState),
@@ -225,7 +229,9 @@ extension _MorphDropdownMenuLifecycle<T> on _MorphDropdownMenuState<T> {
     );
   }
 
-  Widget _buildFormError(FormFieldState<List<MorphDropdownItem<T>>?> formState) {
+  Widget _buildFormError(
+    FormFieldState<List<MorphDropdownItem<T>>?> formState,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(top: 6),
       child: Padding(
@@ -236,7 +242,8 @@ extension _MorphDropdownMenuLifecycle<T> on _MorphDropdownMenuState<T> {
             return Text(
               formState.errorText!,
               style:
-                  (widget.fieldStyle.errorStyle ?? morphTheme.typeScale.bodySmall)
+                  (widget.fieldStyle.errorStyle ??
+                          morphTheme.typeScale.bodySmall)
                       .copyWith(
                         color:
                             widget.fieldStyle.errorStyle?.color ??

@@ -127,7 +127,8 @@ class MorphDropdownSearchStyle with Diagnosticable {
       contentPadding: contentPadding ?? this.contentPadding,
       margin: margin ?? this.margin,
       mouseCursor: mouseCursor ?? this.mouseCursor,
-      alignWithPanelPadding: alignWithPanelPadding ?? this.alignWithPanelPadding,
+      alignWithPanelPadding:
+          alignWithPanelPadding ?? this.alignWithPanelPadding,
     );
   }
 

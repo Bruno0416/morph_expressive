@@ -239,8 +239,12 @@ extension _MorphButtonGroupLayout on _MorphButtonGroupState {
       if (widget._connected &&
           widget.direction == Axis.horizontal &&
           maxMain.isFinite) {
-        final fillWidth = MorphTheme.of(context).buttonGroupTheme.maxWidth != null
-            ? math.min(maxMain, MorphTheme.of(context).buttonGroupTheme.maxWidth!)
+        final fillWidth =
+            MorphTheme.of(context).buttonGroupTheme.maxWidth != null
+            ? math.min(
+                maxMain,
+                MorphTheme.of(context).buttonGroupTheme.maxWidth!,
+              )
             : maxMain;
         return SizedBox(
           width: fillWidth,
@@ -594,7 +598,9 @@ extension _MorphButtonGroupLayout on _MorphButtonGroupState {
         iconOnly: widget.actions[index].isIconOnly,
       ),
     );
-    return MorphButtonGroupOverflowController.roundConsumed(measurements.height);
+    return MorphButtonGroupOverflowController.roundConsumed(
+      measurements.height,
+    );
   }
 
   double _defaultOverflowTriggerExtent() {

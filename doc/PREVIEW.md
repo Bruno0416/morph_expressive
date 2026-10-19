@@ -102,3 +102,34 @@ bash tool/check.sh
   Both range fields must share the same painted-surface top edge through
   focus, content and errors, with no whole-form jump when validation appears.
   Cancel/OK must remain reachable by scrolling.
+
+## 0.4.0 native touch lab and interaction review
+
+The browser gallery remains `preview/lib/main.dart`. For a physical iPhone or
+Android device, use the native-only touch lab:
+
+```bash
+cd preview
+flutter pub get
+flutter test test/mobile_haptics_lab_test.dart
+flutter run -t lib/main_mobile.dart
+```
+
+The device build needs its normal iOS signing/Android setup. The library does
+not require CoreHapticsFFI or extra native packages. On iOS, Xcode signing is
+still needed to install the preview app on a personal device.
+
+- Compare Light / Medium / Heavy and Off across button groups, navigation,
+  list swipe thresholds, refresh activation/completion, and sliders.
+- Verify slider/range-slider motion is silent when continuous, but clicks once
+  per changed `divisions` step. No persistent haptic waveform is used.
+- Open one swipe row and reveal another: the first closes with motion, rather
+  than snapping closed. Verify the three-dot affordance if the host enables it.
+- Pull the refresh indicator: the ring fills, transitions to indeterminate,
+  completes with a spin, then dismisses; color and background follow the
+  active theme.
+- Compare standard and wavy circular indicators at 16, 24, 48, and 64 dp.
+
+Historical GIF scenes under `preview/lib/component_gif_capture.dart` are
+separate from the mobile touch lab. Only regenerate GIFs if their captured
+appearance or scripted interactions have changed and review the results.

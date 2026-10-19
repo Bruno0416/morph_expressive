@@ -41,9 +41,7 @@ void main() {
       MaterialApp(
         home: MorphTheme(
           data: theme,
-          child: Scaffold(
-            body: MorphCheckbox(value: true, onChanged: (_) {}),
-          ),
+          child: Scaffold(body: MorphCheckbox(value: true, onChanged: (_) {})),
         ),
       ),
     );

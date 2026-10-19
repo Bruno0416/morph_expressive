@@ -1,8 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:morph_expressive/components/dropdown_menus/morph_dropdown_menus.dart'
     show MorphDropdownMenu;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphDropdownMenu;
+import 'package:morph_expressive/morph_components.dart' show MorphDropdownMenu;
 
 import '../../../foundations/foundations.dart';
 import '../enums/morph_menu_color_style.dart';
@@ -438,7 +437,9 @@ class MorphMenuTheme extends MorphThemeExtension<MorphMenuTheme> {
         ? palette.selectedContent
         : palette.supportingContent;
     return type.bodySmall.copyWith(
-      color: enabled ? base : MorphColorUtils.withOpacity(base, disabledOpacity),
+      color: enabled
+          ? base
+          : MorphColorUtils.withOpacity(base, disabledOpacity),
     );
   }
 
@@ -456,7 +457,9 @@ class MorphMenuTheme extends MorphThemeExtension<MorphMenuTheme> {
         ? palette.selectedContent
         : palette.supportingContent;
     return type.labelLarge.copyWith(
-      color: enabled ? base : MorphColorUtils.withOpacity(base, disabledOpacity),
+      color: enabled
+          ? base
+          : MorphColorUtils.withOpacity(base, disabledOpacity),
     );
   }
 

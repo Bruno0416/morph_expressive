@@ -95,7 +95,9 @@ void _themeDefaultsMatchTheTooltipSpec() {
 Future<void> _plainTooltipShowsOnLongPressAndExposesTooltipSemantics(
   WidgetTester tester,
 ) async {
-  await tester.pumpWidget(_host(MorphTooltip(message: 'Edit', child: _anchor())));
+  await tester.pumpWidget(
+    _host(MorphTooltip(message: 'Edit', child: _anchor())),
+  );
 
   final TestGesture gesture = await tester.startGesture(
     tester.getCenter(find.byKey(_anchorKey)),
@@ -113,7 +115,9 @@ bool _editTooltipSemantics(Widget widget) {
 }
 
 Future<void> _plainDismissesImmediatelyAfterLeave(WidgetTester tester) async {
-  await tester.pumpWidget(_host(MorphTooltip(message: 'Edit', child: _anchor())));
+  await tester.pumpWidget(
+    _host(MorphTooltip(message: 'Edit', child: _anchor())),
+  );
 
   final TestGesture gesture = await tester.createGesture(
     kind: PointerDeviceKind.mouse,

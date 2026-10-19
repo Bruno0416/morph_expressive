@@ -46,7 +46,10 @@ Future<T?> _pushDialog<T>(
           ? MorphDialogStrings.dismiss
           : MorphDialogStrings.fullScreen,
       barrierColor: dialogTheme.scrimColor(theme.colorScheme),
-      transitionDuration: MorphDialogTransition.durationFor(dialogTheme, variant),
+      transitionDuration: MorphDialogTransition.durationFor(
+        dialogTheme,
+        variant,
+      ),
       traversalEdgeBehavior: TraversalEdgeBehavior.closedLoop,
       pageBuilder: (BuildContext context, _, _) {
         return MorphComponentTheme(
@@ -60,12 +63,13 @@ Future<T?> _pushDialog<T>(
           ),
         );
       },
-      transitionBuilder: (context, animation, _, child) => MorphDialogTransition(
-        animation: animation,
-        variant: variant,
-        dialogTheme: dialogTheme,
-        child: child,
-      ),
+      transitionBuilder: (context, animation, _, child) =>
+          MorphDialogTransition(
+            animation: animation,
+            variant: variant,
+            dialogTheme: dialogTheme,
+            child: child,
+          ),
     ),
   );
 }

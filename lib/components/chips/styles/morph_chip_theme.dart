@@ -303,7 +303,11 @@ class MorphChipTheme extends MorphThemeExtension<MorphChipTheme> {
         (type == MorphChipType.filter || type == MorphChipType.input);
   }
 
-  Color _content(MorphColorScheme scheme, Color color, {required bool enabled}) {
+  Color _content(
+    MorphColorScheme scheme,
+    Color color, {
+    required bool enabled,
+  }) {
     if (!enabled) {
       return MorphColorUtils.withOpacity(
         scheme.onSurface,

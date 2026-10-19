@@ -174,7 +174,9 @@ extension _MorphSplitButtonContent<T> on _MorphSplitButtonState<T> {
     return PopupMenuTheme(
       data: PopupMenuThemeData(
         color: menuColor,
-        textStyle: morphTheme.typeScale.labelLarge.copyWith(color: menuTextColor),
+        textStyle: morphTheme.typeScale.labelLarge.copyWith(
+          color: menuTextColor,
+        ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(metrics.pressedRadius),
         ),

@@ -34,7 +34,8 @@ Duration morphSearchSpringSettle(MorphSpring spring) {
 }
 
 /// [spring] sampled as a [Curve] over its settle time.
-Curve morphSearchSpringCurve(MorphSpring spring) => _MorphSearchSpringCurve(spring);
+Curve morphSearchSpringCurve(MorphSpring spring) =>
+    _MorphSearchSpringCurve(spring);
 
 class _MorphSearchSpringCurve extends Curve {
   _MorphSearchSpringCurve(MorphSpring spring)

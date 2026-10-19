@@ -414,7 +414,8 @@ class _MorphSplitButtonState<T> extends State<MorphSplitButton<T>>
 
   MorphButtonTheme get _buttonTheme => MorphTheme.of(context).buttonTheme;
 
-  MorphSplitButtonTheme get _splitTheme => MorphTheme.of(context).splitButtonTheme;
+  MorphSplitButtonTheme get _splitTheme =>
+      MorphTheme.of(context).splitButtonTheme;
 
   MorphColorScheme get _scheme => MorphTheme.of(context).colorScheme;
 

@@ -32,7 +32,7 @@ Google Fonts is optional and is not a runtime dependency of this package.
 The default Fluent icons use `fluent_icons_kit`; substitute component icons
 via their documented APIs.
 
-## Haptics (0.2.0)
+## Haptics (updated in 0.4.0)
 
 Configure the feedback intensity and global opt-out at the nearest Morph theme:
 
@@ -55,8 +55,19 @@ to suppress feedback. `light`, `medium` and `heavy` select explicit strength
 
 For custom Morph widgets, prefer `MorphHaptics.triggerFor(context, level)`
 and `MorphHaptics.selectionFor(context)` to legacy context-free calls.
-Selection ticks are distinct from impact strength; `selectionFor` respects
-`hapticsEnabled` without turning a tick into a heavy impact.
+`selectionFor` scales with the resolved theme intensity: Light uses
+`selectionClick`, Medium uses `mediumImpact`, Heavy uses `heavyImpact`, and
+None is silent. For explicit overrides, `triggerFor(context, level)` still
+respects the global `hapticsEnabled` switch. Defaults inherit the theme.
+
+Sliders and range sliders with `divisions` emit a single tick when their
+selected step changes. Continuous sliders have no repetitive drag ticks.
+List swipe uses threshold feedback; refresh uses activation/completion
+impacts rather than simulated continuous vibration. All of these follow
+Morph's global intensity unless explicitly overridden.
+
+Morph 0.4.0 does **not** depend on `core_haptics` or require linking
+`CoreHapticsFFI`/SwiftPM in a consuming iOS application.
 
 The override governs **Morph-managed feedback**. Native host/platform
 feedback may require separate configuration. Browser previews often have no

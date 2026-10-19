@@ -132,7 +132,8 @@ Future<void> _cardListReorder(WidgetTester tester) async {
   await tester.pump();
 
   final Rect listRect = tester.getRect(find.byType(MorphList).first);
-  for (final Element element in find.byIcon(MorphIcons.drag_handle).evaluate()) {
+  for (final Element element
+      in find.byIcon(MorphIcons.drag_handle).evaluate()) {
     final box = element.renderObject! as RenderBox;
     expect(box.localToGlobal(Offset.zero).dx, greaterThan(listRect.center.dx));
   }
@@ -188,7 +189,9 @@ Future<void> _dismissibleSelection(WidgetTester tester) async {
     of: find.text('Row 0'),
     matching: find.byType(MorphCard),
   );
-  final BorderRadius? radius = tester.widget<MorphCard>(card.first).borderRadius;
+  final BorderRadius? radius = tester
+      .widget<MorphCard>(card.first)
+      .borderRadius;
   expect(radius?.topLeft, radius?.bottomLeft);
   expect(radius?.topLeft, radius?.topRight);
 

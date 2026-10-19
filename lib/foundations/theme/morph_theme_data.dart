@@ -124,8 +124,8 @@ class MorphThemeData {
     if (textTheme != null) {
       // 1. tomar los estilos proporcionados por la aplicacion (Google Fonts, etc.)
       final baseline = MorphTypeScale.fromTextTheme(textTheme);
-      final fontFamily = textTheme.bodyMedium?.fontFamily ??
-          textTheme.bodyLarge?.fontFamily;
+      final fontFamily =
+          textTheme.bodyMedium?.fontFamily ?? textTheme.bodyLarge?.fontFamily;
       return MorphTypography(
         baseline: baseline,
         emphasized: MorphTypeScale.emphasized().apply(fontFamily: fontFamily),

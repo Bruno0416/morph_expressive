@@ -7,8 +7,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:morph_expressive/components/toolbars/morph_toolbars.dart'
     show MorphToolbar;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphToolbar;
+import 'package:morph_expressive/morph_components.dart' show MorphToolbar;
 
 import '../../../foundations/foundations.dart';
 import '../../icon_buttons/enums/morph_icon_button_enums.dart';

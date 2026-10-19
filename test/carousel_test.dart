@@ -56,7 +56,10 @@ Future<void> _heroAlignments(WidgetTester tester) async {
 Future<void> _contained(WidgetTester tester) async {
   await tester.pumpWidget(
     hostCarousel(
-      MorphCarousel(type: MorphCarouselType.contained, children: carouselItems(6)),
+      MorphCarousel(
+        type: MorphCarouselType.contained,
+        children: carouselItems(6),
+      ),
     ),
   );
   await tester.pump();

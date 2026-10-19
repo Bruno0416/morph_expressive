@@ -17,7 +17,11 @@ extension _MorphTabsBuild on _MorphTabsState {
     return PinnedHeaderSliver(child: bar);
   }
 
-  Widget _bar(MorphThemeData theme, MorphTabTheme tabTheme, MorphColorScheme scheme) {
+  Widget _bar(
+    MorphThemeData theme,
+    MorphTabTheme tabTheme,
+    MorphColorScheme scheme,
+  ) {
     final bool stacked = _stacked(tabTheme);
     final double barHeight = tabTheme.barHeight(
       widget.variant,
@@ -272,7 +276,9 @@ extension _MorphTabsBuild on _MorphTabsState {
                   DecoratedBox(
                     decoration: BoxDecoration(
                       color: layer.withValues(alpha: opacity),
-                      borderRadius: BorderRadius.circular(theme.interactionCornerRadius),
+                      borderRadius: BorderRadius.circular(
+                        theme.interactionCornerRadius,
+                      ),
                     ),
                   ),
                 ?ring,
@@ -300,7 +306,9 @@ extension _MorphTabsBuild on _MorphTabsState {
             DecoratedBox(
               decoration: BoxDecoration(
                 color: layer.withValues(alpha: opacity),
-                borderRadius: BorderRadius.circular(theme.interactionCornerRadius),
+                borderRadius: BorderRadius.circular(
+                  theme.interactionCornerRadius,
+                ),
               ),
             ),
           ?ring,

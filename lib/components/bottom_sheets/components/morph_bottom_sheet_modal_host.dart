@@ -137,6 +137,9 @@ class _MorphBottomSheetModalHostState extends State<MorphBottomSheetModalHost>
   }
 
   void _onStatus(AnimationStatus status) {
+    if (status == AnimationStatus.forward) {
+      MorphHaptics.triggerFor(context);
+    }
     final double target = status.isForwardOrCompleted ? 1 : 0;
     _spring(_entrance, _theme.enterSpring, target);
     _spring(_scrim, _theme.scrimSpring, target);

@@ -17,7 +17,9 @@ void main() {
 }
 
 void registerFocusRingPaintsWhenFocusedTests() {
-  testWidgets('MorphFocusRing paints when focused', (WidgetTester tester) async {
+  testWidgets('MorphFocusRing paints when focused', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         home: MorphTheme(

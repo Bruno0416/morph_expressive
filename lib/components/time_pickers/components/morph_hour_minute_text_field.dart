@@ -54,7 +54,8 @@ class MorphHourMinuteTextField extends StatefulWidget {
   final bool hasError;
 
   @override
-  State<MorphHourMinuteTextField> createState() => _MorphHourMinuteTextFieldState();
+  State<MorphHourMinuteTextField> createState() =>
+      _MorphHourMinuteTextFieldState();
 }
 
 class _MorphHourMinuteTextFieldState extends State<MorphHourMinuteTextField> {

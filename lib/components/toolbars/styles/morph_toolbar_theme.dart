@@ -1,8 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:morph_expressive/components/toolbars/morph_toolbars.dart'
     show MorphToolbar;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphToolbar;
+import 'package:morph_expressive/morph_components.dart' show MorphToolbar;
 
 import '../../../foundations/foundations.dart';
 import '../../icon_buttons/enums/morph_icon_button_enums.dart';
@@ -208,7 +207,8 @@ class MorphToolbarTheme extends MorphThemeExtension<MorphToolbarTheme> {
   /// metricsFor.
 
   MorphToolbarMetrics metricsFor(MorphToolbarPlacement placement) {
-    final EdgeInsetsGeometry padding = placement == MorphToolbarPlacement.floating
+    final EdgeInsetsGeometry padding =
+        placement == MorphToolbarPlacement.floating
         ? EdgeInsets.all(floatingPadding)
         : EdgeInsets.fromLTRB(
             dockedHorizontalPadding,
@@ -222,7 +222,9 @@ class MorphToolbarTheme extends MorphThemeExtension<MorphToolbarTheme> {
     return MorphToolbarMetrics(
       crossAxisSize: containerSize,
       contentPadding: padding,
-      gap: placement == MorphToolbarPlacement.floating ? actionGap : dockedMinGap,
+      gap: placement == MorphToolbarPlacement.floating
+          ? actionGap
+          : dockedMinGap,
       iconSize: iconSize,
       elevation: barElevation,
       elevationWithFab: barElevation,
@@ -230,13 +232,19 @@ class MorphToolbarTheme extends MorphThemeExtension<MorphToolbarTheme> {
   }
 
   /// Legacy metrics API used by older call sites.
-  MorphToolbarMetrics metrics(MorphToolbarDensity density, MorphSpacing spacing) {
+  MorphToolbarMetrics metrics(
+    MorphToolbarDensity density,
+    MorphSpacing spacing,
+  ) {
     return metricsFor(MorphToolbarPlacement.floating).copyWithGap(spacing.sm);
   }
 
   /// colors.
 
-  MorphToolbarColors colors(MorphColorScheme scheme, MorphToolbarColorStyle style) {
+  MorphToolbarColors colors(
+    MorphColorScheme scheme,
+    MorphToolbarColorStyle style,
+  ) {
     switch (style) {
       case MorphToolbarColorStyle.standard:
         return MorphToolbarColors(

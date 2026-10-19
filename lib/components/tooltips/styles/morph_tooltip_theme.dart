@@ -77,7 +77,8 @@ class MorphTooltipTheme extends MorphThemeExtension<MorphTooltipTheme> {
   BorderRadius get richBorderRadius => MorphShapes.radiusMedium;
 
   /// Plain container. Spec: Inverse surface.
-  Color plainContainerColor(MorphColorScheme scheme) => scheme.surfaceContainerHigh;
+  Color plainContainerColor(MorphColorScheme scheme) =>
+      scheme.surfaceContainerHigh;
 
   /// Plain supporting text. Spec: Inverse on surface / bodySmall metrics.
   TextStyle plainMessageStyle(MorphTypeScale type, MorphColorScheme scheme) =>

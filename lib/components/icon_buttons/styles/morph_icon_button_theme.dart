@@ -55,7 +55,8 @@ class MorphIconButtonTheme extends MorphThemeExtension<MorphIconButtonTheme> {
     MorphIconButtonSize.xl: 40,
   };
 
-  static const Map<MorphIconButtonSize, Map<MorphIconButtonWidth, Size>> _visual = {
+  static const Map<MorphIconButtonSize, Map<MorphIconButtonWidth, Size>>
+  _visual = {
     MorphIconButtonSize.xs: {
       MorphIconButtonWidth.defaultWidth: Size(32, 32),
       MorphIconButtonWidth.narrow: Size(28, 32),
@@ -83,7 +84,8 @@ class MorphIconButtonTheme extends MorphThemeExtension<MorphIconButtonTheme> {
     },
   };
 
-  static const Map<MorphIconButtonSize, Map<MorphIconButtonWidth, Size>> _target = {
+  static const Map<MorphIconButtonSize, Map<MorphIconButtonWidth, Size>>
+  _target = {
     MorphIconButtonSize.xs: {
       MorphIconButtonWidth.defaultWidth: Size(48, 48),
       MorphIconButtonWidth.narrow: Size(48, 48),

@@ -65,7 +65,10 @@ void main() {
     'MorphNavigationRail expand does not overflow the destination row',
     _morphnavigationrailExpandDoesNotOverflow,
   );
-  testWidgets('MorphSlider reports value changes', _morphsliderReportsValueChanges);
+  testWidgets(
+    'MorphSlider reports value changes',
+    _morphsliderReportsValueChanges,
+  );
   testWidgets(
     'MorphSlider renders without a Scaffold/Material ancestor',
     _morphsliderRendersWithoutAScaffoldMaterialAncestor,
@@ -125,22 +128,23 @@ Future<void> _morphnavigationrailRendersSectionDestinations(
 Future<void> _morphnavigationrailSupportsCustomExpandAndCollapseTooltips(
   WidgetTester tester,
 ) async {
-  Widget buildRail(MorphNavigationRailType type, Key key) => MorphNavigationRail(
-    key: key,
-    type: type,
-    selectedIndex: 0,
-    onDestinationSelected: (_) {},
-    sections: const <MorphNavigationRailSection>[
-      MorphNavigationRailSection(
-        destinations: <MorphNavigationRailDestination>[
-          MorphNavigationRailDestination(
-            icon: Icon(MorphIcons.inbox),
-            label: 'Inbox',
+  Widget buildRail(MorphNavigationRailType type, Key key) =>
+      MorphNavigationRail(
+        key: key,
+        type: type,
+        selectedIndex: 0,
+        onDestinationSelected: (_) {},
+        sections: const <MorphNavigationRailSection>[
+          MorphNavigationRailSection(
+            destinations: <MorphNavigationRailDestination>[
+              MorphNavigationRailDestination(
+                icon: Icon(MorphIcons.inbox),
+                label: 'Inbox',
+              ),
+            ],
           ),
         ],
-      ),
-    ],
-  );
+      );
 
   await tester.pumpWidget(
     _host(
@@ -323,7 +327,10 @@ Rect _selectedIndicatorRect(WidgetTester tester, Finder scope) {
 
 Future<void> _navSelectionContentIsCentered(WidgetTester tester) async {
   const destinations = <MorphNavigationRailDestination>[
-    MorphNavigationRailDestination(icon: Icon(MorphIcons.inbox), label: 'Inbox'),
+    MorphNavigationRailDestination(
+      icon: Icon(MorphIcons.inbox),
+      label: 'Inbox',
+    ),
     MorphNavigationRailDestination(icon: Icon(MorphIcons.send), label: 'Sent'),
   ];
 
@@ -353,8 +360,14 @@ Future<void> _navSelectionContentIsCentered(WidgetTester tester) async {
         selectedIndex: 0,
         onDestinationSelected: _ignoreIndex,
         destinations: const <MorphNavigationDestination>[
-          MorphNavigationDestination(icon: Icon(MorphIcons.inbox), label: 'Inbox'),
-          MorphNavigationDestination(icon: Icon(MorphIcons.send), label: 'Sent'),
+          MorphNavigationDestination(
+            icon: Icon(MorphIcons.inbox),
+            label: 'Inbox',
+          ),
+          MorphNavigationDestination(
+            icon: Icon(MorphIcons.send),
+            label: 'Sent',
+          ),
         ],
       ),
     ),
@@ -397,7 +410,10 @@ Future<void> _morphnavigationrailExpandDoesNotOverflow(
   const sections = <MorphNavigationRailSection>[
     MorphNavigationRailSection(
       destinations: <MorphNavigationRailDestination>[
-        MorphNavigationRailDestination(icon: Icon(MorphIcons.home), label: 'Home'),
+        MorphNavigationRailDestination(
+          icon: Icon(MorphIcons.home),
+          label: 'Home',
+        ),
         MorphNavigationRailDestination(
           icon: Icon(MorphIcons.calendar_today),
           label: 'Agenda',

@@ -59,7 +59,11 @@ extension _MorphCardContent on _MorphCardState {
     return _stacked(theme, cardTheme, pad);
   }
 
-  Widget _stacked(MorphThemeData theme, MorphCardTheme cardTheme, EdgeInsets pad) {
+  Widget _stacked(
+    MorphThemeData theme,
+    MorphCardTheme cardTheme,
+    EdgeInsets pad,
+  ) {
     final bool edgeTextDivider =
         widget.dividerAfterText &&
         widget.textDividerSpan == MorphCardDividerSpan.edge;

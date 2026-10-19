@@ -84,7 +84,9 @@ extension _MorphToolbarBuild on _MorphToolbarState {
     final MorphThemeData theme = MorphTheme.of(context);
     final MorphToolbarTheme toolbarTheme = theme.toolbarTheme;
     final MorphColorScheme scheme = theme.colorScheme;
-    final MorphToolbarMetrics metrics = toolbarTheme.metricsFor(widget.placement);
+    final MorphToolbarMetrics metrics = toolbarTheme.metricsFor(
+      widget.placement,
+    );
     final MorphToolbarColorStyle style = widget.variant != null
         ? toolbarTheme.colorStyleFromVariant(widget.variant!)
         : widget.colorStyle;
@@ -174,7 +176,10 @@ extension _MorphToolbarBuild on _MorphToolbarState {
     return EdgeInsets.fromLTRB(base.left, main, base.right, main);
   }
 
-  double _opticalInset(MorphThemeData theme, MorphIconButtonSize iconButtonSize) {
+  double _opticalInset(
+    MorphThemeData theme,
+    MorphIconButtonSize iconButtonSize,
+  ) {
     final Size iconTarget = theme.iconButtonTheme.target(
       iconButtonSize,
       MorphIconButtonWidth.defaultWidth,

@@ -42,6 +42,7 @@ mixin MorphDismissibleCardDragMixin<T extends StatefulWidget>
     _pushCtrl?.stop(canceled: true);
     _roundnessCtrl?.stop(canceled: true);
 
+    _lastHapticOffset = _dragOffset;
     setState(() {
       final isSameSlot = _dragSlotRef == slot;
       _dragSlotRef = slot;
@@ -112,6 +113,7 @@ mixin MorphDismissibleCardDragMixin<T extends StatefulWidget>
       _neighbourFraction = newNeighbour;
       _roundnessFraction = newRoundness;
     });
+    _playPullHaptics();
   }
 
   /// Damps overdrag past action width and updates action-threshold haptics.
@@ -247,9 +249,6 @@ mixin MorphDismissibleCardDragMixin<T extends StatefulWidget>
       _reEngaging = false;
       _nbrCtrl?.stop(canceled: true);
       _roundnessCtrl?.stop(canceled: true);
-    }
-    if (style.dismissHapticStream) {
-      _playPullHaptics();
     }
     return (
       neighbour: newProgress,

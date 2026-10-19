@@ -359,7 +359,8 @@ class _MorphNavigationDrawerState extends State<MorphNavigationDrawer>
     );
     assert(
       widget.sections.every(
-        (MorphNavigationDrawerSection section) => section.destinations.isNotEmpty,
+        (MorphNavigationDrawerSection section) =>
+            section.destinations.isNotEmpty,
       ),
       'A section needs 1+ destinations.',
     );

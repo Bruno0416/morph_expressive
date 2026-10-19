@@ -132,7 +132,8 @@ class _MorphFabMenuState extends State<MorphFabMenu>
   Alignment get _menuItemAlign =>
       _isRight ? Alignment.centerRight : Alignment.centerLeft;
 
-  MorphFabMenuColorSet get _colorSet => MorphFabMenuTheme.colorSetFor(widget.color);
+  MorphFabMenuColorSet get _colorSet =>
+      MorphFabMenuTheme.colorSetFor(widget.color);
 
   @override
   void initState() {
@@ -369,7 +370,8 @@ class _MorphFabMenuState extends State<MorphFabMenu>
   }
 
   @override
-  Widget build(BuildContext context) => _MorphFabMenuTrigger(this).build(context);
+  Widget build(BuildContext context) =>
+      _MorphFabMenuTrigger(this).build(context);
 
   void _setItemFocused(int index, bool focused) {
     final bool show = focused && MorphFocusInteraction.instance.ringsAllowed;

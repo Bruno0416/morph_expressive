@@ -159,7 +159,10 @@ class MorphSpringChipState<T> extends State<MorphSpringChip<T>>
       widget.scheme.onSurface,
       disabledOpacity,
     );
-    final disabledBg = MorphColorUtils.withOpacity(widget.scheme.onSurface, 0.12);
+    final disabledBg = MorphColorUtils.withOpacity(
+      widget.scheme.onSurface,
+      0.12,
+    );
     final labelStyle =
         widget.labelStyle ??
         theme.dropdownMenuTheme.chipLabelStyle(theme.typeScale, widget.scheme);
@@ -284,7 +287,8 @@ class MorphMoreChipsIndicator extends StatefulWidget {
   });
 
   @override
-  State<MorphMoreChipsIndicator> createState() => MorphMoreChipsIndicatorState();
+  State<MorphMoreChipsIndicator> createState() =>
+      MorphMoreChipsIndicatorState();
 }
 
 /// MorphMoreChipsIndicatorState.

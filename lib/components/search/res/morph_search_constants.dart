@@ -1,4 +1,5 @@
 import 'package:flutter/animation.dart';
+
 import '../../../foundations/foundations.dart';
 
 /// Shared constants for the Morph search bar and search view.

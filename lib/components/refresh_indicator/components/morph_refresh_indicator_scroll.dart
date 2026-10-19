@@ -201,7 +201,8 @@ extension _MorphRefreshIndicatorScroll on MorphRefreshIndicatorState {
     if (indicatorAtTopNow == _isIndicatorAtTop) {
       return false;
     }
-    if (_status == MorphRefreshStatus.drag || _status == MorphRefreshStatus.armed) {
+    if (_status == MorphRefreshStatus.drag ||
+        _status == MorphRefreshStatus.armed) {
       _dismiss(MorphRefreshStatus.canceled);
     }
     return true;
@@ -209,7 +210,8 @@ extension _MorphRefreshIndicatorScroll on MorphRefreshIndicatorState {
 
   bool _abortIfLeftLeadingEdge(ScrollNotification notification) {
     final bool pulling =
-        _status == MorphRefreshStatus.drag || _status == MorphRefreshStatus.armed;
+        _status == MorphRefreshStatus.drag ||
+        _status == MorphRefreshStatus.armed;
     if (!pulling || _isAtLeadingEdge(notification.metrics)) {
       return false;
     }
@@ -228,7 +230,8 @@ extension _MorphRefreshIndicatorScroll on MorphRefreshIndicatorState {
   }
 
   void _handleScrollUpdate(ScrollUpdateNotification notification) {
-    if (_status != MorphRefreshStatus.drag && _status != MorphRefreshStatus.armed) {
+    if (_status != MorphRefreshStatus.drag &&
+        _status != MorphRefreshStatus.armed) {
       return;
     }
     // Finger up: decide refresh vs cancel from full reveal — do not follow
@@ -245,7 +248,8 @@ extension _MorphRefreshIndicatorScroll on MorphRefreshIndicatorState {
   }
 
   void _handleOverscroll(OverscrollNotification notification) {
-    if (_status != MorphRefreshStatus.drag && _status != MorphRefreshStatus.armed) {
+    if (_status != MorphRefreshStatus.drag &&
+        _status != MorphRefreshStatus.armed) {
       return;
     }
     if (notification.dragDetails == null) {
@@ -276,7 +280,8 @@ extension _MorphRefreshIndicatorScroll on MorphRefreshIndicatorState {
 
   /// Load only when fully revealed; otherwise reverse without onRefresh.
   void _onPointerReleased() {
-    if (_status != MorphRefreshStatus.drag && _status != MorphRefreshStatus.armed) {
+    if (_status != MorphRefreshStatus.drag &&
+        _status != MorphRefreshStatus.armed) {
       return;
     }
     if (_isFullyRevealed(context)) {
@@ -292,7 +297,8 @@ extension _MorphRefreshIndicatorScroll on MorphRefreshIndicatorState {
     if (notification.depth != 0 || !notification.leading) {
       return false;
     }
-    if (_status == MorphRefreshStatus.drag || _status == MorphRefreshStatus.armed) {
+    if (_status == MorphRefreshStatus.drag ||
+        _status == MorphRefreshStatus.armed) {
       notification.disallowIndicator();
       return true;
     }
@@ -348,6 +354,7 @@ extension _MorphRefreshIndicatorScroll on MorphRefreshIndicatorState {
 
     // Visual-only armed when fully revealed (does not start onRefresh).
     if (_status == MorphRefreshStatus.drag && reveal >= 1.0) {
+      MorphHaptics.selectionFor(context);
       _status = MorphRefreshStatus.armed;
       widget.onStatusChange?.call(_status);
     } else if (_status == MorphRefreshStatus.armed && reveal < 1.0) {
@@ -359,7 +366,8 @@ extension _MorphRefreshIndicatorScroll on MorphRefreshIndicatorState {
   Future<void> _dismiss(MorphRefreshStatus newMode) async {
     await Future<void>.value();
     assert(
-      newMode == MorphRefreshStatus.canceled || newMode == MorphRefreshStatus.done,
+      newMode == MorphRefreshStatus.canceled ||
+          newMode == MorphRefreshStatus.done,
       'assertion failed',
     );
 

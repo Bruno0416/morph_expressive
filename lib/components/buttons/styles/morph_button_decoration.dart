@@ -1,5 +1,4 @@
-import 'package:morph_expressive/morph_components.dart'
-    show MorphButton;
+import 'package:morph_expressive/morph_components.dart' show MorphButton;
 import 'package:material_ui/material_ui.dart';
 
 import '../enums/morph_button_enums.dart';

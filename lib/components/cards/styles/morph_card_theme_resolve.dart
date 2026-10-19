@@ -75,7 +75,8 @@ extension MorphCardThemeResolve on MorphCardTheme {
   }
 
   /// Icon color.
-  Color resolveIconColor(MorphColorScheme scheme) => iconColor ?? scheme.primary;
+  Color resolveIconColor(MorphColorScheme scheme) =>
+      iconColor ?? scheme.primary;
 
   /// Shadow color.
   Color resolveShadowColor(MorphColorScheme scheme) =>

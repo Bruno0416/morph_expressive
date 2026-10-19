@@ -5,8 +5,7 @@ import 'package:morph_expressive/components/search/morph_search.dart'
     show MorphSearchAnchor;
 import 'package:morph_expressive/components/search/morph_search_anchor.dart'
     show MorphSearchAnchor;
-import 'package:morph_expressive/morph_components.dart'
-    show MorphSearchAnchor;
+import 'package:morph_expressive/morph_components.dart' show MorphSearchAnchor;
 
 /// Handle implemented by [MorphSearchAnchor] for [MorphSearchController].
 abstract class MorphSearchAnchorHandle {

@@ -14,7 +14,8 @@ import '../../../foundations/foundations.dart';
 double _lerpD(double a, double b, double t) => a + (b - a) * t;
 
 /// Parent data for FAB + pill morph layouts.
-class MorphToolbarFabLayoutParentData extends ContainerBoxParentData<RenderBox> {}
+class MorphToolbarFabLayoutParentData
+    extends ContainerBoxParentData<RenderBox> {}
 
 /// Horizontal FAB + toolbar morph (pill grows opposite the FAB).
 class MorphToolbarHorizontalFabLayout extends MultiChildRenderObjectWidget {
@@ -170,10 +171,8 @@ class RenderMorphToolbarHorizontalFabLayout extends RenderBox
         : (totalWidth - naturalWidth);
     const double toolbarY = (totalHeight - containerSize) / 2;
 
-    (toolbarChild.parentData! as MorphToolbarFabLayoutParentData).offset = Offset(
-      toolbarX,
-      toolbarY,
-    );
+    (toolbarChild.parentData! as MorphToolbarFabLayoutParentData).offset =
+        Offset(toolbarX, toolbarY);
     (fabChild.parentData! as MorphToolbarFabLayoutParentData).offset = Offset(
       fabX,
       fabY,
@@ -406,10 +405,8 @@ class RenderMorphToolbarVerticalFabLayout extends RenderBox
         : (totalHeight - naturalHeight);
     const double toolbarX = (totalWidth - containerSize) / 2;
 
-    (toolbarChild.parentData! as MorphToolbarFabLayoutParentData).offset = Offset(
-      toolbarX,
-      toolbarY,
-    );
+    (toolbarChild.parentData! as MorphToolbarFabLayoutParentData).offset =
+        Offset(toolbarX, toolbarY);
     (fabChild.parentData! as MorphToolbarFabLayoutParentData).offset = Offset(
       fabX,
       fabY,

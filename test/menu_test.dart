@@ -527,8 +527,12 @@ Future<void> _groupedMenusKeepGapWhenNotScrolling(WidgetTester tester) async {
           return TextButton(onPressed: open, child: const Text('Open'));
         },
         children: const <MorphMenuNode>[
-          MorphMenuGroup(children: <MorphMenuNode>[MorphMenuEntry(label: 'One')]),
-          MorphMenuGroup(children: <MorphMenuNode>[MorphMenuEntry(label: 'Two')]),
+          MorphMenuGroup(
+            children: <MorphMenuNode>[MorphMenuEntry(label: 'One')],
+          ),
+          MorphMenuGroup(
+            children: <MorphMenuNode>[MorphMenuEntry(label: 'Two')],
+          ),
         ],
       ),
     ),

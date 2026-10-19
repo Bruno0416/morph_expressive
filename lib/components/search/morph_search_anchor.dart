@@ -358,7 +358,9 @@ class _MorphSearchAnchorBar extends StatefulWidget {
 class _MorphSearchAnchorBarState extends State<_MorphSearchAnchorBar> {
   // Closed anchor is a keyboard Tab stop (opens the search view). Editing
   // happens in the view's search bar, so this field stays read-only.
-  late final FocusNode _focusNode = FocusNode(debugLabel: 'MorphSearchAnchorBar');
+  late final FocusNode _focusNode = FocusNode(
+    debugLabel: 'MorphSearchAnchorBar',
+  );
 
   @override
   void initState() {

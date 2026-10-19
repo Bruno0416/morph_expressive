@@ -48,7 +48,8 @@ class MorphRefreshIndicatorTheme
   });
 
   /// defaults.
-  static const MorphRefreshIndicatorTheme defaults = MorphRefreshIndicatorTheme();
+  static const MorphRefreshIndicatorTheme defaults =
+      MorphRefreshIndicatorTheme();
 
   /// defaultDisplacement.
   final double defaultDisplacement;

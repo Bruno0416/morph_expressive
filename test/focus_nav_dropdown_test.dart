@@ -8,8 +8,8 @@ import 'focus_nav_repro_test_support.dart';
 // ---------- buscador especifico del boton para limpiar ----------
 // El mismo glifo Fluent aparece en los chips y el boton principal.
 Finder findDropdownClearButton() => find.byWidgetPredicate(
-  (widget) => widget is Icon &&
-      widget.icon == MorphIcons.close && widget.size == 24,
+  (widget) =>
+      widget is Icon && widget.icon == MorphIcons.close && widget.size == 24,
 );
 
 void main() {

@@ -9,7 +9,8 @@ part 'morph_navigation_bar_theme_lerp.dart';
 
 /// Theme values for `MorphNavigationBar`.
 @immutable
-class MorphNavigationBarTheme extends MorphThemeExtension<MorphNavigationBarTheme> {
+class MorphNavigationBarTheme
+    extends MorphThemeExtension<MorphNavigationBarTheme> {
   /// MorphNavigationBarTheme.
   const MorphNavigationBarTheme({
     this.heightSmall = MorphNavBarConstants.heightSmall,
@@ -30,7 +31,8 @@ class MorphNavigationBarTheme extends MorphThemeExtension<MorphNavigationBarThem
     this.horizontalIndicatorHeight =
         MorphNavBarConstants.horizontalIndicatorHeight,
     this.horizontalPadding = MorphNavBarConstants.horizontalBarPadding,
-    this.horizontalIndicatorInset = MorphNavBarConstants.horizontalIndicatorInset,
+    this.horizontalIndicatorInset =
+        MorphNavBarConstants.horizontalIndicatorInset,
     this.horizontalIconLabelGap = MorphNavBarConstants.horizontalIconLabelGap,
     this.baselineExtraPadding = MorphNavBarConstants.baselineExtraPadding,
     this.itemGap = MorphNavBarConstants.itemGap,

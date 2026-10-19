@@ -79,6 +79,7 @@ class MorphTextField extends StatefulWidget {
     this.inputFormatters,
     this.onChanged,
     this.onSubmitted,
+    this.onUnfocus,
     this.onTapOutside,
     this.maxLines = 1,
     this.minLines,
@@ -178,6 +179,18 @@ class MorphTextField extends StatefulWidget {
 
   /// onSubmitted.
   final ValueChanged<String>? onSubmitted;
+
+  /// Called with the current text when this field loses focus.
+  ///
+  /// Runs once for each focused-to-unfocused transition, including keyboard
+  /// traversal, taps outside, and programmatic focus changes. It is not called
+  /// on initial build or disposal. Unlike [onTapOutside], this observes any
+  /// focus loss rather than only a tap outside the field.
+  ///
+  /// Use the callback to update validation state and pass the resulting
+  /// message to [errorText]. Existing expression-based [errorText] validation
+  /// works independently and is not changed by this callback.
+  final ValueChanged<String>? onUnfocus;
 
   /// Called on a tap outside the field. Default: unfocus.
   final TapRegionCallback? onTapOutside;
@@ -491,11 +504,16 @@ class _MorphTextFieldState extends State<MorphTextField>
   }
 
   void _handleFocusChange() {
+    final bool wasFocused = _focused;
+    final bool isFocused = _focusNode.hasFocus;
     setState(() {
-      _focused = _focusNode.hasFocus;
+      _focused = isFocused;
       _showFocusRing = MorphFocusRing.shouldShow(_focusNode, context);
       _syncVisuals();
     });
+    if (wasFocused && !isFocused) {
+      widget.onUnfocus?.call(_controller.text);
+    }
   }
 
   void _handleHighlightModeChange(FocusHighlightMode mode) {

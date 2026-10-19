@@ -81,7 +81,10 @@ void _closedSizeFollowsM3efabsizeWhenOverrideIsNull() {
   const theme = MorphFabMenuTheme.defaults;
   const fabTheme = MorphFabTheme.defaults;
   expect(
-    theme.resolveClosedContainer(size: MorphFabSize.regular, fabTheme: fabTheme),
+    theme.resolveClosedContainer(
+      size: MorphFabSize.regular,
+      fabTheme: fabTheme,
+    ),
     56,
   );
   expect(

@@ -58,7 +58,8 @@ class MorphSwitch extends StatefulWidget {
   State<MorphSwitch> createState() => _MorphSwitchState();
 }
 
-class _MorphSwitchState extends State<MorphSwitch> with TickerProviderStateMixin {
+class _MorphSwitchState extends State<MorphSwitch>
+    with TickerProviderStateMixin {
   late final SingleMotionController _positionCtrl;
   late final SingleMotionController _sizeCtrl;
   FocusNode? _ownedNode;
@@ -461,7 +462,10 @@ class _MorphSwitchState extends State<MorphSwitch> with TickerProviderStateMixin
     );
   }
 
-  Widget _buildThumbIcon(MorphSwitchTheme switchTheme, MorphColorScheme scheme) {
+  Widget _buildThumbIcon(
+    MorphSwitchTheme switchTheme,
+    MorphColorScheme scheme,
+  ) {
     final Widget? icon = widget.value
         ? widget.selectedIcon
         : widget.unselectedIcon;

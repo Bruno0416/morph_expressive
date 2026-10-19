@@ -387,6 +387,8 @@ extension _MorphIconButtonBuild on _MorphIconButtonState {
       internalTop: 0,
       internalBottom: 0,
       targetRadius: targetRadius,
+      pressed: morphStates.contains(WidgetState.pressed),
+      snapToTarget: MediaQuery.maybeDisableAnimationsOf(context) ?? false,
       builder: (padding, animatedRadius) {
         final dec = widget.decoration;
         final fill =
@@ -422,7 +424,9 @@ extension _MorphIconButtonBuild on _MorphIconButtonState {
               onPressed: widget.onPressed == null
                   ? null
                   : () {
-                      MorphHaptics.triggerFor(context, widget.haptic);
+                      if (widget.enableFeedback != false) {
+                        MorphHaptics.triggerFor(context, widget.haptic);
+                      }
                       widget.onPressed!();
                     },
               isSelected: widget.isSelected,
@@ -514,7 +518,8 @@ extension _MorphIconButtonBuild on _MorphIconButtonState {
     return switch (widget.variant) {
       MorphIconButtonVariant.filled => theme.filledBackgroundGradient,
       MorphIconButtonVariant.tonal => theme.tonalBackgroundGradient,
-      MorphIconButtonVariant.standard || MorphIconButtonVariant.outlined => null,
+      MorphIconButtonVariant.standard ||
+      MorphIconButtonVariant.outlined => null,
     };
   }
 

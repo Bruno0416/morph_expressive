@@ -14,8 +14,10 @@ void main() {
   testWidgets('arrow moves focus and enter selects', _keyboard);
   testWidgets('pointer tap dismisses the focus ring', _pointerDismissesRing);
   testWidgets('scrollable tabs start 52 from the leading edge', _scrollOffset);
-  testWidgets('tapping tabs leaves parent scroll position unchanged',
-      _noAutomaticTabScroll);
+  testWidgets(
+    'tapping tabs leaves parent scroll position unchanged',
+    _noAutomaticTabScroll,
+  );
   testWidgets('controller select reports the index', _controller);
   testWidgets('a swipe in the view selects the next tab', _swipeView);
   testWidgets('sliver tabs scroll away', _sliver);
@@ -90,7 +92,10 @@ Future<void> _divider(WidgetTester tester) async {
   expect(material.color, scheme.surface);
   final ColoredBox divider = tester.widget<ColoredBox>(
     find
-        .descendant(of: find.byType(MorphTabs), matching: find.byType(ColoredBox))
+        .descendant(
+          of: find.byType(MorphTabs),
+          matching: find.byType(ColoredBox),
+        )
         .first,
   );
   expect(divider.color, scheme.outlineVariant);
@@ -163,42 +168,54 @@ Future<void> _noAutomaticTabScroll(WidgetTester tester) async {
   final scroll = ScrollController();
   addTearDown(scroll.dispose);
   var selected = 0;
-  await tester.pumpWidget(MaterialApp(
-    home: Scaffold(
-      body: ListView(
-        controller: scroll,
-        children: <Widget>[
-          const SizedBox(height: 350),
-          StatefulBuilder(builder: (context, update) => MorphTabs(
-            selectedIndex: selected,
-            onTabSelected: (index) => update(() => selected = index),
-            tabs: const <MorphTab>[
-              MorphTab(label: 'Alpha'),
-              MorphTab(label: 'Beta'),
-              MorphTab(label: 'Gamma'),
-            ],
-          )),
-          const SizedBox(height: 1000),
-        ],
+  await tester.pumpWidget(
+    MaterialApp(
+      home: Scaffold(
+        body: ListView(
+          controller: scroll,
+          children: <Widget>[
+            const SizedBox(height: 350),
+            StatefulBuilder(
+              builder: (context, update) => MorphTabs(
+                selectedIndex: selected,
+                onTabSelected: (index) => update(() => selected = index),
+                tabs: const <MorphTab>[
+                  MorphTab(label: 'Alpha'),
+                  MorphTab(label: 'Beta'),
+                  MorphTab(label: 'Gamma'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 1000),
+          ],
+        ),
       ),
     ),
-  ));
+  );
   scroll.jumpTo(200);
   await tester.pumpAndSettle();
   await tester.tap(find.text('Beta'));
   await tester.pumpAndSettle();
   expect(selected, 1);
   expect(scroll.offset, closeTo(200, 0.1));
-  expect(tester.widget<MorphTabs>(find.byType(MorphTabs)).autoScrollToFocusedTab,
-      isFalse);
+  expect(
+    tester.widget<MorphTabs>(find.byType(MorphTabs)).autoScrollToFocusedTab,
+    isFalse,
+  );
   final sliver = MorphTabs.sliver(
-    tabs: const <MorphTab>[MorphTab(label: 'One'), MorphTab(label: 'Two')],
+    tabs: const <MorphTab>[
+      MorphTab(label: 'One'),
+      MorphTab(label: 'Two'),
+    ],
     selectedIndex: 0,
     onTabSelected: _noopTabSelection,
   );
   expect(sliver.autoScrollToFocusedTab, isFalse);
   final enabled = MorphTabs(
-    tabs: const <MorphTab>[MorphTab(label: 'One'), MorphTab(label: 'Two')],
+    tabs: const <MorphTab>[
+      MorphTab(label: 'One'),
+      MorphTab(label: 'Two'),
+    ],
     selectedIndex: 0,
     onTabSelected: _noopTabSelection,
     autoScrollToFocusedTab: true,
@@ -303,9 +320,8 @@ Future<void> _badgeInsideBar(WidgetTester tester) async {
     ]),
   );
   await tester.pumpAndSettle();
-  final RenderMorphBadgeLayout badge = tester.renderObject<RenderMorphBadgeLayout>(
-    find.byType(MorphBadgeLayout),
-  );
+  final RenderMorphBadgeLayout badge = tester
+      .renderObject<RenderMorphBadgeLayout>(find.byType(MorphBadgeLayout));
   final RenderBox content = badge.firstChild!;
   final RenderBox indicator = badge.childAfter(content)!;
   final data = indicator.parentData! as MorphBadgeLayoutParentData;

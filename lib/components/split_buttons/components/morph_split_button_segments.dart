@@ -37,6 +37,8 @@ extension _MorphSplitButtonSegments<T> on _MorphSplitButtonState<T> {
       internalTop: 0,
       internalBottom: 0,
       targetRadius: targetRadius,
+      pressed: pressed,
+      snapToTarget: MediaQuery.maybeDisableAnimationsOf(context) ?? false,
       builder: (padding, animatedRadius) => _buildLeadingSegmentSurface(
         context: context,
         height: height,
@@ -250,6 +252,8 @@ extension _MorphSplitButtonSegments<T> on _MorphSplitButtonState<T> {
       internalTop: 0,
       internalBottom: 0,
       targetRadius: targetRadius,
+      pressed: pressed,
+      snapToTarget: MediaQuery.maybeDisableAnimationsOf(context) ?? false,
       builder: (padding, animatedRadius) => _buildTrailingSegmentSurface(
         context: context,
         height: height,

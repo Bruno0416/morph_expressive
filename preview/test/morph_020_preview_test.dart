@@ -14,10 +14,12 @@ void main() {
     await tester.pumpWidget(const MorphPreviewApp());
   }
 
-  testWidgets('preview controls switch the global haptic configuration',
-      (tester) async {
+  testWidgets('preview controls switch the global haptic configuration', (
+    tester,
+  ) async {
     await start(tester);
-    MorphThemeData data() => MorphTheme.of(tester.element(find.byType(MorphButton).first));
+    MorphThemeData data() =>
+        MorphTheme.of(tester.element(find.byType(MorphButton).first));
     expect(data().hapticsEnabled, isTrue);
     expect(data().hapticFeedback, MorphHapticFeedback.light);
     await tester.tap(find.byTooltip('Haptic settings'));
@@ -35,8 +37,9 @@ void main() {
     expect(data().hapticFeedback, MorphHapticFeedback.heavy);
   });
 
-  testWidgets('chip gallery exposes multi-selection independently',
-      (tester) async {
+  testWidgets('chip gallery exposes multi-selection independently', (
+    tester,
+  ) async {
     await start(tester);
     await revealShowcaseCategory(tester, 'chips');
     final multi = find.byKey(const ValueKey('morph_multi_chip_preview'));
@@ -53,21 +56,27 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('the navigation rail demo ignores scroll-under from tab swipes',
-      (tester) async {
+  testWidgets('the navigation rail demo ignores scroll-under from tab swipes', (
+    tester,
+  ) async {
     await start(tester);
     await revealShowcaseCategory(tester, 'navigation_rail');
-    final rail = tester.widget<MorphNavigationRail>(find.byType(MorphNavigationRail));
+    final rail = tester.widget<MorphNavigationRail>(
+      find.byType(MorphNavigationRail),
+    );
     expect(rail.scrollUnder, isFalse);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('filled gallery demonstrates exterior-label configuration',
-      (tester) async {
+  testWidgets('filled gallery demonstrates exterior-label configuration', (
+    tester,
+  ) async {
     await start(tester);
     await revealShowcaseCategory(tester, 'text_fields');
-    final filled = tester.widgetList<MorphTextField>(find.byType(MorphTextField))
-        .where((w) => w.label == 'Email').toList();
+    final filled = tester
+        .widgetList<MorphTextField>(find.byType(MorphTextField))
+        .where((w) => w.label == 'Email')
+        .toList();
     expect(filled.length, 1);
     expect(filled.single.variant, MorphTextFieldVariant.filled);
     expect(filled.single.placeholder, 'name@example.com');

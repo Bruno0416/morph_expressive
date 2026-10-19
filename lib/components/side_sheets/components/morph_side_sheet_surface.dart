@@ -70,7 +70,10 @@ class MorphSideSheetSurface extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: borderRadius,
-        boxShadow: MorphElevation.shadows(elevation, shadowColor: scheme.shadow),
+        boxShadow: MorphElevation.shadows(
+          elevation,
+          shadowColor: scheme.shadow,
+        ),
       ),
       child: ClipRRect(borderRadius: borderRadius, child: child),
     );

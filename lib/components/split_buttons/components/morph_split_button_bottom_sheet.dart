@@ -288,10 +288,12 @@ class _MultiSelectBottomSheetState<T>
     return InkWell(
       enableFeedback: false,
       autofocus: autofocus,
-      onTap: item.enabled ? () {
+      onTap: item.enabled
+          ? () {
               MorphHaptics.triggerFor(context);
               _toggleValue(item.value);
-            } : null,
+            }
+          : null,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         child: Row(
@@ -455,7 +457,9 @@ Widget _buildBottomSheetItem<T>({
         Flexible(
           child: Text(
             item.child.toString(),
-            style: morphTheme.typeScale.bodyLarge.copyWith(color: effectiveColor),
+            style: morphTheme.typeScale.bodyLarge.copyWith(
+              color: effectiveColor,
+            ),
           ),
         ),
       ],
@@ -472,10 +476,12 @@ Widget _buildBottomSheetItem<T>({
   return InkWell(
     enableFeedback: false,
     autofocus: autofocus,
-    onTap: item.enabled ? () {
-              MorphHaptics.triggerFor(context);
-              Navigator.of(context).pop(item.value);
-            } : null,
+    onTap: item.enabled
+        ? () {
+            MorphHaptics.triggerFor(context);
+            Navigator.of(context).pop(item.value);
+          }
+        : null,
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: child,

@@ -1,6 +1,5 @@
 import 'package:morph_expressive/foundations/foundations.dart';
-import 'package:morph_expressive/morph_components.dart'
-    show MorphButton;
+import 'package:morph_expressive/morph_components.dart' show MorphButton;
 import 'package:material_ui/material_ui.dart';
 import 'package:motor/motor.dart';
 

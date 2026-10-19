@@ -97,7 +97,8 @@ class MorphDismissibleListStyle {
   /// Haptic intensity when the drag crosses / re‑crosses.
   final MorphHapticFeedback hapticOnThreshold;
 
-  /// Fire continuous light haptics during the drag.
+  /// Plays sparse, motion-synced selection ticks during swipe and spring settle.
+  /// Respects [enableFeedback] and the nearest MorphTheme haptic settings.
   final bool dismissHapticStream;
 
   /// Maximum pixel offset applied to neighbouring cards.
@@ -165,7 +166,7 @@ class MorphDismissibleListStyle {
     this.hapticOnTap = MorphHapticFeedback.inherit,
     this.dismissThreshold = MorphListDismissibleTheme.defaultDismissThreshold,
     this.hapticOnThreshold = MorphHapticFeedback.inherit,
-    this.dismissHapticStream = false,
+    this.dismissHapticStream = true,
     this.neighbourPull = MorphListDismissibleTheme.defaultNeighbourPull,
     this.neighbourReach = MorphListDismissibleTheme.defaultNeighbourReach,
     this.neighbourSpring = const MorphSpring(stiffness: 800, damping: 0.7),
