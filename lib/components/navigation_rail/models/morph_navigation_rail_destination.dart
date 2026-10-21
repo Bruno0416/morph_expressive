@@ -1,4 +1,4 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart' show Widget;
 
 /// Model for a navigation destination. One class per file.
 class MorphNavigationRailDestination {

@@ -1,6 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        Color,
+        DefaultTextStyle,
+        FontVariation,
+        FontWeight,
+        MaterialApp,
+        Text,
+        TextStyle,
+        Theme;
 
 void main() {
   _registerApplyTests();

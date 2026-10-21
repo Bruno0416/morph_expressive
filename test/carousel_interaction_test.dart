@@ -1,7 +1,25 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        Center,
+        Color,
+        EdgeInsets,
+        InkWell,
+        MaterialApp,
+        NeverScrollableScrollPhysics,
+        Offset,
+        Scaffold,
+        ScrollPosition,
+        Scrollable,
+        ScrollableState,
+        SizedBox,
+        State,
+        StatefulWidget,
+        Text,
+        Widget;
 
 import 'helpers/carousel_test_helpers.dart';
 

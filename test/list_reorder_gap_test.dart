@@ -5,7 +5,19 @@ import 'package:morph_expressive/components/lists/components/morph_expandable_su
 import 'package:morph_expressive/components/lists/components/morph_list_drag_proxy_scope.dart';
 import 'package:morph_expressive/components/lists/components/morph_list_reorder_placeholder.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BoxDecoration,
+        BuildContext,
+        DecoratedBox,
+        DismissDirection,
+        PhysicalModel,
+        Rect,
+        Size,
+        SizedBox,
+        StateSetter,
+        StatefulBuilder,
+        Text;
 
 import 'helpers/list_test_helpers.dart';
 

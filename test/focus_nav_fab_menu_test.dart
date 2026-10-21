@@ -1,7 +1,16 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        FocusManager,
+        FocusNode,
+        FocusScopeNode,
+        Icon,
+        Icons,
+        MaterialApp,
+        Scaffold,
+        Transform;
 
 import 'focus_nav_repro_test_support.dart';
 

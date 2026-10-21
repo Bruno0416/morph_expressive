@@ -4,7 +4,49 @@
 // of Android Open Source Project Apache-2.0 code is not established here.
 // See NOTICE for original copyright and third-party attribution.
 
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Align,
+        Alignment,
+        AlignmentGeometry,
+        AnimatedBuilder,
+        Axis,
+        BuildContext,
+        Clip,
+        ClipRect,
+        Color,
+        Directionality,
+        EdgeInsets,
+        EdgeInsetsDirectional,
+        EdgeInsetsGeometry,
+        ExcludeFocus,
+        Expanded,
+        FocusTraversalGroup,
+        Icon,
+        ListenableBuilder,
+        MainAxisAlignment,
+        MainAxisSize,
+        Material,
+        MediaQuery,
+        Offset,
+        OverflowBox,
+        Padding,
+        PreferredSizeWidget,
+        Row,
+        Semantics,
+        ShapeBorder,
+        Size,
+        SizedBox,
+        State,
+        StatefulWidget,
+        Text,
+        TextDirection,
+        TextOverflow,
+        TickerProviderStateMixin,
+        Transform,
+        ValueChanged,
+        VoidCallback,
+        Widget;
 import 'package:motor/motor.dart';
 
 import '../../foundations/foundations.dart';

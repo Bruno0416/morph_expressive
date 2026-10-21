@@ -1,7 +1,31 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Align,
+        Alignment,
+        BuildContext,
+        Builder,
+        Center,
+        Column,
+        Expanded,
+        FocusHighlightStrategy,
+        FocusManager,
+        FocusNode,
+        FocusScopeNode,
+        FocusTraversalGroup,
+        FocusTraversalOrder,
+        Icon,
+        Icons,
+        MaterialApp,
+        NumericFocusOrder,
+        OrderedTraversalPolicy,
+        Scaffold,
+        SizedBox,
+        Text,
+        TextEditingController,
+        Widget;
 
 void setUpFocusNavReproTests() {
   MorphFocusInteraction.resetForTest();

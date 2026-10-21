@@ -1,7 +1,21 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        Color,
+        Column,
+        DismissDirection,
+        Element,
+        Focus,
+        FocusManager,
+        FocusNode,
+        Icon,
+        Scaffold,
+        SingleChildScrollView,
+        Text,
+        Widget;
 
 void main() {
   testWidgets('list is a single Tab stop', _singleTabStop);

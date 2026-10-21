@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show AnnotatedRegion, Brightness, Colors, Widget;
 
 /// System UI overlay for modal surfaces shown over a dark scrim.
 ///

@@ -1,6 +1,28 @@
 import 'package:morph_expressive/foundations/foundations.dart';
 import 'package:morph_expressive/morph_components.dart' show MorphButton;
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        FocusHighlightMode,
+        FocusManager,
+        FocusNode,
+        HitTestBehavior,
+        Listener,
+        PointerCancelEvent,
+        PointerDownEvent,
+        PointerUpEvent,
+        State,
+        StatefulWidget,
+        TapRegion,
+        TextOverflow,
+        TextStyle,
+        ValueListenableBuilder,
+        ValueNotifier,
+        Widget,
+        WidgetState,
+        WidgetStatesController,
+        WidgetsBinding,
+        protected;
 import 'package:motor/motor.dart';
 
 import '../enums/morph_button_enums.dart';

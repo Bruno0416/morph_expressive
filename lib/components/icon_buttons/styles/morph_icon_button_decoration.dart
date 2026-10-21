@@ -1,4 +1,5 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show BorderSide, Color, Gradient, WidgetStateProperty, immutable;
 
 /// Styling overrides for MorphIconButton.
 @immutable

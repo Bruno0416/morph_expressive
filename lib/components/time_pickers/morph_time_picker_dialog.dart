@@ -1,7 +1,42 @@
 import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        AnimatedContainer,
+        AutovalidateMode,
+        BoxConstraints,
+        BuildContext,
+        Clip,
+        Column,
+        CrossAxisAlignment,
+        EdgeInsets,
+        Flexible,
+        Form,
+        FormState,
+        GlobalKey,
+        Intent,
+        MainAxisAlignment,
+        MainAxisSize,
+        Material,
+        MaterialLocalizations,
+        MediaQuery,
+        Navigator,
+        NextFocusIntent,
+        Orientation,
+        Padding,
+        RestorableValue,
+        RestorationBucket,
+        RestorationMixin,
+        RoundedRectangleBorder,
+        ShortcutActivator,
+        Shortcuts,
+        SingleActivator,
+        Size,
+        State,
+        StatefulWidget,
+        ValueChanged,
+        Widget;
 
 import '../../foundations/foundations.dart';
 import '../dialogs/components/morph_dialog_inset.dart';

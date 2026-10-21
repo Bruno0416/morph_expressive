@@ -1,4 +1,16 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        DefaultTextStyle,
+        IconTheme,
+        IconThemeData,
+        InheritedTheme,
+        StatelessWidget,
+        TextDecoration,
+        TextStyle,
+        Theme,
+        ThemeData,
+        Widget;
 
 import 'morph_theme.dart';
 

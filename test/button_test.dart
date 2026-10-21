@@ -2,7 +2,25 @@ import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        ButtonStyleButton,
+        Center,
+        Color,
+        ColoredBox,
+        Colors,
+        FocusNode,
+        MaterialApp,
+        Offset,
+        OutlinedButton,
+        Scaffold,
+        SizedBox,
+        Text,
+        TweenAnimationBuilder,
+        VoidCallback,
+        Widget,
+        WidgetState,
+        WidgetStateProperty;
 
 const String _save = 'Save';
 const String _one = 'One';

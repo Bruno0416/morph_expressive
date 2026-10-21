@@ -1,6 +1,18 @@
 import 'dart:math' as math;
 
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BorderRadius,
+        BuildContext,
+        ClipRRect,
+        Color,
+        OverflowBox,
+        Size,
+        SizedBox,
+        StatelessWidget,
+        VoidCallback,
+        Widget,
+        WidgetStatePropertyAll;
 
 import '../../../foundations/foundations.dart';
 import '../../icon_buttons/morph_icon_buttons.dart';

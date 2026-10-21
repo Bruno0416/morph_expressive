@@ -1,6 +1,21 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Center,
+        Color,
+        ColoredBox,
+        Column,
+        EditableText,
+        Expanded,
+        FocusNode,
+        Offset,
+        Rect,
+        Scaffold,
+        Size,
+        SizedBox,
+        TextEditingController,
+        Widget;
 
 void main() {
   testWidgets(

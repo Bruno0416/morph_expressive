@@ -2,7 +2,29 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/components/badges/components/morph_badge_layout.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        ColoredBox,
+        CustomScrollView,
+        EdgeInsets,
+        Icon,
+        ListView,
+        Material,
+        MaterialApp,
+        Offset,
+        PageView,
+        RenderBox,
+        Scaffold,
+        ScrollController,
+        Size,
+        SizedBox,
+        SliverPadding,
+        SliverToBoxAdapter,
+        StateSetter,
+        StatefulBuilder,
+        Text,
+        Widget;
 
 void main() {
   setUp(MorphFocusInteraction.resetForTest);

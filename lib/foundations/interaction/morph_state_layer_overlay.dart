@@ -1,4 +1,24 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        AlignmentDirectional,
+        AlignmentGeometry,
+        AnimatedContainer,
+        BuildContext,
+        Clip,
+        Color,
+        Colors,
+        IgnorePointer,
+        InkSparkle,
+        InkWell,
+        Material,
+        MaterialType,
+        MouseCursor,
+        ShapeBorder,
+        ShapeDecoration,
+        StatelessWidget,
+        Widget,
+        WidgetState,
+        WidgetStateProperty;
 
 import 'morph_motion.dart';
 import 'morph_state_layer.dart';

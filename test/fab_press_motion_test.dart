@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show Center, Icon, Icons, Offset, Scaffold, Transform;
 
 /// X-axis scale from a [Transform.scale] matrix (Z is always 1.0).
 double _xyScale(Transform transform) => transform.transform.storage[0];

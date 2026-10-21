@@ -1,4 +1,5 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show Color, Colors, WidgetState, immutable;
 
 import '../../../foundations/foundations.dart';
 import '../enums/morph_button_enums.dart';

@@ -1,6 +1,45 @@
 import 'dart:math' as math;
 
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Alignment,
+        BoxConstraints,
+        BoxDecoration,
+        BuildContext,
+        Center,
+        Column,
+        Container,
+        CrossAxisAlignment,
+        CustomPaint,
+        Directionality,
+        DragStartDetails,
+        DragUpdateDetails,
+        EdgeInsets,
+        EdgeInsetsDirectional,
+        ExcludeSemantics,
+        Expanded,
+        FittedBox,
+        GestureDetector,
+        LayoutBuilder,
+        MainAxisAlignment,
+        MainAxisSize,
+        MaterialLocalizations,
+        MediaQuery,
+        Offset,
+        Orientation,
+        Padding,
+        RepaintBoundary,
+        Row,
+        Semantics,
+        SizedBox,
+        Stack,
+        State,
+        StatefulWidget,
+        TapDownDetails,
+        Text,
+        TextDirection,
+        ValueChanged,
+        Widget;
 
 import '../../../foundations/foundations.dart';
 import '../enums/morph_time_picker_enums.dart';

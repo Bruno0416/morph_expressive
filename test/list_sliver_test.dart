@@ -1,6 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        CustomScrollView,
+        EdgeInsets,
+        Scaffold,
+        SliverPadding,
+        Text,
+        Widget;
 
 Widget _host(Widget sliver) {
   return MorphMaterialApp(

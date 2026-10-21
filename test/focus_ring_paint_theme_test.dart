@@ -1,7 +1,22 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BorderRadius,
+        BuildContext,
+        Builder,
+        Center,
+        Color,
+        Column,
+        FocusNode,
+        MaterialApp,
+        PhysicalModel,
+        Radius,
+        Scaffold,
+        SizedBox,
+        Text,
+        Widget;
 
 import 'focus_ring_test_support.dart';
 

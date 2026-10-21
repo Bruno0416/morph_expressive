@@ -2,7 +2,32 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/components/navigation_bar/components/morph_nav_bar_destination_button.dart';
 import 'package:morph_expressive/components/navigation_rail/components/morph_nav_selection_indicator.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Align,
+        Alignment,
+        BoxDecoration,
+        BuildContext,
+        Color,
+        DecoratedBox,
+        Decoration,
+        DefaultMaterialLocalizations,
+        DefaultWidgetsLocalizations,
+        Icon,
+        LocalizationsDelegate,
+        MaterialApp,
+        Opacity,
+        PageRouteBuilder,
+        Rect,
+        RouteSettings,
+        Scaffold,
+        SizedBox,
+        StateSetter,
+        StatefulBuilder,
+        Transform,
+        Widget,
+        WidgetBuilder,
+        WidgetsApp;
 
 Widget _host(Widget child) => MaterialApp(home: Scaffold(body: child));
 

@@ -1,4 +1,5 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show FocusNode, ValueChanged, Widget;
 
 import '../../buttons/styles/morph_button_decoration.dart';
 

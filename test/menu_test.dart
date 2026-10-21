@@ -1,7 +1,26 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        Builder,
+        Center,
+        MaterialPageRoute,
+        MediaQuery,
+        MediaQueryData,
+        Navigator,
+        Offset,
+        RawScrollbar,
+        RenderBox,
+        Scaffold,
+        Size,
+        StateSetter,
+        StatefulBuilder,
+        Text,
+        TextButton,
+        VoidCallback,
+        Widget;
 
 Widget _host(Widget child) {
   return MorphMaterialApp(

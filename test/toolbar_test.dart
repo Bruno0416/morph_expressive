@@ -1,6 +1,23 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Alignment,
+        Axis,
+        Center,
+        Color,
+        ColoredBox,
+        ConstrainedBox,
+        Directionality,
+        EdgeInsets,
+        Icon,
+        Material,
+        Padding,
+        Rect,
+        Size,
+        SizedBox,
+        TextDirection,
+        Widget;
 
 Widget _host({required Widget child}) {
   return Directionality(

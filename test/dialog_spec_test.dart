@@ -4,7 +4,33 @@ import 'package:flutter/rendering.dart' show SemanticsNode;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BoxDecoration,
+        BuildContext,
+        Builder,
+        Color,
+        Column,
+        Container,
+        DecoratedBox,
+        EdgeInsets,
+        FocusManager,
+        FocusNode,
+        ListView,
+        MaterialApp,
+        ModalRoute,
+        Navigator,
+        Offset,
+        RawDialogRoute,
+        Rect,
+        RichText,
+        Size,
+        SizedBox,
+        Text,
+        TextStyle,
+        VoidCallback,
+        Widget,
+        WidgetState;
 
 final MorphThemeData _theme = MorphThemeData.light(
   seedColor: const Color(0xFF6750A4),

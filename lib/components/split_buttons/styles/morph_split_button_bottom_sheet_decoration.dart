@@ -1,4 +1,5 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show Color, EdgeInsetsGeometry, ShapeBorder, Widget, immutable;
 
 import '../../buttons/styles/morph_button_motion.dart';
 import '../enums/morph_split_button_selection_mode.dart';

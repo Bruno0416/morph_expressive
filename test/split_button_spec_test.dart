@@ -1,6 +1,21 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Align,
+        Alignment,
+        BuildContext,
+        Builder,
+        Center,
+        MaterialApp,
+        MaterialPageRoute,
+        Navigator,
+        Scaffold,
+        Size,
+        SizedBox,
+        Text,
+        TextButton,
+        Widget;
 
 Widget _host(Widget child) => MaterialApp(
   home: MorphTheme(

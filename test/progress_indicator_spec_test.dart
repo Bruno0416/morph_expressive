@@ -2,7 +2,16 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/components/progress_indicators/components/morph_linear_progress_painter.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Center,
+        CustomPaint,
+        Directionality,
+        MaterialApp,
+        Scaffold,
+        SizedBox,
+        TextDirection,
+        Widget;
 
 Widget _host(Widget child, {TextDirection textDirection = TextDirection.ltr}) {
   return MaterialApp(

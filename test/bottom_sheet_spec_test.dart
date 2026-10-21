@@ -5,7 +5,35 @@ import 'package:morph_expressive/components/bottom_sheets/components/morph_botto
 import 'package:morph_expressive/components/bottom_sheets/components/morph_bottom_sheet_drag_region.dart';
 import 'package:morph_expressive/components/bottom_sheets/components/morph_bottom_sheet_surface.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BorderRadius,
+        BoxDecoration,
+        Brightness,
+        BuildContext,
+        Builder,
+        Color,
+        Container,
+        DecoratedBox,
+        GestureDetector,
+        ListView,
+        MaterialApp,
+        Navigator,
+        Offset,
+        Positioned,
+        Radius,
+        Rect,
+        ScrollPosition,
+        Scrollable,
+        ScrollableState,
+        Size,
+        SizedBox,
+        Stack,
+        Text,
+        Transform,
+        ValueListenableBuilder,
+        ValueNotifier,
+        Widget;
 
 final MorphThemeData _theme = MorphThemeData.light(
   seedColor: const Color(0xFF6750A4),

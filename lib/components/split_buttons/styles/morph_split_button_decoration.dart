@@ -1,5 +1,21 @@
 import 'package:flutter/foundation.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        AlignmentGeometry,
+        BorderSide,
+        ButtonLayerBuilder,
+        Color,
+        EdgeInsetsGeometry,
+        Gradient,
+        IconAlignment,
+        InteractiveInkFeatureFactory,
+        MaterialTapTargetSize,
+        MouseCursor,
+        Size,
+        TextStyle,
+        VisualDensity,
+        WidgetStateProperty,
+        immutable;
 
 import '../../buttons/enums/morph_button_enums.dart';
 import '../../buttons/styles/morph_button_decoration.dart';

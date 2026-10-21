@@ -6,7 +6,64 @@ import 'package:flutter/foundation.dart' show clampDouble, kIsWeb;
 import 'package:flutter/gestures.dart'
     show DragUpdateDetails, PointerDeviceKind;
 import 'package:flutter/physics.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_new_shapes/material_new_shapes.dart'
+    as shapes
+    show RoundedPolygon;
+import 'package:material_ui/material_ui.dart'
+    show
+        Align,
+        Alignment,
+        AlwaysStoppedAnimation,
+        Animatable,
+        AnimatedBuilder,
+        Animation,
+        AnimationController,
+        AxisDirection,
+        BoxConstraints,
+        BuildContext,
+        Clip,
+        Color,
+        ColorTween,
+        CurveTween,
+        DecoratedBox,
+        DragUpdateDetails,
+        EdgeInsets,
+        IgnorePointer,
+        Interval,
+        Key,
+        Listenable,
+        MaterialLocalizations,
+        NotificationListener,
+        Offset,
+        Opacity,
+        OverscrollIndicatorNotification,
+        OverscrollNotification,
+        Padding,
+        Positioned,
+        RefreshProgressIndicator,
+        RepaintBoundary,
+        ScrollBehavior,
+        ScrollConfiguration,
+        ScrollEndNotification,
+        ScrollMetrics,
+        ScrollNotification,
+        ScrollNotificationPredicate,
+        ScrollPhysics,
+        ScrollStartNotification,
+        ScrollUpdateNotification,
+        ShapeDecoration,
+        SizedBox,
+        Stack,
+        State,
+        StatefulWidget,
+        TargetPlatform,
+        TickerProviderStateMixin,
+        Transform,
+        Tween,
+        ValueChanged,
+        ValueKey,
+        Widget,
+        defaultScrollNotificationPredicate;
 import 'package:motor/motor.dart';
 
 import '../../foundations/foundations.dart';
@@ -264,7 +321,7 @@ class MorphRefreshIndicator extends StatefulWidget {
   final _IndicatorType _indicatorType;
 
   /// final.
-  final List<RoundedPolygon>? polygons;
+  final List<shapes.RoundedPolygon>? polygons;
 
   /// final.
   final BoxConstraints? indicatorConstraints;

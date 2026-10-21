@@ -1,7 +1,32 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BorderRadius,
+        BuildContext,
+        ButtonActivateIntent,
+        Center,
+        Color,
+        ColoredBox,
+        Column,
+        Element,
+        FocusManager,
+        FocusNode,
+        FocusableActionDetector,
+        Intent,
+        MainAxisSize,
+        MaterialApp,
+        PhysicalModel,
+        Radius,
+        Scaffold,
+        Semantics,
+        ShortcutActivator,
+        SingleActivator,
+        SizedBox,
+        Text,
+        Widget,
+        WidgetsApp;
 
 import 'focus_nav_repro_test_support.dart';
 

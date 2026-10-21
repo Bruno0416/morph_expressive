@@ -5,7 +5,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
 import 'package:material_color_utilities/material_color_utilities.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        AppLifecycleState,
+        Brightness,
+        Color,
+        ColorScheme,
+        Colors,
+        MaterialApp,
+        MediaQuery,
+        MediaQueryData,
+        Text;
 
 import 'morph_theme_adaptive_helpers.dart';
 

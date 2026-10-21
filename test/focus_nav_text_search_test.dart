@@ -1,7 +1,21 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BorderRadius,
+        BuildContext,
+        Column,
+        Element,
+        FocusManager,
+        FocusNode,
+        GlobalKey,
+        MaterialApp,
+        Scaffold,
+        SizedBox,
+        Text,
+        TextEditingController,
+        Widget;
 
 import 'focus_nav_repro_test_support.dart';
 

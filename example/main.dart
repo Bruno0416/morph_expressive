@@ -1,4 +1,31 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        AppBar,
+        BoxConstraints,
+        BuildContext,
+        Center,
+        Color,
+        Column,
+        ConstrainedBox,
+        CrossAxisAlignment,
+        EdgeInsets,
+        Icon,
+        MaterialApp,
+        Navigator,
+        SafeArea,
+        Scaffold,
+        SingleChildScrollView,
+        SizedBox,
+        State,
+        StatefulWidget,
+        StatelessWidget,
+        Text,
+        TextEditingController,
+        Theme,
+        ValueKey,
+        Widget,
+        Wrap,
+        runApp;
 import 'package:morph_expressive/morph_expressive.dart';
 
 void main() => runApp(const MorphExampleApp());

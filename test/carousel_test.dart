@@ -1,7 +1,32 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Axis,
+        BorderRadius,
+        Center,
+        Color,
+        ColoredBox,
+        CompositedTransformTarget,
+        Directionality,
+        EdgeInsets,
+        Element,
+        Material,
+        MediaQuery,
+        MediaQueryData,
+        Offset,
+        Padding,
+        Rect,
+        RenderBox,
+        RoundedRectangleBorder,
+        Scrollable,
+        ScrollableState,
+        Size,
+        SizedBox,
+        Text,
+        TextDirection,
+        ValueKey;
 
 import 'helpers/carousel_test_helpers.dart';
 

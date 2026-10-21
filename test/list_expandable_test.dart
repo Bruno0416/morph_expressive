@@ -1,7 +1,24 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BorderRadius,
+        BoxDecoration,
+        BuildContext,
+        Color,
+        DecoratedBox,
+        Icon,
+        Offset,
+        Radius,
+        ReorderCallback,
+        Size,
+        StateSetter,
+        StatefulBuilder,
+        Text,
+        ValueChanged,
+        VoidCallback,
+        Widget;
 
 import 'helpers/list_test_helpers.dart';
 

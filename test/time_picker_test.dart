@@ -1,6 +1,18 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        Builder,
+        Center,
+        CustomPaint,
+        EdgeInsets,
+        MaterialApp,
+        Padding,
+        Scaffold,
+        Size,
+        Text,
+        Widget;
 
 Widget _host(Widget child) {
   return MaterialApp(

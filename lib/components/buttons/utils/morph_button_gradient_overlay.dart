@@ -1,4 +1,18 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BorderRadius,
+        BoxDecoration,
+        ClipRRect,
+        DecoratedBox,
+        Gradient,
+        IgnorePointer,
+        Opacity,
+        Positioned,
+        Stack,
+        StackFit,
+        Widget,
+        WidgetState,
+        WidgetStateProperty;
 
 import '../../../foundations/foundations.dart';
 

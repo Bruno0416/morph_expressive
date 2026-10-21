@@ -1,4 +1,15 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        CurvedAnimation,
+        EdgeInsets,
+        FadeTransition,
+        MaterialLocalizations,
+        Orientation,
+        ScaleTransition,
+        Tween,
+        ValueChanged,
+        showGeneralDialog;
 
 import '../../foundations/foundations.dart';
 import 'enums/morph_time_picker_enums.dart';

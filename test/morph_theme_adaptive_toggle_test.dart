@@ -1,6 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        AnimatedContainer,
+        BoxDecoration,
+        Brightness,
+        Color,
+        MaterialApp,
+        MediaQuery,
+        MediaQueryData,
+        Text;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

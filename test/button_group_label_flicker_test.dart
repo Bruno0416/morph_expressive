@@ -1,6 +1,22 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Center,
+        Color,
+        Element,
+        Icon,
+        Icons,
+        MainAxisSize,
+        MaterialApp,
+        Row,
+        Scaffold,
+        Size,
+        SizedBox,
+        Text,
+        TextStyle,
+        Widget,
+        WidgetStateProperty;
 
 const String _everyDay = 'Every day';
 const String _daysPerWeek = 'Days per week';

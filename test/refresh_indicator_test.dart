@@ -3,7 +3,26 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        Column,
+        Expanded,
+        GlobalKey,
+        ListView,
+        MaterialApp,
+        Offset,
+        Opacity,
+        Scaffold,
+        SizedBox,
+        StateSetter,
+        StatefulBuilder,
+        TargetPlatform,
+        Text,
+        TextButton,
+        ValueKey,
+        VoidCallback,
+        Widget;
 
 Widget _host(Widget child) {
   return MaterialApp(

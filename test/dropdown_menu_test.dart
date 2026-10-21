@@ -1,7 +1,24 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
 import 'package:morph_expressive/components/dropdown_menus/components/morph_dropdown_chips.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        Builder,
+        Center,
+        Column,
+        ElevatedButton,
+        MaterialPageRoute,
+        MediaQuery,
+        MediaQueryData,
+        Navigator,
+        Scaffold,
+        Size,
+        SizedBox,
+        StatefulBuilder,
+        Text,
+        TextButton,
+        Widget;
 
 const List<MorphDropdownItem<String>> _items = <MorphDropdownItem<String>>[
   MorphDropdownItem(label: 'Flutter', value: 'flutter'),

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart' show Center, Scaffold, SizedBox;
 import 'package:morph_expressive/morph_components.dart';
 
 void main() {

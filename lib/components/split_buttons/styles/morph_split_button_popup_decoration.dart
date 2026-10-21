@@ -1,4 +1,5 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show Border, BorderRadius, Color, EdgeInsetsGeometry, Offset, immutable;
 
 import '../../buttons/styles/morph_button_motion.dart';
 

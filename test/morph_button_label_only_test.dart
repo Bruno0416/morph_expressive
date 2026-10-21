@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart' show MaterialApp, Scaffold, Text;
 import 'package:morph_expressive/morph_expressive.dart';
 
 void main() {

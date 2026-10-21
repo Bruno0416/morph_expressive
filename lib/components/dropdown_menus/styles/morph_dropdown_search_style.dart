@@ -1,7 +1,17 @@
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BorderRadius,
+        Color,
+        ColorProperty,
+        EdgeInsets,
+        EdgeInsetsGeometry,
+        MouseCursor,
+        TextStyle,
+        Widget,
+        immutable;
 
 /// MorphDropdownSearchStyle.
 

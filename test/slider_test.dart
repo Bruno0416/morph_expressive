@@ -1,6 +1,27 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Axis,
+        BuildContext,
+        Canvas,
+        Center,
+        Color,
+        CustomPaint,
+        CustomPainter,
+        Directionality,
+        Matrix4,
+        MediaQuery,
+        MediaQueryData,
+        Offset,
+        Paint,
+        Path,
+        Rect,
+        Size,
+        SizedBox,
+        StatefulBuilder,
+        TextDirection,
+        Widget;
 
 Widget _host(Widget child) {
   return Directionality(

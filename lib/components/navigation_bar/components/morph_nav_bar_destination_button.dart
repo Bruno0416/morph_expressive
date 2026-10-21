@@ -1,6 +1,45 @@
 import 'dart:ui' show SemanticsRole;
 
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Alignment,
+        Border,
+        BorderRadius,
+        BorderSide,
+        BoxDecoration,
+        BuildContext,
+        Builder,
+        Center,
+        ClipRRect,
+        Color,
+        ColoredBox,
+        Column,
+        DecoratedBox,
+        EdgeInsets,
+        Flexible,
+        FocusNode,
+        IconTheme,
+        IconThemeData,
+        IgnorePointer,
+        InkWell,
+        MainAxisAlignment,
+        NoSplash,
+        Padding,
+        Positioned,
+        Row,
+        Semantics,
+        SizedBox,
+        Stack,
+        StackFit,
+        StatelessWidget,
+        SystemMouseCursors,
+        Text,
+        TextAlign,
+        TextOverflow,
+        TextStyle,
+        VoidCallback,
+        Widget,
+        WidgetStatePropertyAll;
 
 import '../../../foundations/foundations.dart';
 import '../../navigation_rail/components/morph_nav_icon_scale.dart';

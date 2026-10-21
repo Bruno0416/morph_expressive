@@ -1,7 +1,34 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BackButtonIcon,
+        BoxDecoration,
+        BuildContext,
+        Builder,
+        Center,
+        ClipRect,
+        CustomScrollView,
+        DecoratedBox,
+        Decoration,
+        Icon,
+        Material,
+        MaterialApp,
+        MaterialPageRoute,
+        Navigator,
+        Offset,
+        Scaffold,
+        Scrollable,
+        ScrollableState,
+        Size,
+        SizedBox,
+        SliverList,
+        SliverToBoxAdapter,
+        Text,
+        TextButton,
+        TextOverflow,
+        Widget;
 
 import 'helpers/app_bar_test_helpers.dart';
 

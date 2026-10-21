@@ -1,4 +1,18 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BlendMode,
+        BorderRadius,
+        BuildContext,
+        ButtonLayerBuilder,
+        ClipRRect,
+        Color,
+        Gradient,
+        Rect,
+        ShaderMask,
+        SizedBox,
+        Widget,
+        WidgetState,
+        WidgetStateProperty;
 
 /// Tints [child] with [gradient] via [BlendMode.srcIn], clipped to [clipRadius].
 Widget morphGradientForegroundLayer({

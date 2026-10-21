@@ -5,7 +5,38 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/components/navigation_drawer/components/morph_drawer_destination_button.dart';
 import 'package:morph_expressive/components/navigation_rail/components/morph_nav_selection_indicator.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BorderRadius,
+        BoxDecoration,
+        Color,
+        CrossAxisAlignment,
+        DecoratedBox,
+        Decoration,
+        Element,
+        Expanded,
+        Focus,
+        FocusHighlightStrategy,
+        FocusManager,
+        FontWeight,
+        Icon,
+        InkSparkle,
+        InkWell,
+        MaterialApp,
+        MouseRegion,
+        Navigator,
+        NavigatorState,
+        Offset,
+        Radius,
+        Row,
+        Scaffold,
+        Semantics,
+        SizedBox,
+        SystemMouseCursors,
+        Text,
+        ValueChanged,
+        VoidCallback,
+        Widget;
 
 const List<MorphNavigationDestination> _destinations =
     <MorphNavigationDestination>[

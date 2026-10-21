@@ -1,5 +1,27 @@
 import 'package:flutter/services.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BorderSide,
+        BuildContext,
+        Color,
+        EdgeInsets,
+        FocusNode,
+        InputDecoration,
+        MediaQuery,
+        OutlineInputBorder,
+        Semantics,
+        Size,
+        SizedBox,
+        State,
+        StatefulWidget,
+        TextAlign,
+        TextEditingController,
+        TextFormField,
+        TextInputAction,
+        TextInputType,
+        TextStyle,
+        ValueChanged,
+        Widget;
 
 import '../../../foundations/foundations.dart';
 

@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show Color, EdgeInsets, EdgeInsetsGeometry, Offset, immutable;
 
 import '../../../foundations/foundations.dart';
 import '../../buttons/enums/morph_button_enums.dart';

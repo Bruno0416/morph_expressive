@@ -1,6 +1,22 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        AppBar,
+        BuildContext,
+        Center,
+        Column,
+        Icon,
+        IconButton,
+        Icons,
+        ListView,
+        Navigator,
+        Offset,
+        Scaffold,
+        Size,
+        SizedBox,
+        Text,
+        Widget;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

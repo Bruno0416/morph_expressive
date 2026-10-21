@@ -1,7 +1,20 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Center,
+        FocusManager,
+        Icon,
+        Icons,
+        MaterialApp,
+        RenderBox,
+        RenderObject,
+        Scaffold,
+        Size,
+        SizedBox,
+        Text,
+        Widget;
 
 Widget _host(Widget child) => MaterialApp(
   home: MorphTheme(

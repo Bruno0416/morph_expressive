@@ -1,5 +1,6 @@
 import 'package:morph_expressive/foundations/foundations.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show BorderRadius, Color, Icon, Widget, immutable;
 
 /// Styling options for the checkbox shown in multi-select bottom sheets.
 @immutable

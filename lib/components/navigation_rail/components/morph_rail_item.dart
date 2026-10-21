@@ -1,4 +1,12 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BoxConstraints,
+        BuildContext,
+        ConstrainedBox,
+        FocusNode,
+        StatelessWidget,
+        VoidCallback,
+        Widget;
 
 import '../../../foundations/foundations.dart';
 import '../enums/morph_navigation_rail_enums.dart';

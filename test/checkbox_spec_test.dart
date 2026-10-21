@@ -3,7 +3,29 @@ import 'dart:ui' show CheckedState;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_expressive.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        AnimatedContainer,
+        Border,
+        BorderRadius,
+        BoxDecoration,
+        BoxShape,
+        Center,
+        Color,
+        Column,
+        Container,
+        EdgeInsets,
+        Expanded,
+        FocusHighlightStrategy,
+        FocusManager,
+        Icon,
+        Offset,
+        Radius,
+        Scaffold,
+        Size,
+        SizedBox,
+        Text,
+        Widget;
 
 Widget _host(Widget child) {
   return MorphMaterialApp(

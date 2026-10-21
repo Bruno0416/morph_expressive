@@ -1,5 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        Builder,
+        Center,
+        CustomPaint,
+        EditableText,
+        MaterialApp,
+        Rect,
+        Scaffold,
+        Size,
+        Text,
+        Widget;
 import 'package:morph_expressive/components/text_fields/components/morph_text_field_container_painter.dart';
 import 'package:morph_expressive/morph_components.dart';
 

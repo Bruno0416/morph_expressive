@@ -1,4 +1,15 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Alignment,
+        AlignmentGeometry,
+        BorderSide,
+        Color,
+        CrossAxisAlignment,
+        EdgeInsetsGeometry,
+        Icon,
+        InteractiveInkFeatureFactory,
+        Widget,
+        immutable;
 
 import '../../../foundations/foundations.dart';
 import '../enums/morph_expandable_enums.dart';

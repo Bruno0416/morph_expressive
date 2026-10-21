@@ -1,4 +1,4 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart' show Widget;
 
 import '../components/morph_nav_badge_view.dart';
 

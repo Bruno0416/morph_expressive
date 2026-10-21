@@ -7,7 +7,19 @@ import 'package:morph_expressive/components/dropdown_menus/styles/morph_dropdown
     show MorphDropdownItemStyle;
 import 'package:morph_expressive/morph_components.dart'
     show MorphDropdownItemStyle;
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BorderRadius,
+        BorderSide,
+        Color,
+        ColorProperty,
+        EdgeInsets,
+        EdgeInsetsGeometry,
+        InteractiveInkFeatureFactory,
+        MouseCursor,
+        TextStyle,
+        Widget,
+        immutable;
 
 /// MorphDropdownFieldStyle.
 

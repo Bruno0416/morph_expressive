@@ -1,4 +1,15 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        CurvedAnimation,
+        EdgeInsets,
+        FadeTransition,
+        MaterialLocalizations,
+        ScaleTransition,
+        TextInputType,
+        Tween,
+        ValueChanged,
+        showGeneralDialog;
 
 import '../../foundations/foundations.dart';
 import '../dialogs/styles/morph_dialog_theme.dart';

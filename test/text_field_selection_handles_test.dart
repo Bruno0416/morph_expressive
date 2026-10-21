@@ -1,7 +1,16 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Center,
+        EditableText,
+        EditableTextState,
+        Scaffold,
+        SizedBox,
+        TargetPlatform,
+        TextEditingController,
+        Widget;
 
 final TargetPlatformVariant _touch = TargetPlatformVariant.only(
   TargetPlatform.android,

@@ -3,7 +3,20 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        Color,
+        ColoredBox,
+        DismissDirection,
+        Icon,
+        Offset,
+        Rect,
+        Scaffold,
+        SizedBox,
+        StateSetter,
+        StatefulBuilder,
+        Widget;
 
 void main() {
   registerDismissiblePreviewSnapTests();

@@ -1,6 +1,27 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Brightness,
+        Builder,
+        Color,
+        ColorScheme,
+        DefaultMaterialLocalizations,
+        DefaultTextStyle,
+        DefaultWidgetsLocalizations,
+        Icon,
+        IconTheme,
+        IconThemeData,
+        LocalizationsDelegate,
+        MaterialApp,
+        PageRouteBuilder,
+        RouteSettings,
+        SizedBox,
+        Theme,
+        ThemeData,
+        Widget,
+        WidgetBuilder,
+        WidgetsApp;
 
 /// Captures the resolved [MorphThemeData] beneath [app].
 Future<MorphThemeData> _resolve(WidgetTester tester, Widget app) async {

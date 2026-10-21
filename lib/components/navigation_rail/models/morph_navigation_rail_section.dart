@@ -1,4 +1,4 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart' show Widget;
 
 import 'morph_navigation_rail_destination.dart';
 

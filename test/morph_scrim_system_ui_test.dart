@@ -1,7 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/foundations/foundations.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show AnnotatedRegion, Brightness, Colors, MaterialApp, SizedBox;
 
 void main() {
   test('overlayStyle uses transparent bars and light icons', () {

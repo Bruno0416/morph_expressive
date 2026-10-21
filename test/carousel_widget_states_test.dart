@@ -1,7 +1,19 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Center,
+        ColoredBox,
+        Colors,
+        InkWell,
+        Material,
+        Offset,
+        SizedBox,
+        Text,
+        ValueListenableBuilder,
+        ValueNotifier,
+        WidgetState;
 import 'package:morph_expressive/morph_components.dart';
 
 import 'helpers/carousel_test_helpers.dart';

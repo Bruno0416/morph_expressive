@@ -1,6 +1,36 @@
 import 'dart:async';
 
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Align,
+        Alignment,
+        AnimatedSwitcher,
+        BuildContext,
+        Color,
+        Column,
+        CrossAxisAlignment,
+        Curves,
+        FocusNode,
+        Icon,
+        MaterialApp,
+        Navigator,
+        Positioned,
+        Row,
+        Scaffold,
+        SizedBox,
+        Stack,
+        State,
+        StatefulWidget,
+        StatelessWidget,
+        Text,
+        TextEditingController,
+        TextStyle,
+        ValueKey,
+        VoidCallback,
+        Widget,
+        WidgetsBinding,
+        Wrap,
+        WrapCrossAlignment;
 import 'package:morph_expressive/morph_expressive.dart';
 
 /// Escenas aisladas para generar los GIFs del README con Playwright.

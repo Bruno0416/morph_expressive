@@ -1,7 +1,30 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Align,
+        Alignment,
+        AppBar,
+        BuildContext,
+        Builder,
+        Center,
+        Clip,
+        FocusHighlightStrategy,
+        FocusManager,
+        Icon,
+        IconButton,
+        Icons,
+        MaterialPageRoute,
+        Navigator,
+        Scaffold,
+        SingleChildScrollView,
+        Size,
+        SizedBox,
+        Stack,
+        Text,
+        TextButton,
+        Widget;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

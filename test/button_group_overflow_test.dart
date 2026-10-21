@@ -1,6 +1,19 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Center,
+        Clip,
+        MaterialApp,
+        NeverScrollableScrollPhysics,
+        Offset,
+        Scaffold,
+        Scrollable,
+        ScrollableState,
+        SingleChildScrollView,
+        SizedBox,
+        Text,
+        Widget;
 
 const String _one = 'One';
 const String _two = 'Two';

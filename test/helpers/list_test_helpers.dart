@@ -3,7 +3,7 @@
 // `list_expandable_test.dart` (expandable rows and sublists).
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart' show Color, Scaffold, Widget;
 
 /// Pumps [home] inside a themed `MorphMaterialApp`/`Scaffold` and settles.
 Future<void> pumpList(WidgetTester tester, Widget home) async {

@@ -2,7 +2,35 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/components/navigation_rail/components/morph_nav_selection_indicator.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Align,
+        Alignment,
+        BoxDecoration,
+        BuildContext,
+        DecoratedBox,
+        EdgeInsets,
+        FontWeight,
+        Icon,
+        IconTheme,
+        ListView,
+        Material,
+        MaterialApp,
+        MediaQuery,
+        MediaQueryData,
+        Offset,
+        Rect,
+        Scaffold,
+        ScrollController,
+        Size,
+        SizedBox,
+        StateSetter,
+        StatefulBuilder,
+        Text,
+        TextOverflow,
+        TextScaler,
+        ValueChanged,
+        Widget;
 
 const List<MorphNavigationBarDestination> _destinations =
     <MorphNavigationBarDestination>[

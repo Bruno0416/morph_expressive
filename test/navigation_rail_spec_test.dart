@@ -2,7 +2,40 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/components/navigation_rail/components/morph_nav_selection_indicator.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Axis,
+        BoxDecoration,
+        BuildContext,
+        Builder,
+        Color,
+        ColoredBox,
+        CompositedTransformFollower,
+        CrossAxisAlignment,
+        DecoratedBox,
+        Decoration,
+        EdgeInsets,
+        Expanded,
+        FontWeight,
+        Icon,
+        IconTheme,
+        Key,
+        ListView,
+        MaterialApp,
+        MediaQuery,
+        Offset,
+        Row,
+        Scaffold,
+        Size,
+        SizedBox,
+        StateSetter,
+        StatefulBuilder,
+        Text,
+        TextOverflow,
+        TextScaler,
+        ValueChanged,
+        VoidCallback,
+        Widget;
 
 const List<MorphNavigationRailDestination> _destinations =
     <MorphNavigationRailDestination>[

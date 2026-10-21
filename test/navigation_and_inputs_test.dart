@@ -1,7 +1,29 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/components/navigation_rail/components/morph_nav_selection_indicator.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        AnimatedContainer,
+        BoxDecoration,
+        BuildContext,
+        Builder,
+        Color,
+        DecoratedBox,
+        EdgeInsets,
+        Icon,
+        Key,
+        ListView,
+        MaterialApp,
+        MediaQuery,
+        Offset,
+        Rect,
+        Scaffold,
+        Scrollable,
+        ShapeDecoration,
+        SizedBox,
+        StatefulBuilder,
+        ValueKey,
+        Widget;
 
 Widget _host(Widget child) => MaterialApp(home: Scaffold(body: child));
 

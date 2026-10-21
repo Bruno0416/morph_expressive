@@ -1,5 +1,35 @@
 import 'package:gap/gap.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        AlwaysScrollableScrollPhysics,
+        BorderRadius,
+        BoxDecoration,
+        BuildContext,
+        Center,
+        Column,
+        CrossAxisAlignment,
+        DecoratedBox,
+        EdgeInsets,
+        Icon,
+        ListTile,
+        ListView,
+        MainAxisSize,
+        Material,
+        MaterialPageRoute,
+        MaterialType,
+        Navigator,
+        Padding,
+        Scaffold,
+        SizedBox,
+        Stack,
+        State,
+        StatefulWidget,
+        SwitchListTile,
+        Text,
+        ValueChanged,
+        VoidCallback,
+        Widget,
+        Wrap;
 import 'package:morph_expressive/morph_expressive.dart';
 
 /// Touch-first playground. Run natively to feel the actual platform haptics;
@@ -322,7 +352,9 @@ class _MorphMobileHapticsLabState extends State<MorphMobileHapticsLab> {
                             type: MaterialType.transparency,
                             child: ListTile(
                               title: Text('Refresh item ${i + 1}'),
-                              subtitle: Text('Refreshed $_refreshCount time(s)'),
+                              subtitle: Text(
+                                'Refreshed $_refreshCount time(s)',
+                              ),
                             ),
                           ),
                         ),

@@ -2,7 +2,25 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BorderRadius,
+        BuildContext,
+        Color,
+        Column,
+        CrossAxisAlignment,
+        DecoratedBox,
+        Element,
+        FocusManager,
+        Icon,
+        Offset,
+        Radius,
+        RenderBox,
+        Row,
+        Scaffold,
+        Size,
+        Text,
+        Widget;
 
 void main() {
   testWidgets(

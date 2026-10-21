@@ -1,7 +1,24 @@
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BorderRadius,
+        BoxConstraints,
+        Center,
+        CircleBorder,
+        Color,
+        DecoratedBox,
+        FlutterError,
+        MaterialApp,
+        Radius,
+        RoundedRectangleBorder,
+        Scaffold,
+        ShapeBorder,
+        ShapeDecoration,
+        Size,
+        ValueKey,
+        Widget;
 
 Widget _host(Widget child, {MorphThemeData? theme}) {
   return MaterialApp(

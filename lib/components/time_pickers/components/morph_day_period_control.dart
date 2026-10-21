@@ -1,4 +1,26 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Border,
+        BorderRadius,
+        BoxDecoration,
+        BuildContext,
+        Center,
+        ClipRRect,
+        ColoredBox,
+        Column,
+        DecoratedBox,
+        Expanded,
+        MaterialLocalizations,
+        Orientation,
+        Row,
+        Semantics,
+        Size,
+        SizedBox,
+        StatelessWidget,
+        Text,
+        ValueChanged,
+        VoidCallback,
+        Widget;
 
 import '../../../foundations/foundations.dart';
 import '../styles/morph_time_picker_theme.dart';

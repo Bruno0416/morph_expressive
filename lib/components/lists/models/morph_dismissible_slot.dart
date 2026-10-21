@@ -1,4 +1,5 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show DismissDirection, ValueNotifier, Widget;
 import 'package:motor/motor.dart';
 
 enum _SlotStatus { visible, collapsing }

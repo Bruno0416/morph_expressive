@@ -1,4 +1,10 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BorderSide,
+        Color,
+        EdgeInsetsGeometry,
+        InteractiveInkFeatureFactory,
+        Widget;
 
 import '../../../foundations/foundations.dart';
 import 'morph_list_theme.dart';

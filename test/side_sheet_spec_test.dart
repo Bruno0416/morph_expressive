@@ -4,7 +4,41 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/components/side_sheets/components/morph_side_sheet_scrim.dart';
 import 'package:morph_expressive/components/side_sheets/components/morph_side_sheet_surface.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Align,
+        Alignment,
+        Axis,
+        BorderRadius,
+        BoxDecoration,
+        Brightness,
+        BuildContext,
+        Builder,
+        Color,
+        Column,
+        DecoratedBox,
+        Directionality,
+        Focus,
+        FocusManager,
+        FocusNode,
+        MainAxisAlignment,
+        MaterialApp,
+        MediaQuery,
+        Offset,
+        PrimaryScrollController,
+        Radius,
+        Rect,
+        Scrollable,
+        ScrollableState,
+        Size,
+        SizedBox,
+        Text,
+        TextDirection,
+        TextStyle,
+        Transform,
+        ValueKey,
+        Widget,
+        WidgetState;
 
 final MorphThemeData _theme = MorphThemeData.light(
   seedColor: const Color(0xFF6750A4),

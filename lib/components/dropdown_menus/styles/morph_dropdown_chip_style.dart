@@ -1,7 +1,19 @@
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BorderRadius,
+        BorderSide,
+        Color,
+        ColorProperty,
+        EdgeInsets,
+        EdgeInsetsGeometry,
+        MouseCursor,
+        Radius,
+        TextStyle,
+        Widget,
+        immutable;
 
 import '../../../foundations/foundations.dart';
 

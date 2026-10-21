@@ -1,7 +1,35 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Align,
+        Alignment,
+        AlwaysScrollableScrollPhysics,
+        Brightness,
+        BuildContext,
+        ColoredBox,
+        Column,
+        CustomScrollView,
+        Expanded,
+        Icon,
+        ListView,
+        Material,
+        MaterialApp,
+        Offset,
+        PrimaryScrollController,
+        Scaffold,
+        ScrollController,
+        Scrollable,
+        ScrollableState,
+        SizedBox,
+        SliverToBoxAdapter,
+        Stack,
+        State,
+        StatefulWidget,
+        TargetPlatform,
+        Text,
+        Widget;
 
 import 'helpers/app_bar_test_helpers.dart';
 

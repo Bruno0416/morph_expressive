@@ -1,4 +1,5 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show VoidCallback, Widget, immutable;
 
 import '../../floating_action_buttons/enums/morph_fab.dart';
 

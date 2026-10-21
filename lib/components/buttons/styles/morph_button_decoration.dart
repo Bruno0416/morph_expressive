@@ -1,5 +1,23 @@
 import 'package:morph_expressive/morph_components.dart' show MorphButton;
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        AlignmentGeometry,
+        BorderSide,
+        ButtonLayerBuilder,
+        Color,
+        EdgeInsetsGeometry,
+        Gradient,
+        IconAlignment,
+        InteractiveInkFeatureFactory,
+        MaterialTapTargetSize,
+        MouseCursor,
+        Size,
+        TextStyle,
+        VisualDensity,
+        WidgetState,
+        WidgetStateProperty,
+        WidgetStatePropertyAll,
+        immutable;
 
 import '../enums/morph_button_enums.dart';
 import 'morph_button_motion.dart';

@@ -1,4 +1,19 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BorderRadius,
+        BorderRadiusTween,
+        BuildContext,
+        Color,
+        Expanded,
+        Icon,
+        Radius,
+        Row,
+        State,
+        StatefulWidget,
+        Text,
+        TweenAnimationBuilder,
+        VoidCallback,
+        Widget;
 
 import '../../../foundations/foundations.dart';
 import '../../cards/morph_cards.dart';

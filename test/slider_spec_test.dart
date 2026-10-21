@@ -3,7 +3,23 @@ import 'dart:ui' show PointerDeviceKind;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Axis,
+        BoxDecoration,
+        BoxShape,
+        BuildContext,
+        Center,
+        Container,
+        FocusHighlightStrategy,
+        FocusManager,
+        Icon,
+        MaterialApp,
+        Scaffold,
+        SizedBox,
+        StateSetter,
+        StatefulBuilder,
+        Widget;
 
 void main() {
   setUp(MorphFocusInteraction.resetForTest);

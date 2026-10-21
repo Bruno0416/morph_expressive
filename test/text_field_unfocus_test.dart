@@ -1,5 +1,19 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        Color,
+        ColoredBox,
+        Column,
+        EditableText,
+        Expanded,
+        FocusNode,
+        Offset,
+        Scaffold,
+        StateSetter,
+        StatefulBuilder,
+        TextEditingController,
+        Widget;
 import 'package:morph_expressive/morph_components.dart';
 
 final MorphThemeData _theme = MorphThemeData.light(
@@ -28,12 +42,16 @@ void main() {
     addTearDown(controller.dispose);
     final values = <String>[];
 
-    await tester.pumpWidget(_app(MorphTextField(
-      label: 'Email',
-      focusNode: node,
-      controller: controller,
-      onUnfocus: values.add,
-    )));
+    await tester.pumpWidget(
+      _app(
+        MorphTextField(
+          label: 'Email',
+          focusNode: node,
+          controller: controller,
+          onUnfocus: values.add,
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(values, isEmpty);
 
@@ -62,10 +80,9 @@ void main() {
     WidgetTester tester,
   ) async {
     final values = <String>[];
-    await tester.pumpWidget(_app(MorphTextField(
-      label: 'Name',
-      onUnfocus: values.add,
-    )));
+    await tester.pumpWidget(
+      _app(MorphTextField(label: 'Name', onUnfocus: values.add)),
+    );
     await tester.tap(find.byType(MorphTextField));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(EditableText), 'Ada');
@@ -87,14 +104,20 @@ void main() {
     addTearDown(firstNode.dispose);
     addTearDown(secondNode.dispose);
     final values = <String>[];
-    await tester.pumpWidget(_app(Column(children: <Widget>[
-      MorphTextField(
-        label: 'First',
-        focusNode: firstNode,
-        onUnfocus: values.add,
+    await tester.pumpWidget(
+      _app(
+        Column(
+          children: <Widget>[
+            MorphTextField(
+              label: 'First',
+              focusNode: firstNode,
+              onUnfocus: values.add,
+            ),
+            MorphTextField(label: 'Second', focusNode: secondNode),
+          ],
+        ),
       ),
-      MorphTextField(label: 'Second', focusNode: secondNode),
-    ])));
+    );
     firstNode.requestFocus();
     await tester.pumpAndSettle();
     secondNode.requestFocus();
@@ -111,20 +134,24 @@ void main() {
     final node = FocusNode();
     addTearDown(node.dispose);
     String? error;
-    await tester.pumpWidget(_app(StatefulBuilder(
-      builder: (BuildContext context, StateSetter setFieldState) {
-        return MorphTextField(
-          label: 'Required',
-          focusNode: node,
-          errorText: error,
-          onUnfocus: (String value) {
-            setFieldState(() {
-              error = value.trim().isEmpty ? 'Value is required' : null;
-            });
+    await tester.pumpWidget(
+      _app(
+        StatefulBuilder(
+          builder: (BuildContext context, StateSetter setFieldState) {
+            return MorphTextField(
+              label: 'Required',
+              focusNode: node,
+              errorText: error,
+              onUnfocus: (String value) {
+                setFieldState(() {
+                  error = value.trim().isEmpty ? 'Value is required' : null;
+                });
+              },
+            );
           },
-        );
-      },
-    )));
+        ),
+      ),
+    );
     node.requestFocus();
     await tester.pumpAndSettle();
     expect(find.text('Value is required'), findsNothing);
@@ -132,8 +159,10 @@ void main() {
     node.unfocus();
     await tester.pumpAndSettle();
     expect(find.text('Value is required'), findsOneWidget);
-    expect(tester.widget<MorphTextField>(find.byType(MorphTextField)).hasError,
-        isTrue);
+    expect(
+      tester.widget<MorphTextField>(find.byType(MorphTextField)).hasError,
+      isTrue,
+    );
 
     node.requestFocus();
     await tester.pumpAndSettle();
@@ -147,17 +176,21 @@ void main() {
     WidgetTester tester,
   ) async {
     String value = '';
-    await tester.pumpWidget(_app(StatefulBuilder(
-      builder: (BuildContext context, StateSetter setFieldState) {
-        return MorphTextField(
-          label: 'Email',
-          onChanged: (String next) => setFieldState(() => value = next),
-          errorText: value.isNotEmpty && !value.contains('@')
-              ? 'Invalid email'
-              : null,
-        );
-      },
-    )));
+    await tester.pumpWidget(
+      _app(
+        StatefulBuilder(
+          builder: (BuildContext context, StateSetter setFieldState) {
+            return MorphTextField(
+              label: 'Email',
+              onChanged: (String next) => setFieldState(() => value = next),
+              errorText: value.isNotEmpty && !value.contains('@')
+                  ? 'Invalid email'
+                  : null,
+            );
+          },
+        ),
+      ),
+    );
 
     await tester.tap(find.byType(MorphTextField));
     await tester.pumpAndSettle();

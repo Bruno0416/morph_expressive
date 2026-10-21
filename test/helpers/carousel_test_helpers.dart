@@ -3,7 +3,27 @@
 // (tap/scroll/keyboard/onChange interaction).
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_components.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        Center,
+        Color,
+        ColoredBox,
+        Directionality,
+        Element,
+        Material,
+        MediaQuery,
+        MediaQueryData,
+        Offset,
+        Rect,
+        RenderBox,
+        Size,
+        SizedBox,
+        StatelessWidget,
+        Text,
+        TextDirection,
+        ValueKey,
+        Widget;
 
 /// Asserts [picture] fills [card] (within 1px) on both edges, for the given
 /// fixture [width] and item [index] (used in the failure reason).

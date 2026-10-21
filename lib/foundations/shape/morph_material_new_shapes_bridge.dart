@@ -1,6 +1,7 @@
 import 'dart:collection';
 
-import 'package:material_new_shapes/material_new_shapes.dart';
+import 'package:material_new_shapes/material_new_shapes.dart'
+    show MaterialShapes, RoundedPolygon;
 
 export 'package:material_new_shapes/material_new_shapes.dart'
     show
