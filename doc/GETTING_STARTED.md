@@ -10,21 +10,21 @@
 
 ```yaml
 dependencies:
-  morph_expressive: ^0.4.0
+  morph_expressive: ^0.4.1
 ```
 
-**Release status:** `^0.4.0` resolves after the 0.4.0 release is published
-on pub.dev. Before then, choose the latest available published version or a
-Git/path dependency for testing. Check the
-[version history](https://pub.dev/packages/morph_expressive/versions).
-
-Run `flutter pub get` after selecting the appropriate version.
+Run `flutter pub get` after changing the constraint. Before `0.4.1` is
+available on pub.dev, use a Git/path dependency to test the source checkout.
+Check the [version history](https://pub.dev/packages/morph_expressive/versions)
+for the latest published release.
 
 ## Theme integration
 
 ```dart
-import 'package:material_ui/material_ui.dart';
-import 'package:morph_expressive/morph_expressive.dart';
+import 'package:material_ui/material_ui.dart'
+    show Center, Color, MaterialApp, Scaffold, Text, runApp;
+import 'package:morph_expressive/morph_expressive.dart'
+    show MorphButton, MorphTheme, MorphThemeData;
 
 void main() {
   const seed = Color(0xFF6750A4);
@@ -54,6 +54,12 @@ compatible with `MaterialApp.router` via its `builder` property.
 
 The package import exports component families, foundations, and `FluentIcons`.
 The icon glyphs are provided by the `fluent_icons_kit` dependency.
+
+When using custom polygons alongside Material UI, use explicit `show` lists
+or a prefix with a `show` list. Morph's public polygons remain
+`material_new_shapes.RoundedPolygon`; Material UI's similarly named class is
+a different type. See [Dependency compatibility](PUB_DEV_COMPATIBILITY.md)
+for an example and the 0.4.1 validation results.
 
 ## Configure theme-level interactions (available since 0.2.0)
 

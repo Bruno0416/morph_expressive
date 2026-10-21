@@ -1,5 +1,36 @@
 # Changelog
 
+## 0.4.1 - 2026-10-21
+
+### Fixed
+
+- Resolve geometry namespace collisions after Material UI 1.8.0 introduced
+  its own `RoundedPolygon` and `CornerRounding`. Use explicit dependency
+  imports across the library, tests, example and preview, including the
+  loading/refresh indicators and slider custom-painter regression.
+- Preserve `material_new_shapes` type identity, the public shape catalog,
+  polygon parameters and existing rendering behavior.
+- Explicitly declare the six intended Flutter host platforms in the package
+  manifest. Platform compatibility must still be verified with native and Web
+  consumer builds; see `doc/PUB_DEV_COMPATIBILITY.md`.
+
+### Added
+
+- An import-policy guard and 11 regression cases to reject unrestricted
+  Material UI/geometry imports and accidental dependency-private paths.
+- Public geometry compatibility tests covering entrypoint type identity,
+  all 35 catalog shapes, loading/refresh indicators and slider coexistence.
+- Disposable latest/lowest dependency checks and GitHub Actions lanes covering
+  root/preview analysis, tests, formatting and the gallery's Web release build.
+
+### Validation
+
+- Clean root/preview analysis, 759 library tests, 31 preview tests and successful
+  Web release builds in each dependency lane (`material_ui` 1.6.0 and 1.8.0).
+- Existing branding, Fluent icons, motion, attribution and 39-family preview
+  coverage checks pass. See `doc/PUB_DEV_COMPATIBILITY.md` for evidence and
+  remaining platform/font verification limits.
+
 ## 0.4.0 - 2026-10-18
 
 ### Added

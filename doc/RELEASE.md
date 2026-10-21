@@ -1,18 +1,45 @@
-# Publishing checklist: Morph Expressive 0.4.0
+# Publishing checklist: Morph Expressive 0.4.1
 
-The package's local release baseline is `0.3.1`, and the changes accumulated
-since that release are packaged as **0.4.0** (new interactive behavior and
-public options, not only defect fixes). Published versions cannot be
-replaced. Before proceeding, check the
+`0.4.1` is the patch release following `0.4.0`. It fixes dependency namespace
+collisions with Material UI 1.8.0, completes the slider test correction, and
+adds import-policy/CI regression coverage. Public polygon types, widget APIs,
+rendering, runtime dependency constraints and the 0.4.0 feature set are preserved.
+
+The release metadata patch assumes the namespace-isolation hotfix has already
+been applied and validated. It updates only the root version and maintained
+documentation. `preview/` remains a separate, non-published app with its own
+version. Published package versions cannot be overwritten: check the
 [pub.dev version list](https://pub.dev/packages/morph_expressive/versions)
-and ensure `0.4.0` is not already published.
+immediately before publishing and confirm that `0.4.1` is still unused.
 
-Only the root `pubspec.yaml` version is bumped. `preview/` is a separate,
-non-published app (`publish_to: none`) and keeps its independent version.
+## 1. Confirm the validated release contents
 
-## 1. Review the release diff
+The maintainer's 2026-10-21 reproduction completed both dependency lanes:
 
-From the repository root:
+| Check | `material_ui 1.8.0` (latest compatible) | `material_ui 1.6.0` (lower bounds) |
+| --- | --- | --- |
+| Root / preview analysis | No issues | No issues |
+| Library tests | 759 passed | 759 passed |
+| Preview tests | 31 passed | 31 passed |
+| Import-policy tests | 11 passed | 11 passed |
+| Formatting | 720 files, 0 changed | 720 files, 0 changed |
+| Web release build | Passed | Passed |
+| Branding, icons, motion, attribution, preview coverage | Passed | Passed |
+
+The full implementation matrix was also run during hotfix preparation on
+Flutter 3.47.7 / Dart 3.13.5. See
+[Dependency compatibility](PUB_DEV_COMPATIBILITY.md) for the underlying cause,
+public type guarantees and consumer import guidance.
+
+The log contains two non-blocking notices: the previous patch expected a
+non-executable `tool/check.sh` while the maintainer's file was executable,
+and the preview Web build reports missing Material/Cupertino host font
+families. The script ran successfully, both Fluent font assets were bundled,
+and all tests/builds completed. This metadata patch changes no file modes or
+font configuration. Native builds and a standalone Wasm runtime build were
+not executed; the Web compiler's Wasm dry run is not a runtime test.
+
+From the package root, review:
 
 ```bash
 git status --short
@@ -20,118 +47,90 @@ git diff --check
 git diff --stat
 ```
 
-Confirm that `pubspec.yaml` says `version: 0.4.0`, README/Getting started
-install `^0.4.0`, and `CHANGELOG.md` begins with `## 0.4.0`. Keep the
-existing `0.3.1` changelog entry intact. Review any untracked generated files
-or IDE artifacts before staging.
+Confirm `version: 0.4.1` in the root `pubspec.yaml`, installation examples using
+`^0.4.1`, and the first changelog entry `## 0.4.1 - 2026-10-21`. Preserve the
+historical `0.4.0`, `0.3.1` and older entries. Review the implementation hotfix
+as well as the metadata patch if they have not yet been committed.
 
-Verify that the final runtime dependency set does **not** include
-`core_haptics`, FFI bindings or manual Swift Package Manager installation;
-the package uses Flutter `HapticFeedback` through `MorphHaptics`.
-
-## 2. Format once, then validate
-
-Do not format between incremental patches. At final release validation only,
-run the formatter once on the maintained Dart sources, then inspect the diff:
+No Dart source or dependency constraint changes are introduced by this release
+metadata patch, so the completed matrix remains evidence for the implementation.
+If either changes after validation, rerun:
 
 ```bash
-dart format lib test preview/lib preview/test example
-# If this checkout has no example/ directory, omit that last path.
-git diff --check
+bash tool/check_dependency_matrix.sh
 ```
 
-Run the project's complete checks. `tool/check.sh` invokes static checks,
-root `flutter analyze` / `flutter test`, plus the nested preview's analysis
-and tests:
+This tests root and preview with fresh independent latest/lowest resolutions,
+without rewriting the working lockfiles. A pana score does not replace it:
+the published archive excludes the tests, tools and preview app.
+
+## 2. Review the package and commit the release
+
+Keep `LICENSE`, `NOTICE`, attribution headers and the eight declared screenshot
+GIFs. The hotfix does not change the visuals, so it does not require regenerating
+GIFs. Preserve the existing `.pubignore` exclusions, including `.github/`,
+preview/test/tool sources, build output, caches and local archives.
+
+Stage only reviewed release changes, including newly added hotfix files:
 
 ```bash
-bash tool/check.sh
+git add .pubignore .github/workflows/dependency-compatibility.yml \
+  pubspec.yaml README.md CHANGELOG.md doc/ example/ lib/ test/ \
+  preview/lib/ preview/test/ tool/
+git diff --cached --check
+git diff --cached --stat
+git status --short
+git commit -m "release: morph_expressive 0.4.1"
 ```
 
-Also verify the native-specific regression tests and render on a real device
-if available:
+Do not stage local patches, ZIPs, IDE files, signing assets or unrelated work.
+Review any other previously tracked changes before committing them.
 
-```bash
-flutter test test/morph_global_haptics_test.dart test/morph_continuous_slider_haptics_test.dart test/list_dismissible_swipe_actions_test.dart test/refresh_indicator_test.dart test/progress_indicator_spec_test.dart
-cd preview
-flutter test test/mobile_haptics_lab_test.dart
-flutter run -t lib/main_mobile.dart
-cd ..
-```
-
-The physical-device run is an acceptance check, not an automated haptic
-measurement. Confirm Light/Medium/Heavy/Off and that smooth sliders do not
-emit continuous ticks. No `CoreHapticsFFI` integration should be necessary.
-
-## 3. Review screenshots and package inventory
-
-The package declares eight GIFs under `doc/assets/gifs/` in `pubspec.yaml`.
-Review whether the recorded animations still represent the release. Rebuild
-changed scenes if necessary and inspect the binaries before staging:
-
-```bash
-python3 tool/check_gif_branding.py
-```
-
-Preserve `LICENSE`, `NOTICE`, maintained `doc/`, `example/`, README and
-CHANGELOG. The `.pubignore` excludes caches, IDE files, the preview app, test
-sources, build artifacts and local archives. Do not stage private signing
-assets, provisioning profiles, `.dart_tool`, build output, or old `.patch`
-files.
-
-## 4. Dry-run and release commit
-
-Run the publishing validator from the **package root**, not `preview/`:
+From the **package root**, run the publication preflight:
 
 ```bash
 dart pub publish --dry-run
 ```
 
-Inspect the complete archive inventory and resolve errors and relevant
-warnings. The dry-run must report `morph_expressive 0.4.0`; a successful
-`flutter test` does not replace the publication dry-run.
+The package summary must say **morph_expressive 0.4.1**. Resolve publication
+errors and relevant warnings. Run this on the committed release tree: otherwise
+Pub warns that the working tree contains modified files. A clean temporary copy
+can also validate the package archive without that Git-state warning.
 
-When the final diff is approved, stage only intended tracked/new release
-files, inspect the staged changes, commit, and push the branch:
+Use the existing pana installation for an optional local scoring comparison:
 
 ```bash
-git add pubspec.yaml README.md CHANGELOG.md doc/ lib/ test/ preview/lib/ preview/test/ preview/doc/ tool/
-git diff --cached --check
-git diff --cached --stat
-git status --short
-git commit -m "release: morph_expressive 0.4.0"
+dart pub global run pana .
+```
+
+Install pana first only if needed (`dart pub global activate pana`). The earlier
+160/160 report belongs to the 0.4.0 hotfix preparation; a new 0.4.1 score is not
+implied by test success or the metadata bump.
+
+## 3. Publish once and tag the exact release
+
+Inspect the repository's workflows before publishing. The dependency
+compatibility workflow only validates; if another workflow publishes on tags,
+use that flow instead of also publishing manually.
+
+Push the release commit to the verified release branch. For `main`:
+
+```bash
 git push origin main
 ```
 
-Add other reviewed files (such as `example/`, capture scripts or GIFs) only
-if changed. If the working branch is not `main`, verify the remote branch
-before pushing rather than blindly substituting another name. Do not commit
-private generated files.
-
-## 5. Publish and tag
-
-After verifying the pushed release commit and confirming that `0.4.0` is
-still unused on pub.dev, publish **once**:
+Confirm `0.4.1` is still unused, then publish interactively from the root:
 
 ```bash
 dart pub publish
 ```
 
-Review and approve the published package summary interactively. Do not use
-`--force`. After pub.dev confirms that 0.4.0 is visible, tag the **exact
-release commit** and push the tag:
+After Pub confirms successful publication, tag the **same release commit**:
 
 ```bash
-git tag -a v0.4.0 -m "Morph Expressive v0.4.0"
-git push origin v0.4.0
+git tag -a v0.4.1 -m "Morph Expressive v0.4.1"
+git push origin v0.4.1
 ```
 
-If CI publishes automatically on version tags, inspect workflows before
-pushing a tag, to prevent duplicate publish attempts. Neither pushing Git
-nor creating a tag publishes to pub.dev unless such CI is configured.
-
-## Hosting note
-
-Older snapshots placed compiled Web output under `docs/`. If GitHub Pages
-still points there, migrate deployment to a dedicated branch or CI artifact
-before deleting existing hosting output. Maintained Markdown lives in `doc/`.
+Do not replace an existing published version or move an existing release tag.
+This preparation patch does not publish, push or create tags automatically.

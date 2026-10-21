@@ -7,7 +7,7 @@ and smooth animations.
 The goal is to make components look and feel consistent while exploring new
 styles and interactions beyond Material 3 Expressive.
 
-This README describes the **0.4.0** release. Check the
+This README describes the **0.4.1** release. Check the
 [pub.dev versions](https://pub.dev/packages/morph_expressive/versions) for the
 latest published release. Morph Expressive is still in the 0.x series, so
 public APIs and defaults may evolve between minor versions.
@@ -27,18 +27,19 @@ of wrapped. See [NOTICE](NOTICE) and [LICENSE](LICENSE) for attribution.
 
 ```yaml
 dependencies:
-  morph_expressive: ^0.4.0
+  morph_expressive: ^0.4.1
 ```
 
-`^0.4.0` resolves from pub.dev after 0.4.0 is published. Until then, use
-the latest available published version or a Git/path dependency for release
-candidate testing. Run `flutter pub get` after changing the constraint.
+Run `flutter pub get` after changing the constraint. To test a source checkout
+before this version is available on pub.dev, use a Git/path dependency.
 
 ## Quick start
 
 ```dart
-import 'package:material_ui/material_ui.dart';
-import 'package:morph_expressive/morph_expressive.dart';
+import 'package:material_ui/material_ui.dart'
+    show Center, Color, MaterialApp, Scaffold, Text, runApp;
+import 'package:morph_expressive/morph_expressive.dart'
+    show MorphButton, MorphTheme, MorphThemeData;
 
 void main() {
   const seed = Color(0xFF6750A4);
@@ -65,6 +66,18 @@ void main() {
 
 This example uses a fixed light theme. For dynamic brightness, keep `MorphTheme`
 and the host Material theme synchronized. `MaterialApp.router` is supported.
+
+## Fixed in 0.4.1
+
+- **Dependency compatibility:** explicit imports prevent collisions with
+  Material UI 1.8.0's new geometry exports while preserving Morph's existing
+  `material_new_shapes` polygon API and the `material_ui: ^1.6.0` constraint.
+- **Regression prevention:** import-policy checks, public geometry tests and
+  CI exercise fresh latest/lowest dependency resolutions. Each lane passes
+  analysis, 759 library tests, 31 preview tests and a Web release build.
+- **Platform metadata:** the manifest explicitly declares the six intended
+  Flutter targets. See the [compatibility report](doc/PUB_DEV_COMPATIBILITY.md)
+  for native-build limits and consumer import guidance.
 
 ## New in 0.4.0
 
