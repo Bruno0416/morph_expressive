@@ -66,8 +66,10 @@ import 'package:material_ui/material_ui.dart'
         defaultScrollNotificationPredicate;
 import 'package:motor/motor.dart';
 
+import '../../foundations/interaction/morph_motion_controller.dart';
 import '../../foundations/foundations.dart';
 import '../loading_indicator/morph_loading_indicator.dart';
+import '../progress_indicators/morph_progress_indicators.dart';
 import 'controllers/morph_refresh_indicator_controller.dart';
 import 'enums/morph_refresh_status.dart';
 import 'styles/morph_refresh_indicator_theme.dart';
@@ -182,7 +184,7 @@ class MorphRefreshIndicator extends StatefulWidget {
     this.semanticsValue,
     this.strokeWidth = RefreshProgressIndicator.defaultStrokeWidth,
     this.triggerMode = MorphRefreshTriggerMode.onEdge,
-    this.elevation = MorphRefreshIndicatorTheme.kDefaultElevation,
+    this.elevation = 2,
     this.releaseBubbleSpring,
     this.releaseBubbleFromScale,
     this.onStatusChange,
@@ -213,7 +215,7 @@ class MorphRefreshIndicator extends StatefulWidget {
     this.semanticsValue,
     this.strokeWidth = RefreshProgressIndicator.defaultStrokeWidth,
     this.triggerMode = MorphRefreshTriggerMode.onEdge,
-    this.elevation = MorphRefreshIndicatorTheme.kDefaultElevation,
+    this.elevation = 2,
     this.releaseBubbleSpring,
     this.releaseBubbleFromScale,
     this.onStatusChange,
@@ -376,11 +378,21 @@ class MorphRefreshIndicatorState extends State<MorphRefreshIndicator>
   );
 
   double _indicatorHeight(BuildContext context) {
-    final double? maxHeight = widget.indicatorConstraints?.maxHeight;
-    if (maxHeight != null && maxHeight.isFinite) {
-      return maxHeight;
+    final loading = MorphTheme.of(context).loadingIndicatorTheme;
+    final maxHeight = widget.indicatorConstraints?.maxHeight;
+    final height = maxHeight != null && maxHeight.isFinite
+        ? maxHeight
+        : loading.containerHeight;
+    if (widget._indicatorType != _IndicatorType.expressive &&
+        widget._indicatorType != _IndicatorType.contained) {
+      return height;
     }
-    return MorphTheme.of(context).loadingIndicatorTheme.containerHeight;
+    final maxWidth = widget.indicatorConstraints?.maxWidth;
+    final width = maxWidth != null && maxWidth.isFinite
+        ? maxWidth
+        : loading.containerWidth;
+    // Reserve room for the outer progress ring, including custom indicator sizes.
+    return math.max(width, height) + 12;
   }
 
   /// Max list pad: enough for the spinner plus padding above and below.
@@ -418,7 +430,7 @@ class MorphRefreshIndicatorState extends State<MorphRefreshIndicator>
     _scaleFactor = _scaleController.drive(_oneToZeroTween);
     _contentPadController = AnimationController.unbounded(vsync: this);
     // Theme may not be available yet; _playReleaseBubble applies resolved motion.
-    _bubbleController = SingleMotionController(
+    _bubbleController = MorphMotionController(
       motion: MorphMotion.springMotion(
         MorphRefreshIndicatorTheme.kDefaultReleaseBubbleSpring,
       ),

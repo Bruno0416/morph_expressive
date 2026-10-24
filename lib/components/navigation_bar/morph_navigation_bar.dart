@@ -1,10 +1,20 @@
 import 'dart:math' as math;
+import 'dart:ui' show ImageFilter;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' show Positioned, Stack, StackFit;
 import 'package:material_ui/material_ui.dart'
     show
         Alignment,
+        BackdropFilter,
+        Border,
+        BorderRadius,
+        BoxDecoration,
+        ClipRRect,
+        DecoratedBox,
+        RoundedRectangleBorder,
         AnimatedAlign,
         BoxConstraints,
         BuildContext,
@@ -24,6 +34,7 @@ import 'package:material_ui/material_ui.dart'
         MediaQuery,
         Padding,
         Row,
+        RepaintBoundary,
         ScrollController,
         Semantics,
         ShapeBorder,
@@ -43,12 +54,15 @@ import 'package:material_ui/material_ui.dart'
         Widget;
 
 import '../../foundations/foundations.dart';
+import '../navigation_rail/components/morph_sliding_indicator.dart';
 import 'components/morph_nav_bar_destination_button.dart';
+import 'components/morph_navigation_scroll_activity.dart';
 import 'controllers/morph_navigation_bar_controller.dart';
 import 'enums/morph_nav_bar_enums.dart';
 import 'models/morph_nav_metrics.dart';
 import 'models/morph_navigation_bar_destination.dart';
 import 'styles/morph_navigation_bar_theme.dart';
+import 'styles/morph_navigation_glass.dart';
 
 export 'controllers/morph_navigation_bar_controller.dart';
 export 'enums/morph_nav_bar_enums.dart';
@@ -56,6 +70,7 @@ export 'models/morph_nav_metrics.dart';
 export 'models/morph_navigation_bar_destination.dart';
 export 'res/morph_nav_bar_constants.dart';
 export 'styles/morph_navigation_bar_theme.dart';
+export 'styles/morph_navigation_glass.dart';
 
 part 'components/morph_navigation_bar_build.dart';
 
@@ -68,6 +83,15 @@ part 'components/morph_navigation_bar_build.dart';
 class MorphNavigationBar extends StatefulWidget {
   /// MorphNavigationBar.
   const MorphNavigationBar({
+    this.motion = MorphNavigationMotion.standard,
+    this.floating = false,
+    this.glass,
+    this.selectionDelay,
+    this.iconSize,
+    this.labelStyle,
+    this.topIndicatorWidth = 40,
+    this.topIndicatorHeight = 4,
+    this.floatingRadius = 40,
     super.key,
     required this.destinations,
     this.selectedIndex = 0,
@@ -92,7 +116,82 @@ class MorphNavigationBar extends StatefulWidget {
     this.controller,
     this.hideOnScroll = false,
     this.scrollController,
-  });
+  }) : _expressive = false;
+
+  /// A shared elastic selection pill that travels between destinations.
+  const MorphNavigationBar.morph({
+    this.floating = false,
+    this.glass,
+    this.selectionDelay,
+    this.iconSize,
+    this.labelStyle,
+    this.topIndicatorWidth = 40,
+    this.topIndicatorHeight = 4,
+    this.floatingRadius = 40,
+    super.key,
+    required this.destinations,
+    this.selectedIndex = 0,
+    this.onDestinationSelected,
+    this.labelBehavior = MorphNavBarLabelBehavior.alwaysShow,
+    this.iconBehavior = MorphNavBarIconBehavior.alwaysShow,
+    this.autoLayout = true,
+    this.layout = MorphNavBarLayout.compact,
+    this.alignment = MorphNavBarAlignment.center,
+    this.wideBreakpoint,
+    this.wideDestinationWidth,
+    this.size = MorphNavBarSize.medium,
+    this.shapeFamily = MorphNavBarShapeFamily.square,
+    this.density = MorphNavBarDensity.regular,
+    this.backgroundColor,
+    this.elevation,
+    this.indicatorStyle = MorphNavBarIndicatorStyle.pill,
+    this.indicatorColor,
+    this.padding,
+    this.safeArea = true,
+    this.semanticLabel,
+    this.controller,
+    this.hideOnScroll = false,
+    this.scrollController,
+  }) : motion = MorphNavigationMotion.morph,
+       _expressive = false;
+
+  /// WatchNext-inspired navigation: a sliding top dash and active label.
+  /// Use [floating] inside MorphNavigationBarHost for an inset floating shell.
+  const MorphNavigationBar.expressive({
+    this.floating = false,
+    this.glass,
+    this.selectionDelay,
+    this.iconSize = 32,
+    this.labelStyle = const TextStyle(fontSize: 14),
+    this.topIndicatorWidth = 40,
+    this.topIndicatorHeight = 4,
+    this.floatingRadius = 40,
+    super.key,
+    required this.destinations,
+    this.selectedIndex = 0,
+    this.onDestinationSelected,
+    this.labelBehavior = MorphNavBarLabelBehavior.onlySelected,
+    this.iconBehavior = MorphNavBarIconBehavior.alwaysShow,
+    this.autoLayout = false,
+    this.layout = MorphNavBarLayout.compact,
+    this.alignment = MorphNavBarAlignment.center,
+    this.wideBreakpoint,
+    this.wideDestinationWidth,
+    this.size = MorphNavBarSize.medium,
+    this.shapeFamily = MorphNavBarShapeFamily.square,
+    this.density = MorphNavBarDensity.regular,
+    this.backgroundColor,
+    this.elevation,
+    this.indicatorStyle = MorphNavBarIndicatorStyle.pill,
+    this.indicatorColor,
+    this.padding,
+    this.safeArea = true,
+    this.semanticLabel,
+    this.controller,
+    this.hideOnScroll = false,
+    this.scrollController,
+  }) : motion = MorphNavigationMotion.morph,
+       _expressive = true;
 
   /// destinations.
   final List<MorphNavigationBarDestination> destinations;
@@ -166,6 +265,28 @@ class MorphNavigationBar extends StatefulWidget {
 
   /// Body scroll position. A bottom bar is not inside that scroll view.
   final ScrollController? scrollController;
+
+  /// Round floating shell, or an edge-to-edge docked surface.
+  final bool floating;
+
+  /// Null uses an opaque surface; otherwise enables clipped backdrop blur.
+  final MorphNavigationGlass? glass;
+
+  /// Optional trailing-edge pause for morph navigation. Defaults to 60ms.
+  final Duration? selectionDelay;
+
+  /// Optional glyph size; the expressive variant defaults to 32.
+  final double? iconSize;
+
+  /// Overrides the label typography while retaining state colors and weights.
+  final TextStyle? labelStyle;
+  final double topIndicatorWidth;
+  final double topIndicatorHeight;
+  final double floatingRadius;
+  final bool _expressive;
+
+  /// Standard independent fills or one continuous Morph indicator.
+  final MorphNavigationMotion motion;
 
   @override
   State<MorphNavigationBar> createState() => _MorphNavigationBarState();

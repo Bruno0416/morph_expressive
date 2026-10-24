@@ -77,6 +77,7 @@ class _MorphBottomAppBarState extends State<_MorphBottomAppBar> {
       ),
     );
     return Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       color: appBarTheme.bottomBackgroundColor(scheme),
       elevation: _under ? metrics.scrolledElevation : metrics.elevation,
       shadowColor: scheme.shadow,

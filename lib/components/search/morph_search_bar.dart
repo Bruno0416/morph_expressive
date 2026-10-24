@@ -394,7 +394,8 @@ class _MorphSearchBarState extends State<MorphSearchBar>
     bool animate = false,
   }) {
     final double target = _targetExpandPadding(barTheme);
-    if (!_shouldAnimateExpandPadding(barTheme)) {
+    if (!_shouldAnimateExpandPadding(barTheme) ||
+        MorphMotion.reduceMotionOf(context)) {
       _expandPaddingController.value = target;
       return;
     }

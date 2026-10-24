@@ -372,7 +372,7 @@ class _MorphTooltipState extends State<MorphTooltip>
   Widget _fade(Widget child) {
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: 0, end: 1),
-      duration: MorphMotion.short3,
+      duration: MorphMotion.durationOf(context, MorphMotion.short3),
       curve: MorphMotion.standard,
       builder: (BuildContext context, double value, Widget? built) {
         return Opacity(opacity: value, child: built);

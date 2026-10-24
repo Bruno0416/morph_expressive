@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
+import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
 import '../enums/morph_card_group_layout.dart';
 import '../styles/morph_card_theme.dart';
@@ -73,11 +74,11 @@ class _MorphCardGroupState extends State<MorphCardGroup>
   @override
   void initState() {
     super.initState();
-    _lift = SingleMotionController(
+    _lift = MorphMotionController(
       motion: _motion(MorphMotion.effectsFast),
       vsync: this,
     )..addListener(_onMotion);
-    _settle = SingleMotionController(
+    _settle = MorphMotionController(
       motion: _motion(MorphMotion.expressiveSpatialDefault),
       vsync: this,
     )..addListener(_onMotion);
@@ -157,7 +158,7 @@ class _MorphCardGroupState extends State<MorphCardGroup>
   }
 
   SingleMotionController _shiftController() {
-    return SingleMotionController(
+    return MorphMotionController(
       motion: _motion(MorphMotion.expressiveSpatialDefault),
       vsync: this,
     )..addListener(_onMotion);

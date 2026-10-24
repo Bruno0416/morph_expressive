@@ -41,7 +41,10 @@ void main() {
     controller.setOpen(open: false);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 60));
-    expect(find.text('Dart'), findsOneWidget);
+    final reduced = MorphMotion.reduceMotionOf(
+      tester.element(find.byType(MorphDropdownMenu<String>)),
+    );
+    expect(find.text('Dart'), reduced ? findsNothing : findsOneWidget);
 
     // Reopening before the exit finishes must reuse the live overlay.
     controller.setOpen(open: true);

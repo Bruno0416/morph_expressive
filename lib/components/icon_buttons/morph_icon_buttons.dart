@@ -29,7 +29,6 @@ import 'package:material_ui/material_ui.dart'
         Listenable,
         ListenableBuilder,
         Listener,
-        MediaQuery,
         NoSplash,
         PointerCancelEvent,
         PointerDownEvent,

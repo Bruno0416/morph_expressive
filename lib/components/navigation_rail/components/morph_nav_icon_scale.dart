@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
+import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
 import '../styles/morph_navigation_rail_theme.dart';
 
@@ -37,7 +38,7 @@ class _MorphNavIconScaleState extends State<MorphNavIconScale>
   @override
   void initState() {
     super.initState();
-    _scale = SingleMotionController(
+    _scale = MorphMotionController(
       motion: _springMotion(MorphNavigationRailTheme.defaults.iconScaleSpring),
       vsync: this,
       initialValue: 1,

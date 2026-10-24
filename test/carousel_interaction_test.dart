@@ -320,7 +320,12 @@ Future<void> _onChangeMidpointSymmetric(WidgetTester tester) async {
     largeMax: MorphCarouselTheme.defaultLargeMaxWidth,
   );
   final int total = weights.fold<int>(0, (int a, int b) => a + b);
-  final double mid = viewport * weights.first / total / 2;
+  final reduced = MorphMotion.reduceMotionOf(
+    tester.element(find.byType(MorphCarousel)),
+  );
+  final double mid = reduced
+      ? (viewport - MorphCarouselTheme.defaultSmallMaxWidth) / 2
+      : viewport * weights.first / total / 2;
 
   position.jumpTo(mid - 1);
   await tester.pump();
@@ -330,7 +335,7 @@ Future<void> _onChangeMidpointSymmetric(WidgetTester tester) async {
   await tester.pump();
   expect(latest, isNotNull, reason: 'forward swipe should flip at midpoint');
   expect(latest!.leadingIndex, 1);
-  expect(latest!.focalIndex, 2);
+  expect(latest!.focalIndex, reduced ? 1 : 2);
 
   latest = null;
   position.jumpTo(mid + 1);
@@ -341,7 +346,7 @@ Future<void> _onChangeMidpointSymmetric(WidgetTester tester) async {
   await tester.pump();
   expect(latest, isNotNull, reason: 'reverse swipe should flip at midpoint');
   expect(latest!.leadingIndex, 0);
-  expect(latest!.focalIndex, 1);
+  expect(latest!.focalIndex, reduced ? 0 : 1);
 }
 
 Future<void> _snapDefaults(WidgetTester tester) async {

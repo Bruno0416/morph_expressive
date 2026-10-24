@@ -26,7 +26,6 @@ import 'package:material_ui/material_ui.dart'
         Icon,
         KeyedSubtree,
         LayoutBuilder,
-        MediaQuery,
         NumericFocusOrder,
         Offset,
         OrderedTraversalPolicy,
@@ -279,7 +278,7 @@ class _MorphCarouselState extends State<MorphCarousel> {
       builder: (BuildContext context) {
         final MorphCarouselTheme theme = MorphTheme.of(context).carouselTheme;
         final bool freeScroll = _freeScroll();
-        final bool reduced = MediaQuery.disableAnimationsOf(context);
+        final bool reduced = MorphMotion.reduceMotionOf(context);
         return LayoutBuilder(
           builder: (BuildContext ctx, BoxConstraints dimens) {
             frameWidth = widget.width ?? dimens.maxWidth;

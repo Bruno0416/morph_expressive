@@ -304,6 +304,7 @@ extension _MorphSearchViewContentBuild on _MorphSearchViewContentState {
       shape = shape.copyWith(side: s.side);
     }
     return Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       color: color,
       surfaceTintColor: s.surfaceTint,
       elevation: elevation,

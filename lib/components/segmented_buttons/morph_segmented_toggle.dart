@@ -112,7 +112,7 @@ class _MorphSegmentedToggleState<T> extends State<MorphSegmentedToggle<T>> {
     final segment = width / widget.options.length;
     final targetLeft = newIndex * segment;
     final targetRight = (newIndex + 1) * segment;
-    if (oldIndex == newIndex) {
+    if (oldIndex == newIndex || MorphMotion.reduceMotionOf(context)) {
       setState(() {
         _left = targetLeft;
         _right = targetRight;
@@ -152,6 +152,10 @@ class _MorphSegmentedToggleState<T> extends State<MorphSegmentedToggle<T>> {
   @override
   Widget build(BuildContext context) {
     final theme = MorphTheme.of(context);
+    if (MorphMotion.reduceMotionOf(context)) {
+      _stretchTimer?.cancel();
+      if (_width != null) _align(_width!);
+    }
     final scheme = theme.colorScheme;
     final radius = widget.height / 2;
     final innerRadius = (widget.height - widget.padding * 2) / 2;
@@ -183,9 +187,11 @@ class _MorphSegmentedToggleState<T> extends State<MorphSegmentedToggle<T>> {
                   color:
                       widget.backgroundColor ?? scheme.surfaceContainerHighest,
                   child: SingleMotionBuilder(
+                    active: !MorphMotion.reduceMotionOf(context),
                     motion: motion,
                     value: _left,
                     builder: (context, left, _) => SingleMotionBuilder(
+                      active: !MorphMotion.reduceMotionOf(context),
                       motion: motion,
                       value: _right,
                       builder: (context, right, _) => Stack(
@@ -208,6 +214,10 @@ class _MorphSegmentedToggleState<T> extends State<MorphSegmentedToggle<T>> {
                           ),
                           Positioned.fill(
                             child: Material(
+                              animationDuration: MorphMotion.durationOf(
+                                context,
+                                MorphMotion.short4,
+                              ),
                               type: MaterialType.transparency,
                               child: Row(
                                 children: [
@@ -288,7 +298,7 @@ class _ToggleOption<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => TweenAnimationBuilder<Color?>(
-    duration: duration,
+    duration: MorphMotion.durationOf(context, duration),
     curve: MorphMotion.standard,
     tween: ColorTween(end: selected ? selectedColor : unselectedColor),
     builder: (context, color, _) => Row(

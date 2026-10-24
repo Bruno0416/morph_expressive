@@ -101,6 +101,11 @@ class _CaptureSceneState extends State<_CaptureScene> {
   double _progressValue = 0.32;
   bool _showContainedLoaders = false;
   int _navigationIndex = 0;
+  int _morphNavigationIndex = 0;
+  int _expressiveNavigationIndex = 0;
+  int _pageIndex = 0;
+  int _railIndex = 0;
+  int _drawerIndex = 0;
 
   int get _delayMs {
     final raw = int.tryParse(Uri.base.queryParameters['delayMs'] ?? '800');
@@ -371,6 +376,53 @@ class _CaptureSceneState extends State<_CaptureScene> {
               (atMs: 1560, action: () => setState(() => _navigationIndex = 0)),
             ],
           );
+        case 'navigation_morph':
+          _scheduleLoop(
+            cycleMs: 3300,
+            cycles: 2,
+            events: [
+              (
+                atMs: 0,
+                action: () => setState(() => _morphNavigationIndex = 1),
+              ),
+              (
+                atMs: 350,
+                action: () => setState(() => _expressiveNavigationIndex = 2),
+              ),
+              (atMs: 740, action: () => setState(() => _pageIndex = 1)),
+              (
+                atMs: 1100,
+                action: () => setState(() => _morphNavigationIndex = 2),
+              ),
+              (
+                atMs: 1450,
+                action: () => setState(() => _expressiveNavigationIndex = 1),
+              ),
+              (atMs: 1830, action: () => setState(() => _pageIndex = 3)),
+              (
+                atMs: 2250,
+                action: () => setState(() => _morphNavigationIndex = 0),
+              ),
+              (
+                atMs: 2640,
+                action: () => setState(() => _expressiveNavigationIndex = 0),
+              ),
+              (atMs: 2960, action: () => setState(() => _pageIndex = 0)),
+            ],
+          );
+        case 'navigation_rail_drawer':
+          _scheduleLoop(
+            cycleMs: 3000,
+            cycles: 2,
+            events: [
+              (atMs: 0, action: () => setState(() => _railIndex = 1)),
+              (atMs: 470, action: () => setState(() => _drawerIndex = 2)),
+              (atMs: 950, action: () => setState(() => _railIndex = 2)),
+              (atMs: 1470, action: () => setState(() => _drawerIndex = 1)),
+              (atMs: 2010, action: () => setState(() => _railIndex = 0)),
+              (atMs: 2460, action: () => setState(() => _drawerIndex = 0)),
+            ],
+          );
         case 'loading':
           // Both determinate wavy indicators now sweep all the way through
           // the 90–98% envelope instead of topping out around 70%.
@@ -485,6 +537,14 @@ class _CaptureSceneState extends State<_CaptureScene> {
         'Progress indicators and expressive loaders',
       ),
       'navigation' => ('Navigation', 'Compact and wide layouts'),
+      'navigation_morph' => (
+        'Morph navigation',
+        'Elastic selection, expressive dash and page indicators',
+      ),
+      'navigation_rail_drawer' => (
+        'Navigation rail + drawer',
+        'Shared Morph selection in vertical navigation',
+      ),
       'lists' => ('MorphList', 'Swipe to reveal expressive actions'),
       'dialogs' => ('Floating dialogs', 'Expressive modal entrances and exits'),
       _ => ('Morph Expressive', 'Component capture'),
@@ -871,6 +931,180 @@ class _CaptureSceneState extends State<_CaptureScene> {
                 MorphNavigationBarDestination(
                   icon: Icon(MorphIcons.favorite_border),
                   label: 'Saved',
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+    'navigation_morph' => SizedBox(
+      width: 560,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _captureLabel('Morph bar · shared elastic selection'),
+          const SizedBox(height: 6),
+          SizedBox(
+            width: 520,
+            child: MorphNavigationBar.morph(
+              key: const ValueKey('gif_navigation_morph_bar'),
+              safeArea: false,
+              autoLayout: false,
+              selectedIndex: _morphNavigationIndex,
+              onDestinationSelected: (index) =>
+                  setState(() => _morphNavigationIndex = index),
+              destinations: const [
+                MorphNavigationBarDestination(
+                  icon: Icon(MorphIcons.home),
+                  label: 'Home',
+                ),
+                MorphNavigationBarDestination(
+                  icon: Icon(MorphIcons.search),
+                  label: 'Search',
+                ),
+                MorphNavigationBarDestination(
+                  icon: Icon(MorphIcons.favorite_border),
+                  label: 'Saved',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          _captureLabel('Expressive bar · sliding top indicator'),
+          const SizedBox(height: 6),
+          SizedBox(
+            width: 520,
+            child: MorphNavigationBar.expressive(
+              key: const ValueKey('gif_navigation_expressive_bar'),
+              safeArea: false,
+              selectedIndex: _expressiveNavigationIndex,
+              onDestinationSelected: (index) =>
+                  setState(() => _expressiveNavigationIndex = index),
+              destinations: const [
+                MorphNavigationBarDestination(
+                  icon: Icon(MorphIcons.home),
+                  label: 'Home',
+                ),
+                MorphNavigationBarDestination(
+                  icon: Icon(MorphIcons.search),
+                  label: 'Search',
+                ),
+                MorphNavigationBarDestination(
+                  icon: Icon(MorphIcons.favorite_border),
+                  label: 'Saved',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          _captureLabel('Page indicator · expand / slide'),
+          const SizedBox(height: 5),
+          Row(
+            children: [
+              MorphPageIndicator(
+                key: const ValueKey('gif_page_expand'),
+                count: 4,
+                selectedIndex: _pageIndex,
+                activeWidth: 34,
+                inactiveWidth: 12,
+                height: 14,
+                inactiveHeight: 12,
+                spacing: 4,
+              ),
+              const SizedBox(width: 34),
+              MorphPageIndicator(
+                key: const ValueKey('gif_page_slide'),
+                count: 4,
+                selectedIndex: _pageIndex,
+                effect: MorphPageIndicatorEffect.slide,
+                activeWidth: 26,
+                inactiveWidth: 12,
+                height: 12,
+                spacing: 5,
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+    'navigation_rail_drawer' => SizedBox(
+      width: 560,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 232,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _captureLabel('Morph rail'),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: 226,
+                  height: 298,
+                  child: MorphNavigationRail.morph(
+                    key: const ValueKey('gif_navigation_morph_rail'),
+                    expandedWidth: 215,
+                    scrollUnder: false,
+                    selectedIndex: _railIndex,
+                    onDestinationSelected: (index) =>
+                        setState(() => _railIndex = index),
+                    sections: const [
+                      MorphNavigationRailSection(
+                        destinations: [
+                          MorphNavigationRailDestination(
+                            icon: Icon(MorphIcons.home),
+                            label: 'Home',
+                          ),
+                          MorphNavigationRailDestination(
+                            icon: Icon(MorphIcons.search),
+                            label: 'Search',
+                          ),
+                          MorphNavigationRailDestination(
+                            icon: Icon(MorphIcons.favorite_border),
+                            label: 'Saved',
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 18),
+          SizedBox(
+            width: 310,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _captureLabel('Morph drawer'),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: 304,
+                  height: 298,
+                  child: MorphNavigationDrawer.morph(
+                    key: const ValueKey('gif_navigation_morph_drawer'),
+                    headline: 'Navigation',
+                    selectedIndex: _drawerIndex,
+                    onDestinationSelected: (index) =>
+                        setState(() => _drawerIndex = index),
+                    destinations: const [
+                      MorphNavigationDestination(
+                        icon: Icon(MorphIcons.home),
+                        label: 'Home',
+                      ),
+                      MorphNavigationDestination(
+                        icon: Icon(MorphIcons.search),
+                        label: 'Search',
+                      ),
+                      MorphNavigationDestination(
+                        icon: Icon(MorphIcons.favorite_border),
+                        label: 'Saved',
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

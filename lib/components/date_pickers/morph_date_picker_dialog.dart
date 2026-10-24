@@ -304,6 +304,7 @@ class _MorphDatePickerDialogState extends State<MorphDatePickerDialog>
       isInputMode: isInputMode,
     );
     final Widget dialog = Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       color: dateTheme.backgroundColor(theme.colorScheme),
       elevation: dateTheme.elevation,
       shape: RoundedRectangleBorder(borderRadius: dateTheme.dialogShape),
@@ -311,7 +312,10 @@ class _MorphDatePickerDialogState extends State<MorphDatePickerDialog>
       child: AnimatedContainer(
         width: dialogSize.width,
         height: dialogSize.height,
-        duration: MorphDatePickerConstants.dialogSizeAnimationDuration,
+        duration: MorphMotion.durationOf(
+          context,
+          MorphDatePickerConstants.dialogSizeAnimationDuration,
+        ),
         curve: MorphMotion.exit,
         child: switch (orientation) {
           Orientation.portrait => Column(

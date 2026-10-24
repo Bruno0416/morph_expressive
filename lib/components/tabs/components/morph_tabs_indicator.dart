@@ -113,7 +113,7 @@ extension _MorphTabsIndicator on _MorphTabsState {
     Scrollable.ensureVisible(
       target,
       alignment: 0.5,
-      duration: MorphMotion.short4,
+      duration: MorphMotion.durationOf(context, MorphMotion.short4),
       curve: MorphMotion.enter,
     );
   }

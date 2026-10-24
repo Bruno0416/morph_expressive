@@ -267,6 +267,7 @@ class _MorphTimePickerDialogState extends State<MorphTimePickerDialog>
       ),
       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
       child: Material(
+        animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
         color: timeTheme.backgroundColor(theme.colorScheme),
         elevation: timeTheme.elevation,
         shape: RoundedRectangleBorder(borderRadius: timeTheme.dialogShape),
@@ -275,7 +276,10 @@ class _MorphTimePickerDialogState extends State<MorphTimePickerDialog>
           padding: timeTheme.padding,
           child: AnimatedContainer(
             width: dialogSize.width,
-            duration: MorphTimePickerConstants.dialogSizeAnimationDuration,
+            duration: MorphMotion.durationOf(
+              context,
+              MorphTimePickerConstants.dialogSizeAnimationDuration,
+            ),
             curve: MorphMotion.exit,
             constraints: BoxConstraints(
               minHeight: math.min(216, dialogSize.height),

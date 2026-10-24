@@ -10,7 +10,7 @@ void morphSideSheetAnimate(
   MorphSpring spring,
   double target,
 ) {
-  final bool reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+  final bool reduce = MorphMotion.reduceMotionOf(context);
   if (reduce) {
     controller.value = target;
     return;

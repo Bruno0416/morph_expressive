@@ -212,13 +212,20 @@ void main() {
     await tester.pumpWidget(sample(pressed: true));
     await tester.pump(const Duration(milliseconds: 60));
     final held = current.topLeft.x;
-    expect(held, greaterThan(5));
-    expect(held, lessThan(28));
+    final reduced = MorphMotion.reduceMotionOf(
+      tester.element(find.byType(MorphRadiusAndPaddingMotion)),
+    );
+    if (reduced) {
+      expect(held, 6);
+    } else {
+      expect(held, greaterThan(5));
+      expect(held, lessThan(28));
+    }
 
     await tester.pumpWidget(sample(pressed: false));
     await tester.pump(const Duration(milliseconds: 16));
     expect(current.topLeft.x, greaterThan(held));
-    expect(current.topLeft.x, lessThan(28));
+    expect(current.topLeft.x, reduced ? equals(28) : lessThan(28));
     await tester.pumpAndSettle();
     expect(current.topLeft.x, closeTo(28, 0.01));
 
@@ -266,12 +273,19 @@ void main() {
     await tester.pump(const Duration(milliseconds: 110));
     final third = radius;
 
-    expect(first, greaterThan(5));
-    expect(first, lessThan(28));
-    expect(second, greaterThan(first));
-    expect(second, lessThan(28));
-    expect(third, greaterThan(second));
-    expect(third, lessThan(28));
+    final reduced = MorphMotion.reduceMotionOf(
+      tester.element(find.byType(MorphRadiusAndPaddingMotion)),
+    );
+    if (reduced) {
+      expect([first, second, third], [28, 28, 28]);
+    } else {
+      expect(first, greaterThan(5));
+      expect(first, lessThan(28));
+      expect(second, greaterThan(first));
+      expect(second, lessThan(28));
+      expect(third, greaterThan(second));
+      expect(third, lessThan(28));
+    }
 
     await tester.pumpAndSettle();
     expect(radius, closeTo(28, 0.01));

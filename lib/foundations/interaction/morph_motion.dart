@@ -1,12 +1,48 @@
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
+import 'morph_motion_scope.dart';
+
 /// Tokens de movimiento de Morph Expressive con curvas y resortes propios.
 ///
 /// Los valores de spring se centralizan aqui. Los widgets pueden sobrescribirlos
 /// desde sus propios temas sin depender de curvas originales de MD3E.
 abstract final class MorphMotion {
   const MorphMotion._();
+
+  /// True when the system, application or surrounding scope reduces motion.
+  static bool reduceMotionOf(BuildContext context) =>
+      MorphMotionScope.reducedOf(context);
+
+  /// Keeps custom timings in normal mode and removes decorative travel otherwise.
+  static Duration durationOf(BuildContext context, Duration duration) =>
+      reduceMotionOf(context) ? Duration.zero : duration;
+
+  /// Bypasses AnimatedSize's layout controller when motion is reduced.
+  /// A zero-duration AnimatedSize can synchronously dirty its own layout.
+  static Widget sizeTransition({
+    required BuildContext context,
+    required Duration duration,
+    Duration? reverseDuration,
+    Curve curve = Curves.linear,
+    AlignmentGeometry alignment = Alignment.center,
+    Clip clipBehavior = Clip.hardEdge,
+    required Widget child,
+  }) {
+    if (reduceMotionOf(context) || duration == Duration.zero) {
+      return clipBehavior == Clip.none
+          ? child
+          : ClipRect(clipBehavior: clipBehavior, child: child);
+    }
+    return AnimatedSize(
+      duration: duration,
+      reverseDuration: reverseDuration,
+      curve: curve,
+      alignment: alignment,
+      clipBehavior: clipBehavior,
+      child: child,
+    );
+  }
 
   /// 50ms duration token.
   static const Duration short1 = Duration(milliseconds: 50);

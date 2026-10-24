@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:motor/motor.dart';
 
+import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
 import '../utils/morph_toolbar_spring_motion.dart';
 
@@ -188,7 +189,7 @@ class MorphToolbarVisibilityController extends ChangeNotifier {
     cancelAnimation();
     _animatingTarget = target;
     _settle =
-        SingleMotionController(
+        MorphMotionController(
           motion: motion.toMotion(),
           vsync: vsync,
           initialValue: offset,

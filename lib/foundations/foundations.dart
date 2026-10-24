@@ -12,6 +12,7 @@ export 'interaction/morph_focus_ring_theme.dart';
 export 'interaction/morph_haptics.dart';
 export 'interaction/morph_ink_splash_theme.dart';
 export 'interaction/morph_motion.dart';
+export 'interaction/morph_navigation_motion.dart';
 export 'interaction/morph_overlay_history.dart';
 export 'interaction/morph_state_layer.dart';
 export 'interaction/morph_state_layer_overlay.dart';
@@ -42,3 +43,5 @@ export 'type/morph_type_style_tokens.dart';
 export 'type/morph_typography.dart';
 export 'type/morph_variable_font_axes.dart';
 export 'type/morph_variable_font_config.dart';
+
+export 'interaction/morph_motion_scope.dart' show MorphMotionScope;

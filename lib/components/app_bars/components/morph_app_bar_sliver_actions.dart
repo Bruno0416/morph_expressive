@@ -121,6 +121,7 @@ extension _MorphSliverAppBarActions on _MorphSliverAppBarState {
     required Widget body,
   }) {
     return Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       color: bg,
       elevation: elevation,
       shadowColor: scheme.shadow,

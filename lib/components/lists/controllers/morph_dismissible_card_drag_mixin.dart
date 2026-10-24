@@ -203,7 +203,7 @@ mixin MorphDismissibleCardDragMixin<T extends StatefulWidget>
 
     _nbrCtrl?.dispose();
     _nbrCtrl =
-        SingleMotionController(
+        MorphMotionController(
             motion: _spatialMotion(
               style.neighbourSpring,
               stiffness: style.neighbourSpring.stiffness * multiplier,
@@ -227,7 +227,7 @@ mixin MorphDismissibleCardDragMixin<T extends StatefulWidget>
 
     _roundnessCtrl?.dispose();
     _roundnessCtrl =
-        SingleMotionController(
+        MorphMotionController(
             motion: _spatialMotion(
               style.reEngageSpring,
               stiffness: style.reEngageSpring.stiffness * multiplier,
@@ -548,7 +548,7 @@ mixin MorphDismissibleCardDragMixin<T extends StatefulWidget>
     MorphDismissibleSlot slot,
     double speedMul,
   ) {
-    final colCtrl = SingleMotionController(
+    final colCtrl = MorphMotionController(
       motion: _spatialMotion(
         MorphSpring(
           stiffness: style.collapseSpeed,
@@ -601,7 +601,7 @@ mixin MorphDismissibleCardDragMixin<T extends StatefulWidget>
 
     slot.flyCtrl?.dispose();
     final fly = style.flySpring;
-    final flyCtrl = SingleMotionController(
+    final flyCtrl = MorphMotionController(
       motion: _spatialMotion(fly, stiffness: fly.stiffness * speedMul),
       vsync: this,
       initialValue: flyInitial,

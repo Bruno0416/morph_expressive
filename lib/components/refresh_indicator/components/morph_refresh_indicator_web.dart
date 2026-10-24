@@ -251,11 +251,15 @@ extension _MorphRefreshIndicatorWeb on MorphRefreshIndicatorState {
     } else {
       cached = existing;
     }
-    if (!dragDriven) {
-      return cached;
-    }
-    final double turns = math.max(0, _dragOffset ?? 0) / 80;
-    return Transform.rotate(angle: turns * 2 * math.pi, child: cached);
+    final spinner = !dragDriven
+        ? cached
+        : Transform.rotate(
+            angle: math.max(0, _dragOffset ?? 0) / 80 * 2 * math.pi,
+            child: cached,
+          );
+    // Keep the expensive morph cached, but update the cheap ring with pull
+    // progress rather than freezing it at the cache's creation value.
+    return _withRefreshRing(spinner);
   }
 
   bool get _usesContainedLoadingIndicator => switch (widget._indicatorType) {

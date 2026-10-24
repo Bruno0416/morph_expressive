@@ -37,7 +37,11 @@ extension _MorphNavigationRailBuild on _MorphNavigationRailState {
           shadowColor: scheme.shadow,
         ),
       ),
-      child: Material(type: MaterialType.transparency, child: _body(context)),
+      child: Material(
+        animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
+        type: MaterialType.transparency,
+        child: _body(context),
+      ),
     );
     if (widget.showDivider) {
       rail = Stack(
@@ -85,7 +89,19 @@ extension _MorphNavigationRailBuild on _MorphNavigationRailState {
     final double listTop = _destinationListTop(theme);
     final listPadding = EdgeInsets.only(top: listTop);
     final List<Widget> header = _headerChildren(context);
-    final List<Widget> destinations = _destinationChildren(context);
+    final rows = _destinationChildren(context);
+    final List<Widget> destinations =
+        widget.motion == MorphNavigationMotion.morph
+        ? [
+            MorphSlidingIndicator(
+              axis: Axis.vertical,
+              selectionDelay: widget.selectionDelay,
+              leadSpring: theme.indicatorLeadSpring,
+              trailSpring: theme.indicatorTrailSpring,
+              child: Column(mainAxisSize: MainAxisSize.min, children: rows),
+            ),
+          ]
+        : rows;
     final Widget? trailing = widget.trailing != null && widget.trailingAtBottom
         ? _buildTrailing(context)
         : null;

@@ -34,6 +34,7 @@ import 'package:material_ui/material_ui.dart'
         Widget;
 import 'package:motor/motor.dart';
 
+import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
 import '../../tooltips/morph_tooltips.dart';
 import '../models/morph_dropdown_item.dart';
@@ -98,16 +99,16 @@ class MorphSpringChipState<T> extends State<MorphSpringChip<T>>
   @override
   void initState() {
     super.initState();
-    _squishCtrl = SingleMotionController(
+    _squishCtrl = MorphMotionController(
       motion: widget.cd.openMotion.toMotion(), // Bouncy spring
       vsync: this,
     );
     _squishCtrl.value = 1.0;
-    _scaleCtrl = SingleMotionController(
+    _scaleCtrl = MorphMotionController(
       motion: widget.cd.openMotion.toMotion(),
       vsync: this,
     );
-    _slideCtrl = SingleMotionController(
+    _slideCtrl = MorphMotionController(
       motion: widget.cd.openMotion.toMotion(),
       vsync: this,
     );
@@ -335,18 +336,18 @@ class MorphMoreChipsIndicatorState extends State<MorphMoreChipsIndicator>
   @override
   void initState() {
     super.initState();
-    _scaleCtrl = SingleMotionController(
+    _scaleCtrl = MorphMotionController(
       motion: widget.cd.openMotion.toMotion(),
       vsync: this,
     );
     _scaleCtrl.animateTo(1);
 
-    _popCtrl = SingleMotionController(
+    _popCtrl = MorphMotionController(
       motion: MorphMotion.effectsFast.toMotion(),
       vsync: this,
     )..value = 1.0;
 
-    _squishCtrl = SingleMotionController(
+    _squishCtrl = MorphMotionController(
       motion: MorphMotion.effectsDefault.toMotion(),
       vsync: this,
     )..value = 1.0;

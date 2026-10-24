@@ -315,13 +315,14 @@ class _MorphSelectionAppBarState extends State<MorphSelectionAppBar> {
     // AnimatedSize tracks the active child height. Switcher layout only sizes
     // to the current child; exiting children are overlayed so they do not
     // force a taller slot (avoids overflow when heights differ).
-    return AnimatedSize(
-      duration: MorphMotion.selectionFlip,
+    return MorphMotion.sizeTransition(
+      context: context,
+      duration: MorphMotion.durationOf(context, MorphMotion.selectionFlip),
       reverseDuration: MorphMotion.selectionExit,
       curve: const Cubic(0.2, 0, 0, 1),
       alignment: Alignment.topCenter,
       child: AnimatedSwitcher(
-        duration: MorphMotion.selectionFlip,
+        duration: MorphMotion.durationOf(context, MorphMotion.selectionFlip),
         reverseDuration: MorphMotion.selectionExit,
         switchInCurve: const Cubic(0.2, 0, 0, 1),
         switchOutCurve: const Cubic(0.4, 0, 1, 1),

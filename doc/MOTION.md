@@ -66,3 +66,19 @@ flutter build web --release
 ```
 
 Animations may look slower in debug Web than in release builds.
+
+## Reduced motion
+
+Every Morph theme follows the platform's `disableAnimations` and `reduceMotion`
+preferences. Set `MorphThemeData.light().copyWith(reduceMotion: true)` to opt the
+application into reduced motion, or wrap a component/subtree in
+`MorphMotionScope(reduceMotion: true, child: ...)`. False means follow the system
+and ancestor scopes; it never forces animations against an accessibility request.
+
+Selections and decorative springs reach their final state, textfield labels stop
+at their current target, and ornamental waves/automatic loading morphs become
+static. Progress semantics and direct user gestures remain available. Normal mode
+keeps configured durations, curves and springs.
+
+See [the accessibility motion guide](REDUCED_MOTION_ACCESSIBILITY.md) for scope
+inheritance, overlays and reproducible checks.

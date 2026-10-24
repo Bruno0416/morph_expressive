@@ -56,6 +56,7 @@ import 'package:material_ui/material_ui.dart'
         WidgetsBinding;
 
 import '../../../foundations/foundations.dart';
+import '../../navigation_rail/components/morph_sliding_indicator.dart';
 import '../../navigation_rail/components/morph_nav_icon_scale.dart';
 import '../../navigation_rail/components/morph_nav_selection_indicator.dart';
 import '../models/morph_navigation_destination.dart';
@@ -69,6 +70,7 @@ import '../styles/morph_navigation_drawer_theme.dart';
 class MorphDrawerDestinationButton extends StatefulWidget {
   /// MorphDrawerDestinationButton.
   const MorphDrawerDestinationButton({
+    this.motion = MorphNavigationMotion.standard,
     required this.destination,
     required this.selected,
     required this.onTap,
@@ -95,6 +97,9 @@ class MorphDrawerDestinationButton extends StatefulWidget {
 
   /// Haptic intensity on tap. Defaults to [MorphHapticFeedback.inherit].
   final MorphHapticFeedback haptic;
+
+  /// Selection choreography used by the owning navigation widget.
+  final MorphNavigationMotion motion;
 
   @override
   State<MorphDrawerDestinationButton> createState() =>
@@ -290,14 +295,22 @@ class _MorphDrawerDestinationButtonState
             alignment: AlignmentDirectional.centerStart,
             children: <Widget>[
               Positioned.fill(
-                child: MorphSelectionIndicator(
-                  selected: selected,
-                  scaleSpring: drawerTheme.indicatorScaleSpring,
-                  fadeSpring: drawerTheme.indicatorFadeSpring,
-                  child: DecoratedBox(
-                    decoration: ShapeDecoration(shape: border, color: fill),
-                  ),
-                ),
+                child: widget.motion == MorphNavigationMotion.morph
+                    ? MorphIndicatorTarget(
+                        selected: selected,
+                        decoration: ShapeDecoration(shape: border, color: fill),
+                      )
+                    : MorphSelectionIndicator(
+                        selected: selected,
+                        scaleSpring: drawerTheme.indicatorScaleSpring,
+                        fadeSpring: drawerTheme.indicatorFadeSpring,
+                        child: DecoratedBox(
+                          decoration: ShapeDecoration(
+                            shape: border,
+                            color: fill,
+                          ),
+                        ),
+                      ),
               ),
               Positioned.fill(
                 child: _buildInkContent(
@@ -332,6 +345,7 @@ class _MorphDrawerDestinationButtonState
   }) {
     final bool interacting = _pressed || _hovered;
     return Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       type: MaterialType.transparency,
       color: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: radius),

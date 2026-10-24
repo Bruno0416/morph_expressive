@@ -327,6 +327,7 @@ class _MorphRadioState<T> extends State<MorphRadio<T>> {
       pressed: true,
     );
     return Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       type: MaterialType.transparency,
       color: Colors.transparent,
       shape: const CircleBorder(),
@@ -377,7 +378,7 @@ class _MorphRadioState<T> extends State<MorphRadio<T>> {
       child: Center(
         child: AnimatedScale(
           scale: _selected ? 1 : 0,
-          duration: MorphMotion.short4,
+          duration: MorphMotion.durationOf(context, MorphMotion.short4),
           curve: MorphMotion.emphasizedDecelerate,
           child: Container(
             width: radioTheme.dotSize,

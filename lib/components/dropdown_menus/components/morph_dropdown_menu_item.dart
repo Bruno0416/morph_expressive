@@ -197,7 +197,7 @@ class _MorphDropdownMenuItemWidgetState<T>
         : const Duration(milliseconds: 40);
 
     return TweenAnimationBuilder<BorderRadius?>(
-      duration: duration,
+      duration: MorphMotion.durationOf(context, duration),
       curve: MorphMotion.enter,
       tween: BorderRadiusTween(
         begin: _buildEffectiveRadius(),

@@ -440,7 +440,10 @@ class _MultiSelectBottomSheetState<T>
         : MorphButtonConstants.kDisabledForegroundAlpha;
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 120),
+      duration: MorphMotion.durationOf(
+        context,
+        const Duration(milliseconds: 120),
+      ),
       curve: MorphMotion.enter,
       width: size,
       height: size,

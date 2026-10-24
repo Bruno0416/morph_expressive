@@ -7,6 +7,8 @@ import 'package:material_ui/material_ui.dart'
         BoxConstraints,
         BoxDecoration,
         BuildContext,
+        Builder,
+        InheritedTheme,
         CallbackShortcuts,
         ClipRRect,
         ClipRect,
@@ -25,6 +27,8 @@ import 'package:material_ui/material_ui.dart'
         HitTestBehavior,
         LayoutBuilder,
         ListView,
+        SingleChildScrollView,
+        Axis,
         Material,
         MaterialType,
         Offset,
@@ -53,7 +57,9 @@ import 'package:material_ui/material_ui.dart'
         WidgetsBinding;
 import 'package:motor/motor.dart';
 
+import '../../foundations/interaction/morph_motion_controller.dart';
 import '../../foundations/foundations.dart';
+import '../navigation_rail/components/morph_sliding_indicator.dart';
 import 'components/morph_drawer_destination_button.dart';
 import 'controllers/morph_navigation_drawer_controller.dart';
 import 'enums/morph_navigation_drawer_enums.dart';
@@ -86,8 +92,26 @@ class MorphNavigationDrawer extends StatefulWidget {
     this.dismissible = false,
     this.controller,
     this.onDismissed,
+    this.motion = MorphNavigationMotion.standard,
+    this.selectionDelay,
     super.key,
   }) : assert(destinations.length >= 1, 'A drawer needs 1+ destinations.');
+
+  /// A shared elastic selection pill that travels between destinations.
+  const MorphNavigationDrawer.morph({
+    this.selectionDelay,
+    required this.destinations,
+    required this.selectedIndex,
+    required this.onDestinationSelected,
+    this.headline,
+    this.sections = const <MorphNavigationDrawerSection>[],
+    this.type = MorphNavigationDrawerType.standard,
+    this.dismissible = false,
+    this.controller,
+    this.onDismissed,
+    super.key,
+  }) : motion = MorphNavigationMotion.morph,
+       assert(destinations.length >= 1, 'A drawer needs 1+ destinations.');
 
   /// Primary destinations. Indices start at 0.
   final List<MorphNavigationDestination> destinations;
@@ -117,6 +141,12 @@ class MorphNavigationDrawer extends StatefulWidget {
 
   /// Called when a dismissible or modal drawer finishes a close request.
   final VoidCallback? onDismissed;
+
+  /// Standard independent fills or one continuous Morph indicator.
+  final MorphNavigationMotion motion;
+
+  /// Optional trailing-edge pause for morph navigation. Defaults to 20ms.
+  final Duration? selectionDelay;
 
   @override
   State<MorphNavigationDrawer> createState() => _MorphNavigationDrawerState();
@@ -149,7 +179,7 @@ class _MorphNavigationDrawerState extends State<MorphNavigationDrawer>
     super.initState();
     _open = !_canDismiss || (widget.controller?.isOpen ?? false);
     _shown = _isModal && _open;
-    _reveal = SingleMotionController(
+    _reveal = MorphMotionController(
       motion: MorphMotion.springMotion(MorphMotion.expressiveSpatialDefault),
       vsync: this,
     );
@@ -164,10 +194,24 @@ class _MorphNavigationDrawerState extends State<MorphNavigationDrawer>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Keep captured overlay themes current with local motion/theme policies.
+    MorphMotion.reduceMotionOf(context);
+    MorphTheme.of(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _syncOverlay();
+    });
+  }
+
+  @override
   void didUpdateWidget(MorphNavigationDrawer oldWidget) {
     super.didUpdateWidget(oldWidget);
     _syncNodes();
     _bindController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _syncOverlay();
+    });
     if (oldWidget.type != widget.type ||
         oldWidget.dismissible != widget.dismissible) {
       if (!_canDismiss) {
@@ -340,7 +384,10 @@ class _MorphNavigationDrawerState extends State<MorphNavigationDrawer>
     if (_isModal && _shown) {
       if (_modalEntry == null) {
         _modalEntry = OverlayEntry(
-          builder: (BuildContext context) => _buildOverlay(context),
+          builder: (BuildContext overlayContext) => InheritedTheme.captureAll(
+            context,
+            Builder(builder: (context) => _buildOverlay(context)),
+          ),
         );
         Overlay.of(context, rootOverlay: true).insert(_modalEntry!);
       } else {

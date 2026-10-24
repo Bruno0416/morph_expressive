@@ -24,7 +24,7 @@ class _SpringMenuWrapperState extends State<_SpringMenuWrapper>
   @override
   void initState() {
     super.initState();
-    _ctrl = SingleMotionController(
+    _ctrl = MorphMotionController(
       motion: widget.motion.toMotion(),
       vsync: this,
     );

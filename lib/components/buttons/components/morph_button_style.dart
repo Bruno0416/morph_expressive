@@ -33,7 +33,10 @@ extension _MorphButtonStyle on _MorphButtonState {
       shadowColor: dec?.shadowColor,
       visualDensity: dec?.visualDensity ?? _kVisualDensityStandard,
       tapTargetSize: dec?.tapTargetSize,
-      animationDuration: dec?.animationDuration ?? _kDurationZero,
+      animationDuration: MorphMotion.durationOf(
+        context,
+        dec?.animationDuration ?? _kDurationZero,
+      ),
       splashFactory: morphUsesGradientOverlay(dec?.overlayGradient)
           ? NoSplash.splashFactory
           : (dec?.splashFactory ??
@@ -207,7 +210,7 @@ extension _MorphButtonStyle on _MorphButtonState {
                 borderRadius: radius,
                 child: TweenAnimationBuilder<Color?>(
                   tween: ColorTween(end: color),
-                  duration: MorphMotion.short3,
+                  duration: MorphMotion.durationOf(context, MorphMotion.short3),
                   curve: MorphMotion.standard,
                   builder: (BuildContext context, Color? value, _) =>
                       ColoredBox(color: value ?? Colors.transparent),

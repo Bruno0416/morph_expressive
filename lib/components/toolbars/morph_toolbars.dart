@@ -49,6 +49,7 @@ import 'package:material_ui/material_ui.dart'
         Widget;
 import 'package:motor/motor.dart';
 
+import '../../foundations/interaction/morph_motion_controller.dart';
 import '../../foundations/foundations.dart';
 import '../floating_action_buttons/enums/morph_fab.dart';
 import '../floating_action_buttons/styles/morph_fab_theme.dart';
@@ -546,7 +547,7 @@ class _MorphToolbarState extends State<MorphToolbar>
     _expanded = widget.expanded;
     final bool startExpanded =
         _expanded || (!_usesTriggerExpand && !_usesFabExpand);
-    _expandCtrl = SingleMotionController(
+    _expandCtrl = MorphMotionController(
       motion: MorphToolbarTheme.defaults.expandSpring.toMotion(),
       vsync: this,
       initialValue: startExpanded ? 1 : 0,

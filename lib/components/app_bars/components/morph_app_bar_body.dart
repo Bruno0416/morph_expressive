@@ -108,6 +108,7 @@ class _MorphBarBody extends StatelessWidget {
     );
     if (!separateActions) return body;
     return Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       color: containerColor,
       shadowColor: shadowColor,
       surfaceTintColor: const Color(0x00000000),

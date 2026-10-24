@@ -15,7 +15,7 @@ extension MorphDismissibleCardSpringSettle<T extends StatefulWidget>
   }) {
     _pushCtrl?.dispose();
     _pushCtrl =
-        SingleMotionController(
+        MorphMotionController(
             motion: _spatialMotion(
               style.detachPushSpring,
               stiffness: style.detachPushSpring.stiffness * multiplier,
@@ -38,7 +38,7 @@ extension MorphDismissibleCardSpringSettle<T extends StatefulWidget>
   }) {
     _nbrCtrl?.dispose();
     _nbrCtrl =
-        SingleMotionController(
+        MorphMotionController(
             motion: _spatialMotion(
               style.neighbourSpring,
               stiffness: style.neighbourSpring.stiffness * multiplier,
@@ -61,7 +61,7 @@ extension MorphDismissibleCardSpringSettle<T extends StatefulWidget>
   }) {
     _roundnessCtrl?.dispose();
     _roundnessCtrl =
-        SingleMotionController(
+        MorphMotionController(
             motion: _spatialMotion(
               style.roundnessSnapSpring,
               stiffness: style.roundnessSnapSpring.stiffness * multiplier,
@@ -90,7 +90,7 @@ extension MorphDismissibleCardSpringSettle<T extends StatefulWidget>
     final back = style.springBackSpring;
     _springCtrl?.dispose();
     _springCtrl =
-        SingleMotionController(
+        MorphMotionController(
             motion: _spatialMotion(back, stiffness: back.stiffness * speedMul),
             vsync: this,
             initialValue: _dragOffset,
@@ -106,7 +106,7 @@ extension MorphDismissibleCardSpringSettle<T extends StatefulWidget>
 
     _nbrCtrl?.dispose();
     _nbrCtrl =
-        SingleMotionController(
+        MorphMotionController(
             motion: _spatialMotion(back, stiffness: back.stiffness * speedMul),
             vsync: this,
             initialValue: _neighbourFraction,
@@ -121,7 +121,7 @@ extension MorphDismissibleCardSpringSettle<T extends StatefulWidget>
 
     _roundnessCtrl?.dispose();
     _roundnessCtrl =
-        SingleMotionController(
+        MorphMotionController(
             motion: _spatialMotion(back, stiffness: back.stiffness * speedMul),
             vsync: this,
             initialValue: _roundnessFraction,
@@ -178,7 +178,7 @@ extension MorphDismissibleCardSpringSettle<T extends StatefulWidget>
     final back = style.springBackSpring;
     _springCtrl?.dispose();
     _springCtrl =
-        SingleMotionController(
+        MorphMotionController(
             motion: _spatialMotion(back, stiffness: back.stiffness * speedMul),
             vsync: this,
             initialValue: _dragOffset,
@@ -201,7 +201,7 @@ extension MorphDismissibleCardSpringSettle<T extends StatefulWidget>
 
     _nbrCtrl?.dispose();
     _nbrCtrl =
-        SingleMotionController(
+        MorphMotionController(
             motion: _spatialMotion(back, stiffness: back.stiffness * speedMul),
             vsync: this,
             initialValue: _neighbourFraction,

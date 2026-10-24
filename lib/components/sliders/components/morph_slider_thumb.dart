@@ -7,6 +7,7 @@ import 'package:morph_expressive/morph_components.dart'
     show MorphRangeSlider, MorphSlider;
 import 'package:motor/motor.dart';
 
+import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
 import '../res/morph_slider_tokens.dart';
 import '../styles/morph_slider_theme.dart';
@@ -73,7 +74,7 @@ class _MorphSliderThumbState extends State<MorphSliderThumb>
   @override
   void initState() {
     super.initState();
-    _short = SingleMotionController(motion: _motion(), vsync: this)
+    _short = MorphMotionController(motion: _motion(), vsync: this)
       ..value = _target;
     _short.addListener(_onTick);
   }

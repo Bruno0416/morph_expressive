@@ -383,7 +383,10 @@ extension _MorphExpandableItemHeader on _MorphExpandableItemState {
     );
 
     return TweenAnimationBuilder<BorderRadius?>(
-      duration: const Duration(milliseconds: 40),
+      duration: MorphMotion.durationOf(
+        context,
+        const Duration(milliseconds: 40),
+      ),
       curve: MorphMotion.enter,
       tween: BorderRadiusTween(
         begin: _buildEffectiveRadius(),

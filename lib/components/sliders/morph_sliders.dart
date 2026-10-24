@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
+import '../../foundations/interaction/morph_motion_controller.dart';
 import '../../foundations/foundations.dart';
 import 'components/morph_slider_centered_track.dart';
 import 'components/morph_slider_dot_overlay.dart';
@@ -508,14 +509,11 @@ class _MorphSliderState extends State<MorphSlider>
       vsync: this,
       duration: MorphMotion.extraLong2,
     );
-    _dockController = SingleMotionController(
+    _dockController = MorphMotionController(
       motion: MorphMotion.springMotion(MorphSliderTheme.defaults.dockSpring),
       vsync: this,
     )..addListener(_handleDockTick);
     MorphFocusInteraction.instance.addListener(_handleFocusInteraction);
-    if (widget.wavy) {
-      _waveController.repeat();
-    }
   }
 
   void _attachFocusNode(FocusNode? external) {
@@ -550,6 +548,20 @@ class _MorphSliderState extends State<MorphSlider>
     }
   }
 
+  void _syncWave() {
+    if (widget.wavy && !MorphMotion.reduceMotionOf(context)) {
+      if (!_waveController.isAnimating) _waveController.repeat();
+    } else {
+      _waveController.stop();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncWave();
+  }
+
   @override
   void didUpdateWidget(MorphSlider oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -557,13 +569,7 @@ class _MorphSliderState extends State<MorphSlider>
       _detachFocusNode();
       _attachFocusNode(widget.focusNode);
     }
-    if (widget.wavy) {
-      if (!_waveController.isAnimating) {
-        _waveController.repeat();
-      }
-    } else if (_waveController.isAnimating) {
-      _waveController.stop();
-    }
+    _syncWave();
   }
 
   @override

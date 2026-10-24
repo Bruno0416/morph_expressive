@@ -42,6 +42,7 @@ extension _MorphButtonSelectionContent on _MorphButtonState {
     final iconWidget = _buildSelectionIcon(icon, measurements);
     final row = _hasDistinctLabelStates
         ? SingleMotionBuilder(
+            active: !MorphMotion.reduceMotionOf(context),
             motion: _labelTransitionMotion(),
             value: _isSelected ? 1 : 0,
             builder: (context, progress, _) => _buildSelectionRow(

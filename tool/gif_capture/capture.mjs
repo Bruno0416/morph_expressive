@@ -11,7 +11,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const scenarios = ['buttons', 'dropdown', 'segmented', 'textfields', 'chips', 'sliders', 'loading', 'navigation', 'lists', 'dialogs'];
+const scenarios = ['buttons', 'dropdown', 'segmented', 'textfields', 'chips', 'sliders', 'loading', 'navigation', 'navigation_morph', 'navigation_rail_drawer', 'lists', 'dialogs'];
 const themes = ['purple', 'teal', 'blue'];
 const here = fileURLToPath(new URL('.', import.meta.url));
 const root = resolve(here, '../..');
@@ -27,6 +27,8 @@ const sceneSettings = {
   dialogs: { width: 640, height: 420, seconds: 6.5, theme: 'blue' },
   sliders: { width: 640, height: 360, seconds: 6.8, theme: 'purple' },
   loading: { width: 640, height: 360, seconds: 6.8, theme: 'teal' },
+  navigation_morph: { width: 640, height: 520, seconds: 7.2, theme: 'purple' },
+  navigation_rail_drawer: { width: 640, height: 500, seconds: 6.8, theme: 'teal' },
 };
 const secondsOverride = process.env.MORPH_GIF_SECONDS;
 const delayMs = 400;

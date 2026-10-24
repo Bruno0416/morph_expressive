@@ -45,7 +45,6 @@ import 'package:material_ui/material_ui.dart'
         KeyedSubtree,
         MainAxisSize,
         Material,
-        MediaQuery,
         MouseCursor,
         NoSplash,
         Offset,

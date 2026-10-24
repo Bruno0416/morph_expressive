@@ -30,6 +30,78 @@ void main() {
     });
   }
 
+  for (final (scene, height) in const [
+    ('navigation_morph', 520),
+    ('navigation_rail_drawer', 500),
+  ]) {
+    testWidgets('GIF scene $scene uses its dedicated capture canvas', (
+      tester,
+    ) async {
+      tester.view.physicalSize = Size(640, height.toDouble());
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(MorphGifCaptureApp(scene: scene));
+      await tester.pump();
+      expect(find.byKey(ValueKey('morph_gif_$scene')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('Morph navigation GIF retains distinct bars and page effects', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(640, 520);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      const MorphGifCaptureApp(scene: 'navigation_morph'),
+    );
+    await tester.pump();
+    expect(
+      find.byKey(const ValueKey('gif_navigation_morph_bar')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('gif_navigation_expressive_bar')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('gif_page_expand')), findsOneWidget);
+    expect(find.byKey(const ValueKey('gif_page_slide')), findsOneWidget);
+    expect(
+      tester
+          .widget<MorphPageIndicator>(
+            find.byKey(const ValueKey('gif_page_slide')),
+          )
+          .effect,
+      MorphPageIndicatorEffect.slide,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Morph vertical navigation GIF contains rail and drawer', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(640, 500);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      const MorphGifCaptureApp(scene: 'navigation_rail_drawer'),
+    );
+    await tester.pump();
+    expect(
+      find.byKey(const ValueKey('gif_navigation_morph_rail')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('gif_navigation_morph_drawer')),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('chip capture includes M3E, expressive single and multi', (
     tester,
   ) async {

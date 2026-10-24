@@ -7,6 +7,7 @@ import 'package:morph_expressive/components/menus/morph_menus.dart'
 import 'package:morph_expressive/morph_components.dart' show MorphMenu;
 import 'package:motor/motor.dart';
 
+import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
 import '../enums/morph_menu_anchor_position.dart';
 import '../enums/morph_menu_color_style.dart';
@@ -200,7 +201,7 @@ class _MorphMenuPopupState<T> extends State<MorphMenuPopup<T>>
       onBack: () => _dismiss(),
     );
 
-    _expandCtrl = SingleMotionController(
+    _expandCtrl = MorphMotionController(
       motion: MorphMotion.expressiveSpatialDefault.toMotion(),
       vsync: this,
     )..addListener(_onExpandTick);
@@ -318,12 +319,10 @@ class _MorphMenuPopupState<T> extends State<MorphMenuPopup<T>>
             _dismiss(restoreFocus: _focusScopeNode.hasFocus);
           },
           onDismiss: () {
-            entry.remove();
-            _submenuEntry = null;
+            if (identical(_submenuEntry, entry)) _removeSubmenu();
           },
           onRemove: () {
-            entry.remove();
-            _submenuEntry = null;
+            if (identical(_submenuEntry, entry)) _removeSubmenu();
           },
         );
       },

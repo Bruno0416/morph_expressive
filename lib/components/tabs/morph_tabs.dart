@@ -68,6 +68,7 @@ import 'package:material_ui/material_ui.dart'
         WidgetsBinding;
 import 'package:motor/motor.dart';
 
+import '../../foundations/interaction/morph_motion_controller.dart';
 import '../../foundations/foundations.dart';
 import '../badges/morph_badges.dart';
 import 'controllers/morph_tabs_controller.dart';
@@ -184,8 +185,8 @@ class _MorphTabsState extends State<MorphTabs> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     final spring = SpringMotion(MorphMotion.spatialDefault.toDescription());
-    _indicatorLeft = SingleMotionController(motion: spring, vsync: this);
-    _indicatorWidth = SingleMotionController(motion: spring, vsync: this);
+    _indicatorLeft = MorphMotionController(motion: spring, vsync: this);
+    _indicatorWidth = MorphMotionController(motion: spring, vsync: this);
     _alloc(widget.tabs.length);
     _scheduleMeasure();
   }

@@ -112,7 +112,7 @@ extension _MorphDropdownMenuChipBuild<T> on _MorphDropdownMenuState<T> {
       final key = option.value as Object;
       _chipSlideControllers.putIfAbsent(
         key,
-        () => SingleMotionController(
+        () => MorphMotionController(
           motion: MorphMotion.effectsFast.toMotion(),
           vsync: this,
         ),

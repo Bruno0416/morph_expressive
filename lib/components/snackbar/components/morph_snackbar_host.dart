@@ -98,6 +98,17 @@ class MorphSnackbarHostState extends State<MorphSnackbarHost>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MorphMotion.reduceMotionOf(context)) {
+      _controller.stop(canceled: false);
+      _controller.value = _dismissing ? 0 : 1;
+      _horizontal.stop(canceled: false);
+      _horizontal.value = 0;
+    }
+  }
+
+  @override
   void didUpdateWidget(MorphSnackbarHost oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
@@ -126,7 +137,7 @@ class MorphSnackbarHostState extends State<MorphSnackbarHost>
       _removeEntry();
       return;
     }
-    await _controller.reverse();
+    if (!MorphMotion.reduceMotionOf(context)) await _controller.reverse();
     _removeEntry();
   }
 
@@ -149,7 +160,7 @@ class MorphSnackbarHostState extends State<MorphSnackbarHost>
     }
     _horizontal.animateTo(
       0,
-      duration: MorphMotion.short4,
+      duration: MorphMotion.durationOf(context, MorphMotion.short4),
       curve: Curves.easeOutCubic,
     );
   }
@@ -159,13 +170,13 @@ class MorphSnackbarHostState extends State<MorphSnackbarHost>
     _dismissing = true;
     _timer?.cancel();
     MorphHaptics.selectionFor(context);
-    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+    if (MorphMotion.reduceMotionOf(context)) {
       _removeEntry();
       return;
     }
     await _horizontal.animateTo(
       direction.sign * (_barWidth + 80),
-      duration: MorphMotion.short4,
+      duration: MorphMotion.durationOf(context, MorphMotion.short4),
       curve: Curves.easeOutCubic,
     );
     _removeEntry();

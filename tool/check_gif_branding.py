@@ -22,7 +22,10 @@ LEGACY_EXPORTS = {
     "textfields.gif": "a809a35861494aeb38de0deb506e3fe558ae8fa5a4430b6aff65e1c6cb529e41",
 }
 
-REQUIRED_EXPORTS = set(LEGACY_EXPORTS) | {"lists.gif", "dialogs.gif"}
+REQUIRED_EXPORTS = set(LEGACY_EXPORTS) | {
+    "lists.gif", "dialogs.gif", "navigation_morph.gif",
+    "navigation_rail_drawer.gif",
+}
 
 stale = []
 missing = []
@@ -41,7 +44,7 @@ if missing or stale:
         details.append("GIF exports still have the former watermark: " + ", ".join(stale))
     if missing:
         details.append("Missing GIFs: " + ", ".join(missing))
-    details.append("Regenerate all ten: bash tool/generate_component_gifs.sh")
+    details.append("Regenerate missing captures: bash tool/generate_component_gifs.sh --only navigation_morph --only navigation_rail_drawer")
     raise SystemExit("\n".join(details))
 
 print("GIF branding OK: required assets are present and the renamed exports are updated")

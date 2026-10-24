@@ -1,3 +1,5 @@
+import '../interaction/morph_motion_scope.dart';
+
 import 'package:material_ui/material_ui.dart'
     show
         BuildContext,
@@ -60,7 +62,10 @@ class MorphResolvedTheme extends StatelessWidget {
         data: data,
         child: IconTheme(
           data: icons,
-          child: DefaultTextStyle(style: baseStyle, child: child),
+          child: MorphMotionScope(
+            reduceMotion: data.reduceMotion,
+            child: DefaultTextStyle(style: baseStyle, child: child),
+          ),
         ),
       ),
     );

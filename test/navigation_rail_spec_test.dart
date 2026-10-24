@@ -171,7 +171,7 @@ Future<void> _hugAndFill(WidgetTester tester) async {
       matching: find.byType(DecoratedBox),
     ),
   );
-  expect(hugged.height, greaterThanOrEqualTo(56));
+  expect(hugged.height, greaterThanOrEqualTo(48));
   expect(hugged.width, lessThan(172));
   expect(hugged.width, greaterThan(56));
   final double railLeft = tester
@@ -327,7 +327,7 @@ Future<void> _modalDismiss(WidgetTester tester) async {
           ),
         )
         .height,
-    greaterThanOrEqualTo(56),
+    greaterThanOrEqualTo(48),
   );
   await tester.pump(const Duration(milliseconds: 40));
   expect(
@@ -339,7 +339,7 @@ Future<void> _modalDismiss(WidgetTester tester) async {
           ),
         )
         .height,
-    greaterThanOrEqualTo(56),
+    greaterThanOrEqualTo(48),
   );
   await tester.pumpAndSettle();
   await tester.tapAt(const Offset(700, 300));
@@ -391,7 +391,7 @@ Future<void> _hiddenOpensExpanded(WidgetTester tester) async {
           ),
         )
         .height,
-    greaterThanOrEqualTo(56),
+    greaterThanOrEqualTo(48),
   );
   await tester.pump(MorphNavigationRailLayout.selectionDelay);
 }

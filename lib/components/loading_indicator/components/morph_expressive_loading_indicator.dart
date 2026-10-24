@@ -326,7 +326,13 @@ class _MorphExpressiveLoadingIndicatorState
   void didChangeDependencies() {
     super.didChangeDependencies();
     _loadingTheme = MorphTheme.of(context).loadingIndicatorTheme;
-    _ensureAnimationsStarted();
+    _reduced = MorphMotion.reduceMotionOf(context);
+    if (_reduced) {
+      _enterManualRotation();
+      _animationsStarted = false;
+    } else {
+      _ensureAnimationsStarted();
+    }
   }
 
   @override
@@ -334,6 +340,7 @@ class _MorphExpressiveLoadingIndicatorState
     super.didUpdateWidget(oldWidget);
     final wasManual = oldWidget.rotationTurns != null;
     final isManual = widget.rotationTurns != null;
+    if (_reduced) return;
     if (wasManual != isManual) {
       if (isManual) {
         _enterManualRotation();
@@ -348,6 +355,7 @@ class _MorphExpressiveLoadingIndicatorState
   }
 
   bool _animationsStarted = false;
+  bool _reduced = false;
 
   void _ensureAnimationsStarted() {
     if (_animationsStarted) {
@@ -404,7 +412,7 @@ class _MorphExpressiveLoadingIndicatorState
   }
 
   void _restartPeriodicAnimations() {
-    if (_manualRotation) {
+    if (_manualRotation || _reduced) {
       return;
     }
     _morphTimer?.cancel();
@@ -470,7 +478,7 @@ class _MorphExpressiveLoadingIndicatorState
   }
 
   void _startAnimations() {
-    if (_manualRotation) {
+    if (_manualRotation || _reduced) {
       return;
     }
     // infinite global rotation

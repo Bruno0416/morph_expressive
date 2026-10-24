@@ -12,6 +12,7 @@ MorphThemeData _morphDeriveDarkTemplate(MorphThemeData source) {
     highlightColor: source.highlightColor,
     keyboardFocusIndicators: source.keyboardFocusIndicators,
     hapticsEnabled: source.hapticsEnabled,
+    reduceMotion: source.reduceMotion,
     hapticFeedback: source.hapticFeedback,
     focusRingTheme: source.focusRingTheme,
     appBarTheme: source.appBarTheme,
@@ -76,6 +77,7 @@ MorphThemeData _morphCopyThemeData(
   Color? highlightColor,
   bool? keyboardFocusIndicators,
   bool? hapticsEnabled,
+  bool? reduceMotion,
   MorphHapticFeedback? hapticFeedback,
   MorphFocusRingTheme? focusRingTheme,
   MorphAppBarTheme? appBarTheme,
@@ -143,6 +145,7 @@ MorphThemeData _morphCopyThemeData(
     keyboardFocusIndicators:
         keyboardFocusIndicators ?? source.keyboardFocusIndicators,
     hapticsEnabled: hapticsEnabled ?? source.hapticsEnabled,
+    reduceMotion: reduceMotion ?? source.reduceMotion,
     hapticFeedback: hapticFeedback ?? source.hapticFeedback,
     focusRingTheme: focusRingTheme ?? source.focusRingTheme,
     appBarTheme: appBarTheme ?? source.appBarTheme,

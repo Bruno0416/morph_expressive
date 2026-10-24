@@ -76,6 +76,7 @@ import 'package:material_ui/material_ui.dart'
         WidgetsBinding;
 import 'package:motor/motor.dart';
 
+import '../../foundations/interaction/morph_motion_controller.dart';
 import '../../foundations/foundations.dart';
 import '../buttons/utils/morph_button_gradient_layer.dart';
 import '../floating_action_buttons/components/morph_fab_container_transform.dart';
@@ -215,7 +216,7 @@ class _MorphFabMenuState extends State<MorphFabMenu>
       widget.items.length,
       (_) => GlobalKey(),
     );
-    _fabShapeCtrl = SingleMotionController(
+    _fabShapeCtrl = MorphMotionController(
       motion: _springMotion(MorphFabMenuTheme.defaults.fabShapeSpring),
       vsync: this,
     );
@@ -285,7 +286,7 @@ class _MorphFabMenuState extends State<MorphFabMenu>
     final motion = _springMotion(MorphFabMenuTheme.defaults.expandSpring);
     return List<SingleMotionController>.generate(
       count,
-      (_) => SingleMotionController(motion: motion, vsync: this),
+      (_) => MorphMotionController(motion: motion, vsync: this),
     );
   }
 

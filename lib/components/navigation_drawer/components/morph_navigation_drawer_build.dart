@@ -110,10 +110,24 @@ extension _MorphNavigationDrawerBuild on _MorphNavigationDrawerState {
       bottomEnd: Radius.circular(theme.endCornerRadius),
     ).resolve(Directionality.of(context));
     final rows = _rows(data);
-    final body = height == null
+    final content = widget.motion == MorphNavigationMotion.morph
+        ? MorphSlidingIndicator(
+            leadSpring: theme.indicatorScaleSpring,
+            axis: Axis.vertical,
+            selectionDelay: widget.selectionDelay,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: rows,
+            ),
+          )
+        : null;
+    final body = content != null
+        ? SingleChildScrollView(child: content)
+        : height == null
         ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: rows)
         : ListView(padding: EdgeInsets.zero, children: rows);
     final material = Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       type: MaterialType.transparency,
       child: SafeArea(child: body),
     );
@@ -233,6 +247,7 @@ extension _MorphNavigationDrawerBuild on _MorphNavigationDrawerState {
             const SingleActivator(LogicalKeyboardKey.arrowUp): () => _move(-1),
           },
           child: MorphDrawerDestinationButton(
+            motion: widget.motion,
             destination: destinations[i],
             selected: index == widget.selectedIndex,
             focusNode: _nodes[index],

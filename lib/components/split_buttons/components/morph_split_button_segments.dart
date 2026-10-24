@@ -38,7 +38,7 @@ extension _MorphSplitButtonSegments<T> on _MorphSplitButtonState<T> {
       internalBottom: 0,
       targetRadius: targetRadius,
       pressed: pressed,
-      snapToTarget: MediaQuery.maybeDisableAnimationsOf(context) ?? false,
+      snapToTarget: MorphMotion.reduceMotionOf(context),
       builder: (padding, animatedRadius) => _buildLeadingSegmentSurface(
         context: context,
         height: height,
@@ -253,7 +253,7 @@ extension _MorphSplitButtonSegments<T> on _MorphSplitButtonState<T> {
       internalBottom: 0,
       targetRadius: targetRadius,
       pressed: pressed,
-      snapToTarget: MediaQuery.maybeDisableAnimationsOf(context) ?? false,
+      snapToTarget: MorphMotion.reduceMotionOf(context),
       builder: (padding, animatedRadius) => _buildTrailingSegmentSurface(
         context: context,
         height: height,
@@ -291,7 +291,7 @@ extension _MorphSplitButtonSegments<T> on _MorphSplitButtonState<T> {
     required double chevronDxOffset,
   }) {
     return AnimatedRotation(
-      duration: MorphMotion.short3,
+      duration: MorphMotion.durationOf(context, MorphMotion.short3),
       curve: MorphMotion.standard,
       turns: chevronTargetTurns,
       child: Transform.translate(

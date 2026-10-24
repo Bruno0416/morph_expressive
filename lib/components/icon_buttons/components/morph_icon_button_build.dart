@@ -388,7 +388,7 @@ extension _MorphIconButtonBuild on _MorphIconButtonState {
       internalBottom: 0,
       targetRadius: targetRadius,
       pressed: morphStates.contains(WidgetState.pressed),
-      snapToTarget: MediaQuery.maybeDisableAnimationsOf(context) ?? false,
+      snapToTarget: MorphMotion.reduceMotionOf(context),
       builder: (padding, animatedRadius) {
         final dec = widget.decoration;
         final fill =

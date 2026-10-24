@@ -162,6 +162,10 @@ class _MorphFabMenuItems {
         child: _itemOutline(
           fabMenuTheme,
           Material(
+            animationDuration: MorphMotion.durationOf(
+              menu.context,
+              MorphMotion.short4,
+            ),
             color: fill == null ? containerColor : const Color(0x00000000),
             elevation: fabMenuTheme.itemElevation,
             shadowColor: scheme.shadow,

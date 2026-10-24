@@ -36,6 +36,7 @@ extension _MorphTabsBuild on _MorphTabsState {
     return CallbackShortcuts(
       bindings: _shortcutBindings(),
       child: Material(
+        animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
         key: _barKey,
         color: tabTheme.backgroundColor(scheme),
         elevation: tabTheme.elevation,

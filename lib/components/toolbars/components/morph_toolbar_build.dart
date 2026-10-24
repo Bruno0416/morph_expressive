@@ -380,6 +380,7 @@ extension _MorphToolbarBuild on _MorphToolbarState {
     required bool hasTitle,
   }) {
     Widget bar = Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       color: background,
       elevation: elev,
       shape: shape,

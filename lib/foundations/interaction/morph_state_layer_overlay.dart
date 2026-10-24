@@ -62,6 +62,7 @@ class MorphStateLayerOverlay extends StatelessWidget {
     final MorphTappableInkScope? ink = MorphTappableInkScope.maybeOf(context);
     if (ink != null && ink.isInteractive) {
       return Material(
+        animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
         type: MaterialType.transparency,
         color: Colors.transparent,
         shape: shape,
@@ -105,7 +106,7 @@ class MorphStateLayerOverlay extends StatelessWidget {
 
     return IgnorePointer(
       child: AnimatedContainer(
-        duration: MorphMotion.short3,
+        duration: MorphMotion.durationOf(context, MorphMotion.short3),
         curve: MorphMotion.standard,
         alignment: alignment,
         decoration: ShapeDecoration(

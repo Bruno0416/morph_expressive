@@ -3,6 +3,7 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
+import '../../foundations/interaction/morph_motion_controller.dart';
 import '../../foundations/foundations.dart';
 import '../buttons/utils/morph_button_gradient_layer.dart';
 import '../tooltips/morph_tooltips.dart';
@@ -141,12 +142,12 @@ class _MorphFabState extends State<MorphFab>
   void initState() {
     super.initState();
     final bool startAppeared = !widget.appear;
-    _appearCtrl = SingleMotionController(
+    _appearCtrl = MorphMotionController(
       motion: _springMotion(MorphMotion.expressiveSpatialDefault),
       vsync: this,
       initialValue: startAppeared ? 1 : 0,
     )..addListener(_onAppearTick);
-    _visibilityCtrl = SingleMotionController(
+    _visibilityCtrl = MorphMotionController(
       motion: _springMotion(MorphMotion.expressiveSpatialDefault),
       vsync: this,
       initialValue: widget.controller?.isVisible == false ? 0 : 1,
@@ -452,7 +453,7 @@ class _MorphFabState extends State<MorphFab>
     );
 
     Widget surface = AnimatedContainer(
-      duration: radiusDuration,
+      duration: MorphMotion.durationOf(context, radiusDuration),
       curve: MorphMotion.standard,
       width: metrics.container,
       height: metrics.container,

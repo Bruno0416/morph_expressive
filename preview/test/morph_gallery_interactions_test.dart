@@ -70,6 +70,46 @@ void main() {
     expect(find.text('Last action: suggestion (2)'), findsOneWidget);
   });
 
+  testWidgets('navigation previews animate independently', (tester) async {
+    await start(tester);
+    await category(tester, 'navigation_bar');
+
+    Finder bar(String name) => find.descendant(
+      of: find.byKey(ValueKey('preview_nav_$name')),
+      matching: find.byType(MorphNavigationBar),
+    );
+
+    const otherVariants = <String>[
+      'wide',
+      'morph_compact',
+      'morph_wide',
+      'expressive',
+    ];
+    expect(tester.widget<MorphNavigationBar>(bar('compact')).selectedIndex, 0);
+    final untouchedWide = tester.widget<MorphNavigationBar>(bar('wide'));
+    for (final variant in otherVariants) {
+      expect(tester.widget<MorphNavigationBar>(bar(variant)).selectedIndex, 0);
+    }
+
+    tester.widget<MorphNavigationBar>(bar('compact')).onDestinationSelected!(1);
+    await tester.pump();
+
+    expect(tester.widget<MorphNavigationBar>(bar('compact')).selectedIndex, 1);
+    expect(
+      identical(tester.widget<MorphNavigationBar>(bar('wide')), untouchedWide),
+      isTrue,
+      reason: 'Untouched navigation samples should not rebuild',
+    );
+    for (final variant in otherVariants) {
+      expect(
+        tester.widget<MorphNavigationBar>(bar(variant)).selectedIndex,
+        0,
+        reason: 'Selection of compact must not animate $variant',
+      );
+    }
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('slider preview includes wave and range constructors', (
     tester,
   ) async {

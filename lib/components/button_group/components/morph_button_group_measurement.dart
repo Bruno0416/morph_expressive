@@ -65,7 +65,9 @@ extension _MorphButtonGroupMeasurement on _MorphButtonGroupState {
     _syncOverflowWindowOnUpdate();
     _layoutSignature = nextLayoutSignature;
     _focusNodeSignature = nextFocusNodeSignature;
-    if (_supportsAnimatedSquish && selectionChangedIndex != null) {
+    if (_supportsAnimatedSquish &&
+        selectionChangedIndex != null &&
+        !MorphMotion.reduceMotionOf(context)) {
       _pressCoordinator.animateSelection(selectionChangedIndex);
     }
   }

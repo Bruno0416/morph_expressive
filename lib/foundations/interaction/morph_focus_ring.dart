@@ -131,7 +131,7 @@ class MorphFocusRing extends StatelessWidget {
               right: -outset,
               child: IgnorePointer(
                 child: AnimatedContainer(
-                  duration: animationDuration,
+                  duration: MorphMotion.durationOf(context, animationDuration),
                   curve: MorphMotion.enter,
                   decoration: BoxDecoration(
                     border: Border.all(

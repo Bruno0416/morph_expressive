@@ -218,7 +218,10 @@ Future<void> _appearMorphStartsBelowRestingScale(WidgetTester tester) async {
       .map((Transform t) => t.transform.storage[0])
       .where(_belowRestingScale)
       .toList();
-  expect(scales, isNotEmpty);
+  final reduced = MorphMotion.reduceMotionOf(
+    tester.element(find.byType(MorphFab)),
+  );
+  expect(scales, reduced ? isEmpty : isNotEmpty);
 
   await tester.pumpAndSettle();
 }

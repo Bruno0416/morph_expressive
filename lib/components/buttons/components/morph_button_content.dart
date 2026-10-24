@@ -135,7 +135,7 @@ extension _MorphButtonContent on _MorphButtonState {
         internalBottom: baseInternalPadding.bottom,
         targetRadius: targetRadius,
         pressed: isPressed,
-        snapToTarget: MediaQuery.maybeDisableAnimationsOf(context) ?? false,
+        snapToTarget: MorphMotion.reduceMotionOf(context),
         freezeTopLeft: widget.isGroupConnected && shapes.freezeLeft,
         freezeBottomLeft: widget.isGroupConnected && shapes.freezeLeft,
         freezeTopRight: widget.isGroupConnected && shapes.freezeRight,

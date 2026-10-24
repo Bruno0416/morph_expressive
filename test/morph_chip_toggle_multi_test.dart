@@ -165,8 +165,12 @@ void main() {
     expect(selected, {'B'});
     expect(
       await _pixelAt(tester, capture, topPixel),
-      background,
-      reason: 'A new chip must not paint at full height immediately.',
+      MorphMotion.reduceMotionOf(
+            tester.element(find.byType(MorphChipToggle<String>)),
+          )
+          ? isNot(background)
+          : equals(background),
+      reason: 'Reduced motion paints the final pill; normal motion blooms.',
     );
 
     await tester.pumpAndSettle();

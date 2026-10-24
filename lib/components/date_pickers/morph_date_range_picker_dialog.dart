@@ -288,6 +288,7 @@ class _MorphDateRangePickerDialogState extends State<MorphDateRangePickerDialog>
       ),
     );
     final Widget dialog = Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       color: dateTheme.backgroundColor(theme.colorScheme),
       elevation: dateTheme.elevation,
       shape: RoundedRectangleBorder(borderRadius: dateTheme.dialogShape),

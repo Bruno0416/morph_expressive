@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
+import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
 
 /// Per-destination selection indicator.
@@ -54,12 +55,12 @@ class _MorphSelectionIndicatorState extends State<MorphSelectionIndicator>
   void initState() {
     super.initState();
     final bool selected = widget.selected;
-    _scale = SingleMotionController(
+    _scale = MorphMotionController(
       motion: _scaleMotion(widget.scaleSpring),
       vsync: this,
       initialValue: selected ? 1 : _restScale,
     );
-    _fade = SingleMotionController(
+    _fade = MorphMotionController(
       motion: _fadeMotion(widget.fadeSpring),
       vsync: this,
       initialValue: selected ? 1 : 0,

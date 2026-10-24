@@ -1,3 +1,5 @@
+import '../../../foundations/interaction/morph_motion.dart';
+
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
@@ -79,6 +81,15 @@ class _MorphRadiusAndPaddingMotionState
       _tween.transform(_activeCurve.transform(_controller.value));
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (widget.snapToTarget || MorphMotion.reduceMotionOf(context)) {
+      _controller.stop(canceled: false);
+      _controller.value = 1;
+    }
+  }
+
+  @override
   void didUpdateWidget(covariant MorphRadiusAndPaddingMotion oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.targetRadius == oldWidget.targetRadius &&
@@ -94,8 +105,7 @@ class _MorphRadiusAndPaddingMotionState
     final next = _target();
     _tween = _MorphShapeTween(begin: current, end: next);
     _activeCurve = widget.pressed ? _pressCurve : _releaseCurve;
-    if (widget.snapToTarget ||
-        (MediaQuery.maybeOf(context)?.disableAnimations ?? false)) {
+    if (widget.snapToTarget || MorphMotion.reduceMotionOf(context)) {
       _controller.stop();
       _controller.value = 1;
       return;
@@ -144,8 +154,7 @@ class _MorphRadiusAndPaddingMotionState
   @override
   Widget build(BuildContext context) {
     final bool instant =
-        widget.snapToTarget ||
-        (MediaQuery.maybeOf(context)?.disableAnimations ?? false);
+        widget.snapToTarget || MorphMotion.reduceMotionOf(context);
     return RepaintBoundary(
       child: AnimatedBuilder(
         animation: _controller,

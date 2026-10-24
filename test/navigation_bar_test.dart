@@ -170,7 +170,13 @@ Future<void> _morphnavigationbarSelectionIndicatorScalesInPlace(
       .widgetList<MorphSelectionIndicator>(find.byType(MorphSelectionIndicator))
       .toList();
   // La entrada anima alfa y escala; no muestra de golpe la pildora.
-  expect(_indicatorOpacity(tester, indicators[1]), lessThan(1));
+  final reduced = MorphMotion.reduceMotionOf(
+    tester.element(find.byType(MorphNavigationBar)),
+  );
+  expect(
+    _indicatorOpacity(tester, indicators[1]),
+    reduced ? equals(1) : lessThan(1),
+  );
   expect(_indicatorScaleX(tester, indicators[1]), greaterThanOrEqualTo(0.64));
 
   await tester.pump(const Duration(milliseconds: 32));
@@ -180,10 +186,16 @@ Future<void> _morphnavigationbarSelectionIndicatorScalesInPlace(
       .toList();
   final double incoming = _indicatorScaleX(tester, indicators[1]);
   expect(incoming, greaterThan(0.64));
-  expect(incoming, lessThan(1));
+  expect(incoming, reduced ? equals(1) : lessThan(1));
   expect(_indicatorOpacity(tester, indicators[1]), greaterThan(0));
-  expect(_indicatorOpacity(tester, indicators[1]), lessThan(1));
-  expect(_indicatorOpacity(tester, indicators[0]), lessThan(1));
+  expect(
+    _indicatorOpacity(tester, indicators[1]),
+    reduced ? equals(1) : lessThan(1),
+  );
+  expect(
+    _indicatorOpacity(tester, indicators[0]),
+    reduced ? equals(0) : lessThan(1),
+  );
 }
 
 Future<void> _morphnavigationbarWorksUnderAWidgetsappWithTheMaterial(

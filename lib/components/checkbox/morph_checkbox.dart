@@ -185,6 +185,12 @@ class _MorphCheckboxState extends State<MorphCheckbox>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MorphMotion.reduceMotionOf(context)) _scaleController.value = 1;
+  }
+
+  @override
   void dispose() {
     _scaleController.dispose();
     _ownedNode?.dispose();
@@ -216,6 +222,10 @@ class _MorphCheckboxState extends State<MorphCheckbox>
   }
 
   void _pulse() {
+    if (MorphMotion.reduceMotionOf(context)) {
+      _scaleController.value = 1;
+      return;
+    }
     final pulse = MorphTheme.of(context).checkboxTheme.pulseSpring;
     _scaleController.value = _pulseScale;
     _scaleController.animateWith(
@@ -381,6 +391,7 @@ class _MorphCheckboxState extends State<MorphCheckbox>
       pressed: true,
     );
     return Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       type: MaterialType.transparency,
       color: Colors.transparent,
       shape: const CircleBorder(),
@@ -449,7 +460,7 @@ class _MorphCheckboxState extends State<MorphCheckbox>
     final double outline =
         checkboxTheme.outlineWidth(active: active) * sizeScale.clamp(0.5, 2);
     return AnimatedContainer(
-      duration: MorphMotion.short3,
+      duration: MorphMotion.durationOf(context, MorphMotion.short3),
       curve: MorphMotion.standard,
       width: boxSize,
       height: boxSize,

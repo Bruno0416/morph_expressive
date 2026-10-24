@@ -1,7 +1,6 @@
 import 'package:material_ui/material_ui.dart'
     show
         Alignment,
-        AnimatedSize,
         BoxDecoration,
         BuildContext,
         Column,
@@ -229,8 +228,12 @@ class _MorphCalendarDatePickerState extends State<MorphCalendarDatePicker> {
               monthDate: _displayedMonth,
               onChanged: _handleModeChanged,
             ),
-            AnimatedSize(
-              duration: MorphDatePickerConstants.dialogSizeAnimationDuration,
+            MorphMotion.sizeTransition(
+              context: context,
+              duration: MorphMotion.durationOf(
+                context,
+                MorphDatePickerConstants.dialogSizeAnimationDuration,
+              ),
               curve: MorphMotion.exit,
               alignment: Alignment.topCenter,
               child: SizedBox(

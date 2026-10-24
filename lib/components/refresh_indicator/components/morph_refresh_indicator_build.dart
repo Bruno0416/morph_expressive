@@ -131,7 +131,7 @@ extension _MorphRefreshIndicatorBuild on MorphRefreshIndicatorState {
     switch (widget._indicatorType) {
       case _IndicatorType.expressive:
       case _IndicatorType.contained:
-        return _buildContainedLoadingIndicator();
+        return _withRefreshRing(_buildContainedLoadingIndicator());
       case _IndicatorType.material:
         return _buildMaterialIndicator(context, showIndeterminate);
       case _IndicatorType.adaptive:
@@ -139,6 +139,45 @@ extension _MorphRefreshIndicatorBuild on MorphRefreshIndicatorState {
       case _IndicatorType.noSpinner:
         return const SizedBox.shrink();
     }
+  }
+
+  /// Displays pull progress around the filled expressive spinner. On refresh
+  /// the ring becomes indeterminate; at completion it becomes a full ring.
+  Widget _withRefreshRing(Widget indicator) {
+    final loading = MorphTheme.of(context).loadingIndicatorTheme;
+    final maxWidth = widget.indicatorConstraints?.maxWidth;
+    final maxHeight = widget.indicatorConstraints?.maxHeight;
+    final outer = math.max(
+      maxWidth != null && maxWidth.isFinite ? maxWidth : loading.containerWidth,
+      maxHeight != null && maxHeight.isFinite
+          ? maxHeight
+          : loading.containerHeight,
+    );
+    final size = outer + 12;
+    final refreshing =
+        _status == MorphRefreshStatus.refresh ||
+        _status == MorphRefreshStatus.snap;
+    final progress = refreshing
+        ? null
+        : (_status == MorphRefreshStatus.done ? 1.0 : _revealProgress(context));
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          MorphProgressIndicator.circular(
+            value: progress,
+            size: size,
+            strokeWidth: 2.5,
+            trackStrokeWidth: 2,
+            color: _effectiveValueColor,
+            trackColor: _effectiveValueColor.withValues(alpha: 0.16),
+          ),
+          indicator,
+        ],
+      ),
+    );
   }
 
   /// Contained loading spinner for expressive and contained refresh kinds.

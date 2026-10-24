@@ -59,6 +59,20 @@ class MorphCarouselController extends ScrollController {
     _openAll = null;
   }
 
+  @override
+  Future<void> animateTo(
+    double offset, {
+    required Duration duration,
+    required Curve curve,
+  }) {
+    final state = _carouselState;
+    if (state != null && MorphMotion.reduceMotionOf(state.context)) {
+      jumpTo(offset);
+      return Future<void>.value();
+    }
+    return super.animateTo(offset, duration: duration, curve: curve);
+  }
+
   /// Item the next swipe or [next] call continues from.
   int get currentItem {
     final int Function()? read = _readItem;
@@ -171,6 +185,12 @@ class MorphCarouselController extends ScrollController {
     Duration duration = MorphMotion.medium2,
     Curve curve = MorphMotion.standard,
   }) async {
+    final state = _carouselState;
+    final reduced = state != null && MorphMotion.reduceMotionOf(state.context);
+    if (reduced) {
+      jumpToItem(index);
+      return;
+    }
     final move = _moveTo;
     if (move != null) {
       await move(index, jump: false, duration: duration, curve: curve);
@@ -323,11 +343,13 @@ class MorphCarouselController extends ScrollController {
     if (position is! _CarouselPosition || _carouselState == null) {
       return;
     }
+    position.updateGeometry(
+      itemExtent: _carouselState!._itemExtent,
+      flexWeights: _carouselState!._flexWeights,
+      restingExtents: _carouselState!.widget.restingExtents,
+      consumeMaxWeight: _carouselState!._consumeMaxWeight,
+    );
     position
-      ..flexWeights = _carouselState!._flexWeights
-      ..restingExtents = _carouselState!.widget.restingExtents
-      ..itemExtent = _carouselState!._itemExtent
-      ..consumeMaxWeight = _carouselState!._consumeMaxWeight
       ..infinite = _carouselState!.widget.infinite
       ..itemCount = _getItemCount();
   }

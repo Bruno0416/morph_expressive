@@ -1,5 +1,8 @@
 import 'dart:ui' show SemanticsRole;
 
+import 'package:flutter/widgets.dart' show Transform, Offset, Opacity;
+import 'package:motor/motor.dart';
+
 import 'package:material_ui/material_ui.dart'
     show
         Alignment,
@@ -23,8 +26,10 @@ import 'package:material_ui/material_ui.dart'
         IgnorePointer,
         InkWell,
         MainAxisAlignment,
+        MediaQuery,
         NoSplash,
         Padding,
+        OverflowBox,
         Positioned,
         Row,
         Semantics,
@@ -42,6 +47,7 @@ import 'package:material_ui/material_ui.dart'
         WidgetStatePropertyAll;
 
 import '../../../foundations/foundations.dart';
+import '../../navigation_rail/components/morph_sliding_indicator.dart';
 import '../../navigation_rail/components/morph_nav_icon_scale.dart';
 import '../../navigation_rail/components/morph_nav_selection_indicator.dart';
 import '../enums/morph_nav_bar_enums.dart';
@@ -55,6 +61,10 @@ import '../styles/morph_navigation_bar_theme.dart';
 class MorphNavBarDestinationButton extends StatelessWidget {
   /// MorphNavBarDestinationButton.
   const MorphNavBarDestinationButton({
+    this.motion = MorphNavigationMotion.standard,
+    this.expressive = false,
+    this.topIndicatorWidth = 40,
+    this.topIndicatorHeight = 4,
     required this.destination,
     required this.selected,
     required this.selectedColor,
@@ -195,6 +205,13 @@ class MorphNavBarDestinationButton extends StatelessWidget {
 
   bool get _wide => layout == MorphNavBarLayout.wide;
 
+  final bool expressive;
+  final double topIndicatorWidth;
+  final double topIndicatorHeight;
+
+  /// Selection choreography used by the owning navigation widget.
+  final MorphNavigationMotion motion;
+
   @override
   Widget build(BuildContext context) {
     final MorphNavigationBarTheme theme = MorphTheme.of(context)
@@ -252,6 +269,7 @@ class MorphNavBarDestinationButton extends StatelessWidget {
     MorphInteractionState state,
     MorphNavigationBarTheme theme,
   ) {
+    if (expressive) return _expressiveContent(context, theme);
     Widget child = Padding(
       padding: contentPadding,
       child: _wide
@@ -272,6 +290,73 @@ class MorphNavBarDestinationButton extends StatelessWidget {
       );
     }
     return child;
+  }
+
+  Widget _expressiveContent(
+    BuildContext context,
+    MorphNavigationBarTheme theme,
+  ) {
+    final hasLabel =
+        destination.hasLabel &&
+        labelBehavior != MorphNavBarLabelBehavior.alwaysHide;
+    final scaledLabelHeight =
+        MediaQuery.textScalerOf(context)
+            .scale(labelStyle.fontSize ?? theme.labelFontSize) *
+        (labelStyle.height ?? theme.labelLineHeight / theme.labelFontSize);
+    final alwaysLabel = labelBehavior == MorphNavBarLabelBehavior.alwaysShow;
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        if (indicatorStyle != MorphNavBarIndicatorStyle.none)
+          Positioned(
+            top: 0,
+            width: topIndicatorWidth,
+            height: topIndicatorHeight,
+            child: MorphIndicatorTarget(
+              selected: selected,
+              decoration: BoxDecoration(
+                color: indicatorColor,
+                borderRadius: BorderRadius.circular(topIndicatorHeight / 2),
+              ),
+            ),
+          ),
+        SingleMotionBuilder(
+          motion: MorphMotion.springMotion(theme.indicatorScaleSpring),
+          value: selected ? 1.0 : 0.0,
+          active: !MorphMotion.reduceMotionOf(context),
+          builder: (context, value, child) {
+            final t = value.clamp(0.0, 1.0);
+            final labelVisible = alwaysLabel ? 1.0 : t;
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (_showIcon)
+                  Transform.translate(
+                    offset: Offset(0, hasLabel ? -3 * labelVisible : 0),
+                    child: _icon(selected ? selectedColor : unselectedColor),
+                  ),
+                if (hasLabel)
+                  SizedBox(
+                    height: (scaledLabelHeight + 4) * labelVisible,
+                    child: OverflowBox(
+                      alignment: Alignment.topCenter,
+                      minHeight: scaledLabelHeight + 4,
+                      maxHeight: scaledLabelHeight + 4,
+                      child: Opacity(
+                        opacity: labelVisible,
+                        child: _label(
+                          selected ? activeLabelColor : unselectedColor,
+                          theme,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
   }
 
   Widget _verticalContent(
@@ -349,24 +434,45 @@ class MorphNavBarDestinationButton extends StatelessWidget {
       children: <Widget>[
         if (_pill)
           Positioned.fill(
-            child: MorphSelectionIndicator(
-              selected: selected,
-              scaleSpring: theme.indicatorScaleSpring,
-              fadeSpring: theme.indicatorFadeSpring,
-              child: _pillFill(selected ? overlay : null),
+            child: motion == MorphNavigationMotion.morph
+                ? MorphIndicatorTarget(
+                    selected: selected,
+                    decoration: BoxDecoration(
+                      color: indicatorColor,
+                      borderRadius: BorderRadius.circular(indicatorRadius),
+                    ),
+                  )
+                : MorphSelectionIndicator(
+                    selected: selected,
+                    scaleSpring: theme.indicatorScaleSpring,
+                    fadeSpring: theme.indicatorFadeSpring,
+                    child: _pillFill(selected ? overlay : null),
+                  ),
+          ),
+        if (reduced ||
+            (_pill &&
+                selected &&
+                motion == MorphNavigationMotion.morph &&
+                overlay != null))
+          Positioned.fill(
+            child: _pillFill(
+              overlay,
+              stateOnly: motion == MorphNavigationMotion.morph,
             ),
           ),
-        if (reduced) Positioned.fill(child: _pillFill(overlay)),
         icon,
       ],
     );
   }
 
   /// Indicator color clipped to the pill, with the state fill inside that clip.
-  Widget _pillFill(Color? overlay) {
+  Widget _pillFill(Color? overlay, {bool stateOnly = false}) {
     final radius = BorderRadius.circular(indicatorRadius);
     return DecoratedBox(
-      decoration: BoxDecoration(color: indicatorColor, borderRadius: radius),
+      decoration: BoxDecoration(
+        color: stateOnly ? null : indicatorColor,
+        borderRadius: radius,
+      ),
       child: ClipRRect(
         borderRadius: radius,
         child: overlay == null

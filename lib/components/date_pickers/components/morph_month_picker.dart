@@ -134,6 +134,10 @@ class _MorphMonthPickerState extends State<MorphMonthPicker> {
   }
 
   void _goToPage(int page) {
+    if (MorphMotion.reduceMotionOf(context)) {
+      _pageController.jumpToPage(page);
+      return;
+    }
     _pageController.animateToPage(
       page,
       duration: MorphDatePickerConstants.monthScrollDuration,

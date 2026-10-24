@@ -285,6 +285,7 @@ extension _MorphButtonGroupLayout on _MorphButtonGroupState {
       valueListenable: _pressCoordinator.pressedIndexNotifier,
       builder: (context, pressedIndex, _) {
         return SingleMotionBuilder(
+          active: !MorphMotion.reduceMotionOf(context),
           motion: MorphMotion.springMotion(spring),
           value: pressedIndex != null ? 1.0 : 0.0,
           builder: (context, animValue, _) {
@@ -559,7 +560,7 @@ extension _MorphButtonGroupLayout on _MorphButtonGroupState {
         );
 
         return AnimatedContainer(
-          duration: MorphMotion.short2,
+          duration: MorphMotion.durationOf(context, MorphMotion.short2),
           curve: MorphMotion.enter,
           width: widget.direction == Axis.horizontal ? gap : 0,
           height: widget.direction == Axis.vertical ? gap : 0,

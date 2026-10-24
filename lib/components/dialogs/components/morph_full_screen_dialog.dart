@@ -3,6 +3,7 @@ import 'dart:ui' show SemanticsRole, lerpDouble;
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
+import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
 import '../../divider/morph_divider.dart';
 import '../../floating_action_buttons/morph_floating_action_buttons.dart';
@@ -101,11 +102,11 @@ class _MorphFullScreenDialogState extends State<MorphFullScreenDialog>
         .dialogTheme
         .fullScreen
         .scrollSpring;
-    _header = SingleMotionController(
+    _header = MorphMotionController(
       motion: morphDialogSpringMotion(spring),
       vsync: this,
     );
-    _bar = SingleMotionController(
+    _bar = MorphMotionController(
       motion: morphDialogSpringMotion(spring),
       vsync: this,
     );

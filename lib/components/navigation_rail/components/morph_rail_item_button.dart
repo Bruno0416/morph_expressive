@@ -46,6 +46,7 @@ import 'package:material_ui/material_ui.dart'
         WidgetStatePropertyAll;
 
 import '../../../foundations/foundations.dart';
+import '../../navigation_rail/components/morph_sliding_indicator.dart';
 import '../enums/morph_navigation_rail_enums.dart';
 import '../styles/morph_navigation_rail_theme.dart';
 import 'morph_nav_icon_scale.dart';
@@ -58,6 +59,7 @@ import 'morph_rail_badge_view.dart';
 class MorphRailItemButton extends StatelessWidget {
   /// Creates a [MorphRailItemButton].
   const MorphRailItemButton({
+    this.motion = MorphNavigationMotion.standard,
     super.key,
     required this.icon,
     this.selectedIcon,
@@ -128,6 +130,9 @@ class MorphRailItemButton extends StatelessWidget {
       MorphNavigationRailLabelBehavior.alwaysHide => false,
     };
   }
+
+  /// Selection choreography used by the owning navigation widget.
+  final MorphNavigationMotion motion;
 
   @override
   Widget build(BuildContext context) {
@@ -316,15 +321,39 @@ class MorphRailItemButton extends StatelessWidget {
       alignment: alignment,
       children: <Widget>[
         Positioned.fill(
-          child: MorphSelectionIndicator(
-            selected: isSelected,
-            scaleSpring: theme.indicatorScaleSpring,
-            fadeSpring: theme.indicatorFadeSpring,
-            child: _pillFill(theme, morph, radius, isSelected ? overlay : null),
-          ),
+          child: motion == MorphNavigationMotion.morph
+              ? MorphIndicatorTarget(
+                  selected: isSelected,
+                  decoration: BoxDecoration(
+                    color: theme.activeIndicatorColorResolved(
+                      morph.colorScheme,
+                    ),
+                    borderRadius: BorderRadius.circular(radius),
+                  ),
+                )
+              : MorphSelectionIndicator(
+                  selected: isSelected,
+                  scaleSpring: theme.indicatorScaleSpring,
+                  fadeSpring: theme.indicatorFadeSpring,
+                  child: _pillFill(
+                    theme,
+                    morph,
+                    radius,
+                    isSelected ? overlay : null,
+                  ),
+                ),
         ),
-        if (!isSelected && interacting)
-          Positioned.fill(child: _pillFill(theme, morph, radius, overlay)),
+        if (interacting &&
+            (!isSelected || motion == MorphNavigationMotion.morph))
+          Positioned.fill(
+            child: _pillFill(
+              theme,
+              morph,
+              radius,
+              overlay,
+              stateOnly: motion == MorphNavigationMotion.morph,
+            ),
+          ),
         if (state.focused) _ring(context, theme, radius),
         icon,
       ],
@@ -335,12 +364,15 @@ class MorphRailItemButton extends StatelessWidget {
     MorphNavigationRailTheme theme,
     MorphThemeData morph,
     double radius,
-    Color? overlay,
-  ) {
+    Color? overlay, {
+    bool stateOnly = false,
+  }) {
     final border = BorderRadius.circular(radius);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: theme.activeIndicatorColorResolved(morph.colorScheme),
+        color: stateOnly
+            ? null
+            : theme.activeIndicatorColorResolved(morph.colorScheme),
         borderRadius: border,
       ),
       child: ClipRRect(

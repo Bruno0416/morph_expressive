@@ -10,7 +10,8 @@ extension _MorphRefreshIndicatorScroll on MorphRefreshIndicatorState {
     final MorphRefreshIndicatorTheme refreshTheme = MorphTheme.of(context)
         .refreshIndicatorTheme;
 
-    if (widget._indicatorType == _IndicatorType.contained) {
+    if (widget._indicatorType == _IndicatorType.contained ||
+        widget._indicatorType == _IndicatorType.expressive) {
       _effectiveValueColor =
           widget.color ?? refreshTheme.containedActiveColor(scheme);
       _effectiveContainerColor =
@@ -445,6 +446,11 @@ extension _MorphRefreshIndicatorScroll on MorphRefreshIndicatorState {
     MorphSpring? spring,
     double? velocity,
   }) {
+    if (MorphMotion.reduceMotionOf(context)) {
+      controller.stop(canceled: false);
+      controller.value = target;
+      return Future<void>.value();
+    }
     final resolved =
         spring ?? MorphTheme.of(context).refreshIndicatorTheme.settleSpring;
     return controller.animateWith(

@@ -588,7 +588,14 @@ Future<void> _layoutMorph(WidgetTester tester) async {
   final double mid = tester
       .getRect(find.byKey(const ValueKey<String>('main')))
       .width;
-  expect(mid, lessThan(500), reason: 'still springing');
+  final reduced = MorphMotion.reduceMotionOf(
+    tester.element(find.byKey(const ValueKey<String>('main'))),
+  );
+  expect(
+    mid,
+    reduced ? equals(500) : lessThan(500),
+    reason: 'Only normal motion springs across the breakpoint.',
+  );
   await tester.pumpAndSettle();
   expect(tester.getRect(find.byKey(const ValueKey<String>('main'))).width, 500);
   expect(

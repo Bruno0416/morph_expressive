@@ -16,7 +16,7 @@ class MorphRefreshIndicatorTheme
   static const double kDefaultEdgeOffset = 0;
 
   /// kDefaultElevation.
-  static const double kDefaultElevation = 2;
+  static const double kDefaultElevation = 0;
 
   /// kDragContainerExtentPercentage.
   static const double kDragContainerExtentPercentage = 0.25;

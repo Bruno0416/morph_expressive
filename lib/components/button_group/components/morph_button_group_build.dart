@@ -275,6 +275,7 @@ extension _MorphButtonGroupBuild on _MorphButtonGroupState {
     final motion = MorphMotion.springMotion(spring);
 
     return SingleMotionBuilder(
+      active: !MorphMotion.reduceMotionOf(context),
       motion: motion,
       value: selected ? 1.0 : 0.0,
       builder: (context, progress, child) {

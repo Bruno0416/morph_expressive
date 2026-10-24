@@ -4,6 +4,7 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
+import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
 import '../enums/morph_dialog_enums.dart';
 import '../styles/morph_dialog_theme.dart';
@@ -67,11 +68,11 @@ class _MorphDialogTransitionState extends State<MorphDialogTransition>
     final MorphSpring spatial = widget.variant == MorphDialogVariant.fullScreen
         ? dialogTheme.fullScreen.enterSpring
         : dialogTheme.enterSpring;
-    _spatial = SingleMotionController(
+    _spatial = MorphMotionController(
       motion: morphDialogSpringMotion(spatial),
       vsync: this,
     );
-    _fade = SingleMotionController(
+    _fade = MorphMotionController(
       motion: morphDialogSpringMotion(dialogTheme.fadeSpring),
       vsync: this,
     );
@@ -90,7 +91,7 @@ class _MorphDialogTransitionState extends State<MorphDialogTransition>
 
   void _onStatus(AnimationStatus status) {
     final double target = status.isForwardOrCompleted ? 1 : 0;
-    final bool reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final bool reduce = MorphMotion.reduceMotionOf(context);
     if (status == AnimationStatus.completed && _spatial!.value == 0 || reduce) {
       _spatial!.value = target;
       _fade!.value = target;

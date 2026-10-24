@@ -63,7 +63,10 @@ class MorphDialogInset extends StatelessWidget {
 
     return AnimatedPadding(
       padding: viewInsets + system + margin,
-      duration: duration ?? dialogTheme.insetAnimationDuration,
+      duration: MorphMotion.durationOf(
+        context,
+        duration ?? dialogTheme.insetAnimationDuration,
+      ),
       curve: curve ?? dialogTheme.insetAnimationCurve,
       child: MediaQuery.removePadding(
         removeLeft: true,

@@ -77,6 +77,7 @@ mixin _MorphNavigationRailChildrenMixin on State<MorphNavigationRail> {
           _paddedDestination(
             gap: theme.expandedItemGap,
             child: MorphRailItem(
+              motion: widget.motion,
               destination: dest,
               selected: itemIndex == widget.selectedIndex,
               onTap: () => widget.onDestinationSelected(itemIndex),
@@ -102,6 +103,7 @@ mixin _MorphNavigationRailChildrenMixin on State<MorphNavigationRail> {
         _paddedDestination(
           gap: theme.itemVerticalGap,
           child: MorphRailItem(
+            motion: widget.motion,
             destination: all[i],
             selected: i == widget.selectedIndex,
             onTap: () => widget.onDestinationSelected(i),

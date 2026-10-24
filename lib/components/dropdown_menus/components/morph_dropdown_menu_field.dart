@@ -138,7 +138,7 @@ extension _MorphDropdownMenuField<T> on _MorphDropdownMenuState<T> {
     if (fd.animateSuffixIcon) {
       return AnimatedRotation(
         turns: _controller.isOpen ? 0.5 : 0,
-        duration: MorphMotion.short4,
+        duration: MorphMotion.durationOf(context, MorphMotion.short4),
         child: fd.suffixIcon,
       );
     }
@@ -247,7 +247,7 @@ extension _MorphDropdownMenuField<T> on _MorphDropdownMenuState<T> {
         : const Duration(milliseconds: 40);
 
     return TweenAnimationBuilder<BorderRadius?>(
-      duration: duration,
+      duration: MorphMotion.durationOf(context, duration),
       curve: MorphMotion.enter,
       tween: BorderRadiusTween(
         begin: _buildEffectiveFieldRadius(),
@@ -371,6 +371,7 @@ extension _MorphDropdownMenuField<T> on _MorphDropdownMenuState<T> {
       parentNode: _portalController.isShowing ? _focusTrapScope : null,
       onKeyEvent: _handleFieldKeyEvent,
       child: Material(
+        animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
         color: bgColor,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(borderRadius: radius, side: borderSide),

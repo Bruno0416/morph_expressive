@@ -22,6 +22,7 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
     double maxWidth,
     MorphNavigationBarTheme theme,
   ) {
+    if (widget._expressive) return MorphNavBarLayout.compact;
     if (!widget.autoLayout) {
       return widget.layout;
     }
@@ -152,7 +153,10 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
       final double maxWidth = wide
           ? cellWidth -
                 theme.horizontalIndicatorInset * 2 -
-                (icon ? theme.iconSize + theme.horizontalIconLabelGap : 0)
+                (icon
+                    ? (widget.iconSize ?? theme.iconSize) +
+                          theme.horizontalIconLabelGap
+                    : 0)
           : cellWidth;
       tallest = math.max(
         tallest,
@@ -191,8 +195,12 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
     );
     final Color background =
         widget.backgroundColor ?? theme.containerColor(scheme);
-    final ShapeBorder shape = theme.containerShape(widget.shapeFamily);
-    final double bottomInset = widget.safeArea
+    final ShapeBorder shape = widget.floating
+        ? RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(widget.floatingRadius),
+          )
+        : theme.containerShape(widget.shapeFamily);
+    final double bottomInset = widget.safeArea && !widget.floating
         ? MorphSafeArea.bottomOf(context)
         : 0.0;
     final Color indicator =
@@ -200,9 +208,16 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
     final rtl = Directionality.of(context) == TextDirection.rtl;
     final bool shown = _shown(context);
 
+    final glass = widget.glass;
+    final opaque =
+        glass == null ||
+        (glass.opaqueInHighContrast && MediaQuery.highContrastOf(context));
     Widget nav = Material(
-      color: background,
-      elevation: widget.elevation ?? theme.elevation,
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
+      color: opaque ? background : const Color(0x00000000),
+      // A glass surface already has its own backdrop and tint. Avoid the
+      // default Material shadow layer underneath it; respect an explicit one.
+      elevation: widget.elevation ?? (opaque ? theme.elevation : 0),
       shadowColor: theme.shadowColor(scheme),
       surfaceTintColor: const Color(0x00000000),
       shape: shape,
@@ -223,6 +238,54 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
         ),
       ),
     );
+    if (glass != null && !opaque) {
+      final bool canBlur =
+          (!kIsWeb || glass.webBackdropBlur) &&
+          (glass.blurX > 0 || glass.blurY > 0);
+      final bool blurEnabled =
+          glass.blurDuringScroll ||
+          !MorphNavigationScrollActivity.isScrollingOf(context);
+      Widget backdropLayer = DecoratedBox(
+        decoration: BoxDecoration(
+          color: (glass.tint ?? background).withValues(
+            alpha: glass.tintOpacity,
+          ),
+          gradient: glass.gradient,
+          border: glass.borderColor == null
+              ? null
+              : Border.all(color: glass.borderColor!, width: glass.borderWidth),
+          borderRadius: BorderRadius.circular(
+            widget.floating ? widget.floatingRadius : 0,
+          ),
+        ),
+      );
+      if (canBlur) {
+        // Keep the filter mounted when a scroll/visibility animation pauses
+        // it. Toggling `enabled` preserves the compositing subtree instead of
+        // tearing down and rebuilding the backdrop layer on each transition.
+        backdropLayer = BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: glass.blurX, sigmaY: glass.blurY),
+          blendMode: glass.blendMode,
+          enabled: blurEnabled,
+          child: backdropLayer,
+        );
+      }
+      nav = ClipRRect(
+        borderRadius: BorderRadius.circular(
+          widget.floating ? widget.floatingRadius : 0,
+        ),
+        child: Stack(
+          fit: StackFit.passthrough,
+          children: [
+            // Render the backdrop *behind* the bar rather than wrapping the
+            // animated indicators and icons in the blur's child. This is one
+            // fixed-size raster boundary, clipped to the actual bar bounds.
+            Positioned.fill(child: RepaintBoundary(child: backdropLayer)),
+            nav,
+          ],
+        ),
+      );
+    }
     nav = Padding(padding: widget.padding ?? EdgeInsets.zero, child: nav);
     nav = CallbackShortcuts(
       bindings: <ShortcutActivator, VoidCallback>{
@@ -235,7 +298,7 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
         child: AnimatedAlign(
           alignment: Alignment.bottomCenter,
           heightFactor: shown ? 1 : 0,
-          duration: MorphMotion.short4,
+          duration: MorphMotion.durationOf(context, MorphMotion.short4),
           curve: MorphMotion.enter,
           child: nav,
         ),
@@ -267,8 +330,12 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
     final TextOverflow overflow = scale > theme.truncationTextScale
         ? TextOverflow.ellipsis
         : TextOverflow.clip;
-    final TextStyle measure = theme.labelStyle(morph.typeScale, selected: true);
-    final TextStyle label = theme.labelStyle(morph.typeScale);
+    final TextStyle measure = theme
+        .labelStyle(morph.typeScale, selected: true)
+        .merge(widget.labelStyle);
+    final TextStyle label = theme
+        .labelStyle(morph.typeScale)
+        .merge(widget.labelStyle);
     final double slot = _slotWidth(theme, measure, scaler);
     final double cell = wide
         ? slot
@@ -347,22 +414,36 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
       width: double.infinity,
       child: Padding(
         padding: band.edgeInset,
-        child: Row(
-          spacing: band.wide ? theme.wideItemGap : theme.itemGap,
-          mainAxisAlignment: band.wide
-              ? _wideMainAxisAlignment()
-              : MainAxisAlignment.start,
-          children: _destinationSlots(
-            theme: theme,
-            scheme: scheme,
-            metrics: metrics,
-            indicator: indicator,
-            band: band,
+        child: _slidingBand(
+          theme: theme,
+          child: Row(
+            spacing: band.wide ? theme.wideItemGap : theme.itemGap,
+            mainAxisAlignment: band.wide
+                ? _wideMainAxisAlignment()
+                : MainAxisAlignment.start,
+            children: _destinationSlots(
+              theme: theme,
+              scheme: scheme,
+              metrics: metrics,
+              indicator: indicator,
+              band: band,
+            ),
           ),
         ),
       ),
     );
   }
+
+  Widget _slidingBand({
+    required Widget child,
+    required MorphNavigationBarTheme theme,
+  }) => widget.motion == MorphNavigationMotion.morph
+      ? MorphSlidingIndicator(
+          leadSpring: theme.indicatorScaleSpring,
+          selectionDelay: widget.selectionDelay,
+          child: child,
+        )
+      : child;
 
   List<Widget> _destinationSlots({
     required MorphNavigationBarTheme theme,
@@ -429,13 +510,21 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
     required TextOverflow overflow,
   }) {
     return MorphNavBarDestinationButton(
+      motion: widget.motion,
+      expressive: widget._expressive,
+      topIndicatorWidth: widget.topIndicatorWidth,
+      topIndicatorHeight: widget.topIndicatorHeight,
       destination: widget.destinations[index],
       selected: index == _selected,
-      selectedColor: theme.selectedColor(scheme),
-      activeLabelColor: theme.activeLabelColor(scheme),
+      selectedColor: widget._expressive
+          ? scheme.primary
+          : theme.selectedColor(scheme),
+      activeLabelColor: widget._expressive
+          ? scheme.primary
+          : theme.activeLabelColor(scheme),
       unselectedColor: theme.unselectedColor(scheme),
       labelStyle: label,
-      iconSize: metrics.iconSize,
+      iconSize: widget.iconSize ?? metrics.iconSize,
       labelBehavior: widget.labelBehavior,
       iconBehavior: widget.iconBehavior,
       layout: wide ? MorphNavBarLayout.wide : MorphNavBarLayout.compact,
@@ -453,7 +542,9 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
       horizontalInset: wide ? theme.horizontalIndicatorInset : 0,
       underlineThickness: metrics.indicatorThickness,
       underlineColor: indicator,
-      indicatorColor: indicator,
+      indicatorColor: widget._expressive
+          ? (widget.indicatorColor ?? scheme.primary)
+          : indicator,
       focusNode: _nodes[index],
       skipTraversal: !_tabStop(index),
       onTap: () => widget.onDestinationSelected?.call(index),

@@ -6,6 +6,7 @@ import 'package:morph_expressive/morph_components.dart';
 import 'package:material_ui/material_ui.dart'
     show
         BuildContext,
+        Color,
         Column,
         Expanded,
         GlobalKey,
@@ -40,6 +41,10 @@ Widget _list() {
 
 void main() {
   testWidgets('renders its child at rest', _rendersChild);
+  testWidgets(
+    'default refresh ring has filled surface without shadow',
+    _filledRing,
+  );
   testWidgets('overscroll past full reveal triggers refresh', _dragRefreshes);
   testWidgets('show() drives a refresh and reports status', _showRefreshes);
   testWidgets('contained variant drives a refresh', _containedRefreshes);
@@ -67,6 +72,39 @@ void main() {
     'controller show works on desktop pointer-pull platforms',
     _controllerShowOnDesktopPlatform,
   );
+}
+
+Future<void> _filledRing(WidgetTester tester) async {
+  final controller = MorphRefreshIndicatorController();
+  final pending = Completer<void>();
+  await tester.pumpWidget(
+    _host(
+      MorphRefreshIndicator(
+        controller: controller,
+        onRefresh: () => pending.future,
+        child: _list(),
+      ),
+    ),
+  );
+  final refresh = tester.widget<MorphRefreshIndicator>(
+    find.byType(MorphRefreshIndicator),
+  );
+  expect(refresh.elevation, 0);
+  unawaited(controller.show());
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 250));
+  expect(find.byType(MorphProgressIndicator), findsOneWidget);
+  final progress = tester.widget<MorphProgressIndicator>(
+    find.byType(MorphProgressIndicator),
+  );
+  expect(progress.value, isNull);
+  final spinner = tester.widget<MorphLoadingIndicator>(
+    find.byType(MorphLoadingIndicator),
+  );
+  expect(spinner.variant, MorphLoadingIndicatorVariant.contained);
+  expect(spinner.containerColor, isNot(const Color(0x00000000)));
+  pending.complete();
+  await tester.pumpAndSettle();
 }
 
 Future<void> _rendersChild(WidgetTester tester) async {
@@ -196,12 +234,24 @@ Future<void> _revealDelayedByPadding(WidgetTester tester) async {
   );
   expect(opacityFinder, findsWidgets);
   expect(tester.widget<Opacity>(opacityFinder.first).opacity, 0);
+  expect(
+    tester
+        .widget<MorphProgressIndicator>(find.byType(MorphProgressIndicator))
+        .value,
+    0,
+  );
 
   // Past the delay, reveal should begin.
   await gesture.moveBy(const Offset(0, 20));
   await tester.pump();
   expect(tester.widget<Opacity>(opacityFinder.first).opacity, greaterThan(0));
   expect(tester.widget<Opacity>(opacityFinder.first).opacity, lessThan(1));
+  expect(
+    tester
+        .widget<MorphProgressIndicator>(find.byType(MorphProgressIndicator))
+        .value,
+    allOf(greaterThan(0), lessThan(1)),
+  );
 
   await gesture.up();
   await tester.pumpAndSettle();

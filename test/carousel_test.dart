@@ -55,6 +55,9 @@ void main() {
   testWidgets('reduced motion keeps hero items one size', _reducedMotion);
 }
 
+bool _carouselReduced(WidgetTester tester) =>
+    MorphMotion.reduceMotionOf(tester.element(find.byType(MorphCarousel)));
+
 Future<void> _hero(WidgetTester tester) async {
   await tester.pumpWidget(
     hostCarousel(MorphCarousel(children: carouselItems(6))),
@@ -145,6 +148,19 @@ Future<void> _textRestoresWhenScrollEnds(WidgetTester tester) async {
     ),
   );
   await tester.pump();
+  if (_carouselReduced(tester)) {
+    expect(find.text('Title 0'), findsOneWidget);
+    expect(find.text('Prefix 0'), findsNothing);
+    await tester.fling(find.byType(MorphCarousel), const Offset(-500, 0), 1200);
+    await tester.pumpAndSettle();
+    expect(
+      tester.state<ScrollableState>(find.byType(Scrollable)).position.pixels,
+      greaterThan(0),
+    );
+    expect(find.textContaining('Title '), findsWidgets);
+    expect(find.textContaining('Prefix '), findsNothing);
+    return;
+  }
   expect(find.text('Prefix 0'), findsOneWidget);
   expect(find.text('Title 0'), findsNothing);
   expect(find.text('Title 1'), findsOneWidget);
@@ -219,7 +235,18 @@ Future<void> _uncontainedSettle(WidgetTester tester) async {
       .position
       .pixels;
   final double? leading = leadingMaterialWidth(tester);
-  expect(narrowest, greaterThan(100), reason: 'settled pixels $pixels');
+  if (_carouselReduced(tester)) {
+    expect(
+      tester
+          .state<ScrollableState>(find.byType(Scrollable))
+          .position
+          .isScrollingNotifier
+          .value,
+      isFalse,
+    );
+  } else {
+    expect(narrowest, greaterThan(100), reason: 'settled pixels $pixels');
+  }
   expect(pixels, closeTo(MorphCarouselTheme.defaultUncontainedItemExtent, 1));
   expect(leading, greaterThan(200));
 }
@@ -492,6 +519,24 @@ Future<void> _expectHeroContainedInset(
   );
   await tester.pump();
   final Rect carousel = tester.getRect(find.byType(MorphCarousel));
+  if (_carouselReduced(tester)) {
+    final widths = [
+      for (final element in find.byType(Material).evaluate())
+        if (element.size != null && element.size!.width > 0)
+          element.size!.width,
+    ];
+    expect(widths, isNotEmpty);
+    for (final itemWidth in widths) {
+      expect(
+        itemWidth,
+        closeTo(widths.first, 1),
+        reason: 'Reduced carousel keeps uniform resting sizes.',
+      );
+      expect(itemWidth, lessThanOrEqualTo(carousel.width));
+    }
+    expect(tester.takeException(), isNull);
+    return;
+  }
   final (:double left, :double right) = heroCardEdges(carousel);
   final double leftInset = left - carousel.left;
   final double rightInset = carousel.right - right;
@@ -562,12 +607,18 @@ Future<void> _fullScreenFills(WidgetTester tester) async {
   expect(first.height, closeTo(carousel.height, 1));
   expect(first.top, closeTo(carousel.top, 1));
   final double restGap = first.top - picture.top;
-  expect(picture.height, greaterThan(first.height + 20));
-  expect(restGap, greaterThan(8));
+  final reduced = _carouselReduced(tester);
+  expect(
+    picture.height,
+    reduced
+        ? greaterThanOrEqualTo(first.height)
+        : greaterThan(first.height + 20),
+  );
+  expect(restGap, reduced ? greaterThanOrEqualTo(0) : greaterThan(8));
 
   await tester.fling(find.byType(MorphCarousel), const Offset(0, -500), 2000);
   final bool sawShift = await _fullScreenCardShifts(tester, carousel, restGap);
-  expect(sawShift, isTrue);
+  expect(sawShift, !reduced);
   await tester.pumpAndSettle();
 
   final Rect second = _fullScreenCard(tester, 1);
@@ -664,7 +715,10 @@ Future<void> _smallSlotClamp(WidgetTester tester) async {
       if (element.size != null) element.size!.width,
   ];
   final double smallest = widths.reduce((double a, double b) => a < b ? a : b);
-  expect(smallest, inInclusiveRange(40, 56));
+  expect(
+    smallest,
+    _carouselReduced(tester) ? equals(800) : inInclusiveRange(40, 56),
+  );
 }
 
 Future<void> _reducedMotion(WidgetTester tester) async {

@@ -10,6 +10,10 @@ BRAND = "Morph Expressive"
 PUBLIC = ROOT / "lib" / f"{PACKAGE}.dart"
 SCAN_SUFFIXES = {".dart", ".yaml", ".yml", ".md", ".py", ".sh", ".json", ".html", ".lock"}
 SCAN_DIRS = ("lib", "test", "preview", "example", "doc", "tool")
+GENERATED_DIRS = {
+    ".dart_tool", ".git", ".gradle", ".cxx", ".plugin_symlinks",
+    "build", "DerivedData", "ephemeral", "node_modules", "Pods",
+}
 # Construct the superseded name from tokens to avoid introducing it in checked sources.
 legacy = "morph" + "_" + "ui"
 old_brand = "Morph" + " UI"
@@ -21,9 +25,17 @@ for directory in SCAN_DIRS:
             continue
         if path.resolve() == Path(__file__).resolve() or path.name == "package-lock.json":
             continue
-        if any(part in {".dart_tool", "build", "node_modules", ".git"} for part in path.parts):
+        if any(part in GENERATED_DIRS for part in path.parts):
             continue
-        content = path.read_text(encoding="utf-8")
+        # The branding scan only needs pubspec.lock; Gradle and other native
+        # build tools produce binary *.lock files that are not package text.
+        if path.suffix == ".lock" and path.name != "pubspec.lock":
+            continue
+        try:
+            content = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            problems.append(f"non-UTF-8 text file: {path.relative_to(ROOT)}")
+            continue
         if (old_brand.lower() in content.lower()
                 or f"package:{legacy}/" in content
                 or f"{legacy}_preview" in content

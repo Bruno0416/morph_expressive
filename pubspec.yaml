@@ -1,6 +1,6 @@
 name: morph_expressive
 description: A Flutter design system that builds on Material 3 Expressive with a focus on symmetry, rounded shapes, balanced colors, and smooth animations.
-version: 0.4.1
+version: 0.5.0
 homepage: https://github.com/Bruno0416/morph_expressive
 repository: https://github.com/Bruno0416/morph_expressive
 issue_tracker: https://github.com/Bruno0416/morph_expressive/issues
@@ -36,6 +36,10 @@ screenshots:
     path: doc/assets/gifs/loading.gif
   - description: Compact and wide animated navigation bars.
     path: doc/assets/gifs/navigation.gif
+  - description: Morph navigation bars, expressive top indicators and onboarding pages.
+    path: doc/assets/gifs/navigation_morph.gif
+  - description: Morph navigation rail and drawer with shared elastic selection.
+    path: doc/assets/gifs/navigation_rail_drawer.gif
   - description: Animated list item swipe actions with expressive spring motion.
     path: doc/assets/gifs/lists.gif
   - description: Floating dialogs with animated entrance and exit.

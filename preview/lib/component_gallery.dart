@@ -35,6 +35,7 @@ import 'package:material_ui/material_ui.dart'
         Navigator,
         Padding,
         Positioned,
+        RepaintBoundary,
         RoundedRectangleBorder,
         Row,
         Scaffold,
@@ -53,6 +54,7 @@ import 'package:material_ui/material_ui.dart'
 import 'package:morph_expressive/morph_expressive.dart';
 
 import 'component_catalog.dart';
+import 'floating_navigation_sample.dart';
 
 // ---------- catalogo de componentes ----------
 
@@ -75,6 +77,7 @@ const _showcaseGroups = <String, List<String>>{
     'navigation_bar',
     'navigation_rail',
     'navigation_drawer',
+    'page_indicator',
     'search',
   ],
   'Selectors': [
@@ -107,42 +110,20 @@ class MorphComponentGallery extends StatefulWidget {
     super.key,
     required this.seed,
     required this.onSeedChanged,
+    this.categories,
   });
 
   final Color seed;
   final ValueChanged<Color> onSeedChanged;
+
+  /// Optional subset for isolated component audits; null keeps the full gallery.
+  final Set<String>? categories;
 
   @override
   State<MorphComponentGallery> createState() => _MorphComponentGalleryState();
 }
 
 class _MorphComponentGalleryState extends State<MorphComponentGallery> {
-  bool _checked = true;
-  bool _switchValue = true;
-  bool _favorite = false;
-  final Set<MorphChipType> _selectedChips = <MorphChipType>{};
-  int _chipActions = 0;
-  String _lastChipAction = 'None';
-  double _rangeStart = 0.25;
-  double _rangeEnd = 0.78;
-  int _drawerIndex = 0;
-  int _railIndex = 0;
-  String _menuAction = 'None';
-  String _lastSwipeAction = 'None';
-  String _splitChoice = 'One';
-  int _tabIndex = 0;
-  int _navigationIndex = 0;
-  String _radioValue = 'one';
-  double _sliderValue = 0.6;
-  int _presses = 0;
-  int? _groupSelected = 0;
-  String _toggleChipSelection = 'Daily';
-  Set<String> _toggleChipMultiSelection = {'Daily', 'Monthly'};
-  String _mediaSelection = 'Movies';
-  Set<String> _segmented = {'One'};
-  List<String> _multiValues = [];
-  String? _singleValue;
-
   String _title(String value) => value
       .split('_')
       .map((word) {
@@ -158,6 +139,9 @@ class _MorphComponentGalleryState extends State<MorphComponentGallery> {
     final available =
         morphComponentCatalog.map((entry) => entry.category).toSet()
           ..remove('foundation');
+    if (widget.categories case final selected?) {
+      available.retainAll(selected);
+    }
     final sections = <(String, List<String>)>[];
     final placed = <String>{};
     for (final group in _showcaseGroups.entries) {
@@ -276,7 +260,7 @@ class _MorphComponentGalleryState extends State<MorphComponentGallery> {
                                   style: morph.textTheme.titleLarge,
                                 ),
                                 const Gap(14),
-                                _samples(scheme, category: categories[i]),
+                                _MorphSampleFamily(category: categories[i]),
                               ],
                             ),
                           ),
@@ -374,6 +358,54 @@ class _MorphComponentGalleryState extends State<MorphComponentGallery> {
 
   // Un nombre y su muestra, sin cards ni explicaciones alrededor.
   // Muestras de ancho estable, sin tarjetas de presentación.
+}
+
+/// Each family owns its own interaction state and repaint surface.
+/// Changing one sample must not rebuild all the other visible families.
+class _MorphSampleFamily extends StatefulWidget {
+  const _MorphSampleFamily({required this.category});
+
+  final String category;
+
+  @override
+  State<_MorphSampleFamily> createState() => _MorphSampleFamilyState();
+}
+
+class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
+  bool _checked = true;
+  bool _switchValue = true;
+  bool _favorite = false;
+  final Set<MorphChipType> _selectedChips = <MorphChipType>{};
+  int _chipActions = 0;
+  String _lastChipAction = 'None';
+  double _rangeStart = 0.25;
+  double _rangeEnd = 0.78;
+  int _drawerIndex = 0;
+  int _railIndex = 0;
+  String _menuAction = 'None';
+  String _lastSwipeAction = 'None';
+  String _splitChoice = 'One';
+  int _tabIndex = 0;
+  int _pageIndex = 0;
+  String _radioValue = 'one';
+  double _sliderValue = 0.6;
+  int _presses = 0;
+  int? _groupSelected = 0;
+  String _toggleChipSelection = 'Daily';
+  Set<String> _toggleChipMultiSelection = {'Daily', 'Monthly'};
+  String _mediaSelection = 'Movies';
+  Set<String> _segmented = {'One'};
+  List<String> _multiValues = [];
+  String? _singleValue;
+
+  @override
+  Widget build(BuildContext context) => RepaintBoundary(
+    child: _samples(
+      MorphTheme.of(context).colorScheme,
+      category: widget.category,
+    ),
+  );
+
   Widget _panel(String title, Widget content, {double? width}) => LayoutBuilder(
     builder: (context, constraints) {
       final sampleWidth = (width ?? constraints.maxWidth)
@@ -1185,27 +1217,29 @@ class _MorphComponentGalleryState extends State<MorphComponentGallery> {
         samples.add(
           _panel(
             'Compact navigation',
-            MorphNavigationBar(
-              safeArea: false,
-              autoLayout: false,
-              layout: MorphNavBarLayout.compact,
-              selectedIndex: _navigationIndex,
-              onDestinationSelected: (i) =>
-                  setState(() => _navigationIndex = i),
-              destinations: [
-                MorphNavigationBarDestination(
-                  icon: Icon(FluentIcons.line.home),
-                  label: 'Home',
-                ),
-                MorphNavigationBarDestination(
-                  icon: Icon(FluentIcons.line.search),
-                  label: 'Search',
-                ),
-                MorphNavigationBarDestination(
-                  icon: Icon(FluentIcons.line.heart),
-                  label: 'Saved',
-                ),
-              ],
+            _IndependentNavigationSample(
+              key: const ValueKey('preview_nav_compact'),
+              builder: (selectedIndex, onSelected) => MorphNavigationBar(
+                safeArea: false,
+                autoLayout: false,
+                layout: MorphNavBarLayout.compact,
+                selectedIndex: selectedIndex,
+                onDestinationSelected: onSelected,
+                destinations: [
+                  MorphNavigationBarDestination(
+                    icon: Icon(FluentIcons.line.home),
+                    label: 'Home',
+                  ),
+                  MorphNavigationBarDestination(
+                    icon: Icon(FluentIcons.line.search),
+                    label: 'Search',
+                  ),
+                  MorphNavigationBarDestination(
+                    icon: Icon(FluentIcons.line.heart),
+                    label: 'Saved',
+                  ),
+                ],
+              ),
             ),
             width: 620,
           ),
@@ -1213,29 +1247,176 @@ class _MorphComponentGalleryState extends State<MorphComponentGallery> {
         samples.add(
           _panel(
             'Wide navigation · alternative indicator layout',
-            MorphNavigationBar(
-              safeArea: false,
-              autoLayout: false,
-              layout: MorphNavBarLayout.wide,
-              selectedIndex: _navigationIndex,
-              onDestinationSelected: (index) =>
-                  setState(() => _navigationIndex = index),
-              destinations: [
-                MorphNavigationBarDestination(
-                  icon: Icon(FluentIcons.line.home),
-                  label: 'Home',
-                ),
-                MorphNavigationBarDestination(
-                  icon: Icon(FluentIcons.line.search),
-                  label: 'Search',
-                ),
-                MorphNavigationBarDestination(
-                  icon: Icon(FluentIcons.line.heart),
-                  label: 'Saved',
-                ),
-              ],
+            _IndependentNavigationSample(
+              key: const ValueKey('preview_nav_wide'),
+              builder: (selectedIndex, onSelected) => MorphNavigationBar(
+                safeArea: false,
+                autoLayout: false,
+                layout: MorphNavBarLayout.wide,
+                selectedIndex: selectedIndex,
+                onDestinationSelected: onSelected,
+                destinations: [
+                  MorphNavigationBarDestination(
+                    icon: Icon(FluentIcons.line.home),
+                    label: 'Home',
+                  ),
+                  MorphNavigationBarDestination(
+                    icon: Icon(FluentIcons.line.search),
+                    label: 'Search',
+                  ),
+                  MorphNavigationBarDestination(
+                    icon: Icon(FluentIcons.line.heart),
+                    label: 'Saved',
+                  ),
+                ],
+              ),
             ),
             width: 750,
+          ),
+        );
+        samples.add(
+          _panel(
+            'Morph · shared sliding pill',
+            _IndependentNavigationSample(
+              key: const ValueKey('preview_nav_morph_compact'),
+              builder: (selectedIndex, onSelected) => MorphNavigationBar.morph(
+                safeArea: false,
+                autoLayout: false,
+                selectedIndex: selectedIndex,
+                onDestinationSelected: onSelected,
+                destinations: [
+                  MorphNavigationBarDestination(
+                    icon: Icon(FluentIcons.line.home),
+                    selectedIcon: Icon(FluentIcons.filled.home),
+                    label: 'Home',
+                  ),
+                  MorphNavigationBarDestination(
+                    icon: Icon(FluentIcons.line.bookmark),
+                    label: 'Saved',
+                  ),
+                  MorphNavigationBarDestination(
+                    icon: Icon(FluentIcons.line.person),
+                    label: 'Profile',
+                  ),
+                ],
+              ),
+            ),
+            width: 620,
+          ),
+        );
+        samples.add(
+          _panel(
+            'Morph · wide sliding pill',
+            _IndependentNavigationSample(
+              key: const ValueKey('preview_nav_morph_wide'),
+              builder: (selectedIndex, onSelected) => MorphNavigationBar.morph(
+                safeArea: false,
+                autoLayout: false,
+                layout: MorphNavBarLayout.wide,
+                selectedIndex: selectedIndex,
+                onDestinationSelected: onSelected,
+                destinations: [
+                  MorphNavigationBarDestination(
+                    icon: Icon(FluentIcons.line.home),
+                    selectedIcon: Icon(FluentIcons.filled.home),
+                    label: 'Home',
+                  ),
+                  MorphNavigationBarDestination(
+                    icon: Icon(FluentIcons.line.bookmark),
+                    label: 'Saved',
+                  ),
+                  MorphNavigationBarDestination(
+                    icon: Icon(FluentIcons.line.person),
+                    label: 'Profile',
+                  ),
+                ],
+              ),
+            ),
+            width: 620,
+          ),
+        );
+        samples.add(
+          _panel(
+            'Expressive · full width, top dash',
+            _IndependentNavigationSample(
+              key: const ValueKey('preview_nav_expressive'),
+              builder: (selectedIndex, onSelected) =>
+                  MorphNavigationBar.expressive(
+                    safeArea: false,
+                    selectedIndex: selectedIndex,
+                    onDestinationSelected: onSelected,
+                    destinations: [
+                      MorphNavigationBarDestination(
+                        icon: Icon(FluentIcons.line.home),
+                        selectedIcon: Icon(FluentIcons.filled.home),
+                        label: 'Home',
+                      ),
+                      MorphNavigationBarDestination(
+                        icon: Icon(FluentIcons.line.bookmark),
+                        label: 'Saved',
+                      ),
+                      MorphNavigationBarDestination(
+                        icon: Icon(FluentIcons.line.person),
+                        label: 'Profile',
+                      ),
+                    ],
+                  ),
+            ),
+            width: 620,
+          ),
+        );
+        samples.add(
+          _panel(
+            'Expressive · floating glass, scroll and pull to refresh',
+            const SizedBox(height: 320, child: FloatingNavigationSample()),
+            width: 620,
+          ),
+        );
+        break;
+      case 'page_indicator':
+        samples.add(
+          _panel(
+            'Morph onboarding · equal pills',
+            MorphPageIndicator(
+              count: 3,
+              selectedIndex: _pageIndex,
+              activeWidth: 16,
+              inactiveWidth: 16,
+              effect: MorphPageIndicatorEffect.slide,
+              onPageSelected: (i) => setState(() => _pageIndex = i),
+            ),
+          ),
+        );
+        samples.add(
+          _panel(
+            'Morph onboarding · long active capsule',
+            MorphPageIndicator(
+              count: 3,
+              selectedIndex: _pageIndex,
+              activeWidth: 40,
+              inactiveWidth: 16,
+              onPageSelected: (i) => setState(() => _pageIndex = i),
+            ),
+          ),
+        );
+        samples.add(
+          _panel(
+            'Morph onboarding · expanding dots',
+            MorphPageIndicator(
+              count: 3,
+              selectedIndex: _pageIndex,
+              activeWidth: 28,
+              inactiveWidth: 10,
+              height: 20,
+              inactiveHeight: 10,
+              onPageSelected: (i) => setState(() => _pageIndex = i),
+            ),
+          ),
+        );
+        samples.add(
+          _panel(
+            'Read-only page status',
+            MorphPageIndicator(count: 3, selectedIndex: _pageIndex),
           ),
         );
         break;
@@ -1603,7 +1784,7 @@ class _MorphComponentGalleryState extends State<MorphComponentGallery> {
             SizedBox(
               height: 320,
               width: 310,
-              child: MorphNavigationDrawer(
+              child: MorphNavigationDrawer.morph(
                 headline: 'Navigation',
                 selectedIndex: _drawerIndex,
                 onDestinationSelected: (i) => setState(() => _drawerIndex = i),
@@ -1634,7 +1815,7 @@ class _MorphComponentGalleryState extends State<MorphComponentGallery> {
             SizedBox(
               height: 360,
               width: 280,
-              child: MorphNavigationRail(
+              child: MorphNavigationRail.morph(
                 // This is an isolated demo. The neighboring swipeable tabs emit
                 // horizontal ScrollNotifications through the shared observer;
                 // they must not tint the rail as if its own content scrolled under.
@@ -1838,4 +2019,29 @@ class _MorphComponentGalleryState extends State<MorphComponentGallery> {
       ],
     );
   }
+}
+
+/// Isolates the selected tab of each navigation variant. In particular,
+/// clicking one bar no longer simultaneously starts four other animations.
+class _IndependentNavigationSample extends StatefulWidget {
+  const _IndependentNavigationSample({required this.builder, super.key});
+
+  final Widget Function(int selectedIndex, ValueChanged<int> onSelected)
+  builder;
+
+  @override
+  State<_IndependentNavigationSample> createState() =>
+      _IndependentNavigationSampleState();
+}
+
+class _IndependentNavigationSampleState
+    extends State<_IndependentNavigationSample> {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) => RepaintBoundary(
+    child: widget.builder(_selectedIndex, (next) {
+      if (next != _selectedIndex) setState(() => _selectedIndex = next);
+    }),
+  );
 }

@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:material_ui/material_ui.dart' show AdaptiveTextSelectionToolbar;
 import 'package:motor/motor.dart';
 
+import '../../foundations/interaction/morph_motion_controller.dart';
 import '../../foundations/foundations.dart';
 import 'components/morph_text_field_affordance.dart';
 import 'components/morph_text_field_container_painter.dart';
@@ -326,16 +327,16 @@ class _MorphTextFieldState extends State<MorphTextField>
       MorphTextFieldAutofillClient(_editableKey);
   late final MorphTextFieldSelectionBuilder _selectionBuilder =
       MorphTextFieldSelectionBuilder(delegate: this, onTap: _handleTap);
-  late final SingleMotionController _labelMotion = SingleMotionController(
+  late final SingleMotionController _labelMotion = MorphMotionController(
     motion: _springOf(MorphMotion.spatialFast),
     vsync: this,
   );
-  late final SingleMotionController _effectsMotion = SingleMotionController(
+  late final SingleMotionController _effectsMotion = MorphMotionController(
     motion: _springOf(MorphMotion.effectsFast),
     vsync: this,
     initialValue: 1,
   );
-  late final SingleMotionController _shapeMotion = SingleMotionController(
+  late final SingleMotionController _shapeMotion = MorphMotionController(
     motion: _springOf(MorphMotion.spatialFast),
     vsync: this,
   );
@@ -451,13 +452,12 @@ class _MorphTextFieldState extends State<MorphTextField>
   void _syncVisuals({bool animate = true}) {
     final MorphThemeData theme = MorphTheme.of(context);
     final MorphTextFieldTheme fieldTheme = _fieldThemeOf(theme);
-    final bool instant =
-        !animate || (MediaQuery.maybeDisableAnimationsOf(context) ?? false);
+    final bool instant = !animate || MorphMotion.reduceMotionOf(context);
     _labelMotion.motion = _springOf(fieldTheme.labelSpring);
     _effectsMotion.motion = _springOf(fieldTheme.effectsSpring);
     _shapeMotion.motion = _springOf(fieldTheme.shapeSpring);
     final double shapeTarget = _focused && widget.enabled ? 1 : 0;
-    if (_shapeTarget != shapeTarget) {
+    if (instant || _shapeTarget != shapeTarget) {
       _shapeTarget = shapeTarget;
       if (instant) {
         _shapeMotion.value = shapeTarget;
@@ -467,7 +467,7 @@ class _MorphTextFieldState extends State<MorphTextField>
     }
 
     final double float = _floating ? 1 : 0;
-    if (_floatTarget != float) {
+    if (instant || _floatTarget != float) {
       _floatTarget = float;
       if (instant) {
         _labelMotion.value = float;
@@ -481,6 +481,7 @@ class _MorphTextFieldState extends State<MorphTextField>
       variant: widget.variant,
       states: _states,
     );
+    if (instant) _effectsMotion.value = 1;
     if (colors == _toColors) {
       return;
     }

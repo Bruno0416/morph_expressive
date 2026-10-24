@@ -17,6 +17,7 @@ extension _MorphDockedAppBarParts on _MorphDockedAppBarState {
     required Widget? leading,
   }) {
     final Widget sheet = Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       color: bg,
       elevation: elevation,
       shadowColor: scheme.shadow,

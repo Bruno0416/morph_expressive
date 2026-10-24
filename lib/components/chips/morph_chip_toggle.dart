@@ -345,7 +345,7 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
     final source = _boundsFor(from, lefts, widths);
     final target = _boundsFor(to, lefts, widths);
     final bool rightwards = target.left > source.left;
-    final bool reduced = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final bool reduced = MorphMotion.reduceMotionOf(context);
     if (reduced) {
       setState(() {
         _leftTarget = target.left;
@@ -398,7 +398,7 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
     final Set<T> selected = widget.multiSelection
         ? Set<T>.of(widget.selectedValues ?? <T>{})
         : <T>{if (widget.selected != null) widget.selected as T};
-    final bool reduced = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final bool reduced = MorphMotion.reduceMotionOf(context);
     final motion = Motion.curved(
       reduced ? Duration.zero : widget.duration,
       MorphMotion.subtleOvershoot,
@@ -440,9 +440,11 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
                 ),
           ] else
             SingleMotionBuilder(
+              active: !MorphMotion.reduceMotionOf(context),
               motion: motion,
               value: _leftTarget,
               builder: (context, left, _) => SingleMotionBuilder(
+                active: !MorphMotion.reduceMotionOf(context),
                 motion: motion,
                 value: _rightTarget,
                 builder: (context, right, _) => Positioned(
@@ -886,7 +888,7 @@ class _Chip<T> extends StatelessWidget {
       padding: padding,
       child: Center(
         child: TweenAnimationBuilder<Color?>(
-          duration: duration,
+          duration: MorphMotion.durationOf(context, duration),
           curve: curve,
           tween: ColorTween(end: target),
           builder: (context, color, _) {

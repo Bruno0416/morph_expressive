@@ -240,9 +240,6 @@ class _MorphRangeSliderState extends State<MorphRangeSlider>
       vsync: this,
       duration: MorphMotion.extraLong2,
     );
-    if (widget.wavy) {
-      _waveController.repeat();
-    }
   }
 
   void _attachFocusNode(FocusNode? external) {
@@ -271,6 +268,20 @@ class _MorphRangeSliderState extends State<MorphRangeSlider>
     }
   }
 
+  void _syncWave() {
+    if (widget.wavy && !MorphMotion.reduceMotionOf(context)) {
+      if (!_waveController.isAnimating) _waveController.repeat();
+    } else {
+      _waveController.stop();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncWave();
+  }
+
   @override
   void didUpdateWidget(MorphRangeSlider oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -278,13 +289,7 @@ class _MorphRangeSliderState extends State<MorphRangeSlider>
       _detachFocusNode();
       _attachFocusNode(widget.focusNode);
     }
-    if (widget.wavy) {
-      if (!_waveController.isAnimating) {
-        _waveController.repeat();
-      }
-    } else if (_waveController.isAnimating) {
-      _waveController.stop();
-    }
+    _syncWave();
   }
 
   @override

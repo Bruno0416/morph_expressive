@@ -121,6 +121,10 @@ extension _MorphSearchViewTransition on _MorphSearchViewContentState {
     if (_lastFullScreen == null || _lastFullScreen == fullScreen) {
       return;
     }
+    if (MorphMotion.reduceMotionOf(context)) {
+      _swap.value = 1;
+      return;
+    }
     _swapFrom = _lastRect;
     _swap
       ..value = 0
@@ -176,6 +180,10 @@ extension _MorphSearchViewTransition on _MorphSearchViewContentState {
   }
 
   void _settleBack() {
+    if (MorphMotion.reduceMotionOf(context)) {
+      _back.value = 0;
+      return;
+    }
     _back.animateWith(
       morphSearchSpringSimulation(
         _viewTheme.predictiveBackSpring,

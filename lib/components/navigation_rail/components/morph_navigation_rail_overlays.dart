@@ -34,7 +34,10 @@ extension _MorphNavigationRailOverlays on _MorphNavigationRailState {
   void _insertOverlay() {
     final OverlayState overlay = Overlay.of(context, rootOverlay: true);
     _modalEntry = OverlayEntry(
-      builder: (BuildContext context) => _buildModalOverlay(context),
+      builder: (BuildContext overlayContext) => InheritedTheme.captureAll(
+        context,
+        Builder(builder: (context) => _buildModalOverlay(context)),
+      ),
     );
     overlay.insert(_modalEntry!);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -52,7 +55,10 @@ extension _MorphNavigationRailOverlays on _MorphNavigationRailState {
   void _insertCollapsedPeekOverlay() {
     final OverlayState overlay = Overlay.of(context, rootOverlay: true);
     _collapsedPeekEntry = OverlayEntry(
-      builder: (BuildContext context) => _buildCollapsedPeekOverlay(context),
+      builder: (BuildContext overlayContext) => InheritedTheme.captureAll(
+        context,
+        Builder(builder: (context) => _buildCollapsedPeekOverlay(context)),
+      ),
     );
     overlay.insert(_collapsedPeekEntry!);
   }
@@ -109,6 +115,10 @@ extension _MorphNavigationRailOverlays on _MorphNavigationRailState {
                 child: FractionalTranslation(
                   translation: Offset(rtl ? 1 - reveal : reveal - 1, 0),
                   child: Material(
+                    animationDuration: MorphMotion.durationOf(
+                      context,
+                      MorphMotion.short4,
+                    ),
                     type: MaterialType.transparency,
                     child: _buildRailCore(context, modal: true),
                   ),
@@ -136,7 +146,11 @@ extension _MorphNavigationRailOverlays on _MorphNavigationRailState {
       link: _anchor,
       showWhenUnlinked: false,
       offset: Offset(8, theme.topSpace),
-      child: Material(type: MaterialType.transparency, child: button),
+      child: Material(
+        animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
+        type: MaterialType.transparency,
+        child: button,
+      ),
     );
   }
 }

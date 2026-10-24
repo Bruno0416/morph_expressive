@@ -19,8 +19,10 @@ while (($#)); do
     -h|--help)
       cat <<'HELP'
 Uso: bash tool/generate_component_gifs.sh [--only ESCENA ...] [--skip-build]
-Escenas: buttons dropdown segmented textfields chips sliders loading navigation lists dialogs
+Escenas: buttons dropdown segmented textfields chips sliders loading navigation navigation_morph navigation_rail_drawer lists dialogs
 Escenas chips/textfields: 640x480, 8.7s/8.2s para mostrar todas las variantes.
+Escena navigation_morph: 640x520, 7.2s (bar Morph, expressive y páginas).
+Escena navigation_rail_drawer: 640x500, 6.8s (rail y drawer Morph).
 Escena lists: 640x360, 5.8s para mostrar el reveal/close de swipe actions.
 Escena dialogs: 640x420, 6.5s para mostrar las animaciones del modal.
 Escenas sliders/loading: 640x360, 6.8s para capturar el aplanamiento wavy 90–98%.

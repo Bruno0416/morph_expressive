@@ -114,6 +114,15 @@ class _MorphSearchViewContentState extends State<MorphSearchViewContent>
   void didChangeDependencies() {
     super.didChangeDependencies();
     _syncLayoutSwap();
+    if (MorphMotion.reduceMotionOf(context)) {
+      for (final c in [_progress, _fade, _swap, _back]) {
+        c.stop(canceled: false);
+      }
+      _progress.value = _opening ? 1 : 0;
+      _fade.value = _opening ? 1 : 0;
+      _swap.value = 1;
+      _back.value = 0;
+    }
   }
 
   @override
@@ -157,6 +166,16 @@ class _MorphSearchViewContentState extends State<MorphSearchViewContent>
     _opening = open;
     final MorphSearchViewTheme viewTheme = _viewTheme;
     final double target = open ? 1 : 0;
+    if (MorphMotion.reduceMotionOf(context)) {
+      _fade.value = target;
+      _progress.value = target;
+      if (open) {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _tryFocusViewField(),
+        );
+      }
+      return;
+    }
     _fade.animateWith(
       morphSearchSpringSimulation(
         viewTheme.fadeSpring,

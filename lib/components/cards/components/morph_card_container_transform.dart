@@ -3,6 +3,7 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
+import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
 import '../styles/morph_card_theme.dart';
 
@@ -228,7 +229,7 @@ class _MorphCardContainerTransformHostState<T>
   void initState() {
     super.initState();
     _progress =
-        SingleMotionController(
+        MorphMotionController(
           motion: _cardSpringMotion(widget.motion),
           vsync: this,
         )..addListener(() {

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
+import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
 import '../../cards/enums/morph_card_variant.dart';
 import '../../tooltips/morph_tooltips.dart';
@@ -162,7 +163,7 @@ class _MorphExpandableItemState extends State<MorphExpandableItem>
         ? widget.expandMotion.toMotion()
         : widget.collapseMotion.toMotion();
 
-    _expandCtrl = SingleMotionController(motion: motion, vsync: this)
+    _expandCtrl = MorphMotionController(motion: motion, vsync: this)
       ..value = widget.isExpanded ? 1.0 : 0.0;
     _ownToggleFocusNode.addListener(_handleToggleFocusChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _reportAnchor());

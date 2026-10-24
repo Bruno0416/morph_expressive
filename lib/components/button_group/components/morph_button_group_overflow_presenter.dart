@@ -220,6 +220,7 @@ mixin _ButtonGroupOverflowPresenterMixin on State<MorphButtonGroup> {
         : (dec.itemBackgroundColor ?? cs.surfaceContainerHigh);
 
     return Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       color: bgColor,
       shape: RoundedRectangleBorder(borderRadius: borderRadius),
       clipBehavior: Clip.antiAlias,
@@ -339,6 +340,7 @@ mixin _ButtonGroupOverflowPresenterMixin on State<MorphButtonGroup> {
         : Colors.transparent;
 
     return Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       color: Colors.transparent,
       child: Ink(
         decoration: BoxDecoration(

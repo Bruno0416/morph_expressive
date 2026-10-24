@@ -89,6 +89,12 @@ class _MorphSideSheetLayoutState extends State<MorphSideSheetLayout>
   void didChangeDependencies() {
     super.didChangeDependencies();
     _syncMode();
+    if (MorphMotion.reduceMotionOf(context)) {
+      _open.stop(canceled: false);
+      _open.value = _isOpen ? 1 : 0;
+      _modal.value = (_isModal ?? false) ? 1 : 0;
+      _back.value = 0;
+    }
   }
 
   @override

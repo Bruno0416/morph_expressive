@@ -17,6 +17,7 @@ import 'morph_rail_item_button.dart';
 class MorphRailItem extends StatelessWidget {
   /// Creates a single navigation rail item.
   const MorphRailItem({
+    this.motion = MorphNavigationMotion.standard,
     super.key,
     required this.destination,
     required this.selected,
@@ -52,6 +53,9 @@ class MorphRailItem extends StatelessWidget {
   /// When true, Tab skips this destination.
   final bool skipTraversal;
 
+  /// Selection choreography.
+  final MorphNavigationMotion motion;
+
   @override
   Widget build(BuildContext context) {
     final theme = MorphTheme.of(context).navigationRailTheme;
@@ -65,6 +69,7 @@ class MorphRailItem extends StatelessWidget {
         : theme.itemCollapsedHeight;
 
     final Widget button = MorphRailItemButton(
+      motion: motion,
       icon: destination.icon,
       selectedIcon: destination.selectedIcon,
       isSelected: selected,

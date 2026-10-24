@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
+import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
 import '../styles/morph_list_theme.dart';
 
@@ -54,7 +55,7 @@ class _MorphCardRadiusMotionState extends State<MorphCardRadiusMotion>
     super.initState();
     _from = widget.radius;
     _to = widget.radius;
-    _controller = SingleMotionController(
+    _controller = MorphMotionController(
       motion: _toMotion(
         widget.motion ?? MorphListCardListTheme.defaults.radiusSpring,
       ),

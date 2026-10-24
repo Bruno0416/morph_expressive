@@ -3,6 +3,7 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
+import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
 
 SpringMotion _fabSpringMotion(MorphSpring spring) =>
@@ -212,7 +213,7 @@ class _MorphFabContainerTransformHostState<T>
   void initState() {
     super.initState();
     _progress =
-        SingleMotionController(
+        MorphMotionController(
           motion: _fabSpringMotion(widget.motion),
           vsync: this,
         )..addListener(() {

@@ -134,6 +134,7 @@ class _MorphBottomSheetFrameState extends State<MorphBottomSheetFrame>
   bool? _wide;
   bool _dragging = false;
   int _runId = 0;
+  double? _extentTarget;
 
   MorphBottomSheetTheme get _theme => widget.theme;
 
@@ -141,8 +142,7 @@ class _MorphBottomSheetFrameState extends State<MorphBottomSheetFrame>
 
   bool get _canHide => _modal || widget.isDismissible;
 
-  bool get _reduceMotion =>
-      MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+  bool get _reduceMotion => MorphMotion.reduceMotionOf(context);
 
   double get _topMargin {
     final double margin = (_wide ?? false)
@@ -155,6 +155,19 @@ class _MorphBottomSheetFrameState extends State<MorphBottomSheetFrame>
   void initState() {
     super.initState();
     widget.controller?.attach(this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_reduceMotion) {
+      if (_extent.isAnimating && _extentTarget != null) {
+        _extent.stop(canceled: false);
+        _extent.value = _extentTarget!;
+      }
+      _layout.stop(canceled: false);
+      _layout.value = (_wide ?? false) ? 1 : 0;
+    }
   }
 
   @override
@@ -322,6 +335,7 @@ class _MorphBottomSheetFrameState extends State<MorphBottomSheetFrame>
   /// Springs the extent to [to]. True when it got there uninterrupted.
   Future<bool> _run(double to, double velocity, MorphSpring spring) async {
     final int id = ++_runId;
+    _extentTarget = to;
     if (_reduceMotion) {
       _extent.value = to;
       return true;

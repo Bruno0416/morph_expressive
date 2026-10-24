@@ -188,6 +188,7 @@ class _MorphProgressIndicatorState extends State<MorphProgressIndicator>
   late final AnimationController _additionalRotController;
   late final AnimationController _sweepController;
   bool _sweepExpanding = true;
+  bool _reduced = false;
 
   bool get _isWavy =>
       widget._kind == _MorphProgressKind.circularWavy ||
@@ -236,12 +237,27 @@ class _MorphProgressIndicatorState extends State<MorphProgressIndicator>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _reduced = MorphMotion.reduceMotionOf(context);
+    _syncControllers();
+  }
+
+  @override
   void didUpdateWidget(MorphProgressIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
     _syncControllers();
   }
 
   void _syncControllers() {
+    if (_reduced) {
+      _spinController.stop();
+      _linearIndetController.stop();
+      _stopCircularIndeterminate();
+      // Nonempty static frame for indeterminate linear progress.
+      _linearIndetController.value = 0.5;
+      return;
+    }
     _syncSpinController();
     _syncLinearIndetController();
     _syncCircularIndetControllers();
@@ -290,7 +306,7 @@ class _MorphProgressIndicatorState extends State<MorphProgressIndicator>
   }
 
   void _pingPongSweep() {
-    if (!mounted || !_isCircularIndet) {
+    if (!mounted || _reduced || !_isCircularIndet) {
       return;
     }
     _sweepExpanding = !_sweepExpanding;

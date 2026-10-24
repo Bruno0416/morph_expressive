@@ -1,5 +1,113 @@
 # Changelog
 
+## 0.5.0 - Unreleased
+
+### Added
+
+- Two reproducible navigation GIF capture scenes for Morph bar/page indicators
+  and rail/drawer; retain the original MD3E navigation showcase.
+
+### Keep nested frosted blur during external scrolling
+
+- Do not disable a floating navigation bar's backdrop filter when an enclosing
+  gallery or page scrolls; only the host's own scroll and visibility control it.
+- Preserve the fast native `blurRevealProgress` restoration and internal scroll
+  performance guard; add an external-scroll regression test.
+
+### Faster native frosted-bar reveal
+
+- Resume backdrop blur when an upward-revealing floating bar reaches 35% of its
+  visibility transition on native, rather than waiting for scroll and spring
+  completion. Web keeps its existing performance safeguard.
+- Allow per-glass customization via `blurRevealProgress` (0–1).
+
+### Real frosted blur with isolated background composition
+
+- Restore actual backdrop blur in the Flutter Web floating navigation sample
+  at a reduced 5px sigma (10px on native) while preserving the styling.
+- Move backdrop sampling into a clipped background layer separate from
+  animated icons/labels and their Material surface; use a RepaintBoundary.
+- Keep the BackdropFilter mounted and toggle its `enabled` flag while scrolling
+  or moving the bar, avoiding compositor layer churn; omit the default Material
+  shadow on glass (explicit elevation still works).
+
+### Frosted navigation rendering performance
+
+- Pause frosted backdrop sampling while the host's own content scrolls or
+  its floating bar animates in/out, without rebuilding the body on every
+  scroll update or spring frame.
+- Add `MorphNavigationGlass.webBackdropBlur` (true by default) for an explicit
+  opt-out of the expensive backdrop filter on Flutter Web only; native glass
+  and existing applications retain their previous behavior.
+- Permit tint/border-only rendering for users who explicitly disable web
+  backdrop blur; the preview now uses a lighter real blur instead.
+
+### Web preview performance
+
+- Give each gallery family its own state and repaint boundary so interactions
+  do not rebuild neighboring samples in the continuous gallery.
+- Isolate selection for each navigation bar demonstration; changing one bar
+  no longer animates all five in lockstep.
+- Use the library's lighter sigma-8 frosted blur in the embedded scroll demo,
+  preserving the full glass behavior and refresh functionality.
+
+### Refinement: selection, frosted navigation and refresh
+
+- Add `selectionDelay` per Morph bar, rail, drawer and page indicator;
+  reduce default trailing-edge timing to 60ms horizontally / 20ms vertically.
+- Lower the frosted bar default blur from sigma 20 to 8, and omit the
+  `BackdropFilter` layer entirely during scroll (unless explicitly enabled)
+  or when both blur sigmas are zero.
+- Restore the filled expressive pull-to-refresh spinner with a circular
+  determinate/indeterminate progress ring and default elevation 0; Material
+  and adaptive refresh variants retain elevation 2.
+
+### Navigation refinement
+
+- Delay the trailing selection edge by 90ms for bar, rail, drawer and page
+  indicators; cancel stale targets on reversal, disposal and reduced motion.
+- Center the return-to-top button on the floating bar's horizontal axis.
+- Suspend host backdrop blur while scrolling by default, with an opt-in
+  `MorphNavigationGlass.blurDuringScroll` override for continuous glass.
+- Isolate content paints and stop painting/ticking a hidden floating bar;
+  avoid an opacity layer over the glass surface.
+- Give the floating gallery sample local refresh state, explicit mouse drag
+  support, clamping physics and a visible asynchronous refresh lifecycle.
+- Add pointer, nesting, glass policy and edge timing regression tests.
+
+### Navigation and onboarding
+
+- Add opt-in `.morph` navigation bar, rail and drawer variants with a shared
+  elastic selection pill and system-aware reduced motion.
+- Add `.expressive` navigation bars with a sliding top dash, floating/docked
+  surfaces and configurable frosted glass.
+- Add a native navigation host with Motor scroll visibility, return-to-start,
+  safe clearance, keyboard handling and existing Morph pull-to-refresh.
+- Make rail destinations shorter with configurable spacing and 48px targets.
+- Add optional interactive MorphPageIndicator with equal, wide and expanding
+  dot geometry, RTL and selected semantics.
+- Keep mouse state layers separate from the shared pill and capture local
+  theme/motion preferences in navigation overlays.
+- Add gallery examples and regression coverage for geometry and accessibility.
+
+### Fixed
+
+- Apply system and application reduced-motion preferences consistently to Morph
+  springs, selection choreography, textfield labels, implicit effects, progress,
+  loading and slider waves. Complete interrupted spring callbacks and preserve
+  normal-motion configuration.
+- Keep immediate overlay removal idempotent and bypass animated-size layout
+  controllers under reduced motion; flush pointer focus updates without relying
+  on a running animation.
+- Update carousel geometry atomically when accessibility changes switch between
+  weighted and fixed layouts.
+
+### Added
+
+- `MorphThemeData.reduceMotion` and inherited `MorphMotionScope` overrides that
+  respect platform/ancestor requests and survive captured overlay themes.
+- Reproducible full/reduced/reduce-only animation regression tests.
+
 ## 0.4.1 - 2026-10-21
 
 ### Fixed

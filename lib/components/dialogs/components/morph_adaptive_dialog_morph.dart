@@ -23,7 +23,7 @@ extension _MorphAdaptiveDialogMorph on _MorphAdaptiveDialogState {
       _from = _lastRect;
       _measure();
       _to = _lastRect;
-      final bool reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+      final bool reduce = MorphMotion.reduceMotionOf(context);
       _morph!.value = reduce ? 1 : 0;
       if (!reduce) {
         _morph!.animateTo(1);

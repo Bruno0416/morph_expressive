@@ -36,6 +36,12 @@ class _MorphSliverAppBarState extends State<_MorphSliverAppBar>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _visibility.duration = MorphMotion.durationOf(context, _kAppBarTravel);
+    if (MorphMotion.reduceMotionOf(context) && _visibility.isAnimating) {
+      final target = _visibility.status == AnimationStatus.reverse ? 0.0 : 1.0;
+      _visibility.stop(canceled: false);
+      _visibility.value = target;
+    }
     _bindScrollable();
     _bindController();
   }
@@ -153,6 +159,10 @@ class _MorphSliverAppBarState extends State<_MorphSliverAppBar>
     if (position == null || !position.hasPixels) {
       return Future<void>.value();
     }
+    if (MorphMotion.reduceMotionOf(context)) {
+      position.jumpTo(0);
+      return Future<void>.value();
+    }
     return position.animateTo(
       0,
       duration: _kAppBarTravel,
@@ -169,6 +179,10 @@ class _MorphSliverAppBarState extends State<_MorphSliverAppBar>
       0.0,
       position.maxScrollExtent,
     );
+    if (MorphMotion.reduceMotionOf(context)) {
+      position.jumpTo(target);
+      return Future<void>.value();
+    }
     return position.animateTo(
       target,
       duration: _kAppBarTravel,
@@ -310,6 +324,10 @@ class _MorphSliverAppBarState extends State<_MorphSliverAppBar>
                     return _MorphScrolledUnder(
                       scrolledUnder: under,
                       child: Material(
+                        animationDuration: MorphMotion.durationOf(
+                          context,
+                          MorphMotion.short4,
+                        ),
                         color: bg,
                         elevation: elevation,
                         shadowColor: scheme.shadow,

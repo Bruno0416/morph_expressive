@@ -49,6 +49,7 @@ import 'package:material_ui/material_ui.dart'
         WidgetsBinding;
 import 'package:motor/motor.dart';
 
+import '../../foundations/interaction/morph_motion_controller.dart';
 import '../../foundations/foundations.dart';
 import 'styles/morph_switch_theme.dart';
 
@@ -135,12 +136,12 @@ class _MorphSwitchState extends State<MorphSwitch>
     }
     // Theme may be unavailable; match [MorphSwitchTheme] defaults.
     const defaults = MorphSwitchTheme.defaults;
-    _positionCtrl = SingleMotionController(
+    _positionCtrl = MorphMotionController(
       motion: _positionMotion(defaults),
       vsync: this,
       initialValue: widget.value ? 1.0 : 0.0,
     );
-    _sizeCtrl = SingleMotionController(
+    _sizeCtrl = MorphMotionController(
       motion: _sizeMotion(defaults),
       vsync: this,
       initialValue: widget.value ? 1.0 : 0.0,
@@ -316,7 +317,7 @@ class _MorphSwitchState extends State<MorphSwitch>
   ) {
     final trackRadius = MorphShapes.resolve(switchTheme.trackHeight / 2);
     final Widget track = AnimatedContainer(
-      duration: MorphMotion.short3,
+      duration: MorphMotion.durationOf(context, MorphMotion.short3),
       width: switchTheme.trackWidth,
       height: switchTheme.trackHeight,
       padding: EdgeInsets.all(switchTheme.trackPadding),
@@ -482,6 +483,7 @@ class _MorphSwitchState extends State<MorphSwitch>
       value: widget.value,
     );
     return Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       type: MaterialType.transparency,
       color: Colors.transparent,
       shape: const CircleBorder(),

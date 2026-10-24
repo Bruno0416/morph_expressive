@@ -23,7 +23,9 @@ source, target = map(Path, sys.argv[1:])
 shutil.copytree(
     source, target,
     ignore=shutil.ignore_patterns(
-        '.git', '.idea', '.dart_tool', 'build', 'coverage', '__pycache__',
+        '.git', '.idea', '.dart_tool', '.gradle', '.cxx',
+        '.plugin_symlinks', 'build', 'coverage', '__pycache__',
+        'DerivedData', 'ephemeral', 'node_modules', 'Pods',
         'docs', '*.zip', '*.patch', 'pubspec.lock', '.flutter-plugins-dependencies',
     ),
 )

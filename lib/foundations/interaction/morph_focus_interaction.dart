@@ -53,6 +53,9 @@ class MorphFocusInteraction extends ChangeNotifier {
         notifyListeners();
       }
     });
+    // Reduced motion may leave no animation to request the frame that flushes
+    // this notification. Pointer focus feedback must still update when idle.
+    WidgetsBinding.instance.ensureVisualUpdate();
   }
 
   GestureBinding? _boundPointerBinding;
@@ -150,7 +153,7 @@ class MorphFocusInteraction extends ChangeNotifier {
     Scrollable.ensureVisible(
       context,
       alignment: alignment,
-      duration: duration,
+      duration: MorphMotion.durationOf(context, duration),
       curve: curve,
       alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
     );

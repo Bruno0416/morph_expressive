@@ -11,6 +11,8 @@ import 'package:material_ui/material_ui.dart'
         BoxConstraints,
         BoxDecoration,
         BuildContext,
+        Builder,
+        InheritedTheme,
         CallbackShortcuts,
         ClampingScrollPhysics,
         ClipRRect,
@@ -72,10 +74,12 @@ import 'package:material_ui/material_ui.dart'
         WidgetsBinding;
 import 'package:motor/motor.dart';
 
+import '../../foundations/interaction/morph_motion_controller.dart';
 import '../../foundations/foundations.dart';
 import '../extended_fabs/morph_extended_fabs.dart';
 import '../floating_action_buttons/morph_floating_action_buttons.dart';
 import '../icon_buttons/morph_icon_buttons.dart';
+import 'components/morph_sliding_indicator.dart';
 import 'components/morph_rail_item.dart';
 import 'controllers/morph_navigation_rail_controller.dart';
 import 'enums/morph_navigation_rail_enums.dart';
@@ -102,6 +106,8 @@ part 'components/morph_navigation_rail_width.dart';
 class MorphNavigationRail extends StatefulWidget {
   /// Creates a Material 3 Expressive navigation rail.
   const MorphNavigationRail({
+    this.motion = MorphNavigationMotion.standard,
+    this.selectionDelay,
     super.key,
     this.type = MorphNavigationRailType.expanded,
     this.modality = MorphNavigationRailModality.standard,
@@ -126,6 +132,34 @@ class MorphNavigationRail extends StatefulWidget {
     this.scrollUnder = true,
     this.controller,
   });
+
+  /// A shared elastic selection pill that travels between destinations.
+  const MorphNavigationRail.morph({
+    this.selectionDelay,
+    super.key,
+    this.type = MorphNavigationRailType.expanded,
+    this.modality = MorphNavigationRailModality.standard,
+    required this.sections,
+    required this.selectedIndex,
+    required this.onDestinationSelected,
+    this.fab,
+    this.hideWhenCollapsed = false,
+    this.expandedWidth,
+    this.onDismissModal,
+    this.onTypeChanged,
+    this.labelBehavior = MorphNavigationRailLabelBehavior.alwaysShow,
+    this.scrollable = true,
+    this.trailing,
+    this.trailingAtBottom = true,
+    this.background,
+    this.expandTooltip = 'Expand',
+    this.collapseTooltip = 'Collapse',
+    this.alignment = MorphNavigationRailAlignment.top,
+    this.leading,
+    this.showDivider = false,
+    this.scrollUnder = true,
+    this.controller,
+  }) : motion = MorphNavigationMotion.morph;
 
   /// type.
   final MorphNavigationRailType type;
@@ -193,6 +227,12 @@ class MorphNavigationRail extends StatefulWidget {
   /// Optional external control for selection and expansion.
   final MorphNavigationRailController? controller;
 
+  /// Standard independent fills or one continuous Morph indicator.
+  final MorphNavigationMotion motion;
+
+  /// Optional trailing-edge pause for morph navigation. Defaults to 20ms.
+  final Duration? selectionDelay;
+
   @override
   State<MorphNavigationRail> createState() => _MorphNavigationRailState();
 }
@@ -259,7 +299,7 @@ class _MorphNavigationRailState extends State<MorphNavigationRail>
   void initState() {
     super.initState();
     _expanded = _expandedFor(widget.type);
-    _width = SingleMotionController(
+    _width = MorphMotionController(
       motion: MorphMotion.springMotion(MorphMotion.expressiveSpatialDefault),
       vsync: this,
     )..addListener(_onWidth);
@@ -287,6 +327,7 @@ class _MorphNavigationRailState extends State<MorphNavigationRail>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    MorphMotion.reduceMotionOf(context);
     if (_isModal && _isExpanded) {
       _modalShown = true;
     } else if (!_isModal) {

@@ -407,19 +407,19 @@ class _CarouselViewState extends State<MorphCarouselView> {
         _controller._carouselState = this;
       }
     }
-    if (widget.flexWeights != oldWidget.flexWeights) {
-      (_controller.position as _CarouselPosition).flexWeights = _flexWeights;
-    }
-    if (widget.itemExtent != oldWidget.itemExtent ||
-        widget.restingExtents != oldWidget.restingExtents) {
+    if (widget.flexWeights != oldWidget.flexWeights ||
+        widget.itemExtent != oldWidget.itemExtent ||
+        widget.restingExtents != oldWidget.restingExtents ||
+        widget.consumeMaxWeight != oldWidget.consumeMaxWeight) {
       _itemExtent = widget.itemExtent;
-      (_controller.position as _CarouselPosition)
-        ..restingExtents = widget.restingExtents
-        ..itemExtent = _itemExtent;
-    }
-    if (widget.consumeMaxWeight != oldWidget.consumeMaxWeight) {
-      (_controller.position as _CarouselPosition).consumeMaxWeight =
-          _consumeMaxWeight;
+      if (_controller.hasClients && _controller.position is _CarouselPosition) {
+        (_controller.position as _CarouselPosition).updateGeometry(
+          itemExtent: _itemExtent,
+          flexWeights: _flexWeights,
+          restingExtents: widget.restingExtents,
+          consumeMaxWeight: _consumeMaxWeight,
+        );
+      }
     }
   }
 
@@ -561,6 +561,10 @@ class _CarouselViewState extends State<MorphCarouselView> {
         children: <Widget>[
           contents,
           Material(
+            animationDuration: MorphMotion.durationOf(
+              context,
+              MorphMotion.short4,
+            ),
             color: Colors.transparent,
             child: InkWell(
               enableFeedback: false,
@@ -588,6 +592,7 @@ class _CarouselViewState extends State<MorphCarouselView> {
     return Padding(
       padding: effectivePadding,
       child: Material(
+        animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
         clipBehavior: effectiveItemClipBehavior,
         color: effectiveBackgroundColor,
         elevation: effectiveElevation,

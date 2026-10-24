@@ -97,6 +97,7 @@ class MorphBottomSheetDragHandle extends StatelessWidget {
     );
     const shape = CircleBorder();
     return Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       type: MaterialType.transparency,
       shape: shape,
       clipBehavior: Clip.antiAlias,

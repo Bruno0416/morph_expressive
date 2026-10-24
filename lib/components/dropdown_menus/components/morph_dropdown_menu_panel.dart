@@ -112,6 +112,10 @@ extension _MorphDropdownMenuPanel<T> on _MorphDropdownMenuState<T> {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: dd.maxHeight),
         child: Material(
+          animationDuration: MorphMotion.durationOf(
+            context,
+            MorphMotion.short4,
+          ),
           elevation: dd.elevation,
           color: dd.backgroundColor ?? menuTheme.panelBackgroundColor(scheme),
           shape: RoundedRectangleBorder(

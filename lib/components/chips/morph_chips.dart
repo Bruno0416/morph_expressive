@@ -499,6 +499,7 @@ class _MorphChipState extends State<MorphChip> {
       ),
     );
     return Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       color: chipTheme.containerColor(
         scheme,
         enabled: _enabled,
@@ -597,6 +598,7 @@ class _MorphChipState extends State<MorphChip> {
     required Widget child,
   }) {
     return Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       type: MaterialType.transparency,
       color: Colors.transparent,
       shape: shape,

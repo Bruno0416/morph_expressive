@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
+import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
 import '../styles/morph_list_reorder_state.dart';
 import 'morph_list_drag_proxy_scope.dart';
@@ -120,7 +121,7 @@ class _MorphListReorderHostState extends State<MorphListReorderHost>
   SingleMotionController _offsetCtrl(int index) {
     return _offsets.putIfAbsent(
       index,
-      () => SingleMotionController(
+      () => MorphMotionController(
         motion: _motion(MorphMotion.expressiveSpatialDefault),
         vsync: this,
       ),
@@ -134,15 +135,15 @@ class _MorphListReorderHostState extends State<MorphListReorderHost>
   @override
   void initState() {
     super.initState();
-    _lift = SingleMotionController(
+    _lift = MorphMotionController(
       motion: _motion(MorphMotion.effectsFast),
       vsync: this,
     )..addListener(_onMotion);
-    _settle = SingleMotionController(
+    _settle = MorphMotionController(
       motion: _motion(MorphMotion.expressiveSpatialDefault),
       vsync: this,
     )..addListener(_onMotion);
-    _placeholder = SingleMotionController(
+    _placeholder = MorphMotionController(
       motion: _motion(MorphMotion.expressiveSpatialDefault),
       vsync: this,
     );

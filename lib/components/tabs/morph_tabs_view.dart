@@ -49,6 +49,10 @@ class _MorphTabsViewState extends State<MorphTabsView> {
     if (current == _index) {
       return;
     }
+    if (MorphMotion.reduceMotionOf(context)) {
+      _page.jumpToPage(_index);
+      return;
+    }
     _page.animateToPage(
       _index,
       duration: MorphMotion.medium2,

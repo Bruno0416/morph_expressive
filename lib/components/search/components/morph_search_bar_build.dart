@@ -222,6 +222,7 @@ extension _MorphSearchBarContentBuild on _MorphSearchBarState {
     return Opacity(
       opacity: widget.enabled ? 1 : MorphSearchConstants.disabledOpacity,
       child: Material(
+        animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
         elevation: styles.elevation,
         shadowColor: styles.shadow,
         color: styles.background,
@@ -231,6 +232,10 @@ extension _MorphSearchBarContentBuild on _MorphSearchBarState {
         child: IgnorePointer(
           ignoring: !widget.enabled,
           child: Material(
+            animationDuration: MorphMotion.durationOf(
+              context,
+              MorphMotion.short4,
+            ),
             type: MaterialType.transparency,
             child: InkWell(
               enableFeedback: false,

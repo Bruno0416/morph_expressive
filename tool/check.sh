@@ -12,7 +12,7 @@ python3 tool/check_motion.py
 python3 tool/check_morph_names.py
 python3 tool/check_preview_coverage.py
 python3 tool/check_third_party_notices.py
-python3 -m unittest discover -s tool -p 'test_dependency_imports.py'
+python3 -m unittest discover -s tool -p 'test_*.py'
 python3 tool/check_dependency_imports.py
 
 command -v flutter >/dev/null || {

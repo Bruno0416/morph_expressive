@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
+import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
 import '../morph_dialogs.dart';
 import '../res/morph_dialog_strings.dart';
@@ -74,7 +75,7 @@ class _MorphAdaptiveDialogState extends State<MorphAdaptiveDialog>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _morph ??= SingleMotionController(
+    _morph ??= MorphMotionController(
       motion: morphDialogSpringMotion(
         MorphTheme.of(context).dialogTheme.enterSpring,
       ),

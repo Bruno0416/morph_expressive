@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
+import '../../foundations/interaction/morph_motion_controller.dart';
 import '../../foundations/foundations.dart';
 import '../divider/morph_divider.dart';
 import 'components/morph_card_container_transform.dart';
@@ -299,7 +300,7 @@ class _MorphCardState extends State<MorphCard>
   void initState() {
     super.initState();
     _swipeMotion =
-        SingleMotionController(
+        MorphMotionController(
           motion: _swipeSpring(MorphMotion.expressiveSpatialDefault),
           vsync: this,
         )..addListener(() {
@@ -595,7 +596,10 @@ class _MorphCardState extends State<MorphCard>
     Widget surface = AnimatedContainer(
       key: widget.surfaceKey,
       width: widget.width,
-      duration: widget.animationDuration ?? MorphMotion.short4,
+      duration: MorphMotion.durationOf(
+        context,
+        widget.animationDuration ?? MorphMotion.short4,
+      ),
       curve: widget.animationCurve ?? MorphMotion.standard,
       clipBehavior: widget.clipBehavior,
       decoration: BoxDecoration(

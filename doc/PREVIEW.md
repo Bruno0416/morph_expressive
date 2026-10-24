@@ -22,8 +22,9 @@ against a release Web build, not only a debug run.
 
 ## Reproducible animated GIF scenes
 
-The ten isolated capture scenes are `buttons`, `dropdown`, `segmented`,
-`textfields`, `chips`, `sliders`, `loading`, `navigation`, `lists` and `dialogs`; their
+The twelve isolated capture scenes are `buttons`, `dropdown`, `segmented`,
+`textfields`, `chips`, `sliders`, `loading`, `navigation`, `navigation_morph`,
+`navigation_rail_drawer`, `lists` and `dialogs`; their
 source lives in `preview/lib/component_gif_capture.dart`. The URL query
 `?capture=<scene>` selects a scene without altering the normal gallery.
 
@@ -34,6 +35,7 @@ bash tool/generate_component_gifs.sh --only chips
 bash tool/generate_component_gifs.sh --only textfields
 bash tool/generate_component_gifs.sh --only lists --only dialogs
 bash tool/generate_component_gifs.sh --only sliders --only loading
+bash tool/generate_component_gifs.sh --only navigation_morph --only navigation_rail_drawer
 python3 tool/check_gif_branding.py
 ```
 
@@ -56,8 +58,15 @@ MorphDialog opening and closing with its scrim and spring transition.
 Sliders and loading use **640 x 360 at 15 FPS over 6.8 seconds**; both now
 show the 90–98% smoothstep wave flattening, including the wavy range slider
 and the determinate circular/linear wavy indicators. Regenerate these GIFs
-after changing the wavy amplitude curve. The other four standard scenes
+after changing the wavy amplitude curve. The other standard scenes
 retain their 640 x 360, ~4.8-second captures.
+Navigation keeps the original MD3E `navigation.gif` unchanged. The new
+`navigation_morph` scene (640 × 520, 7.2 seconds) shows the elastic Morph
+bar, expressive top-dash variant and expanding/sliding page indicators.
+`navigation_rail_drawer` (640 × 500, 6.8 seconds) shows independent selection
+animations in a vertical rail and standard drawer. Both use real Morph widgets
+and scripted state transitions, not manually rendered mock animations.
+
 The capture script requires Flutter, Node.js/npm, Python 3, curl and FFmpeg;
 it installs Playwright/Chromium on first use and builds the Web preview in
 release mode. No Playwright dependency is installed for library consumers.

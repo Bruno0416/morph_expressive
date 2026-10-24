@@ -68,10 +68,23 @@ class _MorphSelectionFlipState extends State<MorphSelectionFlip>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MorphMotion.reduceMotionOf(context)) {
+      _controller.stop(canceled: false);
+      _controller.value = widget.selected ? 1 : 0;
+    }
+  }
+
+  @override
   void didUpdateWidget(MorphSelectionFlip oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.duration != widget.duration) {
       _controller.duration = widget.duration;
+    }
+    if (MorphMotion.reduceMotionOf(context)) {
+      _controller.value = widget.selected ? 1 : 0;
+      return;
     }
     if (oldWidget.selected != widget.selected) {
       if (widget.selected) {
@@ -125,6 +138,7 @@ class _MorphSelectionFlipState extends State<MorphSelectionFlip>
     }
 
     return Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       type: MaterialType.transparency,
       child: InkWell(
         enableFeedback: false,

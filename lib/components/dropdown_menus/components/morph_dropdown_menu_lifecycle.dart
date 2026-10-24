@@ -5,8 +5,8 @@ extension _MorphDropdownMenuLifecycle<T> on _MorphDropdownMenuState<T> {
   void _initControllers() {
     // Theme may be unavailable; match [MorphDropdownMenuTheme] defaults.
     final open = widget.openMotion ?? MorphMotion.expressiveSpatialDefault;
-    _expandCtrl = SingleMotionController(motion: open.toMotion(), vsync: this);
-    _arrowCtrl = SingleMotionController(motion: open.toMotion(), vsync: this);
+    _expandCtrl = MorphMotionController(motion: open.toMotion(), vsync: this);
+    _arrowCtrl = MorphMotionController(motion: open.toMotion(), vsync: this);
     _expandCtrl.addListener(_onExpandAnimationTick);
 
     if (widget.controller != null) {
@@ -202,8 +202,9 @@ extension _MorphDropdownMenuLifecycle<T> on _MorphDropdownMenuState<T> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AnimatedSize(
-            duration: MorphMotion.short4,
+          MorphMotion.sizeTransition(
+            context: context,
+            duration: MorphMotion.durationOf(context, MorphMotion.short4),
             curve: MorphMotion.standard,
             alignment: Alignment.topCenter,
             // Let the field's focus ring paint outside the animated bounds.

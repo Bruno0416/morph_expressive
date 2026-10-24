@@ -109,6 +109,13 @@ class _MorphBottomSheetModalHostState extends State<MorphBottomSheetModalHost>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    if (MorphMotion.reduceMotionOf(context)) {
+      _entrance.stop(canceled: false);
+      _scrim.stop(canceled: false);
+      _back.stop(canceled: false);
+      _onStatus(widget.animation.status);
+      _back.value = 0;
+    }
     if (!_started) {
       _started = true;
       _onStatus(widget.animation.status);
@@ -146,7 +153,7 @@ class _MorphBottomSheetModalHostState extends State<MorphBottomSheetModalHost>
   }
 
   void _spring(AnimationController c, MorphSpring spring, double target) {
-    final bool reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final bool reduce = MorphMotion.reduceMotionOf(context);
     if (reduce) {
       c.value = target;
       return;

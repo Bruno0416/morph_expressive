@@ -3,6 +3,7 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
 
+import '../../foundations/interaction/morph_motion_controller.dart';
 import '../../foundations/foundations.dart';
 import '../buttons/utils/morph_button_gradient_layer.dart';
 import '../floating_action_buttons/components/morph_fab_container_transform.dart';
@@ -147,12 +148,12 @@ class _MorphExtendedFabState extends State<MorphExtendedFab>
     super.initState();
     final bool startAppeared = !widget.appear;
     final bool startExtended = _targetExtended;
-    _appearCtrl = SingleMotionController(
+    _appearCtrl = MorphMotionController(
       motion: _springMotion(MorphMotion.expressiveSpatialDefault),
       vsync: this,
       initialValue: startAppeared ? 1 : 0,
     )..addListener(_onAppearTick);
-    _extendedCtrl = SingleMotionController(
+    _extendedCtrl = MorphMotionController(
       motion: _springMotion(MorphMotion.expressiveSpatialDefault),
       vsync: this,
       initialValue: startExtended ? 1 : 0,

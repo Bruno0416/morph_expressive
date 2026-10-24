@@ -3,6 +3,7 @@ import 'package:morph_expressive/morph_components.dart'
     show MorphTheme, MorphToolbar;
 import 'package:motor/motor.dart';
 
+import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
 import '../../icon_buttons/morph_icon_buttons.dart';
 import '../enums/morph_toolbar_enums.dart';
@@ -76,7 +77,7 @@ class _MorphToolbarIconButtonState extends State<MorphToolbarIconButton>
   @override
   void initState() {
     super.initState();
-    _labelCtrl = SingleMotionController(
+    _labelCtrl = MorphMotionController(
       motion: _labelMotion(MorphToolbarTheme.defaults.labelSpring),
       vsync: this,
       initialValue: _showLabeled ? 1 : 0,

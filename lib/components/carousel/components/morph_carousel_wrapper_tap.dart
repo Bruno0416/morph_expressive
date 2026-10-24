@@ -20,8 +20,10 @@ extension _MorphCarouselWrapperTap on _MorphCarouselWrapperState {
       _snapshotVisibleNeighbors(index, _viewportBox);
     });
 
-    await _pulseController.forward();
-    await _pulseController.reverse();
+    if (!MorphMotion.reduceMotionOf(context)) {
+      await _pulseController.forward();
+      await _pulseController.reverse();
+    }
 
     if (mounted) {
       setState(() {

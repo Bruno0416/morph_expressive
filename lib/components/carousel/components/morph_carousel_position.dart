@@ -30,6 +30,26 @@ class _CarouselPosition extends ScrollPositionWithSingleContext
            : List<double>.from(restingExtents),
        super(initialPixels: null);
 
+  void updateGeometry({
+    required double? itemExtent,
+    required List<int>? flexWeights,
+    required List<double>? restingExtents,
+    required bool consumeMaxWeight,
+  }) {
+    final item = hasPixels && hasViewportDimension && viewportDimension > 0
+        ? updateLeadingItem(flexWeights, newConsumeMaxWeight: consumeMaxWeight)
+        : _itemToShowOnStartup;
+    _itemExtent = itemExtent;
+    _flexWeights = flexWeights;
+    _restingExtents = restingExtents == null || restingExtents.isEmpty
+        ? null
+        : List<double>.of(restingExtents);
+    _consumeMaxWeight = consumeMaxWeight;
+    if (hasPixels && hasViewportDimension) {
+      forcePixels(getPixelsFromItem(item, flexWeights, itemExtent));
+    }
+  }
+
   int initialItem;
   final double _itemToShowOnStartup;
 
@@ -293,6 +313,9 @@ class _CarouselPosition extends ScrollPositionWithSingleContext
 
     _cachedItem = other._cachedItem;
     _itemExtent = other._itemExtent;
+    _flexWeights = other._flexWeights;
+    _restingExtents = other._restingExtents;
+    _consumeMaxWeight = other._consumeMaxWeight;
   }
 
   /// Returns the length of one complete cycle in pixels.

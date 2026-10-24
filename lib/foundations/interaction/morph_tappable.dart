@@ -164,6 +164,9 @@ class _MorphTappableState extends State<MorphTappable>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    if (MorphMotion.reduceMotionOf(context)) {
+      _scaleController.value = _state.pressed ? widget.pressedScale : 1;
+    }
     _bindScrolling();
   }
 
@@ -324,6 +327,11 @@ class _MorphTappableState extends State<MorphTappable>
   }
 
   void _animateScale(double target) {
+    if (MorphMotion.reduceMotionOf(context)) {
+      _scaleController.stop(canceled: false);
+      _scaleController.value = target;
+      return;
+    }
     if (widget.pressedScale == 1) {
       return;
     }

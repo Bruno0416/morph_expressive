@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart'
     show
         Center,
         EditableText,
+        Offset,
         EditableTextState,
         Scaffold,
         SizedBox,
@@ -59,7 +60,9 @@ Future<void> _longPressSelects(WidgetTester tester) async {
   final controller = TextEditingController(text: 'hello world');
   addTearDown(controller.dispose);
   await tester.pumpWidget(_host(controller));
-  await tester.longPress(find.byType(EditableText));
+  await tester.longPressAt(
+    tester.getTopLeft(find.byType(EditableText)) + const Offset(24, 12),
+  );
   await tester.pumpAndSettle();
   expect(controller.selection.isCollapsed, isFalse);
   expect(_handlesVisible(tester), isTrue);

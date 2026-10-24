@@ -600,7 +600,10 @@ class _MorphSearchAnchorState extends State<MorphSearchAnchor>
     return AnimatedOpacity(
       key: _anchorKey,
       opacity: _opacity(),
-      duration: MorphSearchConstants.anchorFadeDuration,
+      duration: MorphMotion.durationOf(
+        context,
+        MorphSearchConstants.anchorFadeDuration,
+      ),
       // Hidden anchors must not keep an EditableText text-input client or Tab
       // stop while the search view owns the same controller.
       child: ExcludeFocus(

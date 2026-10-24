@@ -331,6 +331,7 @@ extension _MorphCarouselWrapperItemBuilder on _MorphCarouselWrapperState {
     return CompositedTransformTarget(
       link: _itemLinks[index],
       child: Material(
+        animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
         color: metadata.scheme.surface,
         elevation: metadata.hovered && metadata.enabled
             ? metadata.carousel.hoverElevation
@@ -548,6 +549,7 @@ extension _MorphCarouselWrapperItemBuilder on _MorphCarouselWrapperState {
   }) {
     return Positioned.fill(
       child: Material(
+        animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
         type: MaterialType.transparency,
         child: InkWell(
           statesController: index < _itemStates.length

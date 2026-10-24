@@ -68,6 +68,7 @@ class MorphThemeData {
     this.highlightColor,
     this.keyboardFocusIndicators = true,
     this.hapticsEnabled = true,
+    this.reduceMotion = false,
     this.hapticFeedback = MorphHapticFeedback.light,
     this.focusRingTheme = MorphFocusRingTheme.defaults,
     this.appBarTheme = MorphAppBarTheme.defaults,
@@ -223,6 +224,10 @@ class MorphThemeData {
   /// Whether Morph interactions emit haptic feedback. Defaults to true.
   /// This setting overrides all component-level feedback preferences.
   final bool hapticsEnabled;
+
+  /// Opts the whole themed subtree into reduced motion. The system preference
+  /// is always respected, even when this value is false.
+  final bool reduceMotion;
 
   /// Default impact intensity inherited by Morph components.
   /// A component may explicitly use [MorphHapticFeedback.none] to opt out.
@@ -391,6 +396,7 @@ class MorphThemeData {
     Color? highlightColor,
     bool? keyboardFocusIndicators,
     bool? hapticsEnabled,
+    bool? reduceMotion,
     MorphHapticFeedback? hapticFeedback,
     MorphFocusRingTheme? focusRingTheme,
     MorphAppBarTheme? appBarTheme,
@@ -452,6 +458,7 @@ class MorphThemeData {
     highlightColor: highlightColor,
     keyboardFocusIndicators: keyboardFocusIndicators,
     hapticsEnabled: hapticsEnabled,
+    reduceMotion: reduceMotion,
     hapticFeedback: hapticFeedback,
     focusRingTheme: focusRingTheme,
     appBarTheme: appBarTheme,
