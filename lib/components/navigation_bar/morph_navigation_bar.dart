@@ -88,6 +88,7 @@ class MorphNavigationBar extends StatefulWidget {
     this.glass,
     this.selectionDelay,
     this.iconSize,
+    this.unselectedIconScale = 1.0,
     this.labelStyle,
     this.topIndicatorWidth = 40,
     this.topIndicatorHeight = 4,
@@ -103,6 +104,7 @@ class MorphNavigationBar extends StatefulWidget {
     this.alignment = MorphNavBarAlignment.center,
     this.wideBreakpoint,
     this.wideDestinationWidth,
+    this.distributeWideDestinations = false,
     this.size = MorphNavBarSize.medium,
     this.shapeFamily = MorphNavBarShapeFamily.square,
     this.density = MorphNavBarDensity.regular,
@@ -116,52 +118,65 @@ class MorphNavigationBar extends StatefulWidget {
     this.controller,
     this.hideOnScroll = false,
     this.scrollController,
-  }) : _expressive = false;
+  }) : assert(unselectedIconScale > 0),
+       _topDash = false;
 
-  /// A shared elastic selection pill that travels between destinations.
-  const MorphNavigationBar.morph({
-    this.floating = false,
-    this.glass,
-    this.selectionDelay,
-    this.iconSize,
-    this.labelStyle,
-    this.topIndicatorWidth = 40,
-    this.topIndicatorHeight = 4,
-    this.floatingRadius = 40,
-    super.key,
-    required this.destinations,
-    this.selectedIndex = 0,
-    this.onDestinationSelected,
-    this.labelBehavior = MorphNavBarLabelBehavior.alwaysShow,
-    this.iconBehavior = MorphNavBarIconBehavior.alwaysShow,
-    this.autoLayout = true,
-    this.layout = MorphNavBarLayout.compact,
-    this.alignment = MorphNavBarAlignment.center,
-    this.wideBreakpoint,
-    this.wideDestinationWidth,
-    this.size = MorphNavBarSize.medium,
-    this.shapeFamily = MorphNavBarShapeFamily.square,
-    this.density = MorphNavBarDensity.regular,
-    this.backgroundColor,
-    this.elevation,
-    this.indicatorStyle = MorphNavBarIndicatorStyle.pill,
-    this.indicatorColor,
-    this.padding,
-    this.safeArea = true,
-    this.semanticLabel,
-    this.controller,
-    this.hideOnScroll = false,
-    this.scrollController,
-  }) : motion = MorphNavigationMotion.morph,
-       _expressive = false;
-
-  /// WatchNext-inspired navigation: a sliding top dash and active label.
-  /// Use [floating] inside MorphNavigationBarHost for an inset floating shell.
+  /// Material 3 Expressive: a shared elastic selection pill around the icon.
+  ///
+  /// Uses the same morphing selection motion as the rail and drawer variants.
+  /// Defaults to the compact 64dp bar height; use [size] for the 80dp baseline.
+  /// Unlike [MorphNavigationBar.morph], it does not display a top dash.
   const MorphNavigationBar.expressive({
     this.floating = false,
     this.glass,
     this.selectionDelay,
+    this.iconSize,
+    this.unselectedIconScale = 1.0,
+    this.labelStyle,
+    this.topIndicatorWidth = 40,
+    this.topIndicatorHeight = 4,
+    this.floatingRadius = 40,
+    super.key,
+    required this.destinations,
+    this.selectedIndex = 0,
+    this.onDestinationSelected,
+    this.labelBehavior = MorphNavBarLabelBehavior.alwaysShow,
+    this.iconBehavior = MorphNavBarIconBehavior.alwaysShow,
+    this.autoLayout = true,
+    this.layout = MorphNavBarLayout.compact,
+    this.alignment = MorphNavBarAlignment.center,
+    this.wideBreakpoint,
+    this.wideDestinationWidth,
+    this.distributeWideDestinations = false,
+    this.size = MorphNavBarSize.small,
+    this.shapeFamily = MorphNavBarShapeFamily.square,
+    this.density = MorphNavBarDensity.regular,
+    this.backgroundColor,
+    this.elevation,
+    this.indicatorStyle = MorphNavBarIndicatorStyle.pill,
+    this.indicatorColor,
+    this.padding,
+    this.safeArea = true,
+    this.semanticLabel,
+    this.controller,
+    this.hideOnScroll = false,
+    this.scrollController,
+  }) : assert(unselectedIconScale > 0),
+       motion = MorphNavigationMotion.morph,
+       _topDash = false;
+
+  /// Morph navigation: a sliding top dash, active icon and selected label.
+  ///
+  /// Use [floating] inside `MorphNavigationBarHost` for an inset floating
+  /// shell. The top indicator follows the elastic Morph selection motion.
+  /// The small Morph variant defaults to 76dp to keep the dash and 32dp icon
+  /// visually separated. Use [size] for the 80dp medium baseline.
+  const MorphNavigationBar.morph({
+    this.floating = false,
+    this.glass,
+    this.selectionDelay,
     this.iconSize = 32,
+    this.unselectedIconScale = 1.0,
     this.labelStyle = const TextStyle(fontSize: 14),
     this.topIndicatorWidth = 40,
     this.topIndicatorHeight = 4,
@@ -177,7 +192,8 @@ class MorphNavigationBar extends StatefulWidget {
     this.alignment = MorphNavBarAlignment.center,
     this.wideBreakpoint,
     this.wideDestinationWidth,
-    this.size = MorphNavBarSize.medium,
+    this.distributeWideDestinations = false,
+    this.size = MorphNavBarSize.small,
     this.shapeFamily = MorphNavBarShapeFamily.square,
     this.density = MorphNavBarDensity.regular,
     this.backgroundColor,
@@ -190,8 +206,9 @@ class MorphNavigationBar extends StatefulWidget {
     this.controller,
     this.hideOnScroll = false,
     this.scrollController,
-  }) : motion = MorphNavigationMotion.morph,
-       _expressive = true;
+  }) : assert(unselectedIconScale > 0),
+       motion = MorphNavigationMotion.morph,
+       _topDash = true;
 
   /// destinations.
   final List<MorphNavigationBarDestination> destinations;
@@ -225,9 +242,19 @@ class MorphNavigationBar extends StatefulWidget {
   /// widest icon-plus-label content.
   final double? wideDestinationWidth;
 
+  /// Spread wide-layout destinations uniformly across the available width.
+  ///
+  /// When false (default), destinations remain a compact group positioned by
+  /// [alignment] and separated by the theme's wide item gap. When true, each
+  /// destination keeps its intrinsic or [wideDestinationWidth] slot width,
+  /// but its center is evenly distributed across the bar. [alignment] is
+  /// ignored in distributed wide layout. Compact layout is unaffected.
+  final bool distributeWideDestinations;
+
   /// Flexible [MorphNavBarSize.small] or baseline [MorphNavBarSize.medium].
   ///
-  /// Defaults to the baseline bar.
+  /// Defaults to [MorphNavBarSize.medium] for the unnamed constructor and
+  /// [MorphNavBarSize.small] for `.morph` and `.expressive`.
   final MorphNavBarSize size;
 
   /// shapeFamily.
@@ -275,15 +302,28 @@ class MorphNavigationBar extends StatefulWidget {
   /// Optional trailing-edge pause for morph navigation. Defaults to 60ms.
   final Duration? selectionDelay;
 
-  /// Optional glyph size; the expressive variant defaults to 32.
+  /// Base glyph size in logical pixels, resolved through the navigation
+  /// theme when null. The top-dash `.morph()` variant defaults to 32dp.
+  ///
+  /// Combined with [unselectedIconScale] for the resting icon size; the
+  /// selected icon is always painted at the base [iconSize] scale (1.0).
   final double? iconSize;
+
+  /// Relative paint scale of icons in unselected destinations.
+  ///
+  /// `1.0` keeps selected and unselected glyphs equally sized (default).
+  /// `0.9` paints unselected glyphs at 90% of [iconSize], while `1.1`
+  /// makes them 10% larger. Selection transitions use the existing icon
+  /// spring; this does not change destination layout or tap targets.
+  /// Must be greater than zero.
+  final double unselectedIconScale;
 
   /// Overrides the label typography while retaining state colors and weights.
   final TextStyle? labelStyle;
   final double topIndicatorWidth;
   final double topIndicatorHeight;
   final double floatingRadius;
-  final bool _expressive;
+  final bool _topDash;
 
   /// Standard independent fills or one continuous Morph indicator.
   final MorphNavigationMotion motion;

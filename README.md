@@ -7,8 +7,7 @@ and smooth animations.
 The goal is to make components look and feel consistent while exploring new
 styles and interactions beyond Material 3 Expressive.
 
-This README describes the upcoming **0.5.0** release. Publish only after the
-latest/lowest dependency matrix and navigation GIF captures pass. Check the
+This README documents **0.6.0**. Check the
 [pub.dev versions](https://pub.dev/packages/morph_expressive/versions) for the
 latest published release. Morph Expressive is still in the 0.x series, so
 public APIs and defaults may evolve between minor versions.
@@ -28,7 +27,7 @@ of wrapped. See [NOTICE](NOTICE) and [LICENSE](LICENSE) for attribution.
 
 ```yaml
 dependencies:
-  morph_expressive: ^0.5.0
+  morph_expressive: ^0.6.0
 ```
 
 Run `flutter pub get` after changing the constraint. To test a source checkout
@@ -68,22 +67,79 @@ void main() {
 This example uses a fixed light theme. For dynamic brightness, keep `MorphTheme`
 and the host Material theme synchronized. `MaterialApp.router` is supported.
 
+## New in 0.6.0
+
+**Upgrading from 0.5.0:** `MorphNavigationBarDestination.icon` and
+`selectedIcon` now accept `IconData`, not `Widget`. For custom icons use
+`iconWidget` / `selectedIconWidget`. The two named bar constructors also
+exchange their former visual mapping: `.expressive()` is the elastic icon
+pill; `.morph()` is the sliding upper dash.
+
+- **Navigation controls:** `.expressive()` defaults to a compact 64dp band,
+  while `.morph()` uses 76dp to keep its top dash clear of the active icon.
+  `iconSize` and `unselectedIconScale` customize glyph emphasis, and
+  `distributeWideDestinations: true` evenly spaces destinations in wide mode.
+  The unnamed standard bar retains its existing behavior.
+- **Frosted AppBar:** `MorphAppBar.frosted()` uses `MorphAppBarGlass` for
+  progressive, clipped blur and a surface tint growing from 0% at the bottom
+  to 90% at the top, with a linear lower half and exponential upper half.
+- **Composition:** `MorphNavigationBarHost` accepts *all three* bottom bar
+  variants, whether glass is enabled or not. It supports floating placement,
+  hide-on-scroll, back-to-top and optional pull-to-refresh. Without `onRefresh`
+  no indicator is created; the refresh offset adapts automatically to a
+  frosted AppBar with `extendBodyBehindAppBar: true`.
+- **Page indicators and demos:** interactive dot spacing now matches the
+  supplied `spacing`; the mobile preview exercises both frosted navigation
+  surfaces and refresh. The Web gallery excludes its two costly live-blur
+  scenes, while keeping the widgets available to consumers.
+
+A complete navigation composition can use either `MorphNavigationBar.morph()`,
+`.expressive()`, or the unnamed standard bar. In a `StatefulWidget`'s `build`
+method, with a `selectedIndex` state field and a `refreshData` async method:
+
+```dart
+Scaffold(
+  extendBodyBehindAppBar: true,
+  appBar: MorphAppBar.frosted(titleText: 'Explore'),
+  body: MorphNavigationBarHost(
+    onRefresh: refreshData, // Omit to disable pull-to-refresh entirely.
+    bar: MorphNavigationBar.morph(
+      floating: true,
+      iconSize: 32,
+      unselectedIconScale: 0.9,
+      selectedIndex: selectedIndex,
+      onDestinationSelected: (index) => setState(() => selectedIndex = index),
+      destinations: const [
+        MorphNavigationBarDestination(icon: MorphIcons.home, label: 'Home'),
+        MorphNavigationBarDestination(icon: MorphIcons.search, label: 'Search'),
+      ],
+    ),
+    body: (context, controller, contentPadding) => ListView.builder(
+      controller: controller,
+      padding: EdgeInsets.only(
+        top: MediaQuery.paddingOf(context).top + 64,
+        bottom: contentPadding.bottom,
+      ),
+      itemCount: 40,
+      itemBuilder: (context, index) => ListTile(title: Text('Item $index')),
+    ),
+  ),
+)
+```
+
+The upper list clearance above is illustrative for the small AppBar: adapt it
+to the actual AppBar height. The refresh indicator's clearance is managed by
+the host for frosted AppBars that extend behind their content. Full options
+and migration details are in the [navigation and glass API guide](doc/NAVIGATION_MORPH.md)
+and [0.6.0 changelog](CHANGELOG.md).
+
 ## New in 0.5.0
 
-- **Morph navigation:** opt-in shared elastic selection in bottom bars,
-  navigation rails and drawers; a dedicated expressive navigation bar with a
-  moving top dash, plus interactive expanding/sliding `MorphPageIndicator` dots.
-- **Floating frosted bars:** `MorphNavigationBarHost` with scroll-aware show/hide,
-  return-to-top, pull-to-refresh and real clipped glass blur. The glass can
-  suspend expensive sampling during its own scrolling, and native blur returns
-  early during reveal via `blurRevealProgress` (default 0.35). Scrolling an
-  enclosing page does not disable the nested bar's frosted background.
-- **Selection and refresh polish:** `selectionDelay` on bars, rails, drawers
-  and page indicators (60 ms horizontal, 20 ms vertical by default), and a
-  filled expressive refresh spinner with circular progress ring and no default
-  shadow. Gallery families now keep independent interactive state.
-- **Capture previews:** original MD3E `navigation.gif` is preserved; two new
-  capture scenes demonstrate Morph bars/page indicators and Morph rail/drawer.
+- Added elastic navigation selection for bar, rail and drawer, a floating
+  navigation host and optional interactive page indicators.
+- Added configurable selection timing and scroll-aware frosted navigation
+  rendering, improved reduced-motion handling, and filled refresh visuals.
+- Added navigation capture scenes alongside the original Material showcase.
 
 ## Fixed in 0.4.1
 
@@ -185,7 +241,7 @@ The examples below are captured directly from Morph Expressive running in Flutte
 | **Loading indicators** | **Navigation** |
 | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/loading.gif" alt="Animated progress and loading indicators" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/navigation.gif" alt="Animated navigation bars" width="380"> |
 | **Morph navigation + page indicator** | **Morph rail + drawer** |
-| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/navigation_morph.gif" alt="Morph elastic and expressive navigation bars with two animated page indicators" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/navigation_rail_drawer.gif" alt="Morph rail and drawer elastic selection" width="380"> |
+| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/navigation_morph.gif" alt="Expressive pill and Morph top-dash navigation bars with two page indicators" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/navigation_rail_drawer.gif" alt="Morph rail and drawer elastic selection" width="380"> |
 | **List items and swipe actions** | **Floating dialogs** |
 | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/lists.gif" alt="MorphList rows with spring swipe actions" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/dialogs.gif" alt="Expressive floating dialog transitions" width="380"> |
 
@@ -208,10 +264,13 @@ connected morphs); textfields show search, outlined, and the filled floating
 label through focus, simulated typing and blur. The unchanged scenes rotate
 purple, teal and blue seed colors; chips uses teal and textfields uses purple
 for stable color references. Capture tools do not become runtime dependencies.
-The new navigation captures use 640 × 520 / 7.2 s for Morph bars and page
-indicators, and 640 × 500 / 6.8 s for rail and drawer. Generate them with
-`bash tool/generate_component_gifs.sh --only navigation_morph --only navigation_rail_drawer`
-before publishing; the two new GIF files must be committed with this version.
+The navigation captures use 640 × 520 / 7.2 s for Expressive pill,
+Morph top-dash and page indicators, and 640 × 500 / 6.8 s for rail and
+drawer. **Regenerate `navigation_morph.gif` for 0.6.0**, because its scene and
+bar geometry changed after 0.5.0; `navigation_rail_drawer.gif` can be
+retained if its scene remains unchanged. Use
+`bash tool/generate_component_gifs.sh --only navigation_morph` before publishing
+and commit the updated GIF with its capture source.
 Review generated GIFs before committing them. To regenerate one scene, use
 `bash tool/generate_component_gifs.sh --only dropdown`.
 For the expanded scenes, generate them separately with
@@ -275,10 +334,10 @@ conservative transition in `MorphNavigationGlass`. Flutter Web still waits
 until its own content scrolling and visibility motion finish to avoid
 expensive background resampling.
 
-Flutter Web is especially sensitive to large blur radii. The animated preview
-uses a real 5px web blur (10px on native) so it
-keeps visible background blur with a smaller kernel than the original app's
-10px. Adjust `blurX`/`blurY` per app; `webBackdropBlur: false` remains an
+Flutter Web is especially sensitive to large blur radii. The isolated floating-navigation sample uses a real 5px web blur
+(10px on native), but the continuous Web gallery deliberately omits the
+expensive live glass scenes. Use the native preview for the combined
+AppBar/nav-bar scenario. Adjust `blurX`/`blurY` per app; `webBackdropBlur: false` remains an
 explicit last-resort option for devices that cannot sustain real blur.
 
 Use `selectionDelay: Duration.zero` (or a custom `Duration`) on `.morph`

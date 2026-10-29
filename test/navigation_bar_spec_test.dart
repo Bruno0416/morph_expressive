@@ -11,7 +11,6 @@ import 'package:material_ui/material_ui.dart'
         DecoratedBox,
         EdgeInsets,
         FontWeight,
-        Icon,
         IconTheme,
         ListView,
         Material,
@@ -34,13 +33,10 @@ import 'package:material_ui/material_ui.dart'
 
 const List<MorphNavigationBarDestination> _destinations =
     <MorphNavigationBarDestination>[
-      MorphNavigationBarDestination(icon: Icon(MorphIcons.home), label: 'Home'),
+      MorphNavigationBarDestination(icon: MorphIcons.home, label: 'Home'),
+      MorphNavigationBarDestination(icon: MorphIcons.search, label: 'Search'),
       MorphNavigationBarDestination(
-        icon: Icon(MorphIcons.search),
-        label: 'Search',
-      ),
-      MorphNavigationBarDestination(
-        icon: Icon(MorphIcons.radio),
+        icon: MorphIcons.radio,
         label: 'Radio',
         badgeCount: 3,
       ),
@@ -121,17 +117,21 @@ Future<void> _heights(WidgetTester tester) async {
 Future<void> _verticalPill(WidgetTester tester) async {
   await tester.pumpWidget(_bar());
   await tester.pumpAndSettle();
-  final Size pill = tester.getSize(
-    find.descendant(
-      of: find.byType(MorphSelectionIndicator).first,
-      matching: find.byType(DecoratedBox),
-    ),
+  final pillFinder = find.descendant(
+    of: find.byType(MorphSelectionIndicator).first,
+    matching: find.byType(DecoratedBox),
   );
+  final Size pill = tester.getSize(pillFinder);
   expect(pill.width, 56);
   expect(pill.height, 32);
   final Rect bar = tester.getRect(find.byType(MorphNavigationBar));
+  final Rect pillRect = tester.getRect(pillFinder);
   final Rect icon = tester.getRect(find.byIcon(MorphIcons.home));
-  expect(icon.top, closeTo(bar.top + 10, 1));
+  // The selected icon stays centered in the pill. A compact bottom-padding
+  // change may move the entire centered block without breaking its layout.
+  expect(icon.center.dy, closeTo(pillRect.center.dy, 0.01));
+  expect(pillRect.top - bar.top, greaterThanOrEqualTo(6));
+  expect(pillRect.bottom, lessThan(bar.bottom));
   final Rect label = tester.getRect(find.text('Home'));
   expect(label.top, closeTo(icon.bottom + 8, 1));
 }

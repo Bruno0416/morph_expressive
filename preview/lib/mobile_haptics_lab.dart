@@ -27,10 +27,13 @@ import 'package:material_ui/material_ui.dart'
         SwitchListTile,
         Text,
         ValueChanged,
+        ValueKey,
         VoidCallback,
         Widget,
         Wrap;
 import 'package:morph_expressive/morph_expressive.dart';
+
+import 'gradient_app_bar_sample.dart';
 
 /// Touch-first playground. Run natively to feel the actual platform haptics;
 /// the web preview does not provide an equivalent hardware signal.
@@ -105,6 +108,18 @@ class _MorphMobileHapticsLabState extends State<MorphMobileHapticsLab> {
           ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
             children: [
+              ListTile(
+                key: const ValueKey('open_gradient_app_bar_sample'),
+                leading: const Icon(MorphIcons.menu),
+                title: const Text('Gradient AppBar + page indicator'),
+                subtitle: const Text('Native blur / scroll performance lab'),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const MorphGradientAppBarSample(),
+                  ),
+                ),
+              ),
+              const Gap(12),
               Text('Device haptics', style: theme.typeScale.headlineSmall),
               const Gap(6),
               Text(

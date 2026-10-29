@@ -1,5 +1,9 @@
 # Dependency namespace compatibility — Morph Expressive 0.4.1
 
+**Historical report for release 0.4.1.** For current 0.6.0 release gates,
+see [Release](RELEASE.md). The SDK, scores and package counts below refer to
+0.4.1 only.
+
 Updated 2026-10-21 for the `0.4.1` release. The implementation was prepared
 against `morph_ui(6).zip` (`0.4.0`) with its earlier indicator/platform hotfix,
 then completed by the namespace-isolation patch. The maintainer subsequently
@@ -89,8 +93,8 @@ dart pub global run pana .
 ```
 
 If pana is not installed, activate it first with `dart pub global activate pana`.
-The root manifest now targets `0.4.1`. Confirm that this version is still unused
-on pub.dev before publication and follow [Release](RELEASE.md). Preparing this
+At the time of this 0.4.1 audit the manifest targeted `0.4.1`. For
+publication of newer versions, consult [Release](RELEASE.md). Preparing this
 version does not publish it or change the separate preview app's version.
 
 ## Observed validation of this follow-up

@@ -101,8 +101,8 @@ class _CaptureSceneState extends State<_CaptureScene> {
   double _progressValue = 0.32;
   bool _showContainedLoaders = false;
   int _navigationIndex = 0;
-  int _morphNavigationIndex = 0;
   int _expressiveNavigationIndex = 0;
+  int _morphNavigationIndex = 0;
   int _pageIndex = 0;
   int _railIndex = 0;
   int _drawerIndex = 0;
@@ -383,29 +383,29 @@ class _CaptureSceneState extends State<_CaptureScene> {
             events: [
               (
                 atMs: 0,
-                action: () => setState(() => _morphNavigationIndex = 1),
+                action: () => setState(() => _expressiveNavigationIndex = 1),
               ),
               (
                 atMs: 350,
-                action: () => setState(() => _expressiveNavigationIndex = 2),
+                action: () => setState(() => _morphNavigationIndex = 2),
               ),
               (atMs: 740, action: () => setState(() => _pageIndex = 1)),
               (
                 atMs: 1100,
-                action: () => setState(() => _morphNavigationIndex = 2),
+                action: () => setState(() => _expressiveNavigationIndex = 2),
               ),
               (
                 atMs: 1450,
-                action: () => setState(() => _expressiveNavigationIndex = 1),
+                action: () => setState(() => _morphNavigationIndex = 1),
               ),
               (atMs: 1830, action: () => setState(() => _pageIndex = 3)),
               (
                 atMs: 2250,
-                action: () => setState(() => _morphNavigationIndex = 0),
+                action: () => setState(() => _expressiveNavigationIndex = 0),
               ),
               (
                 atMs: 2640,
-                action: () => setState(() => _expressiveNavigationIndex = 0),
+                action: () => setState(() => _morphNavigationIndex = 0),
               ),
               (atMs: 2960, action: () => setState(() => _pageIndex = 0)),
             ],
@@ -895,15 +895,15 @@ class _CaptureSceneState extends State<_CaptureScene> {
                   setState(() => _navigationIndex = index),
               destinations: const [
                 MorphNavigationBarDestination(
-                  icon: Icon(MorphIcons.home),
+                  icon: MorphIcons.home,
                   label: 'Home',
                 ),
                 MorphNavigationBarDestination(
-                  icon: Icon(MorphIcons.search),
+                  icon: MorphIcons.search,
                   label: 'Search',
                 ),
                 MorphNavigationBarDestination(
-                  icon: Icon(MorphIcons.favorite_border),
+                  icon: MorphIcons.favorite_border,
                   label: 'Saved',
                 ),
               ],
@@ -921,15 +921,15 @@ class _CaptureSceneState extends State<_CaptureScene> {
                   setState(() => _navigationIndex = index),
               destinations: const [
                 MorphNavigationBarDestination(
-                  icon: Icon(MorphIcons.home),
+                  icon: MorphIcons.home,
                   label: 'Home',
                 ),
                 MorphNavigationBarDestination(
-                  icon: Icon(MorphIcons.search),
+                  icon: MorphIcons.search,
                   label: 'Search',
                 ),
                 MorphNavigationBarDestination(
-                  icon: Icon(MorphIcons.favorite_border),
+                  icon: MorphIcons.favorite_border,
                   label: 'Saved',
                 ),
               ],
@@ -943,55 +943,57 @@ class _CaptureSceneState extends State<_CaptureScene> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _captureLabel('Morph bar · shared elastic selection'),
-          const SizedBox(height: 6),
-          SizedBox(
-            width: 520,
-            child: MorphNavigationBar.morph(
-              key: const ValueKey('gif_navigation_morph_bar'),
-              safeArea: false,
-              autoLayout: false,
-              selectedIndex: _morphNavigationIndex,
-              onDestinationSelected: (index) =>
-                  setState(() => _morphNavigationIndex = index),
-              destinations: const [
-                MorphNavigationBarDestination(
-                  icon: Icon(MorphIcons.home),
-                  label: 'Home',
-                ),
-                MorphNavigationBarDestination(
-                  icon: Icon(MorphIcons.search),
-                  label: 'Search',
-                ),
-                MorphNavigationBarDestination(
-                  icon: Icon(MorphIcons.favorite_border),
-                  label: 'Saved',
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          _captureLabel('Expressive bar · sliding top indicator'),
+          _captureLabel('Expressive bar · shared elastic selection'),
           const SizedBox(height: 6),
           SizedBox(
             width: 520,
             child: MorphNavigationBar.expressive(
               key: const ValueKey('gif_navigation_expressive_bar'),
               safeArea: false,
+              autoLayout: false,
               selectedIndex: _expressiveNavigationIndex,
               onDestinationSelected: (index) =>
                   setState(() => _expressiveNavigationIndex = index),
               destinations: const [
                 MorphNavigationBarDestination(
-                  icon: Icon(MorphIcons.home),
+                  icon: MorphIcons.home,
                   label: 'Home',
                 ),
                 MorphNavigationBarDestination(
-                  icon: Icon(MorphIcons.search),
+                  icon: MorphIcons.search,
                   label: 'Search',
                 ),
                 MorphNavigationBarDestination(
-                  icon: Icon(MorphIcons.favorite_border),
+                  icon: MorphIcons.favorite_border,
+                  label: 'Saved',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          _captureLabel('Morph bar · sliding top indicator'),
+          const SizedBox(height: 6),
+          SizedBox(
+            width: 520,
+            child: MorphNavigationBar.morph(
+              key: const ValueKey('gif_navigation_morph_bar'),
+              safeArea: false,
+              iconSize: 32,
+              unselectedIconScale: 0.9,
+              selectedIndex: _morphNavigationIndex,
+              onDestinationSelected: (index) =>
+                  setState(() => _morphNavigationIndex = index),
+              destinations: const [
+                MorphNavigationBarDestination(
+                  icon: MorphIcons.home,
+                  label: 'Home',
+                ),
+                MorphNavigationBarDestination(
+                  icon: MorphIcons.search,
+                  label: 'Search',
+                ),
+                MorphNavigationBarDestination(
+                  icon: MorphIcons.favorite_border,
                   label: 'Saved',
                 ),
               ],

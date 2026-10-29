@@ -35,7 +35,7 @@ class _FloatingNavigationSampleState extends State<FloatingNavigationSample> {
             scrollbars: false,
           ),
           child: MorphNavigationBarHost(
-            bar: MorphNavigationBar.expressive(
+            bar: MorphNavigationBar.morph(
               floating: true,
               selectedIndex: _selectedIndex,
               onDestinationSelected: (i) => setState(() => _selectedIndex = i),
@@ -52,16 +52,16 @@ class _FloatingNavigationSampleState extends State<FloatingNavigationSample> {
               ),
               destinations: [
                 MorphNavigationBarDestination(
-                  icon: Icon(FluentIcons.line.home),
-                  selectedIcon: Icon(FluentIcons.filled.home),
+                  icon: FluentIcons.line.home,
+                  selectedIcon: FluentIcons.filled.home,
                   label: 'Home',
                 ),
                 MorphNavigationBarDestination(
-                  icon: Icon(FluentIcons.line.bookmark),
+                  icon: FluentIcons.line.bookmark,
                   label: 'Saved',
                 ),
                 MorphNavigationBarDestination(
-                  icon: Icon(FluentIcons.line.person),
+                  icon: FluentIcons.line.person,
                   label: 'Profile',
                 ),
               ],

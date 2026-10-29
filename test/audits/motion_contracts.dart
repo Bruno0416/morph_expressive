@@ -243,8 +243,8 @@ void main() {
     'navigation bar selection',
     (value) => MorphNavigationBar(
       destinations: const [
-        MorphNavigationBarDestination(label: 'Alpha', icon: _iconA),
-        MorphNavigationBarDestination(label: 'Beta', icon: _iconB),
+        MorphNavigationBarDestination(label: 'Alpha', iconWidget: _iconA),
+        MorphNavigationBarDestination(label: 'Beta', iconWidget: _iconB),
       ],
       selectedIndex: value ? 1 : 0,
       onDestinationSelected: (_) {},

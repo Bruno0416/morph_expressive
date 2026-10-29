@@ -13,7 +13,6 @@ import 'package:material_ui/material_ui.dart'
         Decoration,
         DefaultMaterialLocalizations,
         DefaultWidgetsLocalizations,
-        Icon,
         LocalizationsDelegate,
         MaterialApp,
         Opacity,
@@ -81,12 +80,9 @@ Future<void> _morphnavigationbarRendersDestinationsAndReportsSelection(
         child: MorphNavigationBar(
           onDestinationSelected: (i) => selected = i,
           destinations: const <MorphNavigationBarDestination>[
+            MorphNavigationBarDestination(icon: MorphIcons.home, label: 'Home'),
             MorphNavigationBarDestination(
-              icon: Icon(MorphIcons.home),
-              label: 'Home',
-            ),
-            MorphNavigationBarDestination(
-              icon: Icon(MorphIcons.search),
+              icon: MorphIcons.search,
               label: 'Search',
             ),
           ],
@@ -139,11 +135,11 @@ Future<void> _morphnavigationbarSelectionIndicatorScalesInPlace(
             onDestinationSelected: (int i) => setState(() => index = i),
             destinations: const <MorphNavigationBarDestination>[
               MorphNavigationBarDestination(
-                icon: Icon(MorphIcons.home),
+                icon: MorphIcons.home,
                 label: 'Home',
               ),
               MorphNavigationBarDestination(
-                icon: Icon(MorphIcons.search),
+                icon: MorphIcons.search,
                 label: 'Search',
               ),
             ],
@@ -220,12 +216,9 @@ Future<void> _morphnavigationbarWorksUnderAWidgetsappWithTheMaterial(
         alignment: Alignment.bottomCenter,
         child: MorphNavigationBar(
           destinations: <MorphNavigationBarDestination>[
+            MorphNavigationBarDestination(icon: MorphIcons.home, label: 'Home'),
             MorphNavigationBarDestination(
-              icon: Icon(MorphIcons.home),
-              label: 'Home',
-            ),
-            MorphNavigationBarDestination(
-              icon: Icon(MorphIcons.search),
+              icon: MorphIcons.search,
               label: 'Search',
             ),
           ],
@@ -242,11 +235,8 @@ Future<void> _morphnavigationbarAutolayoutUsesWideAtWideBreakpoint(
   WidgetTester tester,
 ) async {
   const destinations = <MorphNavigationBarDestination>[
-    MorphNavigationBarDestination(icon: Icon(MorphIcons.home), label: 'Home'),
-    MorphNavigationBarDestination(
-      icon: Icon(MorphIcons.search),
-      label: 'Search',
-    ),
+    MorphNavigationBarDestination(icon: MorphIcons.home, label: 'Home'),
+    MorphNavigationBarDestination(icon: MorphIcons.search, label: 'Search'),
   ];
   const double breakpoint = MorphNavBarConstants.mediumWindowBreakpoint;
 
@@ -295,12 +285,9 @@ Future<void> _morphnavigationbarForcedWideAlignsDestinationGroup(
           alignment: MorphNavBarAlignment.end,
           safeArea: false,
           destinations: <MorphNavigationBarDestination>[
+            MorphNavigationBarDestination(icon: MorphIcons.home, label: 'Home'),
             MorphNavigationBarDestination(
-              icon: Icon(MorphIcons.home),
-              label: 'Home',
-            ),
-            MorphNavigationBarDestination(
-              icon: Icon(MorphIcons.search),
+              icon: MorphIcons.search,
               label: 'Search',
             ),
           ],
@@ -335,10 +322,10 @@ Future<void> _morphnavigationbarSupportsIconOnlyAndLabelOnlyDestinations(
           safeArea: false,
           onDestinationSelected: (int i) => selected = i,
           destinations: const <MorphNavigationBarDestination>[
-            MorphNavigationBarDestination(icon: Icon(MorphIcons.home)),
+            MorphNavigationBarDestination(icon: MorphIcons.home),
             MorphNavigationBarDestination(label: 'Browse'),
             MorphNavigationBarDestination(
-              icon: Icon(MorphIcons.radio),
+              icon: MorphIcons.radio,
               label: 'Radio',
             ),
           ],
@@ -367,12 +354,9 @@ Future<void> _morphnavigationbarWideChipsUseFixedEqualWidth(
           layout: MorphNavBarLayout.wide,
           safeArea: false,
           destinations: <MorphNavigationBarDestination>[
+            MorphNavigationBarDestination(icon: MorphIcons.home, label: 'Home'),
             MorphNavigationBarDestination(
-              icon: Icon(MorphIcons.home),
-              label: 'Home',
-            ),
-            MorphNavigationBarDestination(
-              icon: Icon(MorphIcons.search),
+              icon: MorphIcons.search,
               label: 'Browse',
             ),
           ],
@@ -411,12 +395,9 @@ Future<void> _morphnavigationbarRespectsCustomWidebreakpointAndWidth(
           wideDestinationWidth: customWidth,
           safeArea: false,
           destinations: <MorphNavigationBarDestination>[
+            MorphNavigationBarDestination(icon: MorphIcons.home, label: 'Home'),
             MorphNavigationBarDestination(
-              icon: Icon(MorphIcons.home),
-              label: 'Home',
-            ),
-            MorphNavigationBarDestination(
-              icon: Icon(MorphIcons.search),
+              icon: MorphIcons.search,
               label: 'Search',
             ),
           ],
@@ -448,12 +429,9 @@ Future<void> _morphnavigationbarRespectsCustomWidebreakpointAndWidth(
           wideDestinationWidth: customWidth,
           safeArea: false,
           destinations: <MorphNavigationBarDestination>[
+            MorphNavigationBarDestination(icon: MorphIcons.home, label: 'Home'),
             MorphNavigationBarDestination(
-              icon: Icon(MorphIcons.home),
-              label: 'Home',
-            ),
-            MorphNavigationBarDestination(
-              icon: Icon(MorphIcons.search),
+              icon: MorphIcons.search,
               label: 'Search',
             ),
           ],
@@ -476,11 +454,8 @@ Future<void> _morphnavigationbarPillRemeasuresWhenAlignmentChanges(
   WidgetTester tester,
 ) async {
   const destinations = <MorphNavigationBarDestination>[
-    MorphNavigationBarDestination(icon: Icon(MorphIcons.home), label: 'Home'),
-    MorphNavigationBarDestination(
-      icon: Icon(MorphIcons.search),
-      label: 'Search',
-    ),
+    MorphNavigationBarDestination(icon: MorphIcons.home, label: 'Home'),
+    MorphNavigationBarDestination(icon: MorphIcons.search, label: 'Search'),
   ];
 
   await tester.pumpWidget(

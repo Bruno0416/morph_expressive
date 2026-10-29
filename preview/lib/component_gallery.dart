@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart'
     show
@@ -55,6 +57,7 @@ import 'package:morph_expressive/morph_expressive.dart';
 
 import 'component_catalog.dart';
 import 'floating_navigation_sample.dart';
+import 'gradient_app_bar_sample.dart';
 
 // ---------- catalogo de componentes ----------
 
@@ -502,6 +505,20 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
         );
         break;
       case 'app_bars':
+        // Backdrop filters in nested, scrolling gallery samples can saturate
+        // the web compositor. Keep this demo in the native gallery/touch lab.
+        if (!kIsWeb) {
+          samples.add(
+            _panel(
+              'Gradient glass · scrolling list (native-first)',
+              const SizedBox(
+                height: 320,
+                child: MorphGradientAppBarSample(embedded: true),
+              ),
+              width: 420,
+            ),
+          );
+        }
         samples.add(
           _panel(
             'Centered AppBar · asymmetric actions',
@@ -1227,15 +1244,15 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
                 onDestinationSelected: onSelected,
                 destinations: [
                   MorphNavigationBarDestination(
-                    icon: Icon(FluentIcons.line.home),
+                    icon: FluentIcons.line.home,
                     label: 'Home',
                   ),
                   MorphNavigationBarDestination(
-                    icon: Icon(FluentIcons.line.search),
+                    icon: FluentIcons.line.search,
                     label: 'Search',
                   ),
                   MorphNavigationBarDestination(
-                    icon: Icon(FluentIcons.line.heart),
+                    icon: FluentIcons.line.heart,
                     label: 'Saved',
                   ),
                 ],
@@ -1253,19 +1270,20 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
                 safeArea: false,
                 autoLayout: false,
                 layout: MorphNavBarLayout.wide,
+                distributeWideDestinations: true,
                 selectedIndex: selectedIndex,
                 onDestinationSelected: onSelected,
                 destinations: [
                   MorphNavigationBarDestination(
-                    icon: Icon(FluentIcons.line.home),
+                    icon: FluentIcons.line.home,
                     label: 'Home',
                   ),
                   MorphNavigationBarDestination(
-                    icon: Icon(FluentIcons.line.search),
+                    icon: FluentIcons.line.search,
                     label: 'Search',
                   ),
                   MorphNavigationBarDestination(
-                    icon: Icon(FluentIcons.line.heart),
+                    icon: FluentIcons.line.heart,
                     label: 'Saved',
                   ),
                 ],
@@ -1276,87 +1294,27 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
         );
         samples.add(
           _panel(
-            'Morph · shared sliding pill',
+            'Expressive · shared sliding pill',
             _IndependentNavigationSample(
-              key: const ValueKey('preview_nav_morph_compact'),
-              builder: (selectedIndex, onSelected) => MorphNavigationBar.morph(
-                safeArea: false,
-                autoLayout: false,
-                selectedIndex: selectedIndex,
-                onDestinationSelected: onSelected,
-                destinations: [
-                  MorphNavigationBarDestination(
-                    icon: Icon(FluentIcons.line.home),
-                    selectedIcon: Icon(FluentIcons.filled.home),
-                    label: 'Home',
-                  ),
-                  MorphNavigationBarDestination(
-                    icon: Icon(FluentIcons.line.bookmark),
-                    label: 'Saved',
-                  ),
-                  MorphNavigationBarDestination(
-                    icon: Icon(FluentIcons.line.person),
-                    label: 'Profile',
-                  ),
-                ],
-              ),
-            ),
-            width: 620,
-          ),
-        );
-        samples.add(
-          _panel(
-            'Morph · wide sliding pill',
-            _IndependentNavigationSample(
-              key: const ValueKey('preview_nav_morph_wide'),
-              builder: (selectedIndex, onSelected) => MorphNavigationBar.morph(
-                safeArea: false,
-                autoLayout: false,
-                layout: MorphNavBarLayout.wide,
-                selectedIndex: selectedIndex,
-                onDestinationSelected: onSelected,
-                destinations: [
-                  MorphNavigationBarDestination(
-                    icon: Icon(FluentIcons.line.home),
-                    selectedIcon: Icon(FluentIcons.filled.home),
-                    label: 'Home',
-                  ),
-                  MorphNavigationBarDestination(
-                    icon: Icon(FluentIcons.line.bookmark),
-                    label: 'Saved',
-                  ),
-                  MorphNavigationBarDestination(
-                    icon: Icon(FluentIcons.line.person),
-                    label: 'Profile',
-                  ),
-                ],
-              ),
-            ),
-            width: 620,
-          ),
-        );
-        samples.add(
-          _panel(
-            'Expressive · full width, top dash',
-            _IndependentNavigationSample(
-              key: const ValueKey('preview_nav_expressive'),
+              key: const ValueKey('preview_nav_expressive_compact'),
               builder: (selectedIndex, onSelected) =>
                   MorphNavigationBar.expressive(
                     safeArea: false,
+                    autoLayout: false,
                     selectedIndex: selectedIndex,
                     onDestinationSelected: onSelected,
                     destinations: [
                       MorphNavigationBarDestination(
-                        icon: Icon(FluentIcons.line.home),
-                        selectedIcon: Icon(FluentIcons.filled.home),
+                        icon: FluentIcons.line.home,
+                        selectedIcon: FluentIcons.filled.home,
                         label: 'Home',
                       ),
                       MorphNavigationBarDestination(
-                        icon: Icon(FluentIcons.line.bookmark),
+                        icon: FluentIcons.line.bookmark,
                         label: 'Saved',
                       ),
                       MorphNavigationBarDestination(
-                        icon: Icon(FluentIcons.line.person),
+                        icon: FluentIcons.line.person,
                         label: 'Profile',
                       ),
                     ],
@@ -1367,11 +1325,79 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
         );
         samples.add(
           _panel(
-            'Expressive · floating glass, scroll and pull to refresh',
-            const SizedBox(height: 320, child: FloatingNavigationSample()),
+            'Expressive · wide sliding pill',
+            _IndependentNavigationSample(
+              key: const ValueKey('preview_nav_expressive_wide'),
+              builder: (selectedIndex, onSelected) =>
+                  MorphNavigationBar.expressive(
+                    safeArea: false,
+                    autoLayout: false,
+                    layout: MorphNavBarLayout.wide,
+                    distributeWideDestinations: true,
+                    selectedIndex: selectedIndex,
+                    onDestinationSelected: onSelected,
+                    destinations: [
+                      MorphNavigationBarDestination(
+                        icon: FluentIcons.line.home,
+                        selectedIcon: FluentIcons.filled.home,
+                        label: 'Home',
+                      ),
+                      MorphNavigationBarDestination(
+                        icon: FluentIcons.line.bookmark,
+                        label: 'Saved',
+                      ),
+                      MorphNavigationBarDestination(
+                        icon: FluentIcons.line.person,
+                        label: 'Profile',
+                      ),
+                    ],
+                  ),
+            ),
             width: 620,
           ),
         );
+        samples.add(
+          _panel(
+            'Morph · full width, top dash',
+            _IndependentNavigationSample(
+              key: const ValueKey('preview_nav_morph'),
+              builder: (selectedIndex, onSelected) => MorphNavigationBar.morph(
+                safeArea: false,
+                iconSize: 32,
+                unselectedIconScale: 0.9,
+                selectedIndex: selectedIndex,
+                onDestinationSelected: onSelected,
+                destinations: [
+                  MorphNavigationBarDestination(
+                    icon: FluentIcons.line.home,
+                    selectedIcon: FluentIcons.filled.home,
+                    label: 'Home',
+                  ),
+                  MorphNavigationBarDestination(
+                    icon: FluentIcons.line.bookmark,
+                    label: 'Saved',
+                  ),
+                  MorphNavigationBarDestination(
+                    icon: FluentIcons.line.person,
+                    label: 'Profile',
+                  ),
+                ],
+              ),
+            ),
+            width: 620,
+          ),
+        );
+        // The live frosted navbar is intentionally omitted from the web
+        // gallery to avoid competing backdrop filters during page scrolling.
+        if (!kIsWeb) {
+          samples.add(
+            _panel(
+              'Morph · floating glass, scroll and pull to refresh',
+              const SizedBox(height: 320, child: FloatingNavigationSample()),
+              width: 620,
+            ),
+          );
+        }
         break;
       case 'page_indicator':
         samples.add(

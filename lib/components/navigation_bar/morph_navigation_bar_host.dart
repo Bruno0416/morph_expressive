@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter/widgets.dart';
-import 'package:material_ui/material_ui.dart' show Material, MaterialType, Icon;
+import 'package:material_ui/material_ui.dart'
+    show Material, MaterialType, Icon, Scaffold;
 import 'package:motor/motor.dart';
 
 import '../../foundations/foundations.dart';
 import '../../foundations/interaction/morph_motion_controller.dart';
+import '../app_bars/morph_app_bars.dart' show MorphAppBar;
 import '../icon_buttons/morph_icon_buttons.dart';
 import '../lists/utils/morph_measure_size.dart';
 import '../refresh_indicator/morph_refresh_indicator.dart';
@@ -19,6 +21,11 @@ import 'components/morph_navigation_scroll_activity.dart';
 /// without letting the last row disappear beneath it. Scroll notifications
 /// also work with descendant scrollables that cannot use that controller.
 /// Docked bars reserve their own height and stay visible.
+///
+/// Supports the default, `.morph()`, and `.expressive()` navigation bars.
+/// The optional [MorphNavigationBar.glass] controls the surface only; it does
+/// not affect scroll handling or pull-to-refresh. Without [onRefresh], no
+/// [MorphRefreshIndicator] is inserted in the widget tree.
 class MorphNavigationBarHost extends StatefulWidget {
   const MorphNavigationBarHost({
     required this.bar,
@@ -26,6 +33,7 @@ class MorphNavigationBarHost extends StatefulWidget {
     this.scrollController,
     this.onRefresh,
     this.refreshController,
+    this.refreshIndicatorEdgeOffset,
     this.hideOnScroll = true,
     this.scrollThreshold = 12,
     this.showOnScrollEnd = false,
@@ -37,7 +45,10 @@ class MorphNavigationBarHost extends StatefulWidget {
     this.visibilitySpring = MorphMotion.expressiveSpatialDefault,
     this.onVisibilityChanged,
     super.key,
-  }) : assert(scrollThreshold >= 0),
+  }) : assert(
+         refreshIndicatorEdgeOffset == null || refreshIndicatorEdgeOffset >= 0,
+       ),
+       assert(scrollThreshold >= 0),
        assert(maxBarWidth > 0);
 
   final MorphNavigationBar bar;
@@ -50,6 +61,15 @@ class MorphNavigationBarHost extends StatefulWidget {
   final ScrollController? scrollController;
   final Future<void> Function()? onRefresh;
   final MorphRefreshIndicatorController? refreshController;
+
+  /// Distance from the body's top edge to the refresh spinner's scroll edge.
+  ///
+  /// By default this is zero, unless the nearest [Scaffold] extends its body
+  /// behind a glass [MorphAppBar]. For that composition it automatically
+  /// includes the AppBar's preferred height and Scaffold's top inset, keeping
+  /// the loading indicator below the title while the list scrolls behind it.
+  /// Set an explicit nonnegative value to override the automatic placement.
+  final double? refreshIndicatorEdgeOffset;
   final bool hideOnScroll;
   final double scrollThreshold;
   final bool showOnScrollEnd;
@@ -231,6 +251,27 @@ class _MorphNavigationBarHostState extends State<MorphNavigationBarHost>
     }
   }
 
+  double _resolvedRefreshEdgeOffset(BuildContext context) {
+    final override = widget.refreshIndicatorEdgeOffset;
+    if (override != null) return override;
+
+    final scaffoldState = Scaffold.maybeOf(context);
+    if (scaffoldState == null) return 0;
+    final scaffold = scaffoldState.widget;
+    if (!scaffold.extendBodyBehindAppBar) return 0;
+
+    final appBar = scaffold.appBar;
+    if (appBar is! MorphAppBar || appBar.glass == null) return 0;
+
+    // Scaffold adds top padding when primary, independent of the AppBar's
+    // own safeArea setting. Read its MediaQuery rather than the body's, which
+    // Scaffold may have stripped for edge-to-edge layouts.
+    final topInset = scaffold.primary
+        ? MediaQuery.paddingOf(scaffoldState.context).top
+        : 0.0;
+    return appBar.preferredSize.height + topInset;
+  }
+
   @override
   Widget build(BuildContext context) {
     final floating = widget.bar.floating;
@@ -244,6 +285,7 @@ class _MorphNavigationBarHostState extends State<MorphNavigationBarHost>
     if (widget.onRefresh != null) {
       body = MorphRefreshIndicator(
         controller: widget.refreshController,
+        edgeOffset: _resolvedRefreshEdgeOffset(context),
         onRefresh: _refresh,
         onStatusChange: (status) {
           if (status != null) _setVisible(true);

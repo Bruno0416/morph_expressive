@@ -1,4 +1,4 @@
-import 'dart:ui' show SemanticsAction;
+import 'dart:ui' show SemanticsAction, Offset;
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -59,6 +59,39 @@ void main() {
     }
   }
 
+  testWidgets('interactive visual dots use spacing, not 48px button slots', (
+    tester,
+  ) async {
+    var selected = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, update) => MorphPageIndicator(
+              count: 3,
+              selectedIndex: selected,
+              effect: MorphPageIndicatorEffect.slide,
+              activeWidth: 16,
+              inactiveWidth: 16,
+              spacing: 6,
+              onPageSelected: (value) => update(() => selected = value),
+            ),
+          ),
+        ),
+      ),
+    );
+    final visual = find.byType(MorphSlidingIndicator);
+    expect(tester.getSize(visual).width, closeTo(60, 0.01));
+    final rect = tester.getRect(visual);
+    await tester.tapAt(rect.topLeft + const Offset(52, 8));
+    await tester.pumpAndSettle();
+    expect(selected, 2);
+    await tester.tapAt(rect.topLeft + const Offset(8, 8));
+    await tester.pumpAndSettle();
+    expect(selected, 0);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
     'optional page taps and keyboard use 48px targets and selected semantics',
     (tester) async {
@@ -83,7 +116,17 @@ void main() {
       final target = find.bySemanticsLabel('Page 2 of 3');
       expect(tester.getSize(target).height, greaterThanOrEqualTo(48));
       expect(tester.getSize(target).width, greaterThanOrEqualTo(48));
-      await tester.tap(target);
+      expect(
+        tester
+            .getSemantics(target)
+            .getSemanticsData()
+            .hasAction(SemanticsAction.tap),
+        isTrue,
+      );
+      // The semantic node is an accessibility target, not the hit-test
+      // surface. A shared gesture detector handles physical taps so compact
+      // targets never intercept each other.
+      await tester.tapAt(tester.getCenter(target));
       await tester.pumpAndSettle();
       expect(index, 1);
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);

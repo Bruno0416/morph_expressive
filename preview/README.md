@@ -8,7 +8,7 @@ cd preview
 flutter run -d web-server --web-port 8080
 ```
 
-All documentation is in [`../docs/PREVIEW.md`](../docs/PREVIEW.md).
+All documentation is in [`../doc/PREVIEW.md`](../doc/PREVIEW.md).
 
 ## Native mobile haptics preview
 
@@ -19,9 +19,7 @@ mobile entrypoint:
 ```bash
 bash tool/setup_mobile_preview.sh
 cd preview
-flutter run -t lib/main_mobile.dart -d YOUR_ANDROID_DEVICE_ID
-# Or on Linux with a configured iPhone:
-xcross flutter run -t lib/main_mobile.dart
+flutter run -t lib/main_mobile.dart
 ```
 
 See [`doc/MOBILE_HAPTICS.md`](doc/MOBILE_HAPTICS.md) for the device checklist.

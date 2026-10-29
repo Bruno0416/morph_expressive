@@ -5,13 +5,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart'
-    show Material, MaterialApp, Scaffold, Icon;
+    show Material, MaterialApp, Scaffold;
 import 'package:morph_expressive/morph_expressive.dart';
 import 'package:morph_expressive/components/navigation_rail/components/morph_sliding_indicator.dart';
 
 const _destinations = [
-  MorphNavigationBarDestination(icon: Icon(MorphIcons.home), label: 'Home'),
-  MorphNavigationBarDestination(icon: Icon(MorphIcons.search), label: 'Search'),
+  MorphNavigationBarDestination(icon: MorphIcons.home, label: 'Home'),
+  MorphNavigationBarDestination(icon: MorphIcons.search, label: 'Search'),
 ];
 
 Widget _app(Widget child) => MaterialApp(home: Scaffold(body: child));
@@ -61,7 +61,7 @@ Widget _host({
   floatingMargin: margin,
   backToTopLabel: 'Return to start',
   onRefresh: onRefresh,
-  bar: MorphNavigationBar.expressive(
+  bar: MorphNavigationBar.morph(
     floating: true,
     safeArea: false,
     glass: glass,
@@ -79,6 +79,95 @@ Widget _host({
 );
 
 void main() {
+  // Host features are independent of the navigation bar's visual variant.
+  // A frosted surface is optional and does not activate pull-to-refresh.
+  for (final variant in <String>['md3e', 'expressive', 'morph']) {
+    testWidgets(
+      'floating $variant supports optional glass, scroll and refresh',
+      (tester) async {
+        MorphNavigationBar makeBar({required bool frosted}) {
+          final glass = frosted ? const MorphNavigationGlass() : null;
+          return switch (variant) {
+            'expressive' => MorphNavigationBar.expressive(
+              destinations: _destinations,
+              floating: true,
+              safeArea: false,
+              glass: glass,
+            ),
+            'morph' => MorphNavigationBar.morph(
+              destinations: _destinations,
+              floating: true,
+              safeArea: false,
+              glass: glass,
+            ),
+            _ => MorphNavigationBar(
+              destinations: _destinations,
+              floating: true,
+              safeArea: false,
+              glass: glass,
+            ),
+          };
+        }
+
+        Widget scene({required bool frosted, required bool refresh}) => _app(
+          MorphNavigationBarHost(
+            backToTopLabel: 'Return to start',
+            onRefresh: refresh ? () async {} : null,
+            bar: makeBar(frosted: frosted),
+            body: (context, controller, padding) => ListView.builder(
+              controller: controller,
+              padding: padding,
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: ClampingScrollPhysics(),
+              ),
+              itemCount: 35,
+              itemBuilder: (context, i) =>
+                  SizedBox(height: 80, child: Text('Row $i')),
+            ),
+          ),
+        );
+
+        // Opaque, no refresh: scroll visibility/back-to-top must still work.
+        await tester.pumpWidget(scene(frosted: false, refresh: false));
+        await tester.pumpAndSettle();
+        expect(find.byType(MorphRefreshIndicator), findsNothing);
+        expect(find.byType(BackdropFilter), findsNothing);
+        await tester.drag(find.byType(ListView), const Offset(0, -320));
+        await tester.pumpAndSettle();
+        // Hidden floating bars are offstage; they must remain mounted.
+        expect(
+          find.byType(MorphNavigationBar, skipOffstage: false),
+          findsOneWidget,
+        );
+        final returnToStart = find.byWidgetPredicate(
+          (widget) =>
+              widget is MorphIconButton && widget.tooltip == 'Return to start',
+        );
+        expect(returnToStart, findsOneWidget);
+        await tester.tap(returnToStart);
+        await tester.pumpAndSettle();
+
+        // Glass is an independent appearance option, not a requirement of host.
+        await tester.pumpWidget(scene(frosted: true, refresh: false));
+        await tester.pumpAndSettle();
+        expect(find.byType(MorphRefreshIndicator), findsNothing);
+        expect(find.byType(BackdropFilter), findsOneWidget);
+
+        // Refresh works for all three variants, with or without glass.
+        await tester.pumpWidget(scene(frosted: false, refresh: true));
+        await tester.pumpAndSettle();
+        expect(find.byType(MorphRefreshIndicator), findsOneWidget);
+        expect(find.byType(BackdropFilter), findsNothing);
+
+        await tester.pumpWidget(scene(frosted: true, refresh: true));
+        await tester.pumpAndSettle();
+        expect(find.byType(MorphRefreshIndicator), findsOneWidget);
+        expect(find.byType(BackdropFilter), findsOneWidget);
+        expect(find.byType(MorphNavigationBar), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
   for (final axis in Axis.values) {
     for (final forward in [true, false]) {
       testWidgets('custom trailing edge waits 90ms: $axis forward=$forward', (
@@ -160,7 +249,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       _app(
-        MorphNavigationBar.morph(
+        MorphNavigationBar.expressive(
           destinations: _destinations,
           safeArea: false,
           selectionDelay: const Duration(milliseconds: 110),

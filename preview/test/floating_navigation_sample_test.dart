@@ -108,5 +108,5 @@ void main() {
     expect(find.text('Content 1 · refresh 1'), findsOneWidget);
     expect(find.byType(MorphNavigationBarHost), findsOneWidget);
     expect(tester.takeException(), isNull);
-  });
+  }, skip: kIsWeb);
 }

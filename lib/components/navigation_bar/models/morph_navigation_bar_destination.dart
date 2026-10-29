@@ -1,29 +1,52 @@
-import 'package:material_ui/material_ui.dart' show Widget;
+import 'package:material_ui/material_ui.dart' show Icon, IconData, Widget;
 
 import '../components/morph_nav_badge_view.dart';
 
 /// A single destination in the Morph navigation bar.
 ///
-/// Provide at least one of [icon] or a non-empty [label].
+/// Provide an [IconData] in [icon] or a non-empty [label].
+///
+/// For custom icon content, use [iconWidget] instead of [icon].
+/// The two options are mutually exclusive.
 class MorphNavigationBarDestination {
-  /// MorphNavigationBarDestination.
+  /// Creates a navigation destination from icon data or a custom icon widget.
   const MorphNavigationBarDestination({
     this.icon,
     this.label,
     this.selectedIcon,
+    this.iconWidget,
+    this.selectedIconWidget,
     this.badgeCount,
     this.badgeDot = false,
     this.semanticLabel,
   }) : assert(
-         icon != null || (label != null && label.length > 0),
+         icon != null ||
+             iconWidget != null ||
+             (label != null && label.length > 0),
          'Provide an icon and/or a non-empty label',
+       ),
+       assert(
+         icon == null || iconWidget == null,
+         'Use icon or iconWidget, not both',
+       ),
+       assert(
+         selectedIcon == null || selectedIconWidget == null,
+         'Use selectedIcon or selectedIconWidget, not both',
        );
 
-  /// icon.
-  final Widget? icon;
+  /// Icon glyph used for this destination. An [Icon] is created internally.
+  final IconData? icon;
 
-  /// selectedIcon.
-  final Widget? selectedIcon;
+  /// Optional glyph used when this destination is selected.
+  final IconData? selectedIcon;
+
+  /// Custom icon widget alternative to [icon].
+  ///
+  /// Use only when rendering requires more than an [IconData].
+  final Widget? iconWidget;
+
+  /// Custom selected icon widget alternative to [selectedIcon].
+  final Widget? selectedIconWidget;
 
   /// label.
   final String? label;
@@ -48,8 +71,8 @@ class MorphNavigationBarDestination {
     return 'Destination';
   }
 
-  /// Whether this destination has a usable icon widget.
-  bool get hasIcon => icon != null;
+  /// Whether this destination has a usable icon or custom icon widget.
+  bool get hasIcon => icon != null || iconWidget != null;
 
   /// Whether this destination has a non-empty label.
   bool get hasLabel => label != null && label!.isNotEmpty;
@@ -57,7 +80,16 @@ class MorphNavigationBarDestination {
   /// buildIcon.
   Widget buildIcon({bool selected = false}) {
     assert(hasIcon, 'Destination has no icon');
-    final base = selected && selectedIcon != null ? selectedIcon! : icon!;
+    final Widget base;
+    if (selected && selectedIconWidget != null) {
+      base = selectedIconWidget!;
+    } else if (selected && selectedIcon != null) {
+      base = Icon(selectedIcon);
+    } else if (iconWidget != null) {
+      base = iconWidget!;
+    } else {
+      base = Icon(icon);
+    }
     if (badgeCount != null || badgeDot) {
       return MorphNavBadge(count: badgeCount, showDot: badgeDot, child: base);
     }

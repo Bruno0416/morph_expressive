@@ -22,7 +22,7 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
     double maxWidth,
     MorphNavigationBarTheme theme,
   ) {
-    if (widget._expressive) return MorphNavBarLayout.compact;
+    if (widget._topDash) return MorphNavBarLayout.compact;
     if (!widget.autoLayout) {
       return widget.layout;
     }
@@ -33,6 +33,7 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
   }
 
   MainAxisAlignment _wideMainAxisAlignment() {
+    if (widget.distributeWideDestinations) return MainAxisAlignment.spaceAround;
     return switch (widget.alignment) {
       MorphNavBarAlignment.start => MainAxisAlignment.start,
       MorphNavBarAlignment.center => MainAxisAlignment.center,
@@ -107,7 +108,7 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
       double widthFor({required bool icon, required bool label}) {
         var width = theme.horizontalIndicatorInset * 2;
         if (icon) {
-          width += theme.iconSize;
+          width += widget.iconSize ?? theme.iconSize;
         }
         if (icon && label) {
           width += theme.horizontalIconLabelGap;
@@ -181,6 +182,12 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
       final double cut = theme.compactHeightReduction / 2;
       top = math.max(0, top - cut);
       bottom = math.max(0, bottom - cut);
+    }
+    // Small vertical navigation needs less trailing space. In particular,
+    // the Morph variant's 14sp label otherwise pushes its natural height
+    // above the 64dp compact target. Keep medium/standard bars unchanged.
+    if (!wide && widget.size == MorphNavBarSize.small) {
+      bottom = math.max(0, bottom - 3);
     }
     return (top: top, bottom: bottom);
   }
@@ -355,7 +362,12 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
     final double natural = wide
         ? pad.top + indicatorHeight + pad.bottom
         : pad.top +
-              theme.verticalIndicatorHeight +
+              (widget._topDash
+                  ? math.max(
+                      theme.verticalIndicatorHeight,
+                      widget.iconSize ?? 32,
+                    )
+                  : theme.verticalIndicatorHeight) +
               (labelHeight > 0 ? theme.verticalIconLabelGap : 0) +
               labelHeight +
               pad.bottom;
@@ -365,11 +377,23 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
     if (widget.density == MorphNavBarDensity.compact) {
       minHeight -= theme.compactHeightReduction;
     }
-    final double height = math.max(minHeight, natural);
+    // The Morph dash sits above a 32dp icon and a selected label. A 64dp
+    // band leaves too little separation between them, even if the dash is
+    // inset. Give only the small Morph variant extra breathing room and
+    // retain room for the downward content offset at larger text scales.
+    if (widget._topDash && widget.size == MorphNavBarSize.small) {
+      minHeight += 12;
+    }
+    final double height = math.max(
+      minHeight,
+      natural +
+          (widget._topDash && widget.size == MorphNavBarSize.small ? 12 : 0),
+    );
     final double radius = wide
         ? indicatorHeight / 2
         : theme.verticalIndicatorRadius;
-    final EdgeInsetsGeometry edgeInset = !wide
+    final spreadWide = wide && widget.distributeWideDestinations;
+    final EdgeInsetsGeometry edgeInset = !wide || spreadWide
         ? EdgeInsets.zero
         : switch (widget.alignment) {
             MorphNavBarAlignment.start => EdgeInsetsDirectional.only(
@@ -417,7 +441,9 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
         child: _slidingBand(
           theme: theme,
           child: Row(
-            spacing: band.wide ? theme.wideItemGap : theme.itemGap,
+            spacing: band.wide
+                ? (widget.distributeWideDestinations ? 0 : theme.wideItemGap)
+                : theme.itemGap,
             mainAxisAlignment: band.wide
                 ? _wideMainAxisAlignment()
                 : MainAxisAlignment.start,
@@ -511,20 +537,21 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
   }) {
     return MorphNavBarDestinationButton(
       motion: widget.motion,
-      expressive: widget._expressive,
+      expressive: widget._topDash,
       topIndicatorWidth: widget.topIndicatorWidth,
       topIndicatorHeight: widget.topIndicatorHeight,
       destination: widget.destinations[index],
       selected: index == _selected,
-      selectedColor: widget._expressive
+      selectedColor: widget._topDash
           ? scheme.primary
           : theme.selectedColor(scheme),
-      activeLabelColor: widget._expressive
+      activeLabelColor: widget._topDash
           ? scheme.primary
           : theme.activeLabelColor(scheme),
       unselectedColor: theme.unselectedColor(scheme),
       labelStyle: label,
       iconSize: widget.iconSize ?? metrics.iconSize,
+      unselectedIconScale: widget.unselectedIconScale,
       labelBehavior: widget.labelBehavior,
       iconBehavior: widget.iconBehavior,
       layout: wide ? MorphNavBarLayout.wide : MorphNavBarLayout.compact,
@@ -542,7 +569,7 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
       horizontalInset: wide ? theme.horizontalIndicatorInset : 0,
       underlineThickness: metrics.indicatorThickness,
       underlineColor: indicator,
-      indicatorColor: widget._expressive
+      indicatorColor: widget._topDash
           ? (widget.indicatorColor ?? scheme.primary)
           : indicator,
       focusNode: _nodes[index],

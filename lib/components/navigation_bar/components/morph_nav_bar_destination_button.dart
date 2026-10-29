@@ -25,6 +25,7 @@ import 'package:material_ui/material_ui.dart'
         IconThemeData,
         IgnorePointer,
         InkWell,
+        LayoutBuilder,
         MainAxisAlignment,
         MediaQuery,
         NoSplash,
@@ -72,6 +73,7 @@ class MorphNavBarDestinationButton extends StatelessWidget {
     required this.unselectedColor,
     required this.labelStyle,
     required this.iconSize,
+    this.unselectedIconScale = 1.0,
     required this.labelBehavior,
     required this.iconBehavior,
     required this.layout,
@@ -93,7 +95,7 @@ class MorphNavBarDestinationButton extends StatelessWidget {
     this.skipTraversal = false,
     this.haptic = MorphHapticFeedback.inherit,
     super.key,
-  });
+  }) : assert(unselectedIconScale > 0);
 
   /// destination.
   final MorphNavigationBarDestination destination;
@@ -113,8 +115,11 @@ class MorphNavBarDestinationButton extends StatelessWidget {
   /// labelStyle.
   final TextStyle labelStyle;
 
-  /// iconSize.
+  /// Base glyph size in logical pixels.
   final double iconSize;
+
+  /// Scale relative to [iconSize] for unselected icons (default: 1.0).
+  final double unselectedIconScale;
 
   /// labelBehavior.
   final MorphNavBarLabelBehavior labelBehavior;
@@ -304,58 +309,75 @@ class MorphNavBarDestinationButton extends StatelessWidget {
             .scale(labelStyle.fontSize ?? theme.labelFontSize) *
         (labelStyle.height ?? theme.labelLineHeight / theme.labelFontSize);
     final alwaysLabel = labelBehavior == MorphNavBarLabelBehavior.alwaysShow;
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        if (indicatorStyle != MorphNavBarIndicatorStyle.none)
-          Positioned(
-            top: 0,
-            width: topIndicatorWidth,
-            height: topIndicatorHeight,
-            child: MorphIndicatorTarget(
-              selected: selected,
-              decoration: BoxDecoration(
-                color: indicatorColor,
-                borderRadius: BorderRadius.circular(topIndicatorHeight / 2),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Reserve a bounded offset for selected content beneath the dash.
+        // Inactive icons keep their natural centered position.
+        final double contentShift = constraints.maxHeight.isFinite
+            ? (constraints.maxHeight * 0.10).clamp(4.0, 8.0).toDouble()
+            : 6.0;
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            if (indicatorStyle != MorphNavBarIndicatorStyle.none)
+              Positioned(
+                top: 3,
+                width: topIndicatorWidth,
+                height: topIndicatorHeight,
+                child: MorphIndicatorTarget(
+                  selected: selected,
+                  decoration: BoxDecoration(
+                    color: indicatorColor,
+                    borderRadius: BorderRadius.circular(topIndicatorHeight / 2),
+                  ),
+                ),
               ),
-            ),
-          ),
-        SingleMotionBuilder(
-          motion: MorphMotion.springMotion(theme.indicatorScaleSpring),
-          value: selected ? 1.0 : 0.0,
-          active: !MorphMotion.reduceMotionOf(context),
-          builder: (context, value, child) {
-            final t = value.clamp(0.0, 1.0);
-            final labelVisible = alwaysLabel ? 1.0 : t;
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (_showIcon)
-                  Transform.translate(
-                    offset: Offset(0, hasLabel ? -3 * labelVisible : 0),
-                    child: _icon(selected ? selectedColor : unselectedColor),
-                  ),
-                if (hasLabel)
-                  SizedBox(
-                    height: (scaledLabelHeight + 4) * labelVisible,
-                    child: OverflowBox(
-                      alignment: Alignment.topCenter,
-                      minHeight: scaledLabelHeight + 4,
-                      maxHeight: scaledLabelHeight + 4,
-                      child: Opacity(
-                        opacity: labelVisible,
-                        child: _label(
-                          selected ? activeLabelColor : unselectedColor,
-                          theme,
+            SingleMotionBuilder(
+              motion: MorphMotion.springMotion(theme.indicatorScaleSpring),
+              value: selected ? 1.0 : 0.0,
+              active: !MorphMotion.reduceMotionOf(context),
+              builder: (context, value, child) {
+                final t = value.clamp(0.0, 1.0);
+                final labelVisible = alwaysLabel ? 1.0 : t;
+                // Only the selected content needs extra room beneath the
+                // dash. Unselected icons stay centered in the bar, and the
+                // offset animates with the selection instead of jumping.
+                return Transform.translate(
+                  offset: Offset(0, contentShift * t),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (_showIcon)
+                        Transform.translate(
+                          offset: Offset(0, hasLabel ? -3 * labelVisible : 0),
+                          child: _icon(
+                            selected ? selectedColor : unselectedColor,
+                          ),
                         ),
-                      ),
-                    ),
+                      if (hasLabel)
+                        SizedBox(
+                          height: (scaledLabelHeight + 4) * labelVisible,
+                          child: OverflowBox(
+                            alignment: Alignment.topCenter,
+                            minHeight: scaledLabelHeight + 4,
+                            maxHeight: scaledLabelHeight + 4,
+                            child: Opacity(
+                              opacity: labelVisible,
+                              child: _label(
+                                selected ? activeLabelColor : unselectedColor,
+                                theme,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-              ],
-            );
-          },
-        ),
-      ],
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -524,6 +546,7 @@ class MorphNavBarDestinationButton extends StatelessWidget {
   Widget _icon(Color color) {
     return MorphNavIconScale(
       selected: selected,
+      unselectedScale: unselectedIconScale,
       child: IconTheme.merge(
         data: IconThemeData(color: color, size: iconSize),
         child: destination.buildIcon(selected: selected),

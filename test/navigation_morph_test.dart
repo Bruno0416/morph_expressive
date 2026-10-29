@@ -33,9 +33,9 @@ import 'package:morph_expressive/morph_expressive.dart';
 import 'package:morph_expressive/components/navigation_rail/components/morph_sliding_indicator.dart';
 
 const destinations = [
-  MorphNavigationBarDestination(icon: Icon(MorphIcons.home), label: 'Home'),
-  MorphNavigationBarDestination(icon: Icon(MorphIcons.search), label: 'Search'),
-  MorphNavigationBarDestination(icon: Icon(MorphIcons.mail), label: 'Inbox'),
+  MorphNavigationBarDestination(icon: MorphIcons.home, label: 'Home'),
+  MorphNavigationBarDestination(icon: MorphIcons.search, label: 'Search'),
+  MorphNavigationBarDestination(icon: MorphIcons.mail, label: 'Inbox'),
 ];
 
 Widget app(
@@ -61,6 +61,292 @@ bool reduced(WidgetTester tester) => MorphMotion.reduceMotionOf(
 );
 
 void main() {
+  testWidgets('named bottom bar variants retain their distinct contracts', (
+    tester,
+  ) async {
+    const expressive = MorphNavigationBar.expressive(
+      destinations: destinations,
+    );
+    const morph = MorphNavigationBar.morph(destinations: destinations);
+    const standard = MorphNavigationBar(destinations: destinations);
+
+    expect(expressive.motion, MorphNavigationMotion.morph);
+    expect(expressive.labelBehavior, MorphNavBarLabelBehavior.alwaysShow);
+    expect(expressive.autoLayout, isTrue);
+    expect(expressive.iconSize, isNull);
+    expect(expressive.unselectedIconScale, 1.0);
+    expect(expressive.size, MorphNavBarSize.small);
+
+    expect(morph.motion, MorphNavigationMotion.morph);
+    expect(morph.labelBehavior, MorphNavBarLabelBehavior.onlySelected);
+    expect(morph.autoLayout, isFalse);
+    expect(morph.iconSize, 32);
+    expect(morph.unselectedIconScale, 1.0);
+    expect(morph.topIndicatorWidth, 40);
+    expect(morph.size, MorphNavBarSize.small);
+    expect(standard.motion, MorphNavigationMotion.standard);
+    expect(standard.unselectedIconScale, 1.0);
+    expect(standard.size, MorphNavBarSize.medium);
+
+    await tester.pumpWidget(
+      app(
+        const MorphNavigationBar.morph(
+          destinations: destinations,
+          safeArea: false,
+        ),
+      ),
+    );
+    expect(indicator(tester).indicatorRect!.width, closeTo(40, 0.01));
+    // The top dash and active icon have breathing room in the 76dp Morph bar.
+    final dash = find.byType(MorphIndicatorTarget).first;
+    expect(
+      tester.getTopLeft(dash).dy -
+          tester.getTopLeft(find.byType(MorphNavigationBar)).dy,
+      closeTo(3, 0.01),
+    );
+    expect(
+      tester.getSize(find.byType(MorphNavigationBar)).height,
+      closeTo(76, 0.01),
+    );
+    final selectedIcon = find.byIcon(MorphIcons.home);
+    expect(selectedIcon, findsOneWidget);
+    expect(
+      tester.getTopLeft(selectedIcon).dy - tester.getBottomLeft(dash).dy,
+      greaterThanOrEqualTo(6),
+    );
+    expect(tester.takeException(), isNull);
+
+    // The medium Morph bar retains its pre-existing minimum 80dp sizing
+    // and keeps the dash clear of the selected icon.
+    await tester.pumpWidget(
+      app(
+        const MorphNavigationBar.morph(
+          destinations: destinations,
+          size: MorphNavBarSize.medium,
+          safeArea: false,
+        ),
+      ),
+    );
+    expect(
+      tester.getSize(find.byType(MorphNavigationBar)).height,
+      greaterThanOrEqualTo(80),
+    );
+    expect(
+      tester.getTopLeft(find.byIcon(MorphIcons.home)).dy -
+          tester.getBottomLeft(find.byType(MorphIndicatorTarget).first).dy,
+      greaterThanOrEqualTo(6),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'Morph inactive icons stay centered while active dash keeps clearance',
+    (tester) async {
+      var selectedIndex = 0;
+      late StateSetter update;
+      await tester.pumpWidget(
+        app(
+          StatefulBuilder(
+            builder: (context, setState) {
+              update = setState;
+              return MorphNavigationBar.morph(
+                destinations: destinations,
+                selectedIndex: selectedIndex,
+                safeArea: false,
+              );
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      double barCenterY() =>
+          tester.getCenter(find.byType(MorphNavigationBar)).dy;
+
+      for (final icon in [MorphIcons.search, MorphIcons.mail]) {
+        expect(
+          tester.getCenter(find.byIcon(icon)).dy,
+          closeTo(barCenterY(), 0.01),
+        );
+      }
+
+      update(() => selectedIndex = 2);
+      await tester.pumpAndSettle();
+
+      for (final icon in [MorphIcons.home, MorphIcons.search]) {
+        expect(
+          tester.getCenter(find.byIcon(icon)).dy,
+          closeTo(barCenterY(), 0.01),
+        );
+      }
+      final selectedIcon = find.byIcon(MorphIcons.mail);
+      final dash = find.byType(MorphIndicatorTarget).last;
+      expect(
+        tester.getTopLeft(selectedIcon).dy - tester.getBottomLeft(dash).dy,
+        greaterThanOrEqualTo(6),
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('icon size and inactive scale are independently configurable', (
+    tester,
+  ) async {
+    for (final makeBar in <Widget Function(int, void Function(int))>[
+      (index, onSelected) => MorphNavigationBar.morph(
+        destinations: destinations,
+        iconSize: 30,
+        unselectedIconScale: 0.9,
+        selectedIndex: index,
+        onDestinationSelected: onSelected,
+        safeArea: false,
+      ),
+      (index, onSelected) => MorphNavigationBar.expressive(
+        destinations: destinations,
+        iconSize: 30,
+        unselectedIconScale: 0.9,
+        selectedIndex: index,
+        onDestinationSelected: onSelected,
+        safeArea: false,
+      ),
+      (index, onSelected) => MorphNavigationBar(
+        destinations: destinations,
+        iconSize: 30,
+        unselectedIconScale: 0.9,
+        selectedIndex: index,
+        onDestinationSelected: onSelected,
+        safeArea: false,
+      ),
+    ]) {
+      var index = 0;
+      late StateSetter update;
+      await tester.pumpWidget(
+        app(
+          StatefulBuilder(
+            builder: (context, setState) {
+              update = setState;
+              return makeBar(index, (value) => setState(() => index = value));
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Compare painted geometry, not layout: Transform.scale intentionally
+      // keeps the tappable destination and Icon widget's layout unchanged.
+      expect(
+        tester.getRect(find.byIcon(MorphIcons.home)).width,
+        closeTo(30, 0.2),
+      );
+      expect(
+        tester.getRect(find.byIcon(MorphIcons.search)).width,
+        closeTo(27, 0.2),
+      );
+
+      update(() => index = 1);
+      await tester.pump();
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(find.byIcon(MorphIcons.home)).width,
+        closeTo(27, 0.2),
+      );
+      expect(
+        tester.getRect(find.byIcon(MorphIcons.search)).width,
+        closeTo(30, 0.2),
+      );
+      expect(tester.takeException(), isNull);
+    }
+  });
+
+  testWidgets('scale 1.0 preserves equal icon sizes', (tester) async {
+    await tester.pumpWidget(
+      app(
+        const MorphNavigationBar.morph(
+          destinations: destinations,
+          iconSize: 30,
+          unselectedIconScale: 1.0,
+          safeArea: false,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      tester.getRect(find.byIcon(MorphIcons.home)).width,
+      closeTo(30, 0.2),
+    );
+    expect(
+      tester.getRect(find.byIcon(MorphIcons.search)).width,
+      closeTo(30, 0.2),
+    );
+  });
+
+  testWidgets('unselected scale above one enlarges only inactive glyphs', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      app(
+        const MorphNavigationBar.morph(
+          destinations: destinations,
+          iconSize: 30,
+          unselectedIconScale: 1.1,
+          safeArea: false,
+        ),
+        reduced: true,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      tester.getRect(find.byIcon(MorphIcons.home)).width,
+      closeTo(30, 0.2),
+    );
+    expect(
+      tester.getRect(find.byIcon(MorphIcons.search)).width,
+      closeTo(33, 0.2),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'destination IconData builds selected glyphs and widget fallback',
+    (tester) async {
+      const glyph = MorphNavigationBarDestination(
+        icon: MorphIcons.home,
+        selectedIcon: MorphIcons.search,
+        label: 'Home',
+      );
+      expect(glyph.icon, MorphIcons.home);
+      expect(glyph.selectedIcon, MorphIcons.search);
+      expect(glyph.hasIcon, isTrue);
+      expect((glyph.buildIcon() as Icon).icon, MorphIcons.home);
+      expect((glyph.buildIcon(selected: true) as Icon).icon, MorphIcons.search);
+
+      const custom = MorphNavigationBarDestination(
+        iconWidget: SizedBox(width: 24, height: 24),
+        selectedIconWidget: SizedBox(width: 28, height: 28),
+      );
+      expect(custom.hasIcon, isTrue);
+      expect((custom.buildIcon() as SizedBox).width, 24);
+      expect((custom.buildIcon(selected: true) as SizedBox).width, 28);
+
+      await tester.pumpWidget(
+        app(
+          const Align(
+            alignment: Alignment.bottomCenter,
+            child: MorphNavigationBar.expressive(
+              destinations: destinations,
+              safeArea: false,
+            ),
+          ),
+        ),
+      );
+      expect(
+        tester.getSize(find.byType(MorphNavigationBar)).height,
+        closeTo(64, 0.01),
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   for (final wide in [false, true]) {
     for (final direction in TextDirection.values) {
       testWidgets(
@@ -77,7 +363,7 @@ void main() {
                     alignment: Alignment.bottomCenter,
                     child: SizedBox(
                       width: 560,
-                      child: MorphNavigationBar.morph(
+                      child: MorphNavigationBar.expressive(
                         destinations: destinations,
                         autoLayout: false,
                         safeArea: false,
@@ -234,7 +520,7 @@ void main() {
               reduceMotion: reduce,
               child: Align(
                 alignment: Alignment.bottomCenter,
-                child: MorphNavigationBar.morph(
+                child: MorphNavigationBar.expressive(
                   destinations: destinations,
                   autoLayout: false,
                   safeArea: false,
@@ -265,7 +551,7 @@ void main() {
   });
 
   testWidgets(
-    'expressive dash, glass options and opaque high-contrast fallback',
+    'morph top dash, glass options and opaque high-contrast fallback',
     (tester) async {
       var index = 0;
       Widget build(bool contrast) => MaterialApp(
@@ -280,7 +566,7 @@ void main() {
           body: StatefulBuilder(
             builder: (context, setState) => Align(
               alignment: Alignment.bottomCenter,
-              child: MorphNavigationBar.expressive(
+              child: MorphNavigationBar.morph(
                 destinations: destinations,
                 floating: true,
                 selectedIndex: index,
@@ -324,7 +610,7 @@ void main() {
           app(
             MorphNavigationBarHost(
               scrollController: scroll,
-              bar: MorphNavigationBar.expressive(
+              bar: MorphNavigationBar.morph(
                 destinations: destinations,
                 floating: floating,
               ),
@@ -379,6 +665,30 @@ void main() {
     );
   }
 
+  testWidgets('host without onRefresh never installs a refresh indicator', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      app(
+        MorphNavigationBarHost(
+          bar: const MorphNavigationBar.morph(
+            destinations: destinations,
+            floating: true,
+          ),
+          body: (context, controller, padding) => ListView(
+            controller: controller,
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: padding,
+            children: const [SizedBox(height: 1200, child: Text('Rows'))],
+          ),
+        ),
+      ),
+    );
+    expect(find.byType(MorphRefreshIndicator), findsNothing);
+    expect(find.byType(MorphNavigationBarHost), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
     'native refresh controller awaits one callback without hiding the bar',
     (tester) async {
@@ -396,7 +706,7 @@ void main() {
                 calls++;
                 return complete.future;
               },
-              bar: const MorphNavigationBar.expressive(
+              bar: const MorphNavigationBar.morph(
                 destinations: destinations,
                 floating: true,
               ),
@@ -492,7 +802,7 @@ void main() {
                     viewInsets: EdgeInsets.only(bottom: keyboard ? 260 : 0),
                   ),
                   child: MorphNavigationBarHost(
-                    bar: const MorphNavigationBar.expressive(
+                    bar: const MorphNavigationBar.morph(
                       destinations: destinations,
                       floating: true,
                     ),
@@ -545,7 +855,7 @@ void main() {
         MorphMotionScope(
           reduceMotion: true,
           child: MorphNavigationBarHost(
-            bar: const MorphNavigationBar.expressive(
+            bar: const MorphNavigationBar.morph(
               destinations: destinations,
               floating: true,
             ),
@@ -590,7 +900,7 @@ void main() {
         StatefulBuilder(
           builder: (context, setState) => Align(
             alignment: Alignment.bottomCenter,
-            child: MorphNavigationBar.morph(
+            child: MorphNavigationBar.expressive(
               destinations: destinations,
               autoLayout: false,
               selectedIndex: index,

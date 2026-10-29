@@ -250,8 +250,8 @@ Future<void> _autothemingUpdatesNavigationBarPaintedColorWhenPlatfo(
 ) async {
   final base = MorphThemeData.light(seedColor: const Color(0xFF6750A4));
   const destinations = <MorphNavigationBarDestination>[
-    MorphNavigationBarDestination(icon: Icon(Icons.home), label: 'Home'),
-    MorphNavigationBarDestination(icon: Icon(Icons.search), label: 'Search'),
+    MorphNavigationBarDestination(icon: Icons.home, label: 'Home'),
+    MorphNavigationBarDestination(icon: Icons.search, label: 'Search'),
   ];
 
   Future<void> pumpWithBrightness(Brightness brightness) {

@@ -1,6 +1,58 @@
 # Changelog
 
-## 0.5.0 - Unreleased
+## 0.6.0 - 2026-10-28
+
+### Breaking changes
+
+- `MorphNavigationBarDestination.icon` and `selectedIcon` now accept `IconData`
+  rather than `Widget`. Replace `icon: Icon(MyIcons.home)` with
+  `icon: MyIcons.home`; use `iconWidget` / `selectedIconWidget` for custom
+  widgets. This requires migration when upgrading from 0.5.0.
+- Named bottom navigation variants now match their designs:
+  `MorphNavigationBar.expressive()` renders the animated Material 3 icon pill;
+  `MorphNavigationBar.morph()` renders the sliding upper dash with the active
+  destination label. Swap constructor names in older usages to retain the
+  same appearance. The unnamed `MorphNavigationBar()` remains available.
+
+### Added
+
+- `MorphAppBar.frosted()` with `MorphAppBarGlass`: a surface-color tint rising
+  from zero at the bottom to 90% at the top (linear in the lower half,
+  exponential above the midpoint) and clipped progressive blur bands. Its
+  clear lower blur edge and configurable falloff keep scrolling text legible.
+- `MorphNavigationBarHost` supports any bottom bar variant, with optional
+  floating glass, hide/reveal on scroll, back-to-top and pull-to-refresh. With
+  `onRefresh: null` no refresh indicator is built; when content extends under
+  a frosted AppBar the refresh indicator's offset is computed automatically.
+  `refreshIndicatorEdgeOffset` allows an explicit override.
+- `distributeWideDestinations: true` spaces wide-layout destinations evenly;
+  the default `false` keeps grouped placement and `alignment`.
+- Configurable `iconSize` and `unselectedIconScale` on all bottom navigation
+  bar variants. A scale of `0.9` renders inactive glyphs at 90% of the base
+  size while the active glyph stays at full size; selection uses the existing
+  spring and respects reduced motion.
+- Navigation and AppBar integration examples in the native preview, including
+  a combined frosted AppBar + floating bar + optional pull-to-refresh scene.
+
+### Changed and fixed
+
+- Compact `.expressive()` uses a 64dp band; `.morph()` uses a 76dp band with
+  clearance for its sliding dash. Unselected Morph icons stay vertically
+  centered and the selected icon's offset animates with selection. Docked bars
+  continue to respect the system safe area; the standard bar retains its
+  original 80dp baseline.
+- `MorphPageIndicator.spacing` now represents the real visual gap between
+  interactive dots, without reducing accessibility targets.
+- The navigation and onboarding capture scene follows the corrected variant
+  names and icon-data API. `navigation.gif` remains the original standard
+  Material showcase.
+- Remove costly live glass examples from the continuously scrolling Web
+  gallery while keeping the native preview and isolated tests. The actual
+  library glass variants remain available on all declared platforms.
+- Add regressions for geometry, variant mapping, wide distribution, icon
+  scaling, refresh positioning, and native glass composition.
+
+## 0.5.0 - 2026-10-23
 
 ### Added
 

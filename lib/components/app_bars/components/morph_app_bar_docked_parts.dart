@@ -16,15 +16,33 @@ extension _MorphDockedAppBarParts on _MorphDockedAppBarState {
     required EdgeInsets safe,
     required Widget? leading,
   }) {
+    final glass = bar.glass;
     final Widget sheet = Material(
       animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
-      color: bg,
-      elevation: elevation,
+      color: glass == null ? bg : const Color(0x00000000),
+      elevation: glass == null ? elevation : 0,
       shadowColor: scheme.shadow,
       surfaceTintColor: const Color(0x00000000),
       shape: appBarTheme.shape(bar.shapeFamily),
       clipBehavior: bar.clipBehavior,
-      child: padded,
+      child: glass == null
+          ? padded
+          : Stack(
+              fit: StackFit.passthrough,
+              children: <Widget>[
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: RepaintBoundary(
+                      child: _MorphAppBarGradientGlass(
+                        config: glass,
+                        color: bar.backgroundColor ?? scheme.surface,
+                      ),
+                    ),
+                  ),
+                ),
+                padded,
+              ],
+            ),
     );
     if (!motion.actions) {
       return sheet;

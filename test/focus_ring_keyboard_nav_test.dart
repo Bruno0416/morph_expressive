@@ -10,7 +10,6 @@ import 'package:material_ui/material_ui.dart'
         Column,
         Expanded,
         FocusNode,
-        Icon,
         Icons,
         ListView,
         MaterialApp,
@@ -199,12 +198,9 @@ void registerFocusRingNavBarKeyboardActivateTests() {
               selectedIndex: selected,
               onDestinationSelected: (int i) => selected = i,
               destinations: const <MorphNavigationBarDestination>[
+                MorphNavigationBarDestination(icon: Icons.home, label: 'Home'),
                 MorphNavigationBarDestination(
-                  icon: Icon(Icons.home),
-                  label: 'Home',
-                ),
-                MorphNavigationBarDestination(
-                  icon: Icon(Icons.search),
+                  icon: Icons.search,
                   label: 'Search',
                 ),
               ],

@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'dart:ui' show lerpDouble;
+import 'dart:ui' show ImageFilter, lerpDouble;
 
 import 'package:flutter/rendering.dart'
     show
@@ -18,6 +18,7 @@ import 'package:morph_expressive/morph_components.dart' show MorphToolbar;
 import 'package:material_ui/material_ui.dart'
     show
         Align,
+        BackdropFilter,
         Alignment,
         AlignmentDirectional,
         AlignmentGeometry,
@@ -39,6 +40,7 @@ import 'package:material_ui/material_ui.dart'
         CrossAxisAlignment,
         CustomMultiChildLayout,
         DecoratedBox,
+        LinearGradient,
         DefaultTextStyle,
         Directionality,
         EdgeInsets,
@@ -62,8 +64,10 @@ import 'package:material_ui/material_ui.dart'
         OutlinedBorder,
         OverflowBox,
         Padding,
+        IgnorePointer,
         PaintingContext,
         Positioned,
+        RepaintBoundary,
         PreferredSizeWidget,
         PrimaryScrollController,
         RenderBox,
@@ -90,6 +94,7 @@ import 'package:material_ui/material_ui.dart'
         SliverPersistentHeaderDelegate,
         Spacer,
         Stack,
+        StackFit,
         State,
         StatefulWidget,
         StatelessWidget,
@@ -117,13 +122,16 @@ import 'components/morph_app_bar_semantics.dart';
 import 'controllers/morph_app_bar_controller.dart';
 import 'enums/morph_app_bar_enums.dart';
 import 'styles/morph_app_bar_theme.dart';
+import 'styles/morph_app_bar_glass.dart';
 
 export 'controllers/morph_app_bar_controller.dart';
 export 'enums/morph_app_bar_enums.dart';
 export 'styles/morph_app_bar_theme.dart';
+export 'styles/morph_app_bar_glass.dart';
 
 part 'components/morph_app_bar_docked.dart';
 part 'components/morph_app_bar_docked_parts.dart';
+part 'components/morph_app_bar_gradient_glass.dart';
 part 'components/morph_app_bar_bottom.dart';
 part 'components/morph_app_bar_sliver.dart';
 part 'components/morph_app_bar_sliver_actions.dart';
@@ -169,12 +177,62 @@ class MorphAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.variant = MorphAppBarVariant.small,
     this.hideOnScroll = false,
     this.hideMode = MorphAppBarHideMode.none,
-  }) : _kind = _MorphAppBarKind.top,
+    this.glass,
+  }) : assert(glass == null || hideMode != MorphAppBarHideMode.actions),
+       _kind = _MorphAppBarKind.top,
        _dockEdge = _MorphAppBarDockEdge.top,
        floatingActionButton = null,
        pinned = true,
        floating = false,
        snap = false;
+
+  /// A translucent, top-to-bottom gradient bar for scrolling content.
+  ///
+  /// Use with `Scaffold(extendBodyBehindAppBar: true)`. The list paints under
+  /// the bar, while the strongest surface tint and blur remain near its title.
+  /// Unlike a full-screen backdrop, only the bar's clipped bands are filtered.
+  factory MorphAppBar.frosted({
+    Key? key,
+    Widget? leading,
+    Widget? title,
+    String? titleText,
+    Widget? subtitle,
+    String? subtitleText,
+    List<Widget>? actions,
+    bool centerTitle = false,
+    Color? backgroundColor,
+    Color? foregroundColor,
+    MorphAppBarGlass glass = const MorphAppBarGlass(),
+    MorphAppBarShapeFamily shapeFamily = MorphAppBarShapeFamily.square,
+    MorphAppBarDensity density = MorphAppBarDensity.regular,
+    double? toolbarHeight,
+    bool automaticallyImplyLeading = false,
+    bool safeArea = true,
+    String? semanticLabel,
+    MorphAppBarController? controller,
+    MorphAppBarVariant variant = MorphAppBarVariant.small,
+  }) => MorphAppBar.top(
+    key: key,
+    leading: leading,
+    title: title,
+    titleText: titleText,
+    subtitle: subtitle,
+    subtitleText: subtitleText,
+    actions: actions,
+    centerTitle: centerTitle,
+    backgroundColor: backgroundColor,
+    foregroundColor: foregroundColor,
+    elevation: 0,
+    glass: glass,
+    shapeFamily: shapeFamily,
+    density: density,
+    toolbarHeight: toolbarHeight,
+    automaticallyImplyLeading: automaticallyImplyLeading,
+    safeArea: safeArea,
+    semanticLabel: semanticLabel,
+    controller: controller,
+    variant: variant,
+  );
 
   /// A top app bar whose title is a read-only anchored [MorphSearchAnchor.bar].
   ///
@@ -196,6 +254,7 @@ class MorphAppBar extends StatelessWidget implements PreferredSizeWidget {
     bool isFullScreen = true,
     Color? backgroundColor,
     Color? foregroundColor,
+    MorphAppBarGlass? glass,
     double? elevation,
     MorphAppBarShapeFamily shapeFamily = MorphAppBarShapeFamily.square,
     MorphAppBarDensity density = MorphAppBarDensity.regular,
@@ -223,6 +282,7 @@ class MorphAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: centerTitle,
       backgroundColor: backgroundColor,
       foregroundColor: foregroundColor,
+      glass: glass,
       elevation: elevation,
       shapeFamily: shapeFamily,
       density: density,
@@ -274,6 +334,7 @@ class MorphAppBar extends StatelessWidget implements PreferredSizeWidget {
        subtitleText = null,
        centerTitle = false,
        backgroundColor = null,
+       glass = null,
        foregroundColor = null,
        elevation = null,
        shapeFamily = MorphAppBarShapeFamily.square,
@@ -319,6 +380,7 @@ class MorphAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.semanticLabel,
   }) : _kind = _MorphAppBarKind.sliver,
        _dockEdge = _MorphAppBarDockEdge.top,
+       glass = null,
        elevation = null,
        toolbarHeight = null,
        automaticallyImplyLeading = true,
@@ -356,6 +418,10 @@ class MorphAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   /// foregroundColor.
   final Color? foregroundColor;
+
+  /// Optional gradient tint / progressive blur for the docked top bar.
+  /// Use [MorphAppBar.frosted] for the configured default.
+  final MorphAppBarGlass? glass;
 
   /// elevation.
   final double? elevation;

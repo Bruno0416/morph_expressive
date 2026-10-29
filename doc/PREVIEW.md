@@ -14,11 +14,17 @@ flutter pub get
 flutter run -d web-server --web-port 8080
 ```
 
-Open <http://localhost:8080>. The responsive gallery covers 39 component
+Open <http://localhost:8080>. The responsive gallery covers 40 component
 families with independent theme/brightness, typography and seed controls.
 Coverage checks establish family samples, not independent visual coverage
 for every exported helper type. For realistic animation performance, compare
 against a release Web build, not only a debug run.
+
+The Web gallery intentionally omits the two live backdrop-blur samples
+(`Gradient glass` AppBar and `Morph · floating glass`). Running these together
+inside the main scrolling showcase is expensive on browser compositors.
+Both demos remain available in the native preview and the corresponding
+isolated widget tests; no library API or rendering feature is disabled.
 
 ## Reproducible animated GIF scenes
 
@@ -35,7 +41,7 @@ bash tool/generate_component_gifs.sh --only chips
 bash tool/generate_component_gifs.sh --only textfields
 bash tool/generate_component_gifs.sh --only lists --only dialogs
 bash tool/generate_component_gifs.sh --only sliders --only loading
-bash tool/generate_component_gifs.sh --only navigation_morph --only navigation_rail_drawer
+bash tool/generate_component_gifs.sh --only navigation_morph
 python3 tool/check_gif_branding.py
 ```
 
@@ -61,8 +67,10 @@ and the determinate circular/linear wavy indicators. Regenerate these GIFs
 after changing the wavy amplitude curve. The other standard scenes
 retain their 640 x 360, ~4.8-second captures.
 Navigation keeps the original MD3E `navigation.gif` unchanged. The new
-`navigation_morph` scene (640 × 520, 7.2 seconds) shows the elastic Morph
-bar, expressive top-dash variant and expanding/sliding page indicators.
+`navigation_morph` scene (640 × 520, 7.2 seconds) shows the elastic
+`.expressive()` M3 pill, the `.morph()` sliding top-dash bar and
+expanding/sliding page indicators. **Regenerate this GIF for 0.6.0** because
+the constructor mapping, icon sizing and bar geometry changed.
 `navigation_rail_drawer` (640 × 500, 6.8 seconds) shows independent selection
 animations in a vertical rail and standard drawer. Both use real Morph widgets
 and scripted state transitions, not manually rendered mock animations.

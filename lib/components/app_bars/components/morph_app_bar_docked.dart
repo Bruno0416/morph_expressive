@@ -367,7 +367,7 @@ class _MorphDockedAppBarState extends State<_MorphDockedAppBar>
       trailingColor: appBarTheme.trailingColor(scheme),
       iconSize: metrics.iconSize,
       separateActions: motion.actions,
-      containerColor: bg,
+      containerColor: bar.glass == null ? bg : const Color(0x00000000),
       shadowColor: scheme.shadow,
       shape: appBarTheme.shape(bar.shapeFamily),
     );

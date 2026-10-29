@@ -9,12 +9,13 @@ components spanning 39 showcase families:
 | Actions | Buttons, icon buttons, button groups, segmented buttons, split buttons, FABs, extended FABs, FAB menus, toolbars |
 | Selection & input | Checkbox, radio, switch, chips, sliders (linear / centered / wavy / range), dropdown menus, text fields, date pickers, time pickers |
 | Containment | Cards, carousel, lists, selection, dialogs, bottom sheets, side sheets, dividers |
-| Navigation | App bars, navigation bar, rail, drawer, tabs, search |
+| Navigation | App bars (including frosted), navigation bar, rail, drawer, page indicator, tabs, search |
 | Feedback | Badges, progress indicators, loading indicator, refresh indicator, snackbars, tooltips |
 
-The `preview/` gallery includes interactive examples by family. A public export
+The `preview/` gallery includes 40 interactive component families. A public export
 in the source inventory is not necessarily a standalone component requiring a
-separate showcase scene.
+separate showcase scene. See [Navigation](NAVIGATION_MORPH.md) for
+`MorphNavigationBarDestination` migration, frosted AppBars and scroll hosts.
 
 To start from a smaller, application-style example, explore
 [`example/main.dart`](../example/main.dart): it combines buttons, selections,

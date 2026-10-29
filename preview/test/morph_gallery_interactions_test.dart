@@ -81,13 +81,18 @@ void main() {
 
     const otherVariants = <String>[
       'wide',
-      'morph_compact',
-      'morph_wide',
-      'expressive',
+      'expressive_compact',
+      'expressive_wide',
+      'morph',
     ];
     expect(tester.widget<MorphNavigationBar>(bar('compact')).selectedIndex, 0);
     final untouchedWide = tester.widget<MorphNavigationBar>(bar('wide'));
     for (final variant in otherVariants) {
+      expect(
+        bar(variant),
+        findsOneWidget,
+        reason: 'The navigation preview for $variant must be mounted',
+      );
       expect(tester.widget<MorphNavigationBar>(bar(variant)).selectedIndex, 0);
     }
 

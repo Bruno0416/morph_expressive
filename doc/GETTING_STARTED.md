@@ -10,11 +10,11 @@
 
 ```yaml
 dependencies:
-  morph_expressive: ^0.4.1
+  morph_expressive: ^0.6.0
 ```
 
-Run `flutter pub get` after changing the constraint. Before `0.4.1` is
-available on pub.dev, use a Git/path dependency to test the source checkout.
+Run `flutter pub get` after changing the constraint. Until `0.6.0` is
+published on pub.dev, use a Git/path dependency to test the source checkout.
 Check the [version history](https://pub.dev/packages/morph_expressive/versions)
 for the latest published release.
 
@@ -59,7 +59,25 @@ When using custom polygons alongside Material UI, use explicit `show` lists
 or a prefix with a `show` list. Morph's public polygons remain
 `material_new_shapes.RoundedPolygon`; Material UI's similarly named class is
 a different type. See [Dependency compatibility](PUB_DEV_COMPATIBILITY.md)
-for an example and the 0.4.1 validation results.
+for the historical 0.4.1 validation results.
+
+## Navigation migration from 0.5.0
+
+Bottom-bar destinations now accept `IconData` directly:
+
+```dart
+MorphNavigationBarDestination(
+  icon: MorphIcons.home,
+  selectedIcon: MorphIcons.search,
+  label: 'Home',
+)
+```
+
+For a custom widget instead, use `iconWidget` / `selectedIconWidget`.
+`MorphNavigationBar.expressive()` displays the animated icon pill;
+`MorphNavigationBar.morph()` displays the sliding upper dash. See
+[Navigation](NAVIGATION_MORPH.md) for `iconSize`, `unselectedIconScale`,
+wide distribution and the optional frosted AppBar/refresh composition.
 
 ## Configure theme-level interactions (available since 0.2.0)
 
