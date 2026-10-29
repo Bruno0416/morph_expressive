@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.6.1 - 2026-10-29
+
+### Fixed
+
+- `MorphNavigationBarHost` now recognizes pull-to-refresh gestures on the
+  active vertical scrollable inside nested layouts such as
+  `NestedScrollView` + `PageView` + `CustomScrollView`, without requiring
+  another refresh indicator or a new public parameter. The host filters
+  horizontal page swipes, keeps a consistent scroll source during the pull,
+  and checks the outer scroll position before refreshing when a collapsible
+  header is still away from its leading edge.
+- Floating navigation hide/reveal now follows actual vertical scrolling from
+  nested child lists, including diagonal gestures with vertical movement.
+  It avoids counting parent and child movement twice and leaves horizontal
+  page changes alone.
+
+### Compatibility
+
+- No breaking changes: existing `MorphNavigationBarHost(onRefresh: ...,
+  bar: ..., body: ...)` configurations continue to work with the standard,
+  `.morph()` and `.expressive()` navigation bars, with or without glass.
+- `onRefresh: null` continues to omit the refresh indicator. Standalone
+  `MorphRefreshIndicator` behavior and the public navigation API are unchanged.
+- Add nested-gesture and navigation-visibility regression tests. The previous
+  navigation GIFs remain valid because this patch changes scroll behavior,
+  not the visual layout or the GIF capture scenes.
+
 ## 0.6.0 - 2026-10-28
 
 ### Breaking changes

@@ -17,13 +17,14 @@ separate 40-family preview application.
 Create a Flutter app with Flutter >= 3.47 and Dart >= 3.13, then run:
 
 ```bash
-flutter pub add 'morph_expressive:^0.6.0' material_ui
+flutter pub add 'morph_expressive:^0.6.1' material_ui
 ```
 
 Copy [`main.dart`](main.dart) into your application's `lib/main.dart` and
-run `flutter run`. `0.6.0` includes the corrected navigation APIs and
-the previous Material UI compatibility fixes. Before publishing, use a
-`path:` dependency pointed at your local checkout. The example does not
+run `flutter run`. `0.6.1` includes the nested navigation-host scrolling
+fix on top of the 0.6.0 navigation APIs and previous Material UI compatibility
+fixes. While testing an unpublished change, use a `path:` dependency pointed
+at your local checkout. The example does not
 exercise every new navigation API; see the navigation guide for those.
 
 For all available components and advanced APIs see

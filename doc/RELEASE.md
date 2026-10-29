@@ -1,134 +1,129 @@
-# Publishing checklist — Morph Expressive 0.6.0
+# Publishing checklist — Morph Expressive 0.6.1
 
-**Release candidate; do not publish or tag until the gates below pass.**
+**Release preparation only. Do not publish, tag or push until validation passes.**
 
-The previous commit/tag is `b6a6c31` / `v0.5.0` (2026-10-23). This release is
-`0.6.0`, not a republish of 0.5.0, because bottom-navigation destination
-`Widget` icons changed to `IconData` and the two named constructors now map
-consistently to their intended designs. Keep `preview/pubspec.yaml` at its
-independent unpublished app version; its *tracked lockfile* must resolve the
-local package to `0.6.0`.
+`0.6.1` is a backward-compatible patch over the published `v0.6.0` release:
+`MorphNavigationBarHost` recognizes pull-to-refresh from nested vertical
+scrollables and hides/reveals its floating bar during diagonally initiated
+vertical scroll. Neither change requires new public parameters. Keep the
+`0.6.0` changelog and `v0.6.0` tag unchanged.
 
-## 1. Verify the release content from the repository root
+## 1. Inspect release content and version
+
+From the Morph repository root:
 
 ```bash
 cd "$(git rev-parse --show-toplevel)"
 git status --short
 grep '^version:' pubspec.yaml
-rg -n 'morph_expressive:|version: "0.6.0"' preview/pubspec.lock
+rg -n 'morph_expressive:|version: "0.6.1"' preview/pubspec.lock
 python3 tool/check_gif_branding.py
 ```
 
-Inspect `README.md`, `CHANGELOG.md`, `doc/GETTING_STARTED.md`,
-`doc/NAVIGATION_MORPH.md`, `doc/PREVIEW.md`, `example/README.md` and
-`doc/COMPONENTS.md`. The `doc/PUB_DEV_COMPATIBILITY.md` report deliberately
-retains historic results from 0.4.1; they are **not** new 0.6.0 test evidence.
-The 0.6.0 changelog must sit above the preserved 0.5.0 entry.
+Confirm `pubspec.yaml` and the **path dependency entry** in the tracked
+`preview/pubspec.lock` resolve to `0.6.1`. Do not bump the independent preview
+app's own version. Review README, CHANGELOG, `doc/NAVIGATION_MORPH.md`,
+`doc/GETTING_STARTED.md`, example and public doc index. This patch changes
+no navigation rendering or GIF capture scenes: **reuse the existing GIFs**.
+Only regenerate images when their capture code or presentation changes. The
+historical `doc/PUB_DEV_COMPATIBILITY.md` refers to release 0.4.1.
 
-## 2. Regenerate and inspect changed GIFs
-
-`navigation_morph.gif` was rendered for the older 0.5.0 capture scene and
-must be regenerated for the corrected `.morph()` / `.expressive()` layout,
-76dp Morph bar and icon-data API. The original MD3E `navigation.gif` and the
-unchanged rail/drawer GIF should not be rewritten without a scene change.
-**Run only after any capture-source changes are final, with no concurrent
-Flutter Web server/build running for `preview/`:**
+## 2. Format and run both dependency lanes
 
 ```bash
-bash tool/generate_component_gifs.sh --only navigation_morph
-python3 tool/check_gif_branding.py
-(cd preview && flutter test test/gif_capture_test.dart)
-git status --short doc/assets/gifs/
-git diff --numstat -- doc/assets/gifs/
-# Must fail if the navigation GIF has NOT changed since v0.5.0:
-if git diff --quiet v0.5.0 -- doc/assets/gifs/navigation_morph.gif; then
-  echo 'ERROR: regenerate navigation_morph.gif for 0.6.0' >&2
-  exit 1
-fi
-```
-
-Visually inspect the new `doc/assets/gifs/navigation_morph.gif` at 640×520:
-Expressive pill vs Morph sliding dash, active/unselected icons, clear top-dash
-gap, and both page indicator effects. The file must differ from `v0.5.0`.
-The GIF branding audit checks file presence and old branding; **it does not
-prove an asset is fresh or visually correct**.
-
-## 3. Full validation (both dependency lanes)
-
-```bash
-# After release-source edits, format once, then validate.
+# Format only if files actually need it, before running CI-equivalent checks.
 dart format lib test example preview/lib preview/test
 set -o pipefail
-bash tool/check_dependency_matrix.sh all 2>&1 | tee /tmp/morph-0.6.0-matrix.log
+bash tool/check_dependency_matrix.sh all 2>&1 | tee /tmp/morph-0.6.1-matrix.log
 ```
 
-Both `latest` and `lowest` must complete with clean analysis, all package and
-preview tests, and the Web release build. The matrix runs in temporary copies
-and does not mutate the active lockfiles. Flutter Web's font/wasm notices do
-not independently imply a test failure, but examine new diagnostics. For
-visual/performance assurance, run the native preview on a real Android/iOS
-device (`cd preview && flutter run -t lib/main_mobile.dart`); Web rendering
-cannot prove mobile blur performance.
+Require both `latest` and `lowest` to complete successfully: import/name/GIF
+checks, strict `dart format --set-exit-if-changed`, static analysis, library
+and preview widget tests, and the Web release build. Do not substitute a
+single-test pass for the matrix. The nested integration tests must exercise
+real pull gestures over the active child list, horizontal-only swipes,
+collapsed outer headers, callback deduplication, diagonal hide/reveal and
+scroll reversals. Independently check that `onRefresh: null` creates no
+indicator and the three bar variants remain supported.
 
-## 4. Archive, documentation and Pana
+## 3. Validate against a real consumer using local path
+
+In WatchNext (or an equivalent nested-scroll consumer), temporarily set:
+
+```yaml
+dependencies:
+  morph_expressive:
+    path: ../morph_ui
+```
+
+Then run `flutter pub get`, `flutter analyze`, and the app **after a full
+restart**. Verify Movies and TV vertical pull-to-refresh, no refresh on
+horizontal tab swipes, normal scrolling when the outer header is collapsed,
+navbar hide/reveal on diagonal vertical scroll, and back-to-top. Check short
+lists with `AlwaysScrollableScrollPhysics` as appropriate. Restore a hosted
+constraint when `0.6.1` is published; never commit an unintended local path
+to the consumer app.
+
+## 4. Inspect the publish archive and Pana
 
 ```bash
 cd "$(git rev-parse --show-toplevel)"
 flutter pub get
-(cd preview && flutter pub get)  # update tracked local path lock entry
-python3 tool/check_gif_branding.py
+(cd preview && flutter pub get)
 git diff --check
 dart pub publish --dry-run
-dart pub global run pana .
+dart pub global run pana:pana .
 ```
 
-Review the `dry-run`'s archive list, `.pubignore`, metadata, ten pub.dev
-screenshots, README, changelog, attribution (`NOTICE` / `LICENSE`) and no
-unexpected generated files. Record Pana's **actual** score; a previous
-160/160 report for 0.5.0 is not evidence for 0.6.0.
-Check <https://pub.dev/packages/morph_expressive/versions> and confirm
-`0.6.0` is still unused before proceeding. The dry-run does not reserve it.
+Inspect `.pubignore`, the dry-run file list and warnings, attribution, declared
+platforms, and all ten screenshot assets. Require the release to have no
+blocking warnings and record the actual Pana score (target 160/160; do not
+reuse the previous version's score). Check
+<https://pub.dev/packages/morph_expressive/versions> and confirm `0.6.1`
+has not been published. A dry-run does not reserve the version number.
 
-## 5. Commit, push, wait for CI, then publish manually
-
-The only repository workflow in this snapshot is
-`.github/workflows/dependency-compatibility.yml`: its `push` and PR events
-run latest/lowest analysis/tests/builds. It **does not publish to pub.dev**.
-Do not trigger an extra automated publisher or duplicate a release tag.
+## 5. Commit and push; inspect the workflow for the exact SHA
 
 ```bash
 cd "$(git rev-parse --show-toplevel)"
-git add -A
+git add pubspec.yaml preview/pubspec.lock README.md CHANGELOG.md \
+  doc/NAVIGATION_MORPH.md doc/GETTING_STARTED.md doc/README.md \
+  doc/PUB_DEV_COMPATIBILITY.md doc/PREVIEW.md doc/RELEASE.md \
+  example/README.md lib/components/navigation_bar/morph_navigation_bar_host.dart \
+  test/navigation_nested_refresh_test.dart
+git status --short
 git diff --cached --check
 git diff --cached --stat
 git diff --cached -- pubspec.yaml CHANGELOG.md README.md
-# Inspect staged changes, especially the new navigation_morph.gif.
-git commit -m "release: morph_expressive 0.6.0"
+# Review the complete staged diff before committing.
+git commit -m "fix: support nested navigation scrolling (0.6.1)"
 git push origin main
 ```
 
-In GitHub Actions, wait for **both** `Dependency compatibility` jobs
-(`latest`, `lowest`) for this exact pushed commit to succeed. Do not publish
-merely because an older green workflow exists. Using GitHub CLI:
+The `.github/workflows/dependency-compatibility.yml` workflow runs both
+`latest` and `lowest` on push, but does **not** publish to pub.dev. Verify the
+successful runs correspond to the exact pushed commit, not an older SHA.
 
 ```bash
 SHA=$(git rev-parse HEAD)
 gh run list --workflow dependency-compatibility.yml --commit "$SHA" --limit 5
-# Locate the push run for this SHA, then:
+# For the run corresponding to $SHA:
 gh run watch RUN_ID --exit-status
 ```
 
-Only after green CI and checking `0.6.0` is still unpublished:
+## 6. Publish manually after green CI
+
+Once CI, the consumer test, Pana and the dry-run are green and `0.6.1` remains
+available:
 
 ```bash
 dart pub publish --dry-run
 dart pub publish
-git tag -a v0.6.0 -m "Morph Expressive v0.6.0"
-git push origin v0.6.0
-gh release create v0.6.0 --title "Morph Expressive v0.6.0" --generate-notes
+git tag -a v0.6.1 -m "Morph Expressive v0.6.1"
+git push origin v0.6.1
+gh release create v0.6.1 --title "Morph Expressive v0.6.1" --generate-notes
 ```
 
-`dart pub publish` is an irreversible upload for that exact version. Stop on
-any unexpected output. Confirm the Git tag points at the published commit;
-never create it on a different tree. No commands above are executed by this
-document.
+Do not use `--force` or `--skip-validation` for pub.dev. Confirm that the tag
+points to the published source commit and that the package appears under
+`0.6.1` on pub.dev. A release upload is irreversible for that version.

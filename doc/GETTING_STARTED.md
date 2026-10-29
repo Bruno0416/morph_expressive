@@ -10,11 +10,12 @@
 
 ```yaml
 dependencies:
-  morph_expressive: ^0.6.0
+  morph_expressive: ^0.6.1
 ```
 
-Run `flutter pub get` after changing the constraint. Until `0.6.0` is
-published on pub.dev, use a Git/path dependency to test the source checkout.
+Run `flutter pub get` after changing the constraint. To validate an
+unpublished fix, temporarily use a Git/path dependency pointing to the source
+checkout; restore the published version constraint before releasing your app.
 Check the [version history](https://pub.dev/packages/morph_expressive/versions)
 for the latest published release.
 
@@ -78,6 +79,9 @@ For a custom widget instead, use `iconWidget` / `selectedIconWidget`.
 `MorphNavigationBar.morph()` displays the sliding upper dash. See
 [Navigation](NAVIGATION_MORPH.md) for `iconSize`, `unselectedIconScale`,
 wide distribution and the optional frosted AppBar/refresh composition.
+Since 0.6.1, the host also recognizes nested vertical pull-to-refresh and
+scroll-driven visibility, including diagonal vertical drags, without an API
+change.
 
 ## Configure theme-level interactions (available since 0.2.0)
 

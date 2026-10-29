@@ -69,8 +69,9 @@ retain their 640 x 360, ~4.8-second captures.
 Navigation keeps the original MD3E `navigation.gif` unchanged. The new
 `navigation_morph` scene (640 × 520, 7.2 seconds) shows the elastic
 `.expressive()` M3 pill, the `.morph()` sliding top-dash bar and
-expanding/sliding page indicators. **Regenerate this GIF for 0.6.0** because
-the constructor mapping, icon sizing and bar geometry changed.
+expanding/sliding page indicators. This scene was refreshed for 0.6.0 after
+the constructor mapping, icon sizing and bar geometry changed. The 0.6.1
+nested-scrolling fix does not alter the scene or require a new GIF.
 `navigation_rail_drawer` (640 × 500, 6.8 seconds) shows independent selection
 animations in a vertical rail and standard drawer. Both use real Morph widgets
 and scripted state transitions, not manually rendered mock animations.

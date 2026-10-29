@@ -1,6 +1,6 @@
 # Navegación Morph e indicadores de onboarding
 
-Esta guía describe las APIs de navegación de Morph Expressive 0.6.0.
+Esta guía describe las APIs de navegación de Morph Expressive 0.6.1.
 Al migrar desde 0.5.0 debes actualizar los destinos `Widget` a `IconData` y
 revisar los constructores `.morph()` / `.expressive()`, cuya asignación visual
 se corrigió en 0.6.0.
@@ -100,6 +100,60 @@ cuando el layout resuelto es `wide`. No altera el layout compacto, conserva el
 ancho del indicador/píldora y los destinos siguen siendo accesibles. Con la
 distribución equitativa se ignora `alignment`; para volver al agrupamiento
 anterior basta con `distributeWideDestinations: false` (valor por defecto).
+
+## Pull-to-refresh con scrolling anidado (desde 0.6.1)
+
+A partir de **0.6.1**, `MorphNavigationBarHost` mantiene `onRefresh` como
+única API necesaria tanto para una lista simple como para `NestedScrollView` con pestañas (`PageView`) y
+listas verticales internas (`CustomScrollView`). El host selecciona una sola
+fuente vertical por arrastre, usando el contexto de la notificación en lugar de
+suponer que todo el contenido informa `depth == 0`. Los gestos horizontales no
+participan en el reconocimiento del refresh.
+
+Si el host tiene un `ScrollController` conectado al scroll exterior, solo
+permite iniciar un refresh cuando ese scroll también está en su borde inicial:
+no debe refrescar mientras un encabezado colapsable todavía está retraído.
+La barra flotante, el glass y el retorno al inicio siguen siendo independientes.
+
+La visibilidad de la barra también observa los scrollables verticales anidados,
+independientemente del refresh. Durante un arrastre diagonal, un movimiento
+vertical efectivo puede ocultar o revelar la barra aunque el gesto tenga una
+componente horizontal. Los swipes que el `PageView` reconoce como horizontales
+no la ocultan, y la selección de una única fuente evita sumar dos veces
+los desplazamientos emitidos por el scroll padre y el hijo.
+
+Para que la comprobación del borde inicial global funcione con encabezados
+colapsables, conecta el `controller` recibido en `body` al `NestedScrollView`
+exterior (o proporciona uno equivalente mediante `scrollController`). El
+`PageView` puede conservar sus listas internas y la física de scrolling
+apropiada. El filtro del refresh y la lógica de visibilidad son independientes:
+la barra puede ocultarse por un gesto diagonal aunque el refresh no esté
+habilitado. Si el usuario cambia de pestaña y `onRefresh` pasa a `null`, el
+host deja de construir el indicador.
+
+El host no impone un scroll vertical cuando Flutter interpreta el gesto como
+horizontal: no se refresca ni se oculta la barra por un cambio de página puro.
+
+```dart
+MorphNavigationBarHost(
+  onRefresh: () => reloadHome(),
+  bar: MorphNavigationBar.morph(
+    floating: true,
+    destinations: destinations,
+  ),
+  body: (context, controller, padding) => NestedScrollView(
+    controller: controller,
+    headerSliverBuilder: (context, _) => headerSlivers,
+    body: PageView(children: catalogTabs),
+  ),
+)
+```
+
+Si el contenido es demasiado corto para desplazarse, configura
+`AlwaysScrollableScrollPhysics` en la lista vertical correspondiente. El host
+no crea ningún indicador cuando `onRefresh` es `null`. Para páginas con scroll
+anidado, las pruebas deben realizar un arrastre real y verificar que el
+callback espera su `Future`, en lugar de comprobar solo la presencia del widget.
 
 ## Barra con indicador superior
 
@@ -289,7 +343,7 @@ Las regresiones de la barra flotante se comprueban con
 `flutter test test/navigation_refinement_test.dart` y
 `(cd preview && flutter test test/floating_navigation_sample_test.dart)`.
 
-## GIFs de navegación para 0.6.0
+## GIFs de navegación (escenas actualizadas en 0.6.0)
 
 - `navigation.gif`: variantes estándar MD3E compacta y wide (se conserva).
 - `navigation_morph.gif`: píldora `.expressive` y línea `.morph`, junto a los
@@ -297,7 +351,9 @@ Las regresiones de la barra flotante se comprueban con
 - `navigation_rail_drawer.gif`: transiciones de selección independientes
   en `MorphNavigationRail.morph` y `MorphNavigationDrawer.morph`.
 
-Para regenerar la escena modificada en 0.6.0, desde la raíz:
+La actualización 0.6.1 no modifica la apariencia ni las escenas de captura;
+no exige regenerar estos GIFs. Para volver a capturar la escena de 0.6.0,
+desde la raíz:
 
 ```bash
 bash tool/generate_component_gifs.sh --only navigation_morph

@@ -7,7 +7,7 @@ and smooth animations.
 The goal is to make components look and feel consistent while exploring new
 styles and interactions beyond Material 3 Expressive.
 
-This README documents **0.6.0**. Check the
+This README documents **0.6.1**. Check the
 [pub.dev versions](https://pub.dev/packages/morph_expressive/versions) for the
 latest published release. Morph Expressive is still in the 0.x series, so
 public APIs and defaults may evolve between minor versions.
@@ -27,11 +27,11 @@ of wrapped. See [NOTICE](NOTICE) and [LICENSE](LICENSE) for attribution.
 
 ```yaml
 dependencies:
-  morph_expressive: ^0.6.0
+  morph_expressive: ^0.6.1
 ```
 
-Run `flutter pub get` after changing the constraint. To test a source checkout
-before this version is available on pub.dev, use a Git/path dependency.
+Run `flutter pub get` after changing the constraint. To test unpublished
+changes in a source checkout, temporarily use a Git/path dependency.
 
 ## Quick start
 
@@ -66,6 +66,21 @@ void main() {
 
 This example uses a fixed light theme. For dynamic brightness, keep `MorphTheme`
 and the host Material theme synchronized. `MaterialApp.router` is supported.
+
+## Fixed in 0.6.1
+
+`MorphNavigationBarHost` now supports pull-to-refresh from the active vertical
+list inside nested scrolling compositions (including `NestedScrollView` with
+`PageView` and `CustomScrollView`). The same host also hides/reveals a floating
+bar when nested vertical content moves during a diagonal drag. A horizontal
+page swipe alone does not hide the bar or trigger refresh.
+
+**No API migration is required from 0.6.0.** Keep using the host's existing
+`onRefresh` callback; it still builds no indicator when `onRefresh` is `null`.
+For a collapsible header, connect the host-provided `ScrollController` to the
+outer `NestedScrollView`; the host checks its leading edge before refreshing.
+Lists with too little content to scroll should use `AlwaysScrollableScrollPhysics`.
+See the [nested scrolling guide](doc/NAVIGATION_MORPH.md#pull-to-refresh-con-scrolling-anidado-desde-061).
 
 ## New in 0.6.0
 
@@ -266,8 +281,9 @@ purple, teal and blue seed colors; chips uses teal and textfields uses purple
 for stable color references. Capture tools do not become runtime dependencies.
 The navigation captures use 640 × 520 / 7.2 s for Expressive pill,
 Morph top-dash and page indicators, and 640 × 500 / 6.8 s for rail and
-drawer. **Regenerate `navigation_morph.gif` for 0.6.0**, because its scene and
-bar geometry changed after 0.5.0; `navigation_rail_drawer.gif` can be
+drawer. The `navigation_morph.gif` capture was updated for the 0.6.0
+constructor mapping and geometry; 0.6.1 changes only scroll behavior, so its
+capture scenes do not require another regeneration. `navigation_rail_drawer.gif` can be
 retained if its scene remains unchanged. Use
 `bash tool/generate_component_gifs.sh --only navigation_morph` before publishing
 and commit the updated GIF with its capture source.

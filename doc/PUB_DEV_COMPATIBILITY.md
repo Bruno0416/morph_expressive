@@ -1,6 +1,6 @@
 # Dependency namespace compatibility — Morph Expressive 0.4.1
 
-**Historical report for release 0.4.1.** For current 0.6.0 release gates,
+**Historical report for release 0.4.1.** For current 0.6.1 release gates,
 see [Release](RELEASE.md). The SDK, scores and package counts below refer to
 0.4.1 only.
 

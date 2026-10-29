@@ -24,7 +24,9 @@ import 'components/morph_navigation_scroll_activity.dart';
 ///
 /// Supports the default, `.morph()`, and `.expressive()` navigation bars.
 /// The optional [MorphNavigationBar.glass] controls the surface only; it does
-/// not affect scroll handling or pull-to-refresh. Without [onRefresh], no
+/// not affect scroll handling or pull-to-refresh. Nested vertical scrollables
+/// are selected automatically per drag, including tabbed NestedScrollViews.
+/// Without [onRefresh], no
 /// [MorphRefreshIndicator] is inserted in the widget tree.
 class MorphNavigationBarHost extends StatefulWidget {
   const MorphNavigationBarHost({
@@ -102,6 +104,18 @@ class _MorphNavigationBarHostState extends State<MorphNavigationBarHost>
   double _barHeight = 80;
   ScrollDirection _direction = ScrollDirection.idle;
 
+  // Visibility must observe nested vertical scrollables too. Keep a single
+  // source per motion so outer/inner updates do not double-count travel.
+  BuildContext? _visibilityScrollSource;
+  int _visibilityScrollDepth = -1;
+  bool _visibilityScrollMoved = false;
+
+  // The scrollable whose vertical drag currently drives pull-to-refresh.
+  // Notification.depth is not a stable identity in nested scroll trees.
+  BuildContext? _refreshScrollSource;
+  int _refreshScrollDepth = -1;
+  bool _refreshDragMoved = false;
+
   @override
   void initState() {
     super.initState();
@@ -122,10 +136,15 @@ class _MorphNavigationBarHostState extends State<MorphNavigationBarHost>
       _setVisible(true);
       _travel = 0;
       _direction = ScrollDirection.idle;
+      _clearVisibilityScrollSource();
       if (oldWidget.scrollController != widget.scrollController) {
         _bodyScrolling = false;
         _updateGlassActivity();
       }
+    }
+    if (widget.onRefresh == null ||
+        oldWidget.scrollController != widget.scrollController) {
+      _clearRefreshScrollSource();
     }
   }
 
@@ -178,20 +197,66 @@ class _MorphNavigationBarHostState extends State<MorphNavigationBarHost>
     widget.onVisibilityChanged?.call(value);
   }
 
-  bool _onScroll(ScrollNotification notification) {
-    if (notification.depth != 0 || notification.metrics.axis != Axis.vertical) {
-      return false;
+  void _clearVisibilityScrollSource() {
+    _visibilityScrollSource = null;
+    _visibilityScrollDepth = -1;
+    _visibilityScrollMoved = false;
+  }
+
+  // NestedScrollView and PageView can route vertical updates through a deeper
+  // viewport, especially during diagonal drags. Follow a single vertical
+  // origin, preferring a deeper one only once it actually moves; this avoids
+  // accumulating the same physical gesture from both parent and child.
+  bool _acceptVisibilityScroll(ScrollNotification notification) {
+    if (notification.metrics.axis != Axis.vertical) return false;
+    final origin = notification.context;
+    if (origin == null) return notification.depth == 0;
+
+    final moving =
+        notification is ScrollUpdateNotification &&
+        (notification.scrollDelta ?? 0) != 0 &&
+        !notification.metrics.outOfRange;
+    final source = _visibilityScrollSource;
+    if (source == null) {
+      if (notification is ScrollEndNotification) return false;
+      _visibilityScrollSource = origin;
+      _visibilityScrollDepth = notification.depth;
+    } else if (!identical(source, origin)) {
+      // A moving child may take over after the outer header collapses.
+      // A fresh drag can also select a sibling tab at the same depth.
+      final newPeerDrag =
+          notification is ScrollStartNotification &&
+          notification.dragDetails != null &&
+          notification.depth == _visibilityScrollDepth;
+      final preferChild =
+          (moving &&
+              (notification.depth > _visibilityScrollDepth ||
+                  !_visibilityScrollMoved)) ||
+          newPeerDrag;
+      if (!preferChild) return false;
+      _visibilityScrollSource = origin;
+      _visibilityScrollDepth = notification.depth;
+      _visibilityScrollMoved = false;
+      _travel = 0;
+      _direction = ScrollDirection.idle;
     }
+    if (moving) _visibilityScrollMoved = true;
+    return true;
+  }
+
+  bool _onScroll(ScrollNotification notification) {
+    if (!_acceptVisibilityScroll(notification)) return false;
     if (notification is ScrollStartNotification) {
       _bodyScrolling = true;
       _updateGlassActivity();
     } else if (notification is ScrollEndNotification) {
       _bodyScrolling = false;
       _updateGlassActivity();
+      _clearVisibilityScrollSource();
     }
     if (notification.metrics.pixels <= notification.metrics.minScrollExtent) {
       _travel = 0;
-      _setVisible(true);
+      if (_outerAtRefreshEdge()) _setVisible(true);
       return false;
     }
     if (!widget.bar.floating || !widget.hideOnScroll || _refreshing) {
@@ -222,6 +287,77 @@ class _MorphNavigationBarHostState extends State<MorphNavigationBarHost>
       _setVisible(true);
     }
     return false;
+  }
+
+  void _clearRefreshScrollSource() {
+    _refreshScrollSource = null;
+    _refreshScrollDepth = -1;
+    _refreshDragMoved = false;
+  }
+
+  static bool _atLeadingEdge(ScrollMetrics metrics) =>
+      switch (metrics.axisDirection) {
+        AxisDirection.down => metrics.extentBefore == 0,
+        AxisDirection.up => metrics.extentAfter == 0,
+        AxisDirection.left || AxisDirection.right => false,
+      };
+
+  // NestedScrollView's outer controller may still be collapsing or expanding
+  // its header while an inner tab reports extentBefore == 0. Requiring the
+  // outer position to reach its leading edge prevents premature refreshes.
+  bool _outerAtRefreshEdge() {
+    if (!_scroll.hasClients) return true;
+    return _scroll.positions.every(_atLeadingEdge);
+  }
+
+  /// Keeps one vertical notification source for the lifetime of a pull.
+  ///
+  /// The first eligible child drag wins. If an outer scroll starts first,
+  /// a deeper child may take over until drag updates actually begin. This
+  /// avoids processing a parent's ScrollEnd as the child's release, or
+  /// mixing the horizontal PageView with the active inner CustomScrollView.
+  bool _onRefreshScrollNotification(ScrollNotification notification) {
+    if (notification.metrics.axis != Axis.vertical) return false;
+    final origin = notification.context;
+    if (origin == null) return defaultScrollNotificationPredicate(notification);
+
+    final startsDrag =
+        (notification is ScrollStartNotification &&
+            notification.dragDetails != null) ||
+        (notification is OverscrollNotification &&
+            notification.dragDetails != null);
+    final source = _refreshScrollSource;
+    if (source != null && !identical(source, origin)) {
+      final canPreferChild =
+          !_refreshDragMoved &&
+          startsDrag &&
+          notification.depth > _refreshScrollDepth &&
+          _atLeadingEdge(notification.metrics) &&
+          _outerAtRefreshEdge();
+      if (!canPreferChild) return false;
+    } else if (source == null) {
+      if (!startsDrag ||
+          !_atLeadingEdge(notification.metrics) ||
+          !_outerAtRefreshEdge()) {
+        return false;
+      }
+    }
+
+    if (!identical(source, origin)) {
+      _refreshScrollSource = origin;
+      _refreshScrollDepth = notification.depth;
+      _refreshDragMoved = false;
+    }
+    if ((notification is ScrollUpdateNotification &&
+            notification.dragDetails != null) ||
+        (notification is OverscrollNotification &&
+            notification.dragDetails != null)) {
+      _refreshDragMoved = true;
+    }
+    if (notification is ScrollEndNotification) {
+      _clearRefreshScrollSource();
+    }
+    return true;
   }
 
   Future<void> _refresh() async {
@@ -285,6 +421,7 @@ class _MorphNavigationBarHostState extends State<MorphNavigationBarHost>
     if (widget.onRefresh != null) {
       body = MorphRefreshIndicator(
         controller: widget.refreshController,
+        notificationPredicate: _onRefreshScrollNotification,
         edgeOffset: _resolvedRefreshEdgeOffset(context),
         onRefresh: _refresh,
         onStatusChange: (status) {
