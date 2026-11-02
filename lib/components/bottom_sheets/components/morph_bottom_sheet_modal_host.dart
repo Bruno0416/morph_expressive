@@ -30,6 +30,7 @@ class MorphBottomSheetModalHost extends StatefulWidget {
     this.controller,
     this.onValueChanged,
     this.onDismissRequest,
+    this.glass,
     super.key,
   });
 
@@ -71,6 +72,9 @@ class MorphBottomSheetModalHost extends StatefulWidget {
 
   /// Guard; resolve false to keep the sheet open.
   final Future<bool> Function()? onDismissRequest;
+
+  /// Frosted override for the sheet container; null inherits the theme.
+  final MorphSurfaceGlass? glass;
 
   @override
   State<MorphBottomSheetModalHost> createState() =>
@@ -245,7 +249,12 @@ class _MorphBottomSheetModalHostState extends State<MorphBottomSheetModalHost>
   // ── Build ──────────────────────────────────────────────────────────────
 
   Widget _buildScrim(BuildContext context) {
-    final Color color = _theme.scrimColor(MorphTheme.of(context).colorScheme);
+    final morphTheme = MorphTheme.of(context);
+    final bool frostedActive =
+        (widget.glass ?? morphTheme.surfaceGlass)?.enabled ?? false;
+    final Color color = frostedActive
+        ? const Color(0x00000000)
+        : _theme.scrimColor(morphTheme.colorScheme);
     final VoidCallback? onTap = widget.isDismissible ? _requestDismiss : null;
     return Semantics(
       label: widget.isDismissible ? widget.labels.scrim : null,
@@ -278,6 +287,7 @@ class _MorphBottomSheetModalHostState extends State<MorphBottomSheetModalHost>
       onValueChanged: widget.onValueChanged,
       onDismiss: _requestDismiss,
       onClose: _close,
+      glass: widget.glass,
       entrance: _entrance,
       backProgress: _back,
       handleFocusNode: _handle,

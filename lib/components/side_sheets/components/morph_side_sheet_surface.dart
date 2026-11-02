@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../foundations/foundations.dart';
+import '../../../foundations/surface/morph_glass_surface.dart';
 import '../enums/morph_side_sheet_enums.dart';
 import '../styles/morph_side_sheet_theme.dart';
 
@@ -15,6 +16,7 @@ class MorphSideSheetSurface extends StatelessWidget {
     required this.modal,
     required this.borderRadius,
     required this.child,
+    this.glass,
     super.key,
   });
 
@@ -26,6 +28,9 @@ class MorphSideSheetSurface extends StatelessWidget {
 
   /// Current corner shape.
   final BorderRadius borderRadius;
+
+  /// Frosted override for the sheet container; null inherits the theme.
+  final MorphSurfaceGlass? glass;
 
   /// Sheet content.
   final Widget child;
@@ -64,6 +69,20 @@ class MorphSideSheetSurface extends StatelessWidget {
       color = Color.alphaBlend(
         tint.withValues(alpha: tintOpacity(elevation)),
         color,
+      );
+    }
+    final MorphSurfaceGlass? resolved = MorphGlassSurface.resolve(
+      context,
+      glass,
+    );
+    if (resolved != null) {
+      return MorphGlassSurface(
+        glass: resolved,
+        baseColor: color,
+        borderRadius: borderRadius,
+        elevation: elevation,
+        shadowColor: scheme.shadow,
+        child: child,
       );
     }
     return DecoratedBox(

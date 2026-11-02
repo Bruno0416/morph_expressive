@@ -8,10 +8,13 @@ Flutter Web output or historical patch reports.
 | [Getting started](GETTING_STARTED.md) | Installation and minimal integration |
 | [Interactive example](../example/README.md) | A runnable tour of common component APIs |
 | [Theming](THEMING.md) | Light/dark seeds, typography, and component overrides |
+| [Frosted surfaces](FROSTED_SURFACES.md) | Shared glass configuration, opt-in cards, floating menus, and performance |
+| [MorphScrollBehavior](MORPH_SCROLL.md) | Flutter-like geometric overscroll compatible with frosted blur |
 | [Components](COMPONENTS.md) | Public component families and composition |
 | [Motion](MOTION.md) | Expressive curves, tweens, choreography, and customization |
 | [Preview](PREVIEW.md) | Browser gallery (40 families), GIF capture scenes, and native testing |
-| [Release](RELEASE.md) | 0.6.1 release gates, CI review, pub.dev publication and tagging |
+| [0.7.0 release checklist (archived)](RELEASE_0_7_0.md) | Historical validation gates, dependency matrix and publication checklist |
+| [Release](RELEASE.md) | Historical 0.6.1 release gates, CI review, pub.dev publication and tagging |
 | [Navigation and frosted surfaces](NAVIGATION_MORPH.md) | 0.6.1 nested scrolling, navigation API and migration from 0.5.0 |
 | [pub.dev compatibility](PUB_DEV_COMPATIBILITY.md) | Historical 0.4.1 namespace fixes and regression checks |
 

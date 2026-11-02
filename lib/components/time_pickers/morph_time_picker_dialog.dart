@@ -39,6 +39,7 @@ import 'package:material_ui/material_ui.dart'
         Widget;
 
 import '../../foundations/foundations.dart';
+import '../../foundations/surface/morph_glass_surface.dart';
 import '../dialogs/components/morph_dialog_inset.dart';
 import 'components/morph_dial_time_picker.dart';
 import 'components/morph_input_time_picker_form_field.dart';
@@ -258,6 +259,43 @@ class _MorphTimePickerDialogState extends State<MorphTimePickerDialog>
         MorphTimePickerConstants.fontSizeToScale;
     final Size dialogSize = _dialogSize(context) * textScaleFactor;
 
+    final MorphSurfaceGlass? glass = MorphGlassSurface.resolve(context, null);
+    final Color dialogColor = timeTheme.backgroundColor(theme.colorScheme);
+    final Widget dialog = Material(
+      animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
+      color: glass == null ? dialogColor : const Color(0x00000000),
+      elevation: glass == null ? timeTheme.elevation : 0,
+      shape: RoundedRectangleBorder(borderRadius: timeTheme.dialogShape),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: timeTheme.padding,
+        child: AnimatedContainer(
+          width: dialogSize.width,
+          duration: MorphMotion.durationOf(
+            context,
+            MorphTimePickerConstants.dialogSizeAnimationDuration,
+          ),
+          curve: MorphMotion.exit,
+          constraints: BoxConstraints(
+            minHeight: math.min(216, dialogSize.height),
+            maxHeight: dialogSize.height,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              if (isInputMode)
+                resolved.picker
+              else
+                Flexible(child: resolved.picker),
+              actions,
+            ],
+          ),
+        ),
+      ),
+    );
+
     return MorphDialogInset(
       padding: EdgeInsets.only(
         left: widget.insetPadding.left,
@@ -266,40 +304,16 @@ class _MorphTimePickerDialogState extends State<MorphTimePickerDialog>
         bottom: isInputMode ? 0 : widget.insetPadding.bottom,
       ),
       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-      child: Material(
-        animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
-        color: timeTheme.backgroundColor(theme.colorScheme),
-        elevation: timeTheme.elevation,
-        shape: RoundedRectangleBorder(borderRadius: timeTheme.dialogShape),
-        clipBehavior: Clip.antiAlias,
-        child: Padding(
-          padding: timeTheme.padding,
-          child: AnimatedContainer(
-            width: dialogSize.width,
-            duration: MorphMotion.durationOf(
-              context,
-              MorphTimePickerConstants.dialogSizeAnimationDuration,
+      child: glass == null
+          ? dialog
+          : MorphGlassSurface(
+              glass: glass,
+              baseColor: dialogColor,
+              borderRadius: timeTheme.dialogShape,
+              elevation: timeTheme.elevation,
+              shadowColor: theme.colorScheme.shadow,
+              child: dialog,
             ),
-            curve: MorphMotion.exit,
-            constraints: BoxConstraints(
-              minHeight: math.min(216, dialogSize.height),
-              maxHeight: dialogSize.height,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                if (isInputMode)
-                  resolved.picker
-                else
-                  Flexible(child: resolved.picker),
-                actions,
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 

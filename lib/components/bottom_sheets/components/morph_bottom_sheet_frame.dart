@@ -49,6 +49,7 @@ class MorphBottomSheetFrame extends StatefulWidget {
     this.backProgress,
     this.handleFocusNode,
     this.overlayStyle,
+    this.glass,
     super.key,
   });
 
@@ -109,6 +110,9 @@ class MorphBottomSheetFrame extends StatefulWidget {
   /// System bar style where the sheet sits under a system bar. Null leaves
   /// the bars to the page below.
   final SystemUiOverlayStyle? overlayStyle;
+
+  /// Frosted override for the sheet container; null inherits the theme.
+  final MorphSurfaceGlass? glass;
 
   @override
   State<MorphBottomSheetFrame> createState() => _MorphBottomSheetFrameState();

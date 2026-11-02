@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 
 import '../../foundations/foundations.dart';
+import '../../foundations/surface/morph_glass_surface.dart';
 import 'components/morph_tooltip_plain_surface.dart';
 import 'controllers/morph_tooltip_controller.dart';
 import 'enums/morph_tooltip_placement.dart';
@@ -38,6 +39,7 @@ class MorphTooltip extends StatefulWidget {
     this.preferredPlacement,
     this.dismissDelay,
     this.shape,
+    this.glass,
     this.controller,
     super.key,
   }) : assert(
@@ -78,6 +80,12 @@ class MorphTooltip extends StatefulWidget {
 
   /// Forma particular de este tooltip; tiene prioridad sobre [MorphTooltipTheme].
   final ShapeBorder? shape;
+
+  /// Frosted-glass treatment for the tooltip bubble (plain and rich).
+  ///
+  /// When null the bubble inherits [MorphThemeData.floatingSurfaceGlass];
+  /// pass [MorphSurfaceGlass.disabled] to force the classic opaque bubble.
+  final MorphSurfaceGlass? glass;
 
   /// Optional programmatic show/hide.
   final MorphTooltipController? controller;
@@ -316,7 +324,11 @@ class _MorphTooltipState extends State<MorphTooltip>
       Semantics(
         container: true,
         tooltip: message,
-        child: MorphTooltipPlainSurface(message: message, shape: widget.shape),
+        child: MorphTooltipPlainSurface(
+          message: message,
+          shape: widget.shape,
+          glass: widget.glass,
+        ),
       ),
     );
   }
@@ -328,45 +340,52 @@ class _MorphTooltipState extends State<MorphTooltip>
       if (widget.richTitle != null) widget.richTitle!,
       body,
     ].join('. ');
-    return _fade(
-      Semantics(
-        container: true,
-        tooltip: label,
-        child: Container(
-          constraints: BoxConstraints(maxWidth: tooltipTheme.richMaxWidth),
-          padding: tooltipTheme.richPadding,
-          decoration: ShapeDecoration(
-            color: tooltipTheme.richContainerColor(scheme),
-            shape: widget.shape ?? tooltipTheme.richShape,
-            shadows: MorphElevation.shadows(
-              tooltipTheme.richElevation,
-              shadowColor: scheme.shadow,
-            ),
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        if (widget.richTitle != null) ...<Widget>[
+          Text(
+            widget.richTitle!,
+            style: tooltipTheme.richTitleStyle(theme.typeScale, scheme),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              if (widget.richTitle != null) ...<Widget>[
-                Text(
-                  widget.richTitle!,
-                  style: tooltipTheme.richTitleStyle(theme.typeScale, scheme),
-                ),
-                SizedBox(height: tooltipTheme.richTitleGap),
-              ],
-              Text(
-                body,
-                style: tooltipTheme.richBodyStyle(theme.typeScale, scheme),
-              ),
-              if (widget.actions.isNotEmpty) ...<Widget>[
-                SizedBox(height: tooltipTheme.richActionsGap),
-                Row(children: widget.actions),
-              ],
-            ],
-          ),
-        ),
-      ),
+          SizedBox(height: tooltipTheme.richTitleGap),
+        ],
+        Text(body, style: tooltipTheme.richBodyStyle(theme.typeScale, scheme)),
+        if (widget.actions.isNotEmpty) ...<Widget>[
+          SizedBox(height: tooltipTheme.richActionsGap),
+          Row(children: widget.actions),
+        ],
+      ],
     );
+    final padded = Padding(padding: tooltipTheme.richPadding, child: content);
+    final limited = ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: tooltipTheme.richMaxWidth),
+      child: padded,
+    );
+    final bubbleShape = widget.shape ?? tooltipTheme.richShape;
+    final glass = MorphGlassSurface.resolve(context, widget.glass);
+    final bubble = glass == null
+        ? DecoratedBox(
+            decoration: ShapeDecoration(
+              color: tooltipTheme.richContainerColor(scheme),
+              shape: bubbleShape,
+              shadows: MorphElevation.shadows(
+                tooltipTheme.richElevation,
+                shadowColor: scheme.shadow,
+              ),
+            ),
+            child: limited,
+          )
+        : MorphGlassSurface(
+            glass: glass,
+            baseColor: tooltipTheme.richContainerColor(scheme),
+            shape: bubbleShape,
+            elevation: tooltipTheme.richElevation,
+            shadowColor: scheme.shadow,
+            child: limited,
+          );
+    return _fade(Semantics(container: true, tooltip: label, child: bubble));
   }
 
   Widget _fade(Widget child) {

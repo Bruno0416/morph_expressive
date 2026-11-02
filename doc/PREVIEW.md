@@ -26,6 +26,32 @@ inside the main scrolling showcase is expensive on browser compositors.
 Both demos remain available in the native preview and the corresponding
 isolated widget tests; no library API or rendering feature is disabled.
 
+## Frosted surfaces and scroll compatibility (mobile preview)
+
+The native mobile preview contains **Frosted Surfaces** and its
+**Scroll Blur Compatibility Lab**. To validate unreleased source changes:
+
+```bash
+cd preview
+flutter analyze
+flutter test test/mobile_frosted_scroll_behavior_test.dart
+flutter test test/mobile_scroll_blur_lab_test.dart
+flutter test
+flutter run -t lib/main_mobile.dart
+```
+
+The mobile app configures `MorphScrollBehavior` for its scrollable subtree;
+individual laboratory modes can override it to show the original Flutter
+stretch for comparison. Check repeated pulls at the leading and trailing
+edges, dark/light palettes, blur enabled/disabled, and hit testing while
+stretch is recovering. Cards that demonstrate blur explicitly opt in, because
+ordinary `MorphCard` instances now stay opaque by default. Use a real device
+(or a representative GPU emulator) to confirm that the backdrop samples the
+expected background; widget tests alone cannot establish that visual property.
+
+Read [Frosted surfaces](FROSTED_SURFACES.md) and
+[MorphScrollBehavior](MORPH_SCROLL.md) for the public APIs.
+
 ## Reproducible animated GIF scenes
 
 The twelve isolated capture scenes are `buttons`, `dropdown`, `segmented`,

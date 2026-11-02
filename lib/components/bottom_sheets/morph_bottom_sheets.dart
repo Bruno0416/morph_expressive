@@ -41,6 +41,7 @@ class MorphBottomSheet extends StatelessWidget {
     this.onValueChanged,
     this.theme,
     this.labels = const MorphBottomSheetLabels(),
+    this.glass,
     super.key,
   }) : variant = MorphBottomSheetVariant.modal,
        isDismissible = true,
@@ -64,6 +65,7 @@ class MorphBottomSheet extends StatelessWidget {
     this.onValueChanged,
     this.theme,
     this.labels = const MorphBottomSheetLabels(),
+    this.glass,
     super.key,
   }) : variant = MorphBottomSheetVariant.standard;
 
@@ -108,6 +110,12 @@ class MorphBottomSheet extends StatelessWidget {
   /// Accessibility strings.
   final MorphBottomSheetLabels labels;
 
+  /// Frosted-glass treatment for the sheet container.
+  ///
+  /// When null the sheet inherits [MorphThemeData.floatingSurfaceGlass];
+  /// pass [MorphSurfaceGlass.disabled] to force the classic opaque surface.
+  final MorphSurfaceGlass? glass;
+
   /// The scroll controller of the enclosing sheet, if any.
   static MorphBottomSheetScrollController? scrollControllerOf(
     BuildContext context,
@@ -137,6 +145,7 @@ class MorphBottomSheet extends StatelessWidget {
     Future<bool> Function()? onDismissRequest,
     MorphBottomSheetTheme? theme,
     MorphBottomSheetLabels labels = const MorphBottomSheetLabels(),
+    MorphSurfaceGlass? glass,
     bool useRootNavigator = true,
   }) {
     return _pushModalSheet<T>(
@@ -159,6 +168,7 @@ class MorphBottomSheet extends StatelessWidget {
           controller: controller,
           onValueChanged: onValueChanged,
           onDismissRequest: onDismissRequest,
+          glass: glass,
           child: Builder(builder: builder),
         );
       },
@@ -182,6 +192,7 @@ class MorphBottomSheet extends StatelessWidget {
     Future<bool> Function()? onDismissRequest,
     MorphBottomSheetTheme? theme,
     MorphBottomSheetLabels labels = const MorphBottomSheetLabels(),
+    MorphSurfaceGlass? glass,
   }) {
     final MorphBottomSheetTheme sheetTheme =
         theme ?? _themeOf(context).bottomSheetTheme;
@@ -192,6 +203,7 @@ class MorphBottomSheet extends StatelessWidget {
         title: title,
         body: Builder(builder: builder),
         actions: sideSheetActions,
+        glass: glass,
       );
     }
     return show<T>(
@@ -208,6 +220,7 @@ class MorphBottomSheet extends StatelessWidget {
       onDismissRequest: onDismissRequest,
       theme: theme,
       labels: labels,
+      glass: glass,
     );
   }
 
@@ -231,6 +244,7 @@ class MorphBottomSheet extends StatelessWidget {
           onValueChanged: onValueChanged,
           onDismiss: modal ? () => Navigator.maybePop(context) : null,
           onClose: modal ? (Object? r) => Navigator.maybePop(context, r) : null,
+          glass: glass,
           child: child,
         );
       },

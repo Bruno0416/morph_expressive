@@ -150,36 +150,51 @@ class _MorphFabMenuItems {
   }) {
     final fabMenuTheme = theme.fabMenuTheme;
     final Alignment edge = menu._menuItemAlign;
+    final MorphSurfaceGlass? glass = fill == null
+        ? MorphGlassSurface.resolve(menu.context, menu.widget.glass)
+        : null;
     final Widget body = Align(
       alignment: edge,
       widthFactor: widthFactor,
       child: child,
     );
+    Widget pill = Material(
+      animationDuration: MorphMotion.durationOf(
+        menu.context,
+        MorphMotion.short4,
+      ),
+      color: glass != null
+          ? const Color(0x00000000)
+          : fill == null
+          ? containerColor
+          : const Color(0x00000000),
+      elevation: glass != null ? 0 : fabMenuTheme.itemElevation,
+      shadowColor: scheme.shadow,
+      surfaceTintColor: const Color(0x00000000),
+      shape: const StadiumBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: fill == null
+          ? body
+          : DecoratedBox(
+              decoration: BoxDecoration(gradient: fill),
+              child: body,
+            ),
+    );
+    if (glass != null) {
+      pill = MorphGlassSurface(
+        glass: glass,
+        baseColor: containerColor,
+        shape: const StadiumBorder(),
+        elevation: fabMenuTheme.itemElevation,
+        shadowColor: scheme.shadow,
+        child: pill,
+      );
+    }
     return Align(
       alignment: edge,
       child: KeyedSubtree(
         key: menu._itemKeys[index],
-        child: _itemOutline(
-          fabMenuTheme,
-          Material(
-            animationDuration: MorphMotion.durationOf(
-              menu.context,
-              MorphMotion.short4,
-            ),
-            color: fill == null ? containerColor : const Color(0x00000000),
-            elevation: fabMenuTheme.itemElevation,
-            shadowColor: scheme.shadow,
-            surfaceTintColor: const Color(0x00000000),
-            shape: const StadiumBorder(),
-            clipBehavior: Clip.antiAlias,
-            child: fill == null
-                ? body
-                : DecoratedBox(
-                    decoration: BoxDecoration(gradient: fill),
-                    child: body,
-                  ),
-          ),
-        ),
+        child: _itemOutline(fabMenuTheme, pill),
       ),
     );
   }

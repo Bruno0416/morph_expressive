@@ -54,6 +54,7 @@ MorphThemeData _morphDeriveDarkTemplate(MorphThemeData source) {
     buttonGroupTheme: source.buttonGroupTheme,
     toolbarTheme: source.toolbarTheme,
     tooltipTheme: source.tooltipTheme,
+    floatingSurfaceGlass: source.floatingSurfaceGlass,
   );
 }
 
@@ -119,6 +120,7 @@ MorphThemeData _morphCopyThemeData(
   MorphButtonGroupTheme? buttonGroupTheme,
   MorphToolbarTheme? toolbarTheme,
   MorphTooltipTheme? tooltipTheme,
+  MorphSurfaceGlass? floatingSurfaceGlass,
 }) {
   final MorphTypography nextTypography = _resolveCopyWithTypography(
     source,
@@ -191,6 +193,7 @@ MorphThemeData _morphCopyThemeData(
     buttonGroupTheme: buttonGroupTheme ?? source.buttonGroupTheme,
     toolbarTheme: toolbarTheme ?? source.toolbarTheme,
     tooltipTheme: tooltipTheme ?? source.tooltipTheme,
+    floatingSurfaceGlass: floatingSurfaceGlass ?? source.floatingSurfaceGlass,
   );
 }
 

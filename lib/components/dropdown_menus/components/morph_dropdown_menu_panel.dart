@@ -111,29 +111,54 @@ extension _MorphDropdownMenuPanel<T> on _MorphDropdownMenuState<T> {
       builder: (context, child) => _wrapExpandAnimation(showOnTop, child),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: dd.maxHeight),
-        child: Material(
-          animationDuration: MorphMotion.durationOf(
-            context,
-            MorphMotion.short4,
-          ),
-          elevation: dd.elevation,
-          color: dd.backgroundColor ?? menuTheme.panelBackgroundColor(scheme),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              widget.dropdownStyle.containerRadius ?? widget.containerRadius,
-            ),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (dd.header != null) dd.header!,
-              if (widget.searchEnabled) _buildSearch(context),
-              _buildPanelBody(dd, scheme, type),
-              if (dd.footer != null) dd.footer!,
-            ],
-          ),
-        ),
+        child: _buildPanelSurface(dd, scheme, menuTheme, type),
+      ),
+    );
+  }
+
+  /// Panel background: frosted glass when locally or globally configured,
+  /// otherwise the original opaque Material surface.
+  Widget _buildPanelSurface(
+    MorphDropdownPanelStyle dd,
+    MorphColorScheme scheme,
+    MorphDropdownMenuTheme menuTheme,
+    MorphTypeScale type,
+  ) {
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (dd.header != null) dd.header!,
+        if (widget.searchEnabled) _buildSearch(context),
+        _buildPanelBody(dd, scheme, type),
+        if (dd.footer != null) dd.footer!,
+      ],
+    );
+    final panelColor =
+        dd.backgroundColor ?? menuTheme.panelBackgroundColor(scheme);
+    final panelRadius = BorderRadius.circular(
+      widget.dropdownStyle.containerRadius ?? widget.containerRadius,
+    );
+    final glass = MorphGlassSurface.resolve(context, widget.glass);
+    if (glass == null) {
+      return Material(
+        animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
+        elevation: dd.elevation,
+        color: panelColor,
+        shape: RoundedRectangleBorder(borderRadius: panelRadius),
+        clipBehavior: Clip.antiAlias,
+        child: content,
+      );
+    }
+    return MorphGlassSurface(
+      glass: glass,
+      baseColor: panelColor,
+      borderRadius: panelRadius,
+      elevation: dd.elevation,
+      shadowColor: scheme.shadow,
+      child: Material(
+        color: Colors.transparent,
+        clipBehavior: Clip.antiAlias,
+        child: content,
       ),
     );
   }
@@ -145,20 +170,19 @@ extension _MorphDropdownMenuPanel<T> on _MorphDropdownMenuState<T> {
     if (progress <= 0.001) return const SizedBox.shrink();
 
     final reveal = MorphMotion.standard.transform(progress);
-    // Entrada y salida con efectos acotados: la superficie sí se despliega
-    // físicamente, a diferencia de la escala previa de 0.94 a 1.0.
-    // Use the same bounded curve in both directions: the panel stays visible
-    // during the first part of its collapse instead of vanishing instantly.
-    final opacity = MorphMotion.enter.transform(progress).clamp(0.0, 1.0);
-    return Opacity(
-      opacity: opacity,
-      child: ClipRect(
-        child: Align(
-          alignment: showOnTop ? Alignment.bottomCenter : Alignment.topCenter,
-          heightFactor: reveal.clamp(0.0, 1.0),
-          child: child,
-        ),
+    final Widget revealed = ClipRect(
+      child: Align(
+        alignment: showOnTop ? Alignment.bottomCenter : Alignment.topCenter,
+        heightFactor: reveal.clamp(0.0, 1.0),
+        child: child,
       ),
+    );
+    if (MorphGlassSurface.resolve(context, widget.glass) != null) {
+      return revealed;
+    }
+    return Opacity(
+      opacity: MorphMotion.enter.transform(progress).clamp(0.0, 1.0),
+      child: revealed,
     );
   }
 

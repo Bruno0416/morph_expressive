@@ -5,17 +5,19 @@ import 'package:material_ui/material_ui.dart'
         AppBar,
         BoxFit,
         BuildContext,
+        Builder,
         Color,
         FittedBox,
         Flexible,
         Icon,
         IconButton,
+        Navigator,
         MainAxisSize,
         MaterialApp,
-        PopupMenuButton,
-        PopupMenuItem,
+        MaterialPageRoute,
         Row,
         Scaffold,
+        ScrollConfiguration,
         SizedBox,
         State,
         StatefulWidget,
@@ -28,7 +30,8 @@ import 'package:morph_expressive/morph_expressive.dart';
 
 import 'component_gallery.dart';
 import 'component_gif_capture.dart';
-import 'mobile_haptics_lab.dart';
+import 'mobile_frosted_surfaces_lab.dart';
+import 'desktop_context_menu_lab.dart';
 
 void main() {
   final capture = Uri.base.queryParameters['capture'];
@@ -56,21 +59,34 @@ class _MorphPreviewAppState extends State<MorphPreviewApp> {
   bool _useSerif = false;
   bool _hapticsEnabled = true;
   MorphHapticFeedback _hapticFeedback = MorphHapticFeedback.light;
+  bool _glassEnabled = true;
+  double _glassBlur = 12;
+  double _glassTint = 0.65;
 
   @override
   Widget build(BuildContext context) {
     final fontTheme = _useSerif
         ? ThemeData().textTheme.apply(fontFamily: 'serif')
         : null;
+    final floatingGlass = widget.mobileLab
+        ? MorphSurfaceGlass(
+            enabled: _glassEnabled,
+            blurX: _glassBlur,
+            blurY: _glassBlur,
+            tintOpacity: _glassTint,
+          )
+        : null;
     final light = MorphThemeData.light(seedColor: _seed, textTheme: fontTheme)
         .copyWith(
           hapticsEnabled: _hapticsEnabled,
           hapticFeedback: _hapticFeedback,
+          floatingSurfaceGlass: floatingGlass,
         );
     final dark = MorphThemeData.dark(seedColor: _seed, textTheme: fontTheme)
         .copyWith(
           hapticsEnabled: _hapticsEnabled,
           hapticFeedback: _hapticFeedback,
+          floatingSurfaceGlass: floatingGlass,
         );
     final current = _darkMode ? dark : light;
     final scheme = current.colorScheme;
@@ -81,10 +97,27 @@ class _MorphPreviewAppState extends State<MorphPreviewApp> {
       theme: light.toThemeData(),
       darkTheme: dark.toThemeData(),
       themeMode: _darkMode ? ThemeMode.dark : ThemeMode.light,
-      builder: (context, child) =>
-          MorphTheme(data: current, child: child ?? const SizedBox.shrink()),
+      builder: (context, child) => MorphTheme(
+        data: current,
+        child: widget.mobileLab
+            ? ScrollConfiguration(
+                behavior: const MorphScrollBehavior(),
+                child: child ?? const SizedBox.shrink(),
+              )
+            : child ?? const SizedBox.shrink(),
+      ),
       home: widget.mobileLab
-          ? MorphMobileHapticsLab(
+          ? MorphFrostedSurfacesLab(
+              darkMode: _darkMode,
+              onToggleTheme: () => setState(() => _darkMode = !_darkMode),
+              glassEnabled: _glassEnabled,
+              onGlassEnabledChanged: (value) =>
+                  setState(() => _glassEnabled = value),
+              blur: _glassBlur,
+              onBlurChanged: (value) => setState(() => _glassBlur = value),
+              tintOpacity: _glassTint,
+              onTintOpacityChanged: (value) =>
+                  setState(() => _glassTint = value),
               hapticsEnabled: _hapticsEnabled,
               hapticFeedback: _hapticFeedback,
               onHapticsEnabledChanged: (value) =>
@@ -93,8 +126,6 @@ class _MorphPreviewAppState extends State<MorphPreviewApp> {
                 _hapticFeedback = value;
                 _hapticsEnabled = true;
               }),
-              darkMode: _darkMode,
-              onToggleTheme: () => setState(() => _darkMode = !_darkMode),
             )
           : Scaffold(
               backgroundColor: scheme.surface,
@@ -116,40 +147,46 @@ class _MorphPreviewAppState extends State<MorphPreviewApp> {
                   ],
                 ),
                 actions: [
-                  PopupMenuButton<MorphHapticFeedback>(
-                    tooltip: 'Haptic settings',
-                    icon: Icon(FluentIcons.line.settings, size: 22),
-                    initialValue: _hapticsEnabled
+                  MorphMenu(
+                    anchorBuilder: (buttonContext, open) => IconButton(
+                      tooltip: 'Haptic settings',
+                      icon: Icon(FluentIcons.line.settings, size: 22),
+                      onPressed: open,
+                    ),
+                    selectedValue: _hapticsEnabled
                         ? _hapticFeedback
                         : MorphHapticFeedback.none,
-                    onSelected: (value) => setState(() {
-                      if (value == MorphHapticFeedback.none) {
-                        _hapticsEnabled = false;
-                      } else {
-                        _hapticsEnabled = true;
-                        _hapticFeedback = value;
-                      }
-                    }),
-                    itemBuilder: (context) => [
-                      const PopupMenuItem<MorphHapticFeedback>(
+                    onSelected: (value) {
+                      if (value is! MorphHapticFeedback) return;
+                      setState(() {
+                        if (value == MorphHapticFeedback.none) {
+                          _hapticsEnabled = false;
+                        } else {
+                          _hapticsEnabled = true;
+                          _hapticFeedback = value;
+                        }
+                      });
+                    },
+                    children: const <MorphMenuNode>[
+                      MorphMenuEntry(
+                        label: 'Haptics · try on a physical device',
                         enabled: false,
-                        child: Text('Haptics · try on a physical device'),
                       ),
-                      const PopupMenuItem(
+                      MorphMenuSelectable(
+                        label: 'Off',
                         value: MorphHapticFeedback.none,
-                        child: Text('Off'),
                       ),
-                      const PopupMenuItem(
+                      MorphMenuSelectable(
+                        label: 'Light',
                         value: MorphHapticFeedback.light,
-                        child: Text('Light'),
                       ),
-                      const PopupMenuItem(
+                      MorphMenuSelectable(
+                        label: 'Medium',
                         value: MorphHapticFeedback.medium,
-                        child: Text('Medium'),
                       ),
-                      const PopupMenuItem(
+                      MorphMenuSelectable(
+                        label: 'Heavy',
                         value: MorphHapticFeedback.heavy,
-                        child: Text('Heavy'),
                       ),
                     ],
                   ),
@@ -159,6 +196,20 @@ class _MorphPreviewAppState extends State<MorphPreviewApp> {
                       tooltip: 'Toggle typography',
                       onPressed: () => setState(() => _useSerif = !_useSerif),
                       icon: Icon(FluentIcons.line.text_font, size: 22),
+                    ),
+                  ),
+                  Builder(
+                    builder: (buttonContext) => IconButton(
+                      tooltip: 'Desktop context menu preview',
+                      onPressed: () => Navigator.of(buttonContext).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const DesktopContextMenuLab(),
+                        ),
+                      ),
+                      icon: Icon(
+                        FluentIcons.line.panel_right_contract,
+                        size: 22,
+                      ),
                     ),
                   ),
                   IconButton(

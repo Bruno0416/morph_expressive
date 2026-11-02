@@ -379,16 +379,32 @@ extension _MorphToolbarBuild on _MorphToolbarState {
     required MorphToolbarColorStyle style,
     required bool hasTitle,
   }) {
-    Widget bar = Material(
+    Widget bar;
+    final MorphSurfaceGlass? glass = _floating
+        ? MorphGlassSurface.resolve(context, widget.glass)
+        : null;
+    final Widget band = Material(
       animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
-      color: background,
-      elevation: elev,
+      color: glass != null ? const Color(0x00000000) : background,
+      elevation: glass != null ? 0 : elev,
       shape: shape,
       clipBehavior: widget.clipBehavior,
       child: _floating
           ? contentBand
           : Padding(padding: _edgeSafeAreaInset(context), child: contentBand),
     );
+    if (glass != null) {
+      bar = MorphGlassSurface(
+        glass: glass,
+        baseColor: background,
+        shape: shape,
+        elevation: elev,
+        shadowColor: MorphTheme.of(context).colorScheme.shadow,
+        child: band,
+      );
+    } else {
+      bar = band;
+    }
     if (_hasFab) {
       bar = _withFab(bar, style);
     }

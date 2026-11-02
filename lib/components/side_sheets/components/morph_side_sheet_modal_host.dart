@@ -296,13 +296,18 @@ class _MorphSideSheetModalHostState extends State<_MorphSideSheetModalHost>
   }
 
   Widget _buildStack(BuildContext context) {
-    final MorphColorScheme scheme = MorphTheme.of(context).colorScheme;
+    final morphTheme = MorphTheme.of(context);
+    final MorphColorScheme scheme = morphTheme.colorScheme;
+    final bool frostedActive =
+        (widget.sheet.glass ?? morphTheme.surfaceGlass)?.enabled ?? false;
     final bool right = _onRight;
     return Stack(
       fit: StackFit.expand,
       children: <Widget>[
         MorphSideSheetScrim(
-          color: widget.theme.scrimColor(scheme),
+          color: frostedActive
+              ? const Color(0x00000000)
+              : widget.theme.scrimColor(scheme),
           progress: _scrim.value,
           label: widget.sheet.labels.scrim,
           onTap: widget.isDismissible ? _requestDismiss : null,

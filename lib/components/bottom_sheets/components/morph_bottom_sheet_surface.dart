@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../foundations/foundations.dart';
+import '../../../foundations/surface/morph_glass_surface.dart';
 import '../enums/morph_bottom_sheet_enums.dart';
 import '../styles/morph_bottom_sheet_theme.dart';
 
@@ -12,6 +13,7 @@ class MorphBottomSheetSurface extends StatelessWidget {
     required this.variant,
     required this.topRadius,
     required this.child,
+    this.glass,
     super.key,
   });
 
@@ -23,6 +25,9 @@ class MorphBottomSheetSurface extends StatelessWidget {
 
   /// Current top corner radius (springs to 0 at full screen).
   final double topRadius;
+
+  /// Frosted override for the sheet container; null inherits the theme.
+  final MorphSurfaceGlass? glass;
 
   /// Sheet content.
   final Widget child;
@@ -60,6 +65,20 @@ class MorphBottomSheetSurface extends StatelessWidget {
       top: Radius.circular(topRadius),
       bottom: Radius.circular(theme.bottomCornerRadius),
     );
+    final MorphSurfaceGlass? resolved = MorphGlassSurface.resolve(
+      context,
+      glass,
+    );
+    if (resolved != null) {
+      return MorphGlassSurface(
+        glass: resolved,
+        baseColor: color,
+        borderRadius: radius,
+        elevation: elevation,
+        shadowColor: scheme.shadow,
+        child: child,
+      );
+    }
     return DecoratedBox(
       decoration: BoxDecoration(
         color: color,

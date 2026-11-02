@@ -17,6 +17,30 @@ brightness, configure adaptive handling with `MorphTheme` (`autoTheming`,
 `dynamicColoring` and optionally a `MorphThemeController`). Keep the host
 Material colors and Morph surface colors synchronized.
 
+## Frosted floating surfaces (unreleased source checkout)
+
+`MorphThemeData.floatingSurfaceGlass` configures compatible floating overlays
+(menu popups, dropdown panels, dialogs, sheets, tooltips). Widget-level `glass:`
+configurations win; `MorphSurfaceGlass.disabled()` forces an opaque surface.
+**Cards are different**: `MorphCard` stays opaque unless it opts in with
+`frosted: true` (to inherit the theme) or supplies `glass:` directly.
+
+```dart
+final frostedTheme = MorphThemeData.light(
+  seedColor: const Color(0xFF6750A4),
+).copyWith(
+  floatingSurfaceGlass: const MorphSurfaceGlass(
+    blurX: 12,
+    blurY: 12,
+    tintOpacity: 0.65,
+  ),
+);
+```
+
+This does not replace the separate `MorphAppBarGlass` /
+`MorphNavigationGlass` APIs. For detailed precedence and performance, see
+[Frosted surfaces](FROSTED_SURFACES.md).
+
 ## Typography
 
 An optional Flutter `TextTheme` can be supplied to either theme factory:

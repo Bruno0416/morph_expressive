@@ -112,6 +112,7 @@ import 'package:motor/motor.dart';
 
 import '../../foundations/interaction/morph_motion_controller.dart';
 import '../../foundations/foundations.dart';
+import '../../foundations/surface/morph_glass_surface.dart';
 import '../tooltips/morph_tooltips.dart';
 import 'components/morph_dropdown_chips.dart';
 import 'components/morph_dropdown_menu_item.dart';
@@ -320,6 +321,14 @@ class MorphDropdownMenu<T> extends StatefulWidget {
   /// Haptic feedback level on tap.
   final MorphHapticFeedback haptic;
 
+  /// Frosted-glass treatment for the opened dropdown panel.
+  ///
+  /// When null the panel inherits [MorphThemeData.floatingSurfaceGlass] and
+  /// falls back to the original opaque Material surface when that is also
+  /// null. Pass [MorphSurfaceGlass.disabled] to force the classic surface.
+  /// The closed field is never affected.
+  final MorphSurfaceGlass? glass;
+
   /// Creates an [MorphDropdownMenu] with a static list of items.
   const MorphDropdownMenu({
     super.key,
@@ -351,6 +360,7 @@ class MorphDropdownMenu<T> extends StatefulWidget {
     this.closeMotion,
     this.splashFactory = NoSplash.splashFactory,
     this.haptic = MorphHapticFeedback.inherit,
+    this.glass,
   }) : future = null,
        assert(
          limit == null || limit > 0,
@@ -388,6 +398,7 @@ class MorphDropdownMenu<T> extends StatefulWidget {
     this.closeMotion,
     this.splashFactory = NoSplash.splashFactory,
     this.haptic = MorphHapticFeedback.inherit,
+    this.glass,
   }) : items = const [],
        assert(
          limit == null || limit > 0,

@@ -28,17 +28,24 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
         child: Focus(
           focusNode: _keyFocus,
           onKeyEvent: _onKeyEvent,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: <Widget>[
-              _menuScrim(menuTheme, scheme),
-              _anchoredMenu(
-                placement: placement,
-                menuTheme: menuTheme,
-                scheme: scheme,
-                scaleAlignment: scaleAlignment,
-              ),
-            ],
+          // A closing menu must never intercept pointers: the next
+          // right-click has to reach whatever is underneath.
+          child: ValueListenableBuilder<bool>(
+            valueListenable: _dismissing,
+            builder: (BuildContext context, bool dismissing, Widget? child) =>
+                IgnorePointer(ignoring: dismissing, child: child),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: <Widget>[
+                _menuScrim(menuTheme, scheme),
+                _anchoredMenu(
+                  placement: placement,
+                  menuTheme: menuTheme,
+                  scheme: scheme,
+                  scaleAlignment: scaleAlignment,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -63,13 +70,30 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
   }
 
   Widget _menuScrim(MorphMenuTheme menuTheme, MorphColorScheme scheme) {
+    // Translucent so secondary-button events keep travelling to the widgets
+    // below (a right-click on another target opens its menu in the same
+    // gesture). The painted scrim ignores hits; the primary-button tap
+    // recognizer still wins the arena, so touch / left-click only dismiss.
     return Positioned.fill(
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: _dismiss,
-        child: ColoredBox(color: menuTheme.scrimColor(scheme)),
+      child: Listener(
+        behavior: HitTestBehavior.translucent,
+        onPointerDown: _onScrimPointerDown,
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: _dismiss,
+          child: IgnorePointer(
+            child: ColoredBox(color: menuTheme.scrimColor(scheme)),
+          ),
+        ),
       ),
     );
+  }
+
+  void _onScrimPointerDown(PointerDownEvent event) {
+    if (event.kind == PointerDeviceKind.mouse &&
+        (event.buttons & kPrimaryButton) == 0) {
+      _dismiss();
+    }
   }
 
   Widget _anchoredMenu({
@@ -178,14 +202,15 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
         }
       });
     }
-    return Opacity(
-      opacity: clampedProgress.clamp(0.0, 1.0),
-      child: Transform.scale(
-        alignment: scaleAlignment,
-        scaleY: clampedScale,
-        child: child,
-      ),
+    final Widget scaled = Transform.scale(
+      alignment: scaleAlignment,
+      scaleY: clampedScale,
+      child: child,
     );
+    if (MorphGlassSurface.resolve(context, widget.glass) != null) {
+      return scaled;
+    }
+    return Opacity(opacity: clampedProgress.clamp(0.0, 1.0), child: scaled);
   }
 
   Widget _buildSurfaces({
@@ -284,6 +309,20 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
         applyGroupShapes: false,
       ),
     );
+    final MorphSurfaceGlass? glass = MorphGlassSurface.resolve(
+      context,
+      widget.glass,
+    );
+    if (glass != null) {
+      return MorphGlassSurface(
+        glass: glass,
+        baseColor: palette.container,
+        shape: menuTheme.containerShape,
+        elevation: menuTheme.elevation,
+        shadowColor: scheme.shadow,
+        child: content,
+      );
+    }
     final Widget clipped = DecoratedBox(
       decoration: ShapeDecoration(
         color: palette.container,
