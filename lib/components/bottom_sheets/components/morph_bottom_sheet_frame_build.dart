@@ -149,6 +149,7 @@ extension _MorphBottomSheetFrameBuild on _MorphBottomSheetFrameState {
       theme: _theme,
       variant: widget.variant,
       topRadius: lerpDouble(_theme.topCornerRadius, 0, f)!,
+      glass: widget.glass,
       child: content,
     );
     if (!widget.enableDrag) {

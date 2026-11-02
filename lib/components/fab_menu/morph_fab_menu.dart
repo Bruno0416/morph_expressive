@@ -78,6 +78,7 @@ import 'package:motor/motor.dart';
 
 import '../../foundations/interaction/morph_motion_controller.dart';
 import '../../foundations/foundations.dart';
+import '../../foundations/surface/morph_glass_surface.dart';
 import '../buttons/utils/morph_button_gradient_layer.dart';
 import '../floating_action_buttons/components/morph_fab_container_transform.dart';
 import '../floating_action_buttons/morph_floating_action_buttons.dart';
@@ -114,6 +115,7 @@ class MorphFabMenu extends StatefulWidget {
     this.size = MorphFabSize.medium,
     this.position = MorphFabMenuPosition.right,
     this.decoration,
+    this.glass,
     this.controller,
     super.key,
   }) : assert(
@@ -150,6 +152,14 @@ class MorphFabMenu extends StatefulWidget {
 
   /// Optional controller for programmatic open / close.
   final MorphFabMenuController? controller;
+
+  /// Frosted-glass treatment for the menu item pills.
+  ///
+  /// When null the items inherit [MorphThemeData.floatingSurfaceGlass].
+  /// Item background gradients from the theme take precedence over the
+  /// frosted fill. Pass [MorphSurfaceGlass.disabled] for the classic
+  /// opaque pills.
+  final MorphSurfaceGlass? glass;
 
   @override
   State<MorphFabMenu> createState() => _MorphFabMenuState();

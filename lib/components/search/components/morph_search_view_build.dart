@@ -303,6 +303,21 @@ extension _MorphSearchViewContentBuild on _MorphSearchViewContentState {
     if (s.side != null) {
       shape = shape.copyWith(side: s.side);
     }
+    final MorphSurfaceGlass? glass = MorphGlassSurface.resolve(context, null);
+    if (glass != null) {
+      return MorphGlassSurface(
+        glass: glass,
+        baseColor: color,
+        shape: shape,
+        elevation: elevation,
+        shadowColor: MorphTheme.of(context).colorScheme.shadow,
+        child: Material(
+          color: const Color(0x00000000),
+          clipBehavior: Clip.antiAlias,
+          child: child,
+        ),
+      );
+    }
     return Material(
       animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
       color: color,

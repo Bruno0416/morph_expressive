@@ -64,6 +64,7 @@ class MorphSideSheet extends StatelessWidget {
     this.backIcon,
     this.theme,
     this.labels = const MorphSideSheetLabels(),
+    this.glass,
     super.key,
   }) : variant = MorphSideSheetVariant.modal;
 
@@ -88,6 +89,7 @@ class MorphSideSheet extends StatelessWidget {
     this.backIcon,
     this.theme,
     this.labels = const MorphSideSheetLabels(),
+    this.glass,
     super.key,
   }) : variant = MorphSideSheetVariant.standard;
 
@@ -143,6 +145,12 @@ class MorphSideSheet extends StatelessWidget {
   /// Accessibility strings.
   final MorphSideSheetLabels labels;
 
+  /// Frosted-glass treatment for the sheet container.
+  ///
+  /// When null the sheet inherits [MorphThemeData.floatingSurfaceGlass];
+  /// pass [MorphSurfaceGlass.disabled] to force the classic opaque surface.
+  final MorphSurfaceGlass? glass;
+
   /// Presents a modal side sheet and completes with the popped result.
   ///
   /// It springs in from the anchored edge over a scrim. Tapping the scrim,
@@ -167,6 +175,7 @@ class MorphSideSheet extends StatelessWidget {
     MorphSideSheetController? controller,
     MorphSideSheetTheme? theme,
     MorphSideSheetLabels labels = const MorphSideSheetLabels(),
+    MorphSurfaceGlass? glass,
     bool useRootNavigator = true,
   }) {
     return _pushSideSheet<T>(
@@ -186,6 +195,7 @@ class MorphSideSheet extends StatelessWidget {
         backIcon: backIcon,
         theme: theme,
         labels: labels,
+        glass: glass,
       ),
       isDismissible: isDismissible,
       onDismissRequest: onDismissRequest,

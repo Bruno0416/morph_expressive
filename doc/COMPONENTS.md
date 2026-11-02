@@ -17,6 +17,12 @@ in the source inventory is not necessarily a standalone component requiring a
 separate showcase scene. See [Navigation](NAVIGATION_MORPH.md) for
 `MorphNavigationBarDestination` migration, frosted AppBars and scroll hosts.
 
+For in-development glass support, see [Frosted surfaces](FROSTED_SURFACES.md)
+(shared theme defaults, `MorphCard(frosted: true)`, local overrides and menu
+behavior) and [MorphScrollBehavior](MORPH_SCROLL.md) (scrolling through blurred
+cards without Flutter's shader image-filter ancestor). Unlike floating
+surfaces, **cards remain opaque by default**, even with theme-wide glass.
+
 To start from a smaller, application-style example, explore
 [`example/main.dart`](../example/main.dart): it combines buttons, selections,
 validated fields, swipeable lists and a modal dialog.

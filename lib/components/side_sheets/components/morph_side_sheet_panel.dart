@@ -38,6 +38,7 @@ extension _MorphSideSheetPanel on MorphSideSheet {
           theme: t,
           modal: modal,
           borderRadius: _radius(t, modal: modal, back: back, right: right),
+          glass: glass,
           child: _withEdgeDivider(
             context,
             t,

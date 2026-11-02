@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../foundations/foundations.dart';
+import '../../foundations/surface/morph_glass_surface.dart';
 import '../checkbox/morph_checkbox.dart';
 import '../divider/morph_divider.dart';
 import '../radio_button/morph_radio_button.dart';
@@ -58,6 +59,7 @@ class MorphDialog extends StatelessWidget {
     this.scrollController,
     this.titleMaxLines,
     this.semanticLabel,
+    this.glass,
     super.key,
   });
 
@@ -101,6 +103,13 @@ class MorphDialog extends StatelessWidget {
   /// Null uses [title].
   final String? semanticLabel;
 
+  /// Frosted-glass treatment for the dialog container.
+  ///
+  /// When null the dialog inherits [MorphThemeData.floatingSurfaceGlass];
+  /// when that is also null the original opaque container is kept. Pass
+  /// [MorphSurfaceGlass.disabled] to force the classic surface.
+  final MorphSurfaceGlass? glass;
+
   /// Presents a basic dialog and completes with the popped result.
   ///
   /// [position] places the dialog (centre by default) inside the system bars
@@ -122,6 +131,7 @@ class MorphDialog extends StatelessWidget {
     return _pushDialog<T>(
       context,
       variant: MorphDialogVariant.basic,
+      glass: dialog is MorphDialog ? dialog.glass : null,
       barrierDismissible: barrierDismissible,
       controller: controller,
       onDismissRequest: onDismissRequest,

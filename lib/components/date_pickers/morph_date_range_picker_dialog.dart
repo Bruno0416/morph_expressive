@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart'
         AutovalidateMode,
         BuildContext,
         Clip,
+        Color,
         Column,
         CrossAxisAlignment,
         EdgeInsets,
@@ -32,6 +33,7 @@ import 'package:material_ui/material_ui.dart'
         Widget;
 
 import '../../foundations/foundations.dart';
+import '../../foundations/surface/morph_glass_surface.dart';
 import '../dialogs/components/morph_dialog_inset.dart';
 import '../divider/morph_divider.dart';
 import 'components/morph_calendar_date_range_picker.dart';
@@ -287,10 +289,12 @@ class _MorphDateRangePickerDialogState extends State<MorphDateRangePickerDialog>
         ],
       ),
     );
+    final MorphSurfaceGlass? glass = MorphGlassSurface.resolve(context, null);
+    final Color dialogColor = dateTheme.backgroundColor(theme.colorScheme);
     final Widget dialog = Material(
       animationDuration: MorphMotion.durationOf(context, MorphMotion.short4),
-      color: dateTheme.backgroundColor(theme.colorScheme),
-      elevation: dateTheme.elevation,
+      color: glass == null ? dialogColor : const Color(0x00000000),
+      elevation: glass == null ? dateTheme.elevation : 0,
       shape: RoundedRectangleBorder(borderRadius: dateTheme.dialogShape),
       clipBehavior: Clip.antiAlias,
       child: SizedBox(
@@ -320,15 +324,25 @@ class _MorphDateRangePickerDialogState extends State<MorphDateRangePickerDialog>
         },
       ),
     );
+    final Widget frostedDialog = glass == null
+        ? dialog
+        : MorphGlassSurface(
+            glass: glass,
+            baseColor: dialogColor,
+            borderRadius: dateTheme.dialogShape,
+            elevation: dateTheme.elevation,
+            shadowColor: theme.colorScheme.shadow,
+            child: dialog,
+          );
     return MorphDialogInset(
       padding: widget.insetPadding,
       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
       child: isInputMode
           ? SizedBox(
               width: dialogSize.width,
-              child: SingleChildScrollView(child: dialog),
+              child: SingleChildScrollView(child: frostedDialog),
             )
-          : dialog,
+          : frostedDialog,
     );
   }
 

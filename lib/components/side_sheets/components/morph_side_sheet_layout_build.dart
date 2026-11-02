@@ -60,7 +60,10 @@ extension _MorphSideSheetLayoutBuild on _MorphSideSheetLayoutState {
           (1 - modal),
     );
     final bool showSheet = _isOpen || open > 0;
-    final MorphColorScheme scheme = MorphTheme.of(context).colorScheme;
+    final morphTheme = MorphTheme.of(context);
+    final MorphColorScheme scheme = morphTheme.colorScheme;
+    final bool frostedActive =
+        (sheet.glass ?? morphTheme.surfaceGlass)?.enabled ?? false;
     return Stack(
       fit: StackFit.expand,
       children: <Widget>[
@@ -80,7 +83,9 @@ extension _MorphSideSheetLayoutBuild on _MorphSideSheetLayoutState {
             key: const ValueKey<String>('scrim'),
             child: MorphScrimSystemUi.wrap(
               MorphSideSheetScrim(
-                color: t.scrimColor(scheme),
+                color: frostedActive
+                    ? const Color(0x00000000)
+                    : t.scrimColor(scheme),
                 progress: open * modal,
                 label: sheet.labels.scrim,
                 onTap: blocking && widget.isDismissible ? close : null,

@@ -6,37 +6,58 @@ extension _MorphDialogLayout on MorphDialog {
     final MorphDialogTheme dialogTheme = theme.dialogTheme;
     final MorphDialogAppearance appearance = dialogTheme.appearance;
     final MorphColorScheme scheme = theme.colorScheme;
-    return Semantics(
-      scopesRoute: true,
-      namesRoute: true,
-      explicitChildNodes: true,
-      role: SemanticsRole.alertDialog,
-      label: semanticLabel ?? title,
-      child: Container(
-        constraints: BoxConstraints(
-          minWidth: dialogTheme.minWidth,
-          maxWidth: dialogTheme.maxWidth,
-        ),
+    final Color containerColor = morphDialogTinted(
+      appearance.resolveContainer(scheme),
+      appearance.surfaceTintColor,
+      dialogTheme.elevation,
+    );
+    final Widget body = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: icon == null
+          ? CrossAxisAlignment.start
+          : CrossAxisAlignment.center,
+      children: _buildChildren(theme),
+    );
+    final Widget surface;
+    final MorphSurfaceGlass? glass = MorphGlassSurface.resolve(
+      context,
+      this.glass,
+    );
+    if (glass != null) {
+      surface = MorphGlassSurface(
+        glass: glass,
+        baseColor: containerColor,
+        borderRadius: dialogTheme.borderRadius,
+        elevation: dialogTheme.elevation,
+        shadowColor: scheme.shadow,
+        child: body,
+      );
+    } else {
+      surface = Container(
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: morphDialogTinted(
-            appearance.resolveContainer(scheme),
-            appearance.surfaceTintColor,
-            dialogTheme.elevation,
-          ),
+          color: containerColor,
           borderRadius: dialogTheme.borderRadius,
           boxShadow: MorphElevation.shadows(
             dialogTheme.elevation,
             shadowColor: scheme.shadow,
           ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: icon == null
-              ? CrossAxisAlignment.start
-              : CrossAxisAlignment.center,
-          children: _buildChildren(theme),
+        child: body,
+      );
+    }
+    return Semantics(
+      scopesRoute: true,
+      namesRoute: true,
+      explicitChildNodes: true,
+      role: SemanticsRole.alertDialog,
+      label: semanticLabel ?? title,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minWidth: dialogTheme.minWidth,
+          maxWidth: dialogTheme.maxWidth,
         ),
+        child: surface,
       ),
     );
   }

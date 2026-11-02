@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/gestures.dart' show PointerDeviceKind, kPrimaryButton;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:morph_expressive/components/menus/morph_menus.dart'
@@ -9,6 +10,7 @@ import 'package:motor/motor.dart';
 
 import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
+import '../../../foundations/surface/morph_glass_surface.dart';
 import '../enums/morph_menu_anchor_position.dart';
 import '../enums/morph_menu_color_style.dart';
 import '../enums/morph_menu_selection_mode.dart';
@@ -41,16 +43,22 @@ Future<T?> showMorphMenu<T>({
   double? preferredWidth,
   FocusNode? callerFocusNode,
   MorphMenuTheme? themeOverride,
+  MorphSurfaceGlass? glass,
   List<MorphMenuNode> Function()? readChildren,
   ValueChanged<Object?>? onItemChosen,
   void Function(OverlayEntry entry)? onEntry,
 }) {
   final completer = Completer<T?>();
   final ModalRoute<dynamic>? historyRoute = ModalRoute.of(context);
-  late OverlayEntry entry;
-  entry = OverlayEntry(
+  final OverlayState overlay = Overlay.of(context, rootOverlay: true);
+  final _MorphMenuSession<T> session = _MorphMenuSession<T>(
+    coordinator: _MorphMenuCoordinator.of(overlay),
+    completer: completer,
+  );
+  final OverlayEntry entry = OverlayEntry(
     builder: (BuildContext overlayContext) {
       return MorphMenuPopup<T>(
+        key: session.key,
         anchor: anchor,
         children: readChildren?.call() ?? children,
         position: position,
@@ -62,17 +70,86 @@ Future<T?> showMorphMenu<T>({
         preferredWidth: preferredWidth,
         callerFocusNode: callerFocusNode,
         themeOverride: themeOverride,
+        glass: glass,
         historyRoute: historyRoute,
         onItemChosen: onItemChosen,
         onSelected: (Object? value) => _completeOnce(completer, value as T?),
         onDismiss: () => _completeOnce(completer, null),
-        onRemove: () => entry.remove(),
+        onRemove: session.finish,
       );
     },
   );
-  Overlay.of(context, rootOverlay: true).insert(entry);
+  session.entry = entry;
+  // Replaces (and instantly closes) any menu still open in this overlay.
+  session.coordinator.present(session);
+  overlay.insert(entry);
   onEntry?.call(entry);
   return completer.future;
+}
+
+/// Tracks the root menu currently open in one [Overlay].
+///
+/// Scoped per overlay (not global): opening a menu closes the previous one in
+/// the same overlay synchronously, so right-click A -> B -> C replaces menus
+/// without outside clicks and without stale close callbacks.
+class _MorphMenuCoordinator {
+  _MorphMenuCoordinator();
+
+  static final Expando<_MorphMenuCoordinator> _scopes =
+      Expando<_MorphMenuCoordinator>('MorphMenuCoordinator');
+
+  static _MorphMenuCoordinator of(OverlayState overlay) =>
+      _scopes[overlay] ??= _MorphMenuCoordinator();
+
+  _MorphMenuSession<Object?>? _current;
+
+  void present(_MorphMenuSession<Object?> next) {
+    final _MorphMenuSession<Object?>? previous = _current;
+    _current = next;
+    previous?.closeNow();
+  }
+
+  void release(_MorphMenuSession<Object?> session) {
+    if (identical(_current, session)) {
+      _current = null;
+    }
+  }
+}
+
+/// One root menu: its overlay entry, result completer and close hooks.
+class _MorphMenuSession<T> {
+  _MorphMenuSession({required this.coordinator, required this.completer});
+
+  final _MorphMenuCoordinator coordinator;
+  final Completer<T?> completer;
+  final GlobalKey<_MorphMenuPopupState<T>> key =
+      GlobalKey<_MorphMenuPopupState<T>>();
+  late final OverlayEntry entry;
+  bool _finished = false;
+
+  /// Closes without animation. Safe to call repeatedly or before first build.
+  void closeNow() {
+    if (_finished) {
+      return;
+    }
+    final _MorphMenuPopupState<T>? state = key.currentState;
+    if (state != null) {
+      state._closeNow();
+    } else {
+      _completeOnce(completer, null);
+      finish();
+    }
+  }
+
+  /// Removes the entry exactly once.
+  void finish() {
+    if (_finished) {
+      return;
+    }
+    _finished = true;
+    coordinator.release(this as _MorphMenuSession<Object?>);
+    entry.remove();
+  }
 }
 
 void _completeOnce<T>(Completer<T?> completer, T? value) {
@@ -99,6 +176,7 @@ class MorphMenuPopup<T> extends StatefulWidget {
     this.preferredWidth,
     this.callerFocusNode,
     this.themeOverride,
+    this.glass,
     this.historyRoute,
     this.onItemChosen,
     this.isSubmenu = false,
@@ -139,6 +217,13 @@ class MorphMenuPopup<T> extends StatefulWidget {
   /// themeOverride.
   final MorphMenuTheme? themeOverride;
 
+  /// Frosted-glass treatment for this menu's surfaces.
+  ///
+  /// When null the popup inherits [MorphThemeData.floatingSurfaceGlass];
+  /// when that is also null the original opaque surfaces are kept. Submenus
+  /// inherit this same value.
+  final MorphSurfaceGlass? glass;
+
   /// Route that owns this popup's local-history entry.
   ///
   /// Submenus reuse the same route so back closes from the inside out.
@@ -167,6 +252,7 @@ class _MorphMenuPopupState<T> extends State<MorphMenuPopup<T>>
     with SingleTickerProviderStateMixin {
   late final SingleMotionController _expandCtrl;
   bool _isDismissing = false;
+  final ValueNotifier<bool> _dismissing = ValueNotifier<bool>(false);
   bool _selected = false;
   bool _removed = false;
   late final bool _keyboardActivated;
@@ -240,6 +326,7 @@ class _MorphMenuPopupState<T> extends State<MorphMenuPopup<T>>
       ..removeListener(_onExpandTick)
       ..dispose();
     _removeSubmenu();
+    _dismissing.dispose();
     _focusScopeNode.dispose();
     _keyFocus.dispose();
     _scroll.dispose();
@@ -258,10 +345,28 @@ class _MorphMenuPopupState<T> extends State<MorphMenuPopup<T>>
     _submenuEntry = null;
   }
 
-  void _dismiss({bool restoreFocus = false}) {
-    if (_isDismissing) {
+  /// Closes immediately (no exit animation), e.g. when another menu replaces
+  /// this one. Idempotent.
+  void _closeNow() {
+    if (_removed) {
       return;
     }
+    _releaseOverlayHistory();
+    _removeSubmenu();
+    if (!_isDismissing && !_selected) {
+      widget.onDismiss();
+    }
+    _isDismissing = true;
+    _dismissing.value = true;
+    _removed = true;
+    widget.onRemove();
+  }
+
+  void _dismiss({bool restoreFocus = false}) {
+    if (_isDismissing || _removed) {
+      return;
+    }
+    _dismissing.value = true;
     _releaseOverlayHistory();
     _removeSubmenu();
     if (!_selected) {
@@ -310,6 +415,7 @@ class _MorphMenuPopupState<T> extends State<MorphMenuPopup<T>>
           closeOnSelect: widget.closeOnSelect,
           callerFocusNode: widget.callerFocusNode,
           themeOverride: widget.themeOverride,
+          glass: widget.glass,
           historyRoute: widget.historyRoute,
           onItemChosen: widget.onItemChosen,
           isSubmenu: true,

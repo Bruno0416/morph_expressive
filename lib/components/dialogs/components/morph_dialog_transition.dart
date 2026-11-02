@@ -21,6 +21,7 @@ class MorphDialogTransition extends StatefulWidget {
     required this.variant,
     required this.dialogTheme,
     required this.child,
+    this.frosted = false,
     super.key,
   });
 
@@ -35,6 +36,9 @@ class MorphDialogTransition extends StatefulWidget {
 
   /// Dialog surface.
   final Widget child;
+
+  /// Whether to avoid compositing the backdrop through an opacity layer.
+  final bool frosted;
 
   /// Route duration that covers the slowest spring for [variant].
   static Duration durationFor(
@@ -123,13 +127,16 @@ class _MorphDialogTransitionState extends State<MorphDialogTransition>
             child: child,
           );
         }
-        return Opacity(
-          opacity: morphDialogSnap(_fade!.value).clamp(0, 1),
-          child: Transform.scale(
-            scale: lerpDouble(dialogTheme.entranceScale, 1, p),
-            child: child,
-          ),
+        final Widget scaled = Transform.scale(
+          scale: lerpDouble(dialogTheme.entranceScale, 1, p),
+          child: child,
         );
+        return widget.frosted
+            ? scaled
+            : Opacity(
+                opacity: morphDialogSnap(_fade!.value).clamp(0, 1),
+                child: scaled,
+              );
       },
     );
   }

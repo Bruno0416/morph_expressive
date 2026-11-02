@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:material_ui/material_ui.dart' show MaterialTapTargetSize;
 
 import '../../foundations/foundations.dart';
+import '../../foundations/surface/morph_glass_surface.dart';
 import '../buttons/morph_buttons.dart';
 import '../icon_buttons/morph_icon_buttons.dart';
 import 'components/morph_snackbar_host.dart';
@@ -26,6 +27,7 @@ class MorphSnackbar extends StatelessWidget {
     this.showCloseButton = false,
     this.swipeDismissible = false,
     this.onClose,
+    this.glass,
     super.key,
   });
 
@@ -52,6 +54,12 @@ class MorphSnackbar extends StatelessWidget {
   /// Called when close is pressed (then the host dismisses if shown).
   final VoidCallback? onClose;
 
+  /// Frosted-glass treatment for the snackbar container.
+  ///
+  /// When null the snackbar inherits [MorphThemeData.floatingSurfaceGlass];
+  /// pass [MorphSurfaceGlass.disabled] to force the classic opaque surface.
+  final MorphSurfaceGlass? glass;
+
   /// Presents a snackbar over the overlay found from [context].
   ///
   /// Snackbars with an action or close button do not auto-dismiss unless
@@ -65,6 +73,7 @@ class MorphSnackbar extends StatelessWidget {
     bool showCloseButton = false,
     bool swipeDismissible = false,
     VoidCallback? onClose,
+    MorphSurfaceGlass? glass,
     Duration? duration,
     MorphSnackbarController? controller,
   }) {
@@ -82,6 +91,7 @@ class MorphSnackbar extends StatelessWidget {
           showCloseButton: showCloseButton,
           swipeDismissible: swipeDismissible,
           onClose: onClose,
+          glass: glass,
         );
       },
     );
@@ -298,22 +308,55 @@ class MorphSnackbar extends StatelessWidget {
     return Semantics(
       liveRegion: true,
       container: true,
-      child: Container(
+      child: ConstrainedBox(
         constraints: BoxConstraints(
           minHeight: minHeight,
           maxWidth: snackTheme.maxWidth,
         ),
-        padding: padding,
-        decoration: BoxDecoration(
-          color: snackTheme.containerColor(scheme),
-          borderRadius: snackTheme.borderRadius,
-          boxShadow: MorphElevation.shadows(
-            snackTheme.elevation,
-            shadowColor: scheme.shadow,
-          ),
+        child: _buildSurface(
+          context,
+          snackTheme: snackTheme,
+          scheme: scheme,
+          padding: padding,
+          body: body,
         ),
-        child: body,
       ),
+    );
+  }
+
+  Widget _buildSurface(
+    BuildContext context, {
+    required MorphSnackbarTheme snackTheme,
+    required MorphColorScheme scheme,
+    required EdgeInsets padding,
+    required Widget body,
+  }) {
+    final MorphSurfaceGlass? glass = MorphGlassSurface.resolve(
+      context,
+      this.glass,
+    );
+    if (glass != null) {
+      return MorphGlassSurface(
+        glass: glass,
+        baseColor: snackTheme.containerColor(scheme),
+        borderRadius: snackTheme.borderRadius,
+        elevation: snackTheme.elevation,
+        shadowColor: scheme.shadow,
+        tintMode: MorphGlassTintMode.alpha,
+        child: Padding(padding: padding, child: body),
+      );
+    }
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: snackTheme.containerColor(scheme),
+        borderRadius: snackTheme.borderRadius,
+        boxShadow: MorphElevation.shadows(
+          snackTheme.elevation,
+          shadowColor: scheme.shadow,
+        ),
+      ),
+      child: body,
     );
   }
 

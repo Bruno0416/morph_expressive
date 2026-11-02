@@ -12,6 +12,10 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(const MorphPreviewApp(mobileLab: true));
+    await tester.pump();
+    // The haptics/touch lab is now behind the frosted surfaces home.
+    await tester.tap(find.byIcon(FluentIcons.line.phone_vibrate));
+    await tester.pumpAndSettle();
     await tester.tap(
       find.byKey(const ValueKey('open_gradient_app_bar_sample')),
     );

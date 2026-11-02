@@ -206,6 +206,7 @@ class _MorphDropdownMenuItemWidgetState<T>
       builder: (context, animatedRadius, child) {
         return MorphCard(
           variant: MorphCardVariant.filled,
+          glass: const MorphSurfaceGlass.disabled(),
           borderRadius: animatedRadius ?? _buildEffectiveRadius(),
           color: bgColor,
           elevation: 0,

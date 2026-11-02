@@ -49,6 +49,7 @@ class MorphMenu extends StatefulWidget {
     this.closeOnSelect = true,
     this.onSelected,
     this.selectedValue,
+    this.glass,
     super.key,
   }) : assert(
          children != null || entries != null,
@@ -115,6 +116,12 @@ class MorphMenu extends StatefulWidget {
   /// selectedValue.
   final Object? selectedValue;
 
+  /// Frosted-glass treatment for the opened popup surfaces.
+  ///
+  /// When null the menu inherits [MorphThemeData.floatingSurfaceGlass];
+  /// pass [MorphSurfaceGlass.disabled] to force the classic opaque menus.
+  final MorphSurfaceGlass? glass;
+
   List<MorphMenuNode> get _nodes => children ?? entries!;
 
   @override
@@ -176,6 +183,7 @@ class _MorphMenuState extends State<MorphMenu> {
       closeOnSelect: !stayOpen && widget.closeOnSelect,
       selectedValue: widget.selectedValue,
       callerFocusNode: _focusedAnchorNode(),
+      glass: widget.glass,
       onItemChosen: stayOpen ? widget.onSelected : null,
       onEntry: (OverlayEntry entry) => _menuEntry = entry,
     );

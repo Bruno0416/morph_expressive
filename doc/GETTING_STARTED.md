@@ -62,6 +62,18 @@ or a prefix with a `show` list. Morph's public polygons remain
 a different type. See [Dependency compatibility](PUB_DEV_COMPATIBILITY.md)
 for the historical 0.4.1 validation results.
 
+## Frosted cards and scroll compatibility (source checkout only)
+
+In the unreleased source tree, `MorphCard` is **opaque by default**. A theme
+with `floatingSurfaceGlass` enables its floating overlays, but cards need
+`frosted: true` to inherit that configuration. For a card-specific treatment,
+pass `glass: const MorphSurfaceGlass(...)` instead.
+
+When showing frosted cards inside a scrollable, use `ScrollConfiguration` with
+`const MorphScrollBehavior()` to avoid the shader-based stretch's image-filter
+ancestor. See [Frosted surfaces](FROSTED_SURFACES.md) and
+[MorphScrollBehavior](MORPH_SCROLL.md) for complete examples and limitations.
+
 ## Navigation migration from 0.5.0
 
 Bottom-bar destinations now accept `IconData` directly:

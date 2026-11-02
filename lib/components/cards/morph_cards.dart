@@ -6,6 +6,7 @@ import 'package:motor/motor.dart';
 
 import '../../foundations/interaction/morph_motion_controller.dart';
 import '../../foundations/foundations.dart';
+import '../../foundations/surface/morph_glass_surface.dart';
 import '../divider/morph_divider.dart';
 import 'components/morph_card_container_transform.dart';
 import 'components/morph_card_group_scope.dart';
@@ -100,6 +101,8 @@ class MorphCard extends StatefulWidget {
     this.textDividerSpan = MorphCardDividerSpan.padding,
     this.contentOnMedia = false,
     this.contentOverlayPlate,
+    this.frosted = false,
+    this.glass,
     super.key,
   });
 
@@ -269,6 +272,22 @@ class MorphCard extends StatefulWidget {
 
   /// Plate instead of a scrim when [contentOnMedia] is true. Null uses the theme.
   final bool? contentOverlayPlate;
+
+  /// Whether to use the glass configuration inherited from the theme.
+  ///
+  /// Unlike floating surfaces, cards are opaque by default even when the
+  /// theme has [MorphThemeData.floatingSurfaceGlass]. Set this to true only
+  /// when the card is positioned over content that benefits from backdrop blur.
+  /// If the theme has no enabled glass configuration, this does nothing.
+  /// An explicit [glass] always has priority over this flag.
+  final bool frosted;
+
+  /// Explicit glass override; enables glass without requiring [frosted].
+  ///
+  /// A disabled configuration forces the original opaque card even with
+  /// [frosted] set to true. When both [frosted] and [glass] are omitted,
+  /// the card renders with its normal fill and elevation shadows.
+  final MorphSurfaceGlass? glass;
 
   @override
   State<MorphCard> createState() => _MorphCardState();
@@ -593,36 +612,74 @@ class _MorphCardState extends State<MorphCard>
     content = _limitHeight(content, cardTheme);
     content = _withInteractionFill(scheme, cardTheme, state, content);
 
-    Widget surface = AnimatedContainer(
-      key: widget.surfaceKey,
-      width: widget.width,
-      duration: MorphMotion.durationOf(
-        context,
-        widget.animationDuration ?? MorphMotion.short4,
-      ),
-      curve: widget.animationCurve ?? MorphMotion.standard,
-      clipBehavior: widget.clipBehavior,
-      decoration: BoxDecoration(
-        color: fill,
+    // Avoid sampling the theme's backdrop configuration for ordinary cards.
+    // Explicit glass overrides the opt-in flag (including disabled()).
+    final MorphSurfaceGlass? resolvedGlass =
+        widget.frosted || widget.glass != null
+        ? MorphGlassSurface.resolve(context, widget.glass)
+        : null;
+
+    Widget innerContent = _actionable
+        ? MorphStateLayerOverlay(
+            state: state,
+            color: cardTheme.resolveStateLayerColor(scheme),
+            shape: RoundedRectangleBorder(borderRadius: radius),
+            child: SizedBox(
+              width: widget.width ?? double.infinity,
+              child: content,
+            ),
+          )
+        : content;
+
+    Widget surface;
+    if (resolvedGlass != null) {
+      // Use frosted glass surface - shadows are handled by MorphGlassSurface
+      // and disabled when frosted is active
+      surface = MorphGlassSurface(
+        glass: resolvedGlass,
+        baseColor: fill,
         borderRadius: radius,
-        border: resolvedBorder,
-        boxShadow: MorphElevation.shadows(
-          resolvedElevation,
-          shadowColor: cardTheme.resolveShadowColor(scheme),
+        elevation: resolvedElevation,
+        shadowColor: cardTheme.resolveShadowColor(scheme),
+        child: AnimatedContainer(
+          key: widget.surfaceKey,
+          width: widget.width,
+          duration: MorphMotion.durationOf(
+            context,
+            widget.animationDuration ?? MorphMotion.short4,
+          ),
+          curve: widget.animationCurve ?? MorphMotion.standard,
+          clipBehavior: widget.clipBehavior,
+          decoration: BoxDecoration(
+            border: resolvedBorder,
+            borderRadius: radius,
+          ),
+          child: innerContent,
         ),
-      ),
-      child: _actionable
-          ? MorphStateLayerOverlay(
-              state: state,
-              color: cardTheme.resolveStateLayerColor(scheme),
-              shape: RoundedRectangleBorder(borderRadius: radius),
-              child: SizedBox(
-                width: widget.width ?? double.infinity,
-                child: content,
-              ),
-            )
-          : content,
-    );
+      );
+    } else {
+      // Use original opaque surface with shadows
+      surface = AnimatedContainer(
+        key: widget.surfaceKey,
+        width: widget.width,
+        duration: MorphMotion.durationOf(
+          context,
+          widget.animationDuration ?? MorphMotion.short4,
+        ),
+        curve: widget.animationCurve ?? MorphMotion.standard,
+        clipBehavior: widget.clipBehavior,
+        decoration: BoxDecoration(
+          color: fill,
+          borderRadius: radius,
+          border: resolvedBorder,
+          boxShadow: MorphElevation.shadows(
+            resolvedElevation,
+            shadowColor: cardTheme.resolveShadowColor(scheme),
+          ),
+        ),
+        child: innerContent,
+      );
+    }
 
     if (fadeContent) {
       surface = Opacity(opacity: cardTheme.disabledOpacity, child: surface);

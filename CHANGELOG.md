@@ -1,5 +1,52 @@
 # Changelog
 
+## 0.7.0 - 2026-11-02
+
+### Added
+
+- `MorphSurfaceGlass` enables clipped, theme-aware blur, tint and border for
+  supported floating surfaces, including dialogs, bottom/side sheets,
+  dropdown panels, menus and tooltips. A local `glass:` override takes
+  precedence over `MorphThemeData.floatingSurfaceGlass`; the explicit
+  `MorphSurfaceGlass.disabled()` value restores an opaque surface.
+- `MorphCard(frosted: true)` opts into the theme glass. A card's `glass:`
+  parameter also supports independent, per-card configuration.
+- `MorphScrollBehavior` applies Flutter-like geometric stretch to ordinary
+  `ListView`, `GridView`, `SingleChildScrollView` and `CustomScrollView`
+  descendants. It follows the native pull and spring response while avoiding
+  the shader's `ImageFiltered` ancestor that can disrupt nested frosted blur.
+- Public Frosted Surfaces walkthrough in `example/frosted_surfaces.dart`,
+  reached from the existing component example, and dedicated guides for
+  glass configuration and blur-safe scrolling.
+
+### Changed
+
+- **Behavior change:** `MorphCard` is opaque by default, including when
+  `floatingSurfaceGlass` is enabled globally. Opt into backdrop sampling per
+  card with `frosted: true` or `glass:` to avoid unnecessary blur costs on
+  plain backgrounds. Existing apps relying on inherited glass for all cards
+  should explicitly enable it where needed.
+- Desktop context menus can replace an already open menu on a secondary
+  click without a preliminary dismissal click.
+- The native preview applies `MorphScrollBehavior` to its scrollables while
+  keeping the original stretch available in the compatibility laboratory.
+
+### Fixed
+
+- Frosted content maintains backdrop sampling during overscroll without
+  introducing a parent `ImageFiltered` compositing layer.
+- Repeated or interrupted spring animations use a multi-ticker provider,
+  preventing multiple-ticker assertions after successive scroll gestures.
+- Add regression coverage for glass precedence, native stretch equations,
+  repeated spring interruptions and mobile preview integration.
+
+### Release preparation
+
+- The 0.7.0 GIF captures and `screenshots:` additions are deliberately deferred
+  until the existing capture script has generated and validated real media.
+- Run the latest/lowest dependency matrix, Pana, consumer smoke checks and
+  `dart pub publish --dry-run` **before** publishing or tagging this version.
+
 ## 0.6.1 - 2026-10-29
 
 ### Fixed

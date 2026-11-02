@@ -7,8 +7,8 @@ and smooth animations.
 The goal is to make components look and feel consistent while exploring new
 styles and interactions beyond Material 3 Expressive.
 
-This README documents **0.6.1**. Check the
-[pub.dev versions](https://pub.dev/packages/morph_expressive/versions) for the
+This README documents the **0.7.0 release candidate** in this source tree.
+Check the [pub.dev versions](https://pub.dev/packages/morph_expressive/versions) for the
 latest published release. Morph Expressive is still in the 0.x series, so
 public APIs and defaults may evolve between minor versions.
 
@@ -27,11 +27,12 @@ of wrapped. See [NOTICE](NOTICE) and [LICENSE](LICENSE) for attribution.
 
 ```yaml
 dependencies:
-  morph_expressive: ^0.6.1
+  morph_expressive: ^0.7.0
 ```
 
-Run `flutter pub get` after changing the constraint. To test unpublished
-changes in a source checkout, temporarily use a Git/path dependency.
+The `^0.7.0` constraint is for use **after publication**. Until then, use
+a Git/path dependency pointing at this checkout; run `flutter pub get` after
+changing dependencies.
 
 ## Quick start
 
@@ -66,6 +67,49 @@ void main() {
 
 This example uses a fixed light theme. For dynamic brightness, keep `MorphTheme`
 and the host Material theme synchronized. `MaterialApp.router` is supported.
+
+## New in 0.7.0 (release candidate): frosted surfaces and blur-safe scrolling
+
+Version 0.7.0 adds `MorphSurfaceGlass` for compatible floating
+surfaces, **opt-in** frosted cards (`MorphCard(frosted: true)` or `glass:`), and
+`MorphScrollBehavior` for Flutter-like geometric stretch without an
+`ImageFiltered` layer above frosted content. Ordinary cards stay opaque even
+when the theme enables glass; menus, dialogs, dropdown panels, sheets and
+other compatible floating surfaces can inherit the theme's
+`floatingSurfaceGlass` or override it locally.
+
+```dart
+final theme = MorphThemeData.light(
+  seedColor: const Color(0xFF6750A4),
+).copyWith(
+  floatingSurfaceGlass: const MorphSurfaceGlass(
+    blurX: 12,
+    blurY: 12,
+    tintOpacity: 0.65,
+  ),
+);
+
+// Inside the MorphTheme subtree:
+ScrollConfiguration(
+  behavior: const MorphScrollBehavior(),
+  child: ListView(
+    children: const [
+      MorphCard(headline: 'Opaque by default'),
+      MorphCard(frosted: true, headline: 'Theme frosted'),
+    ],
+  ),
+)
+```
+
+The public [Frosted Surfaces example](example/frosted_surfaces.dart) demonstrates
+opaque, theme-frosted and explicitly frosted cards over a multicolor backdrop,
+plus dropdown, menu, dialog, sheet and blur-safe overscroll. It is also linked
+from the [existing component example](example/main.dart).
+
+**0.7.0 is not published yet:** validate the release candidate against the
+local checkout. Read [Frosted surfaces](doc/FROSTED_SURFACES.md) and
+[Blur-safe scrolling](doc/MORPH_SCROLL.md) for precedence rules, performance,
+platform trade-offs and tested integration patterns.
 
 ## Fixed in 0.6.1
 
@@ -243,7 +287,7 @@ Practical examples and customization are in the
 
 ## Animated component previews
 
-The examples below are captured directly from Morph Expressive running in Flutter Web
+The existing examples below are captured directly from Morph Expressive running in Flutter Web
 (dark theme, no mouse cursor). Each GIF is reproducible by the script in `tool/`.
 
 | Buttons | Dropdown |
@@ -259,6 +303,14 @@ The examples below are captured directly from Morph Expressive running in Flutte
 | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/navigation_morph.gif" alt="Expressive pill and Morph top-dash navigation bars with two page indicators" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/navigation_rail_drawer.gif" alt="Morph rail and drawer elastic selection" width="380"> |
 | **List items and swipe actions** | **Floating dialogs** |
 | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/lists.gif" alt="MorphList rows with spring swipe actions" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/dialogs.gif" alt="Expressive floating dialog transitions" width="380"> |
+
+**0.7.0 media pending:** new captures for frosted cards, floating glass
+surfaces, blur-safe scrolling and desktop context menus will be created from
+real Flutter scenes in the next step. They will be linked here and registered
+in `pubspec.yaml` **only after** the generated GIF files exist and are reviewed.
+Pub.dev has a limit of 10 screenshots, so the new images will replace selected
+existing screenshot slots rather than increasing the list beyond 10.
+The current table still displays the validated existing capture assets.
 
 To create or refresh the GIFs from the repository root:
 
@@ -300,6 +352,8 @@ and should not be used after editing the capture scenes.
 - [Getting started](https://github.com/Bruno0416/morph_expressive/blob/main/doc/GETTING_STARTED.md)
 - [Theming and typography](https://github.com/Bruno0416/morph_expressive/blob/main/doc/THEMING.md)
 - [Components](https://github.com/Bruno0416/morph_expressive/blob/main/doc/COMPONENTS.md)
+- [Frosted surfaces](doc/FROSTED_SURFACES.md)
+- [Blur-safe geometric scrolling](doc/MORPH_SCROLL.md)
 - [Motion](https://github.com/Bruno0416/morph_expressive/blob/main/doc/MOTION.md)
 - [Preview](https://github.com/Bruno0416/morph_expressive/blob/main/doc/PREVIEW.md)
 - [Release checklist](https://github.com/Bruno0416/morph_expressive/blob/main/doc/RELEASE.md)

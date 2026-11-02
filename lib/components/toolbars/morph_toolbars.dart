@@ -51,6 +51,7 @@ import 'package:motor/motor.dart';
 
 import '../../foundations/interaction/morph_motion_controller.dart';
 import '../../foundations/foundations.dart';
+import '../../foundations/surface/morph_glass_surface.dart';
 import '../floating_action_buttons/enums/morph_fab.dart';
 import '../floating_action_buttons/styles/morph_fab_theme.dart';
 import '../icon_buttons/enums/morph_icon_button_enums.dart';
@@ -149,6 +150,7 @@ class MorphToolbar extends StatefulWidget implements PreferredSizeWidget {
     this.fabExpandsToolbar = true,
     this.pillActiveSpring = true,
     this.contentAlignment = MorphToolbarContentAlignment.even,
+    this.glass,
     super.key,
   }) : assert(
          screenOffset == null || screenOffset >= 0,
@@ -198,6 +200,7 @@ class MorphToolbar extends StatefulWidget implements PreferredSizeWidget {
     this.fabExpandsToolbar = true,
     this.pillActiveSpring = true,
     this.contentAlignment = MorphToolbarContentAlignment.even,
+    this.glass,
     super.key,
   }) : assert(
          screenOffset == null || screenOffset >= 0,
@@ -238,6 +241,7 @@ class MorphToolbar extends StatefulWidget implements PreferredSizeWidget {
     this.activeIndex,
     this.onActiveIndexChanged,
     this.contentAlignment = MorphToolbarContentAlignment.even,
+    this.glass,
     super.key,
   }) : placement = MorphToolbarPlacement.docked,
        axis = Axis.horizontal,
@@ -389,6 +393,13 @@ class MorphToolbar extends StatefulWidget implements PreferredSizeWidget {
 
   /// clipBehavior.
   final Clip clipBehavior;
+
+  /// Frosted-glass treatment for floating toolbars.
+  ///
+  /// When null the bar inherits [MorphThemeData.floatingSurfaceGlass];
+  /// docked toolbars never use the frosted surface. Pass
+  /// [MorphSurfaceGlass.disabled] to force the classic opaque pill.
+  final MorphSurfaceGlass? glass;
 
   /// semanticLabel.
   final String? semanticLabel;

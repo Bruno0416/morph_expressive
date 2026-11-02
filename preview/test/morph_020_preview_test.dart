@@ -23,18 +23,21 @@ void main() {
     expect(data().hapticsEnabled, isTrue);
     expect(data().hapticFeedback, MorphHapticFeedback.light);
     await tester.tap(find.byTooltip('Haptic settings'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-    await tester.tap(find.text('Off').last);
-    await tester.pump();
+    await tester.pumpAndSettle();
+    // The preview now uses MorphMenu instead of Material's PopupMenuButton.
+    // Each option has one visible label; do not rely on the old .last finder.
+    expect(find.text('Off'), findsOneWidget);
+    await tester.tap(find.text('Off'));
+    await tester.pumpAndSettle();
     expect(data().hapticsEnabled, isFalse);
     await tester.tap(find.byTooltip('Haptic settings'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-    await tester.tap(find.text('Heavy').last);
-    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.text('Heavy'), findsOneWidget);
+    await tester.tap(find.text('Heavy'));
+    await tester.pumpAndSettle();
     expect(data().hapticsEnabled, isTrue);
     expect(data().hapticFeedback, MorphHapticFeedback.heavy);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('chip gallery exposes multi-selection independently', (

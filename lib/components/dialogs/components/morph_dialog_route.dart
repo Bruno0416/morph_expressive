@@ -36,16 +36,20 @@ Future<T?> _pushDialog<T>(
   required MorphDialogController? controller,
   required Future<bool> Function()? onDismissRequest,
   required bool autofocusFirst,
+  MorphSurfaceGlass? glass,
 }) {
   final MorphThemeData theme = _themeOf(context);
   final MorphDialogTheme dialogTheme = theme.dialogTheme;
+  final bool frostedActive = (glass ?? theme.surfaceGlass)?.enabled ?? false;
   return Navigator.of(context, rootNavigator: true).push<T>(
     _MorphRawDialogRoute<T>(
       barrierDismissible: barrierDismissible,
       barrierLabel: variant == MorphDialogVariant.basic
           ? MorphDialogStrings.dismiss
           : MorphDialogStrings.fullScreen,
-      barrierColor: dialogTheme.scrimColor(theme.colorScheme),
+      barrierColor: frostedActive
+          ? const Color(0x00000000)
+          : dialogTheme.scrimColor(theme.colorScheme),
       transitionDuration: MorphDialogTransition.durationFor(
         dialogTheme,
         variant,
@@ -68,6 +72,7 @@ Future<T?> _pushDialog<T>(
             animation: animation,
             variant: variant,
             dialogTheme: dialogTheme,
+            frosted: frostedActive,
             child: child,
           ),
     ),

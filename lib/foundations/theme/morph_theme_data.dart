@@ -44,6 +44,7 @@ import '../../components/tooltips/styles/morph_tooltip_theme.dart';
 import '../color/morph_color_scheme.dart';
 import '../interaction/morph_focus_ring_theme.dart';
 import '../interaction/morph_haptics.dart';
+import '../surface/morph_surface_glass.dart';
 import '../tokens/morph_spacing.dart';
 import '../type/morph_typography.dart';
 import '../type/morph_variable_font_config.dart';
@@ -110,7 +111,11 @@ class MorphThemeData {
     this.buttonGroupTheme = MorphButtonGroupTheme.defaults,
     this.toolbarTheme = MorphToolbarTheme.defaults,
     this.tooltipTheme = MorphTooltipTheme.defaults,
-  }) : colorScheme = colorScheme ?? MorphColorScheme.light(),
+    MorphSurfaceGlass? floatingSurfaceGlass,
+    MorphSurfaceGlass? surfaceGlass,
+  }) : assert(surfaceGlass == null || floatingSurfaceGlass == null),
+       floatingSurfaceGlass = surfaceGlass ?? floatingSurfaceGlass,
+       colorScheme = colorScheme ?? MorphColorScheme.light(),
        typography = _resolveTypography(typography, typeScale, textTheme),
        brightness = (colorScheme ?? MorphColorScheme.light()).brightness;
 
@@ -365,6 +370,17 @@ class MorphThemeData {
   /// Tooltip component theme.
   final MorphTooltipTheme tooltipTheme;
 
+  /// Default frosted-glass configuration for Morph floating surfaces.
+  ///
+  /// Dropdown panels, menus, dialogs, sheets, tooltips and other floating
+  /// surfaces inherit this when they do not specify their own `glass`
+  /// parameter. Null keeps every surface at its original opaque paint; a
+  /// per-widget [MorphSurfaceGlass.disabled] overrides this global value.
+  final MorphSurfaceGlass? floatingSurfaceGlass;
+
+  /// Default glass treatment for compatible surfaces.
+  MorphSurfaceGlass? get surfaceGlass => floatingSurfaceGlass;
+
   /// Returns a copy with [colorScheme] swapped and all component themes kept.
   MorphThemeData withColorScheme(MorphColorScheme colorScheme) {
     return copyWith(colorScheme: colorScheme);
@@ -438,6 +454,8 @@ class MorphThemeData {
     MorphButtonGroupTheme? buttonGroupTheme,
     MorphToolbarTheme? toolbarTheme,
     MorphTooltipTheme? tooltipTheme,
+    MorphSurfaceGlass? floatingSurfaceGlass,
+    MorphSurfaceGlass? surfaceGlass,
   }) => _morphCopyThemeData(
     this,
     colorScheme: colorScheme,
@@ -500,6 +518,7 @@ class MorphThemeData {
     buttonGroupTheme: buttonGroupTheme,
     toolbarTheme: toolbarTheme,
     tooltipTheme: tooltipTheme,
+    floatingSurfaceGlass: surfaceGlass ?? floatingSurfaceGlass,
   );
 
   /// Projects this theme onto a Material [ThemeData].

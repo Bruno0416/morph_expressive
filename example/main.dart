@@ -11,6 +11,7 @@ import 'package:material_ui/material_ui.dart'
         EdgeInsets,
         Icon,
         MaterialApp,
+        MaterialPageRoute,
         Navigator,
         SafeArea,
         Scaffold,
@@ -27,6 +28,8 @@ import 'package:material_ui/material_ui.dart'
         Wrap,
         runApp;
 import 'package:morph_expressive/morph_expressive.dart';
+
+import 'frosted_surfaces.dart' show FrostedSurfacesExamplePage;
 
 void main() => runApp(const MorphExampleApp());
 
@@ -127,7 +130,7 @@ class _ComponentExamplesState extends State<_ComponentExamples> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Morph Expressive · v0.3.0')),
+      appBar: AppBar(title: const Text('Morph Expressive examples')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -142,6 +145,19 @@ class _ComponentExamplesState extends State<_ComponentExamples> {
                     'validate the email and swipe the list items.',
                   ),
                   const SizedBox(height: 28),
+                  _section(
+                    context,
+                    'New in 0.7.0 · Frosted surfaces',
+                    MorphButton(
+                      label: const Text('Explore frosted surfaces'),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (context) =>
+                              const FrostedSurfacesExamplePage(),
+                        ),
+                      ),
+                    ),
+                  ),
                   _section(
                     context,
                     'MorphButton',
