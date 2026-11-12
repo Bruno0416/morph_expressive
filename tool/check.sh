@@ -20,12 +20,15 @@ command -v flutter >/dev/null || {
   exit 1
 }
 flutter pub get
+(
+  cd preview
+  flutter pub get
+)
 flutter analyze
 flutter test
 
 (
   cd preview
-  flutter pub get
   flutter analyze
   flutter test
 )
