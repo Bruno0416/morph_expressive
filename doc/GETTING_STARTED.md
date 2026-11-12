@@ -10,14 +10,14 @@
 
 ```yaml
 dependencies:
-  morph_expressive: ^0.6.1
+  morph_expressive: ^0.8.0
 ```
 
 Run `flutter pub get` after changing the constraint. To validate an
 unpublished fix, temporarily use a Git/path dependency pointing to the source
 checkout; restore the published version constraint before releasing your app.
-Check the [version history](https://pub.dev/packages/morph_expressive/versions)
-for the latest published release.
+Morph Expressive 0.8.0 is not published yet; until then use a Git or path
+dependency. See the [upgrade guide](UPGRADE_0_8_0.md) when coming from 0.7.x.
 
 ## Theme integration
 

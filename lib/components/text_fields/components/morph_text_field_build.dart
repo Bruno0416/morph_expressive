@@ -43,17 +43,14 @@ extension _MorphTextFieldBuild on _MorphTextFieldState {
         final Widget container = _buildContainer(theme, fieldTheme);
         if (_outlined) return container;
 
-        // Filled labels live outside the painted surface once focused or
-        // populated. Grow their reserved area using the existing label spring.
+        // Keep the filled label's floating region reserved from first paint.
+        // Focus still animates the label, but never moves adjacent form fields.
         final double floatingLine = MorphTextFieldTheme.lineHeightOf(
           _floatingLabelStyle(theme, fieldTheme),
         );
         final double topInset = widget.label == null
             ? 0
-            : (floatingLine + fieldTheme.supportingTopPadding) *
-                  (widget.reserveFloatingLabelSpace
-                      ? 1.0
-                      : _labelMotion.value.clamp(0.0, 1.0));
+            : floatingLine + fieldTheme.supportingTopPadding;
         return Padding(
           padding: EdgeInsets.only(top: topInset),
           child: MorphFocusRing(

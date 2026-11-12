@@ -1,3 +1,5 @@
+import 'package:flutter/animation.dart' show Animation;
+
 import 'package:material_ui/material_ui.dart'
     show
         BoxConstraints,
@@ -37,6 +39,8 @@ class MorphDayPicker extends StatelessWidget {
     this.selectableDayPredicate,
     this.rangeStart,
     this.rangeEnd,
+    this.rangeReveal,
+    this.rangeStretchIntensity = 0.40,
     this.fitHeight = false,
     super.key,
   });
@@ -69,6 +73,12 @@ class MorphDayPicker extends StatelessWidget {
   /// rangeEnd.
   final DateTime? rangeEnd;
 
+  /// Shared animation from the range picker; null keeps the static highlight.
+  final Animation<double>? rangeReveal;
+
+  /// Cross-axis stretch of the progressive range highlight.
+  final double rangeStretchIntensity;
+
   /// fitHeight.
   final bool fitHeight;
 
@@ -83,7 +93,10 @@ class MorphDayPicker extends StatelessWidget {
     final int month = displayedMonth.month;
     final int daysInMonth = MorphDatePickerUtils.daysInMonth(year, month);
     final int firstDayOffset =
-        (DateTime(year, month).weekday - localizations.firstDayOfWeekIndex) % 7;
+        ((DateTime(year, month).weekday % 7) -
+            localizations.firstDayOfWeekIndex +
+            7) %
+        7;
     final int cellCount =
         ((daysInMonth + firstDayOffset) / dateTheme.daysPerWeek).ceil() *
         dateTheme.daysPerWeek;
@@ -115,6 +128,7 @@ class MorphDayPicker extends StatelessWidget {
                     return _buildDayCell(
                       index: index,
                       firstDayOffset: firstDayOffset,
+                      firstDayOfWeekIndex: localizations.firstDayOfWeekIndex,
                       daysInMonth: daysInMonth,
                       year: year,
                       month: month,
@@ -145,6 +159,7 @@ class MorphDayPicker extends StatelessWidget {
             return _buildDayCell(
               index: index,
               firstDayOffset: firstDayOffset,
+              firstDayOfWeekIndex: localizations.firstDayOfWeekIndex,
               daysInMonth: daysInMonth,
               year: year,
               month: month,
@@ -183,6 +198,7 @@ class MorphDayPicker extends StatelessWidget {
   Widget _buildDayCell({
     required int index,
     required int firstDayOffset,
+    required int firstDayOfWeekIndex,
     required int daysInMonth,
     required int year,
     required int month,
@@ -211,6 +227,22 @@ class MorphDayPicker extends StatelessWidget {
           MorphDatePickerUtils.isInRange(date, start, end),
       rangeStart: start != null && MorphDatePickerUtils.isSameDay(date, start),
       rangeEnd: end != null && MorphDatePickerUtils.isSameDay(date, end),
+      firstDayOfWeekIndex: firstDayOfWeekIndex,
+      rangeReveal: rangeReveal,
+      rangeStretchIntensity: rangeStretchIntensity,
+      rangeDayIndex: start == null
+          ? 0
+          : DateTime.utc(date.year, date.month, date.day)
+                .difference(DateTime.utc(start.year, start.month, start.day))
+                .inDays,
+      rangeDayCount: start == null || end == null
+          ? 1
+          : DateTime.utc(end.year, end.month, end.day)
+                    .difference(
+                      DateTime.utc(start.year, start.month, start.day),
+                    )
+                    .inDays +
+                1,
       onTap: enabled ? () => onChanged(date) : null,
     );
   }

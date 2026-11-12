@@ -1,0 +1,24 @@
+name: Tests and analysis
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Tests, analysis and formatting
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-flutter
+      - name: Test automation and publication safeguards
+        run: python3 -m unittest discover -s tool/ci/tests -p 'test_*.py'
+      - name: Validate Dart formatting
+        run: dart format --output=none --set-exit-if-changed lib test example preview/lib preview/test
+      - name: Analyze and test the package and preview
+        run: bash tool/check.sh

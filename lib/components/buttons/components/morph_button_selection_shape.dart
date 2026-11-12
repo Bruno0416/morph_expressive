@@ -86,29 +86,31 @@ extension _MorphButtonSelectionShape on _MorphButtonState {
         _decoration?.selectedRadius ??
         explicit ??
         groupTheme.connectedSelectedInnerRadiusFor(measurements.height);
-    final resting = BorderRadiusDirectional.horizontal(
-      start: Radius.circular(widget.isFirstInGroup ? outerRadius : innerRadius),
-      end: Radius.circular(widget.isLastInGroup ? outerRadius : innerRadius),
-    ).resolve(Directionality.of(context));
+    // isFirstInGroup / isLastInGroup are the physical left / right edges (the
+    // group strategies already swap them for RTL), so radii are not directional.
+    final resting = BorderRadius.horizontal(
+      left: Radius.circular(widget.isFirstInGroup ? outerRadius : innerRadius),
+      right: Radius.circular(widget.isLastInGroup ? outerRadius : innerRadius),
+    );
     final connectedSelected = BorderRadius.circular(selectedInnerRadius);
-    final connectedPressed = BorderRadiusDirectional.horizontal(
-      start: Radius.circular(
+    final connectedPressed = BorderRadius.horizontal(
+      left: Radius.circular(
         widget.isFirstInGroup ? outerRadius : pressedInnerRadius,
       ),
-      end: Radius.circular(
+      right: Radius.circular(
         widget.isLastInGroup ? outerRadius : pressedInnerRadius,
       ),
-    ).resolve(Directionality.of(context));
+    );
     final connectedResting = _isSelected ? connectedSelected : resting;
     final connectedHovered = _decoration?.hoveredRadius != null
-        ? BorderRadiusDirectional.horizontal(
-            start: Radius.circular(
+        ? BorderRadius.horizontal(
+            left: Radius.circular(
               widget.isFirstInGroup ? outerRadius : _decoration!.hoveredRadius!,
             ),
-            end: Radius.circular(
+            right: Radius.circular(
               widget.isLastInGroup ? outerRadius : _decoration!.hoveredRadius!,
             ),
-          ).resolve(Directionality.of(context))
+          )
         : connectedResting;
     return (
       defaultShape: connectedResting,

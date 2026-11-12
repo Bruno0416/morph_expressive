@@ -1,4 +1,8 @@
 import 'dart:async';
+import 'dart:ui' as ui;
+
+import '../../chips/morph_chip_organic_surface.dart';
+import '../../chips/morph_organic_indicator_surface.dart';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -13,16 +17,21 @@ class MorphSlidingIndicator extends StatefulWidget {
   const MorphSlidingIndicator({
     required this.child,
     this.axis = Axis.horizontal,
+    this.organicStretchIntensity = 0.40,
     this.selectionDelay,
     this.foreground = false,
     this.leadSpring = MorphMotion.navigationSelection,
     this.trailSpring = const MorphSpring(stiffness: 280, damping: 0.8),
     super.key,
-  });
+  }) : assert(organicStretchIntensity >= 0 && organicStretchIntensity <= 1);
 
   final Widget child;
   final bool foreground;
   final Axis axis;
+
+  /// 0 restores the exact original indicator. 0.40 matches MorphChip stretch.
+  /// The pinch is perpendicular to [axis] and disappears at rest.
+  final double organicStretchIntensity;
 
   /// Delay before the trailing edge follows the leading edge. Defaults to
   /// 60ms on a horizontal track and 20ms on a vertical track. Set zero to
@@ -37,6 +46,35 @@ class MorphSlidingIndicator extends StatefulWidget {
 
 class _MorphSlidingIndicatorState extends State<MorphSlidingIndicator>
     with TickerProviderStateMixin {
+  ui.FragmentShader? _organicShader;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOrganicShader();
+  }
+
+  Future<void> _loadOrganicShader() async {
+    if (widget.organicStretchIntensity <= 0 || _organicShader != null) return;
+    final shader = await MorphChipOrganicSurface.createSharedShader();
+    if (!mounted) {
+      shader?.dispose();
+      return;
+    }
+    if (shader != null) {
+      setState(() => _organicShader = shader);
+    }
+  }
+
+  @override
+  void didUpdateWidget(MorphSlidingIndicator oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.organicStretchIntensity <= 0 &&
+        widget.organicStretchIntensity > 0) {
+      _loadOrganicShader();
+    }
+  }
+
   late final List<SingleMotionController> _edges = List.generate(
     4,
     (_) => MorphMotionController(
@@ -50,6 +88,7 @@ class _MorphSlidingIndicatorState extends State<MorphSlidingIndicator>
     for (final edge in _edges) {
       edge.dispose();
     }
+    _organicShader?.dispose();
     super.dispose();
   }
 
@@ -58,6 +97,8 @@ class _MorphSlidingIndicatorState extends State<MorphSlidingIndicator>
     edges: _edges,
     foreground: widget.foreground,
     axis: widget.axis,
+    organicStretchIntensity: widget.organicStretchIntensity,
+    organicShader: _organicShader,
     selectionDelay:
         widget.selectionDelay ??
         (widget.axis == Axis.vertical
@@ -76,6 +117,8 @@ class _IndicatorSurface extends SingleChildRenderObjectWidget {
     required this.edges,
     required this.foreground,
     required this.axis,
+    required this.organicStretchIntensity,
+    required this.organicShader,
     required this.selectionDelay,
     required this.leadSpring,
     required this.trailSpring,
@@ -86,6 +129,8 @@ class _IndicatorSurface extends SingleChildRenderObjectWidget {
   final bool foreground;
   final List<SingleMotionController> edges;
   final Axis axis;
+  final double organicStretchIntensity;
+  final ui.FragmentShader? organicShader;
   final Duration selectionDelay;
   final MorphSpring leadSpring;
   final MorphSpring trailSpring;
@@ -103,6 +148,8 @@ class _IndicatorSurface extends SingleChildRenderObjectWidget {
         trailSpring,
         reduced,
         textDirection,
+        organicStretchIntensity,
+        organicShader,
       );
 
   @override
@@ -113,6 +160,8 @@ class _IndicatorSurface extends SingleChildRenderObjectWidget {
     renderObject
       ..foreground = foreground
       ..axis = axis
+      ..organicStretchIntensity = organicStretchIntensity
+      ..organicShader = organicShader
       ..selectionDelay = selectionDelay
       ..leadSpring = leadSpring
       ..trailSpring = trailSpring
@@ -133,11 +182,16 @@ class RenderMorphSlidingIndicator extends RenderProxyBox {
     this.trailSpring,
     this.reduced,
     this.textDirection,
+    this.organicStretchIntensity,
+    this.organicShader,
   );
 
   final List<SingleMotionController> edges;
   bool foreground;
   Axis axis;
+  double organicStretchIntensity;
+  ui.FragmentShader? organicShader;
+  Rect? _organicStartRect;
   Duration selectionDelay;
   MorphSpring leadSpring;
   MorphSpring trailSpring;
@@ -182,6 +236,7 @@ class RenderMorphSlidingIndicator extends RenderProxyBox {
     _trailTimer = null;
     _delayedEdge = null;
     _target = null;
+    _organicStartRect = null;
     _selectedMarker = null;
     _targetDirty = true;
     for (final edge in edges) {
@@ -232,6 +287,7 @@ class RenderMorphSlidingIndicator extends RenderProxyBox {
     final marker = selected;
     _hasTarget = marker != null;
     if (marker == null) {
+      _organicStartRect = null;
       _trailTimer?.cancel();
       _trailTimer = null;
       _delayedEdge = null;
@@ -254,6 +310,7 @@ class RenderMorphSlidingIndicator extends RenderProxyBox {
       final previous = _target;
       final selectionChanged = !identical(marker, _selectedMarker);
       final reference = indicatorRect ?? previous;
+      if (selectionChanged) _organicStartRect = reference;
       final forward =
           reference == null ||
           (axis == Axis.horizontal
@@ -323,11 +380,83 @@ class RenderMorphSlidingIndicator extends RenderProxyBox {
     if (foreground) super.paint(context, offset);
     final rect = indicatorRect;
     if (rect != null && rect.width > 0 && rect.height > 0) {
-      _painter?.paint(
-        context.canvas,
-        offset + rect.topLeft,
-        ImageConfiguration(size: rect.size, textDirection: textDirection),
-      );
+      final start = _organicStartRect;
+      final decoration = _decoration;
+      final color = decoration is BoxDecoration
+          ? decoration.color
+          : decoration is ShapeDecoration
+          ? decoration.color
+          : null;
+      final shape = decoration is ShapeDecoration ? decoration.shape : null;
+      final rounded = decoration is BoxDecoration
+          ? decoration.borderRadius?.resolve(textDirection)
+          : shape is RoundedRectangleBorder
+          ? shape.borderRadius.resolve(textDirection)
+          : null;
+      final radius = rounded?.topLeft.x ?? 0.0;
+      final uniformCorners =
+          rounded == null ||
+          (rounded.topLeft.x == rounded.topRight.x &&
+              rounded.topLeft.x == rounded.bottomLeft.x &&
+              rounded.topLeft.x == rounded.bottomRight.x &&
+              rounded.topLeft.y == rounded.topLeft.x);
+      // Shader only replaces plain rounded fills. Gradients, outlines, image
+      // decorations, shadows and nonuniform shapes keep their exact painter.
+      final cleanBox =
+          decoration is BoxDecoration &&
+          decoration.gradient == null &&
+          decoration.border == null &&
+          decoration.boxShadow == null &&
+          decoration.image == null &&
+          decoration.shape == BoxShape.rectangle;
+      final cleanShape =
+          decoration is ShapeDecoration &&
+          shape is RoundedRectangleBorder &&
+          shape.side == BorderSide.none &&
+          decoration.gradient == null &&
+          decoration.image == null &&
+          decoration.shadows == null;
+      final eligible =
+          color != null && uniformCorners && (cleanBox || cleanShape);
+      double progress = 1.0;
+      if (start != null && _target != null) {
+        final target = _target!;
+        final distance =
+            (start.left - target.left).abs() +
+            (start.top - target.top).abs() +
+            (start.right - target.right).abs() +
+            (start.bottom - target.bottom).abs();
+        final remaining =
+            (rect.left - target.left).abs() +
+            (rect.top - target.top).abs() +
+            (rect.right - target.right).abs() +
+            (rect.bottom - target.bottom).abs();
+        if (distance > 0.01) {
+          progress = (1.0 - remaining / distance).clamp(0.0, 1.0).toDouble();
+        }
+      }
+      if (!reduced &&
+          organicStretchIntensity > 0 &&
+          eligible &&
+          progress > 0 &&
+          progress < 1) {
+        MorphOrganicIndicatorPaint.paint(
+          context.canvas,
+          rect: rect.shift(offset),
+          color: color,
+          radius: radius,
+          intensity: organicStretchIntensity,
+          progress: progress,
+          axis: axis,
+          shader: organicShader,
+        );
+      } else {
+        _painter?.paint(
+          context.canvas,
+          offset + rect.topLeft,
+          ImageConfiguration(size: rect.size, textDirection: textDirection),
+        );
+      }
     }
     if (!foreground) super.paint(context, offset);
   }

@@ -1,4 +1,5 @@
 import 'morph_material_new_shapes_bridge.dart';
+import 'geometry/morph_shape.dart';
 
 /// Catalog of Material 3 Expressive morph polygons for clipping and fill.
 enum MorphShapeKind {
@@ -109,6 +110,9 @@ enum MorphShapeKind {
 
   /// Every catalog entry, in declaration order.
   static List<MorphShapeKind> get all => values;
+
+  /// Own-engine cubic geometry. Does not change the legacy [polygon] API.
+  MorphShape get geometry => MorphShapeCatalog.fromKind(this);
 
   /// Morph polygon for this kind.
   RoundedPolygon get polygon {

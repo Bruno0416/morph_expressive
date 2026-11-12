@@ -32,6 +32,12 @@ extension _MorphSplitButtonSegments<T> on _MorphSplitButtonState<T> {
 
     final animatedButton = MorphRadiusAndPaddingMotion(
       motion: springMotion,
+      pressDuration:
+          widget.decoration?.pressDuration ??
+          MorphTheme.of(context).buttonTheme.pressDuration,
+      releaseDuration:
+          widget.decoration?.releaseDuration ??
+          MorphTheme.of(context).buttonTheme.releaseDuration,
       internalLeft: 0,
       internalRight: 0,
       internalTop: 0,
@@ -247,6 +253,12 @@ extension _MorphSplitButtonSegments<T> on _MorphSplitButtonState<T> {
 
     final animatedButton = MorphRadiusAndPaddingMotion(
       motion: springMotion,
+      pressDuration:
+          widget.decoration?.pressDuration ??
+          MorphTheme.of(context).buttonTheme.pressDuration,
+      releaseDuration:
+          widget.decoration?.releaseDuration ??
+          MorphTheme.of(context).buttonTheme.releaseDuration,
       internalLeft: 0,
       internalRight: 0,
       internalTop: 0,

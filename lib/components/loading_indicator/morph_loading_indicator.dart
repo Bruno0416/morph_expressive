@@ -38,10 +38,13 @@ class MorphLoadingIndicator extends StatelessWidget {
     this.indicatorColors,
     this.size,
     this.indicatorSize,
+    this.containedInset,
     this.containerWidth,
     this.containerHeight,
     this.containerShape,
     this.polygons,
+    this.shapes,
+    this.renderer = MorphShapeRenderer.canvas,
     this.constraints,
     this.padding,
     this.globalRotationDuration,
@@ -56,6 +59,10 @@ class MorphLoadingIndicator extends StatelessWidget {
     this.semanticLabel,
     this.semanticValue,
   }) : assert(
+         shapes == null || polygons == null,
+         'shapes and polygons are exclusive',
+       ),
+       assert(
          color == null || indicatorColors == null,
          'color and indicatorColors cannot both be set',
        ),
@@ -112,6 +119,15 @@ class MorphLoadingIndicator extends StatelessWidget {
   /// Size of the morphing indicator. Defaults to theme (38).
   final double? indicatorSize;
 
+  /// Contained variant only: minimum clear distance (dp, absolute) between the
+  /// morph envelope and the container edge. Overrides the theme token
+  /// (default 5 dp). The envelope is the farthest point of every shape in the
+  /// sequence, at the largest pulse, rotated about the center; the active size
+  /// is scaled down uniformly (never per frame) when it would not fit
+  /// `min(width, height) / 2 − inset`. Must be `>= 0` and leave a positive
+  /// radius. Ignored by the default variant.
+  final double? containedInset;
+
   /// Width of the container. Defaults to theme (48).
   final double? containerWidth;
 
@@ -123,6 +139,10 @@ class MorphLoadingIndicator extends StatelessWidget {
 
   /// polygons.
   final List<RoundedPolygon>? polygons;
+
+  /// Own-engine shapes (at least two), mutually exclusive with [polygons].
+  final List<MorphShape>? shapes;
+  final MorphShapeRenderer renderer;
 
   /// constraints.
   final BoxConstraints? constraints;
@@ -229,6 +249,19 @@ class MorphLoadingIndicator extends StatelessWidget {
     MorphLoadingIndicatorTheme loadingTheme,
     ({double width, double height, double active}) resolved,
   ) {
+    final inset = variant == MorphLoadingIndicatorVariant.contained
+        ? containedInset ?? loadingTheme.containedInset
+        : null;
+    if (inset != null) {
+      final half = math.min(resolved.width, resolved.height) / 2;
+      if (!inset.isFinite || inset < 0 || inset >= half) {
+        throw ArgumentError.value(
+          inset,
+          'containedInset',
+          'must be finite, >= 0 and smaller than half of the container ($half)',
+        );
+      }
+    }
     final cons =
         constraints ??
         BoxConstraints.tightFor(width: resolved.width, height: resolved.height);
@@ -241,7 +274,12 @@ class MorphLoadingIndicator extends StatelessWidget {
       color: colors.first,
       indicatorColors: colors,
       indicatorSize: resolved.active,
+      radialBudget: inset == null
+          ? null
+          : math.min(resolved.width, resolved.height) / 2 - inset,
       polygons: polygons,
+      shapes: shapes,
+      renderer: renderer,
       semanticsLabel: semanticLabel,
       semanticsValue: semanticValue,
       constraints: cons,

@@ -250,49 +250,40 @@ class MorphRenderButtonGroup extends RenderBox
     }
 
     final pIndex = pressedIndex!;
-    final growth = naturalSizes[pIndex] * expandedRatio * animValue;
-    sizes[pIndex] += growth;
-    _shrinkNeighborsForSquish(
-      sizes,
-      pressedIndex: pIndex,
-      childCount: childCount,
-      growth: growth,
+    final neighbors = <int>[
+      if (pIndex > 0) pIndex - 1,
+      if (pIndex < childCount - 1) pIndex + 1,
+    ];
+    if (neighbors.isEmpty) return sizes;
+    // A neighbor may only give up real slack: at most 20 % of its natural
+    // width and 14 dp in total, which keeps its label and padding visible in
+    // every frame. The expansion amplitude follows the available slack, so the
+    // total width stays exactly constant and no size ever goes negative.
+    double capacity(int i) => math.min(
+      naturalSizes[i] * _maxNeighborShrinkFraction,
+      _maxNeighborShrink,
     );
+    final requested = naturalSizes[pIndex] * expandedRatio * animValue;
+    final room = neighbors.fold<double>(0, (a, i) => a + capacity(i));
+    final growth = math.min(requested, room);
+    if (growth <= 0) return sizes;
+    sizes[pIndex] += growth;
+    // Share proportionally to capacity so each neighbor keeps the same
+    // relative slack (equal split in the common symmetric case).
+    for (final i in neighbors) {
+      sizes[i] -= growth * capacity(i) / room;
+    }
     return sizes;
   }
+
+  static const double _maxNeighborShrinkFraction = .2;
+  static const double _maxNeighborShrink = 14;
 
   bool _canApplySquish(int childCount) {
     return pressedIndex != null &&
         pressedIndex! >= 0 &&
         pressedIndex! < childCount &&
         animValue > 0;
-  }
-
-  void _shrinkNeighborsForSquish(
-    List<double> sizes, {
-    required int pressedIndex,
-    required int childCount,
-    required double growth,
-  }) {
-    final isMiddle = pressedIndex > 0 && pressedIndex < childCount - 1;
-    if (isMiddle) {
-      sizes[pressedIndex - 1] = math.max(
-        0,
-        sizes[pressedIndex - 1] - growth / 2,
-      );
-      sizes[pressedIndex + 1] = math.max(
-        0,
-        sizes[pressedIndex + 1] - growth / 2,
-      );
-      return;
-    }
-    if (pressedIndex == 0 && childCount > 1) {
-      sizes[1] = math.max(0, sizes[1] - growth);
-      return;
-    }
-    if (pressedIndex == childCount - 1 && childCount > 1) {
-      sizes[pressedIndex - 1] = math.max(0, sizes[pressedIndex - 1] - growth);
-    }
   }
 
   List<RenderBox> _collectChildren() {

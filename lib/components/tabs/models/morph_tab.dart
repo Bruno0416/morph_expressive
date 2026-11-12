@@ -12,6 +12,7 @@ class MorphTab {
     this.badgeLabel,
     this.badgeDot = false,
     this.badgeInline = false,
+    this.id,
   }) : assert(label != null || icon != null, 'A tab needs a label or icon.'),
        assert(
          badgeCount == null || badgeCount >= 0,
@@ -40,6 +41,13 @@ class MorphTab {
   /// When true, the badge sits 4dp after the label. Otherwise a primary tab
   /// overlaps the icon. Secondary tabs always keep the badge after the label.
   final bool badgeInline;
+
+  /// Optional stable identity.
+  ///
+  /// When every tab of a bar has an id, the bar keeps the selection on the
+  /// same tab if the list is reordered or tabs are inserted before it (see
+  /// `MorphTabs`). Ids must be unique within one bar.
+  final Object? id;
 
   /// Whether this tab shows a badge.
   bool get hasBadge =>

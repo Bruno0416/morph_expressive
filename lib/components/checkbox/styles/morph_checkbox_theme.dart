@@ -15,7 +15,7 @@ class MorphCheckboxTheme extends MorphThemeExtension<MorphCheckboxTheme> {
     this.indeterminateHeight = 2,
     this.borderWidth = 2,
     this.selectedOutlineWidth = 0,
-    this.borderRadius = const BorderRadius.all(Radius.circular(2)),
+    BorderRadius? borderRadius,
     this.disabledOpacity = 0.38,
     this.labelGap = 8,
     this.hoverStateLayerOpacity = 0.08,
@@ -26,7 +26,10 @@ class MorphCheckboxTheme extends MorphThemeExtension<MorphCheckboxTheme> {
     this.focusIndicatorColor,
     this.checkIconPadding = EdgeInsets.zero,
     this.pulseSpring = MorphMotion.expressiveSpatialDefault,
-  });
+    // Preserve the public `borderRadius:` parameter while storing whether it
+    // was explicitly provided, so scaling defaults do not override callers.
+    // ignore: prefer_initializing_formals
+  }) : _borderRadius = borderRadius;
 
   /// defaults.
 
@@ -56,8 +59,11 @@ class MorphCheckboxTheme extends MorphThemeExtension<MorphCheckboxTheme> {
   /// Selected outline width, including the error selected state.
   final double selectedOutlineWidth;
 
-  /// Container corner radius.
-  final BorderRadius borderRadius;
+  /// Container radius, proportional to [boxSize] unless overridden.
+  BorderRadius get borderRadius =>
+      _borderRadius ?? BorderRadius.circular(boxSize / 5);
+
+  final BorderRadius? _borderRadius;
 
   /// disabledOpacity.
   final double disabledOpacity;
@@ -228,7 +234,7 @@ class MorphCheckboxTheme extends MorphThemeExtension<MorphCheckboxTheme> {
       indeterminateHeight: indeterminateHeight ?? this.indeterminateHeight,
       borderWidth: borderWidth ?? this.borderWidth,
       selectedOutlineWidth: selectedOutlineWidth ?? this.selectedOutlineWidth,
-      borderRadius: borderRadius ?? this.borderRadius,
+      borderRadius: borderRadius ?? _borderRadius,
       disabledOpacity: disabledOpacity ?? this.disabledOpacity,
       labelGap: labelGap ?? this.labelGap,
       hoverStateLayerOpacity:

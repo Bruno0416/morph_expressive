@@ -615,10 +615,12 @@ class _MorphSliderState extends State<MorphSlider>
           value:
               widget.semanticFormatterCallback?.call(widget.value) ??
               resolved.indicatorLabel,
-          child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              return _buildLayout(context, constraints, resolved);
-            },
+          child: MorphSmoothEdges(
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                return _buildLayout(context, constraints, resolved);
+              },
+            ),
           ),
         );
       },

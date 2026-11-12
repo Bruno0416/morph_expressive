@@ -68,7 +68,9 @@ class MorphDropdownSearchStyle with Diagnosticable {
 
   /// Outer margin (padding around the search field container).
   ///
-  /// Defaults to `EdgeInsets.fromLTRB(8, 8, 8, 4)`.
+  /// Defaults to `EdgeInsets.fromLTRB(8, 8, 8, 0)`. The item list
+  /// already has its own top padding (8dp by default), so adding a bottom
+  /// search margin would double-count that gap. Custom margins still work.
   final EdgeInsetsGeometry margin;
 
   /// Ajusta automaticamente los margenes horizontales al padding del panel.
@@ -97,7 +99,7 @@ class MorphDropdownSearchStyle with Diagnosticable {
       horizontal: 12,
       vertical: 8,
     ),
-    this.margin = const EdgeInsets.fromLTRB(8, 8, 8, 4),
+    this.margin = const EdgeInsets.fromLTRB(8, 8, 8, 0),
     this.alignWithPanelPadding = true,
     this.mouseCursor,
   });
@@ -179,7 +181,7 @@ class MorphDropdownSearchStyle with Diagnosticable {
           const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       margin:
           EdgeInsetsGeometry.lerp(a?.margin, b?.margin, t) ??
-          const EdgeInsets.fromLTRB(8, 8, 8, 4),
+          const EdgeInsets.fromLTRB(8, 8, 8, 0),
       mouseCursor: t < 0.5 ? a?.mouseCursor : b?.mouseCursor,
       alignWithPanelPadding: t < 0.5
           ? (a?.alignWithPanelPadding ?? true)

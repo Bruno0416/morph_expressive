@@ -8,6 +8,16 @@ extension _MorphDropdownMenuLifecycle<T> on _MorphDropdownMenuState<T> {
     _expandCtrl = MorphMotionController(motion: open.toMotion(), vsync: this);
     _arrowCtrl = MorphMotionController(motion: open.toMotion(), vsync: this);
     _expandCtrl.addListener(_onExpandAnimationTick);
+    _panelCtrl = AnimationController(
+      vsync: this,
+      duration: MorphMotion.medium2, // 300 ms entering.
+      reverseDuration: MorphMotion.medium1, // 250 ms exiting.
+    )..addStatusListener(_onPanelAnimationStatus);
+    _heightCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 240),
+      reverseDuration: const Duration(milliseconds: 200),
+    );
 
     if (widget.controller != null) {
       _controller = widget.controller!;
@@ -183,6 +193,7 @@ extension _MorphDropdownMenuLifecycle<T> on _MorphDropdownMenuState<T> {
   }
 
   void _onExpandAnimationTick() {
+    if (widget.motionStyle == MorphDropdownMotionStyle.centered) return;
     if (!_controller.isOpen && _expandCtrl.value <= 0.01 && mounted) {
       if (_portalController.isShowing) {
         _portalController.hide();
@@ -190,6 +201,19 @@ extension _MorphDropdownMenuLifecycle<T> on _MorphDropdownMenuState<T> {
       _openingShowOnTop = null;
       _closingPanel = false;
     }
+  }
+
+  void _onPanelAnimationStatus(AnimationStatus status) {
+    if (widget.motionStyle != MorphDropdownMotionStyle.centered ||
+        status != AnimationStatus.dismissed ||
+        !_closingPanel ||
+        _controller.isOpen ||
+        !mounted) {
+      return;
+    }
+    if (_portalController.isShowing) _portalController.hide();
+    _openingShowOnTop = null;
+    _closingPanel = false;
   }
 
   Widget _buildFormField(

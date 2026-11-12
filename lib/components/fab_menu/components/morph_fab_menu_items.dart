@@ -24,7 +24,7 @@ class _MorphFabMenuItems {
               : CrossAxisAlignment.start,
           children: <Widget>[
             for (int i = 0; i < menu.widget.items.length; i++)
-              if (menu._itemVisible[i])
+              if (menu._itemShown(i))
                 FocusTraversalOrder(
                   order: NumericFocusOrder(i + 1.0),
                   child: Padding(
@@ -116,14 +116,22 @@ class _MorphFabMenuItems {
     return AnimatedBuilder(
       animation: ctrl,
       builder: (BuildContext context, Widget? child) {
-        return _itemFrame(
-          theme: theme,
-          index: index,
-          scheme: scheme,
-          fill: fill,
-          containerColor: containerColor,
-          widthFactor: menu._widthFactor(ctrl.value).clamp(0.001, 1.5),
-          child: child,
+        // Fade with the spring so collapsing items never pop out at the
+        // half-width resting pose; interactive only while the menu is open.
+        return IgnorePointer(
+          ignoring: !menu._open,
+          child: Opacity(
+            opacity: (ctrl.value / .35).clamp(0.0, 1.0),
+            child: _itemFrame(
+              theme: theme,
+              index: index,
+              scheme: scheme,
+              fill: fill,
+              containerColor: containerColor,
+              widthFactor: menu._widthFactor(ctrl.value).clamp(0.001, 1.5),
+              child: child,
+            ),
+          ),
         );
       },
       child: MorphTappable(

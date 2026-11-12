@@ -235,28 +235,21 @@ extension _MorphButtonGroupLayout on _MorphButtonGroupState {
 
     if (!_supportsAnimatedSquish) {
       final interleaved = _interleaveWithGaps(context, children, spacing);
-      // Spec: connected groups span their surface and grow segment widths.
-      if (widget._connected &&
-          widget.direction == Axis.horizontal &&
-          maxMain.isFinite) {
-        final fillWidth =
-            MorphTheme.of(context).buttonGroupTheme.maxWidth != null
-            ? math.min(
-                maxMain,
-                MorphTheme.of(context).buttonGroupTheme.maxWidth!,
-              )
-            : maxMain;
-        return SizedBox(
-          width: fillWidth,
-          child: Row(
-            children: [
-              for (var i = 0; i < interleaved.length; i++)
-                if (i.isEven)
-                  Expanded(child: interleaved[i])
-                else
-                  interleaved[i],
-            ],
-          ),
+      // Connected groups: shared automatic width (see itemWidth).
+      if (widget._connected && widget.direction == Axis.horizontal) {
+        final themeMax = MorphTheme.of(context).buttonGroupTheme.maxWidth;
+        // Dependencies that change natural content width: rebuild (and so
+        // re-measure) when they change.
+        MediaQuery.textScalerOf(context);
+        Localizations.maybeLocaleOf(context);
+        DefaultTextStyle.of(context);
+        return _UniformRowWidget(
+          textDirection: Directionality.of(context),
+          itemWidth: widget.itemWidth,
+          floors: [for (var i = 0; i < count; i++) _connectedContentFloor(i)],
+          fixedWidths: [for (final a in widget.actions) a.width],
+          maxExtent: themeMax == null ? maxMain : math.min(maxMain, themeMax),
+          children: interleaved,
         );
       }
       return _axisFlex(interleaved);

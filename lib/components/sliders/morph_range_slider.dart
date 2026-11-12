@@ -333,10 +333,12 @@ class _MorphRangeSliderState extends State<MorphRangeSlider>
           value:
               widget.semanticFormatterCallback?.call(widget.values) ??
               '${widget.values.start} – ${widget.values.end}',
-          child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              return _buildLayout(context, constraints, resolved);
-            },
+          child: MorphSmoothEdges(
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                return _buildLayout(context, constraints, resolved);
+              },
+            ),
           ),
         );
       },

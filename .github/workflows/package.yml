@@ -1,0 +1,40 @@
+name: Package validation
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Package archive and pana
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-flutter
+      - name: Check the pub.dev archive without publishing
+        run: dart pub publish --dry-run
+      - name: Generate and inspect pub's actual archive (no upload)
+        run: |
+          dart pub publish --to-archive="$RUNNER_TEMP/package.tar.gz"
+          python3 tool/ci/release_guard.py archive-files --archive "$RUNNER_TEMP/package.tar.gz"
+      - name: Run pinned pana with a score gate
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+          dart pub global activate pana 0.23.19
+          dart pub global run pana:pana --json --exit-code-threshold=0 . | tee "$RUNNER_TEMP/pana.json"
+      - name: Retain package and analysis evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: package-evidence-${{ github.sha }}-${{ github.event_name }}
+          path: |
+            ${{ runner.temp }}/package.tar.gz
+            ${{ runner.temp }}/pana.json
+          if-no-files-found: warn
+          retention-days: 7

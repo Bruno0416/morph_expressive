@@ -12,6 +12,7 @@ class MorphLoadingIndicatorTheme
     this.containerWidth = 48,
     this.containerHeight = 48,
     this.activeIndicatorSize = 38,
+    this.containedInset = 5,
     this.containerShape = const CircleBorder(),
     this.globalRotationDuration = const Duration(milliseconds: 1600),
     this.morphInterval = MorphMotion.extraLong4,
@@ -23,6 +24,7 @@ class MorphLoadingIndicatorTheme
     this.pulseSpringVelocity = 5,
   }) : assert(containerWidth > 0, 'containerWidth must be greater than zero'),
        assert(containerHeight > 0, 'containerHeight must be greater than zero'),
+       assert(containedInset >= 0, 'containedInset must not be negative'),
        assert(
          activeIndicatorSize > 0,
          'activeIndicatorSize must be greater than zero',
@@ -42,6 +44,11 @@ class MorphLoadingIndicatorTheme
 
   /// activeIndicatorSize.
   final double activeIndicatorSize;
+
+  /// Minimum clear distance (dp, absolute) between the contained variant's
+  /// morphing shape envelope and the container edge. Default 5 dp, which with
+  /// the nominal 48 dp container gives a 19 dp radial budget (24 − 5).
+  final double containedInset;
 
   /// Shape of the loading indicator container.
   ///
@@ -147,6 +154,7 @@ class MorphLoadingIndicatorTheme
     double? containerWidth,
     double? containerHeight,
     double? activeIndicatorSize,
+    double? containedInset,
     ShapeBorder? containerShape,
     Duration? globalRotationDuration,
     Duration? morphInterval,
@@ -161,6 +169,7 @@ class MorphLoadingIndicatorTheme
       containerWidth: containerWidth ?? this.containerWidth,
       containerHeight: containerHeight ?? this.containerHeight,
       activeIndicatorSize: activeIndicatorSize ?? this.activeIndicatorSize,
+      containedInset: containedInset ?? this.containedInset,
       containerShape: containerShape ?? this.containerShape,
       globalRotationDuration:
           globalRotationDuration ?? this.globalRotationDuration,
@@ -187,6 +196,7 @@ class MorphLoadingIndicatorTheme
         other.activeIndicatorSize,
         t,
       )!,
+      containedInset: _lerpDouble(containedInset, other.containedInset, t)!,
       containerShape: ShapeBorder.lerp(
         containerShape,
         other.containerShape,

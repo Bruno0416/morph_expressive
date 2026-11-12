@@ -34,6 +34,7 @@ class MorphSurfaceGlass with Diagnosticable {
     this.blendMode = BlendMode.srcOver,
     this.opaqueInHighContrast = true,
     this.webBackdropBlur = true,
+    this.boundedBlur = false,
   }) : assert(blurX >= 0, 'blurX must be >= 0'),
        assert(blurY >= 0, 'blurY must be >= 0'),
        assert(
@@ -54,7 +55,8 @@ class MorphSurfaceGlass with Diagnosticable {
       borderWidth = 0,
       blendMode = BlendMode.srcOver,
       opaqueInHighContrast = true,
-      webBackdropBlur = true;
+      webBackdropBlur = true,
+      boundedBlur = false;
 
   /// When false the host surface renders its original opaque appearance and
   /// pays no backdrop-filter cost.
@@ -91,6 +93,13 @@ class MorphSurfaceGlass with Diagnosticable {
   /// keep using real blur.
   final bool webBackdropBlur;
 
+  /// Opt into Flutter's layout-aware bounded Gaussian backdrop sampling.
+  ///
+  /// This restricts sampling at the surface boundary, changing edge colors.
+  /// It is an experimental quality/performance choice, NOT a guaranteed
+  /// speed-up. Defaults to false so existing frosted surfaces look identical.
+  final bool boundedBlur;
+
   /// Whether a real backdrop filter should be mounted for the current
   /// platform and blur strengths.
   bool get wantsBlur =>
@@ -108,6 +117,7 @@ class MorphSurfaceGlass with Diagnosticable {
     BlendMode? blendMode,
     bool? opaqueInHighContrast,
     bool? webBackdropBlur,
+    bool? boundedBlur,
   }) {
     return MorphSurfaceGlass(
       enabled: enabled ?? this.enabled,
@@ -120,6 +130,7 @@ class MorphSurfaceGlass with Diagnosticable {
       blendMode: blendMode ?? this.blendMode,
       opaqueInHighContrast: opaqueInHighContrast ?? this.opaqueInHighContrast,
       webBackdropBlur: webBackdropBlur ?? this.webBackdropBlur,
+      boundedBlur: boundedBlur ?? this.boundedBlur,
     );
   }
 
@@ -136,7 +147,8 @@ class MorphSurfaceGlass with Diagnosticable {
         other.borderWidth == borderWidth &&
         other.blendMode == blendMode &&
         other.opaqueInHighContrast == opaqueInHighContrast &&
-        other.webBackdropBlur == webBackdropBlur;
+        other.webBackdropBlur == webBackdropBlur &&
+        other.boundedBlur == boundedBlur;
   }
 
   @override
@@ -151,6 +163,7 @@ class MorphSurfaceGlass with Diagnosticable {
     blendMode,
     opaqueInHighContrast,
     webBackdropBlur,
+    boundedBlur,
   );
 
   @override
@@ -178,6 +191,7 @@ class MorphSurfaceGlass with Diagnosticable {
           value: webBackdropBlur,
           ifFalse: 'no backdrop blur on web',
         ),
-      );
+      )
+      ..add(FlagProperty('boundedBlur', value: boundedBlur, ifTrue: 'bounded'));
   }
 }

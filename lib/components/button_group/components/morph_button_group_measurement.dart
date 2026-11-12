@@ -688,4 +688,18 @@ extension _MorphButtonGroupMeasurement on _MorphButtonGroupState {
     final measured = selected ? resolvedSelected : unselectedWidth;
     return math.max(restingFloor, measured);
   }
+
+  /// Widest measured state (unselected / selected) of an action whose content
+  /// changes with selection, so selecting never changes the shared width.
+  double _connectedContentFloor(int index) {
+    final action = widget.actions[index];
+    if (!_needsDistinctSelectedMeasurement(action) ||
+        index >= _measuredUnselectedWidths.length) {
+      return 0;
+    }
+    return math.max(
+      _measuredUnselectedWidths[index] ?? 0,
+      _measuredSelectedWidths[index] ?? 0,
+    );
+  }
 }

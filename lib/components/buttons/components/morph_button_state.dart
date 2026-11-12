@@ -116,6 +116,10 @@ class _MorphButtonState extends State<MorphButton>
   @override
   void didUpdateWidget(covariant MorphButton oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (!widget.enabled ||
+        (widget.onPressed == null && widget.onLongPress == null)) {
+      cancelPointerPress();
+    }
     handleStatesControllerUpdate(
       oldWidget.statesController,
       widget.statesController,

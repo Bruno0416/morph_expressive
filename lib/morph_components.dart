@@ -3,11 +3,16 @@
 /// The public API is available via `package:morph_expressive/morph_expressive.dart`.
 library;
 
+export 'components/buttons/morph_shape_button.dart';
+
 export 'components/app_bars/morph_app_bars.dart';
 export 'components/badges/morph_badges.dart';
 export 'components/bottom_sheets/morph_bottom_sheets.dart';
 export 'components/button_group/morph_button_group.dart';
+export 'components/button_group/reactive/morph_reactive_button_group.dart';
 export 'components/buttons/morph_buttons.dart';
+export 'components/buttons/morph_async_button.dart';
+export 'components/skeleton/morph_skeleton.dart';
 export 'components/cards/morph_cards.dart';
 export 'components/carousel/morph_carousel.dart';
 export 'components/checkbox/morph_checkbox.dart';

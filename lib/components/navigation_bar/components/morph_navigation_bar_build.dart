@@ -270,12 +270,27 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
         // Keep the filter mounted when a scroll/visibility animation pauses
         // it. Toggling `enabled` preserves the compositing subtree instead of
         // tearing down and rebuilding the backdrop layer on each transition.
-        backdropLayer = BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: glass.blurX, sigmaY: glass.blurY),
-          blendMode: glass.blendMode,
-          enabled: blurEnabled,
-          child: backdropLayer,
-        );
+        backdropLayer = glass.boundedBlur
+            ? BackdropFilter(
+                filterConfig: ImageFilterConfig.blur(
+                  sigmaX: glass.blurX,
+                  sigmaY: glass.blurY,
+                  tileMode: TileMode.clamp,
+                  bounded: true,
+                ),
+                blendMode: glass.blendMode,
+                enabled: blurEnabled,
+                child: backdropLayer,
+              )
+            : BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: glass.blurX,
+                  sigmaY: glass.blurY,
+                ),
+                blendMode: glass.blendMode,
+                enabled: blurEnabled,
+                child: backdropLayer,
+              );
       }
       nav = ClipRRect(
         borderRadius: BorderRadius.circular(
@@ -467,6 +482,7 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
       ? MorphSlidingIndicator(
           leadSpring: theme.indicatorScaleSpring,
           selectionDelay: widget.selectionDelay,
+          organicStretchIntensity: widget.organicStretchIntensity,
           child: child,
         )
       : child;

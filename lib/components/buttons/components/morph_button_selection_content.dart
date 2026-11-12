@@ -28,6 +28,12 @@ extension _MorphButtonSelectionContent on _MorphButtonState {
       widget.icon == null &&
       widget.selectedLabel == null;
 
+  /// Plain [Text] labels without animated label states keep one line and
+  /// ellipsize when the bounded width is too small. Custom label widgets keep
+  /// the clipped natural-size layout (their own overflow policy).
+  bool get _ellipsizesLabel =>
+      !_hasDistinctLabelStates && _effectiveSelectionLabel is Text;
+
   bool get _hasDistinctLabelStates =>
       _animateIconToSelectedLabel || _animateLabelToSelectedIcon;
 
@@ -67,6 +73,14 @@ extension _MorphButtonSelectionContent on _MorphButtonState {
       builder: (context, constraints) {
         if (!constraints.hasBoundedWidth) {
           return row;
+        }
+        if (_ellipsizesLabel) {
+          // Bounded and static labels: keep one line and let the label
+          // ellipsize (never scaled, never hard-clipped mid-glyph).
+          return SizedBox(
+            height: measurements.height,
+            child: Align(child: row),
+          );
         }
         return SizedBox(
           height: measurements.height,
@@ -126,7 +140,7 @@ extension _MorphButtonSelectionContent on _MorphButtonState {
         children: [
           iconWidget,
           SizedBox(width: measurements.iconGap * labelProgress),
-          label,
+          _ellipsizesLabel ? Flexible(child: label) : label,
         ],
       );
     }
@@ -136,7 +150,12 @@ extension _MorphButtonSelectionContent on _MorphButtonState {
   Widget _buildSelectionLabel(Widget child, bool selected) {
     return KeyedSubtree(
       key: ValueKey('button-label-$selected-${child.hashCode}'),
-      child: DefaultTextStyle.merge(maxLines: 1, softWrap: false, child: child),
+      child: DefaultTextStyle.merge(
+        maxLines: 1,
+        softWrap: false,
+        overflow: TextOverflow.ellipsis,
+        child: child,
+      ),
     );
   }
 

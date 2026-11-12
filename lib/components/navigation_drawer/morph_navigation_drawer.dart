@@ -94,12 +94,14 @@ class MorphNavigationDrawer extends StatefulWidget {
     this.onDismissed,
     this.motion = MorphNavigationMotion.standard,
     this.selectionDelay,
+    this.organicStretchIntensity = 0.40,
     super.key,
   }) : assert(destinations.length >= 1, 'A drawer needs 1+ destinations.');
 
   /// A shared elastic selection pill that travels between destinations.
   const MorphNavigationDrawer.morph({
     this.selectionDelay,
+    this.organicStretchIntensity = 0.40,
     required this.destinations,
     required this.selectedIndex,
     required this.onDestinationSelected,
@@ -147,6 +149,10 @@ class MorphNavigationDrawer extends StatefulWidget {
 
   /// Optional trailing-edge pause for morph navigation. Defaults to 20ms.
   final Duration? selectionDelay;
+
+  /// Harmonic selection stretch (0 = original, 0.40 = MorphChip preset).
+  /// Only applied in Morph motion; shape returns to rest when motion ends.
+  final double organicStretchIntensity;
 
   @override
   State<MorphNavigationDrawer> createState() => _MorphNavigationDrawerState();

@@ -10,7 +10,7 @@ class MorphListCardListTheme {
   static const double defaultOuterRadius = 16;
 
   /// defaultInnerRadius.
-  static const double defaultInnerRadius = 4.5;
+  static const double defaultInnerRadius = 9.0;
 
   /// defaultGap.
   static const double defaultGap = 5;
@@ -24,13 +24,15 @@ class MorphListCardListTheme {
 
   const MorphListCardListTheme({
     this.outerRadius = defaultOuterRadius,
-    this.innerRadius = defaultInnerRadius,
+    double? innerRadius,
     this.gap = defaultGap,
     this.itemPadding = defaultItemPadding,
     this.variant = MorphCardVariant.filled,
     this.border,
     this.radiusSpring = MorphMotion.expressiveSpatialDefault,
-  });
+    // Keep the public `innerRadius:` API and distinguish explicit overrides.
+    // ignore: prefer_initializing_formals
+  }) : _innerRadius = innerRadius;
 
   /// defaults.
 
@@ -40,8 +42,12 @@ class MorphListCardListTheme {
 
   final double outerRadius;
 
-  /// innerRadius.
-  final double innerRadius;
+  /// Radius of internal (non-end) corners. If not explicitly supplied, it
+  /// follows [outerRadius] proportionally; 16 resolves to 9dp.
+  double get innerRadius =>
+      _innerRadius ?? outerRadius * defaultInnerRadius / defaultOuterRadius;
+
+  final double? _innerRadius;
 
   /// gap.
   final double gap;
@@ -80,7 +86,7 @@ class MorphListCardListTheme {
   }) {
     return MorphListCardListTheme(
       outerRadius: outerRadius ?? this.outerRadius,
-      innerRadius: innerRadius ?? this.innerRadius,
+      innerRadius: innerRadius ?? _innerRadius,
       gap: gap ?? this.gap,
       itemPadding: itemPadding ?? this.itemPadding,
       variant: variant ?? this.variant,

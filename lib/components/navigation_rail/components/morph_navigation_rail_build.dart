@@ -96,6 +96,7 @@ extension _MorphNavigationRailBuild on _MorphNavigationRailState {
             MorphSlidingIndicator(
               axis: Axis.vertical,
               selectionDelay: widget.selectionDelay,
+              organicStretchIntensity: widget.organicStretchIntensity,
               leadSpring: theme.indicatorLeadSpring,
               trailSpring: theme.indicatorTrailSpring,
               child: Column(mainAxisSize: MainAxisSize.min, children: rows),
@@ -146,11 +147,15 @@ extension _MorphNavigationRailBuild on _MorphNavigationRailState {
     ) {
       return count + section.destinations.length;
     });
-    return Semantics(
-      role: destinationsCount > 0 ? SemanticsRole.menu : null,
-      explicitChildNodes: true,
-      child: Column(children: <Widget>[...header, group, ?trailing]),
+    final Widget content = Column(
+      children: <Widget>[...header, group, ?trailing],
     );
+    if (destinationsCount == 0) {
+      return Semantics(explicitChildNodes: true, child: content);
+    }
+    // A viewport can cull every destination; the menu role must then go away
+    // instead of leaving an empty menu node.
+    return MorphMenuSemantics(child: content);
   }
 
   Widget _shortcuts(Widget child) {

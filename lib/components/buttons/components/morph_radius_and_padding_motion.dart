@@ -19,6 +19,8 @@ class MorphRadiusAndPaddingMotion extends StatefulWidget {
     required this.internalBottom,
     required this.targetRadius,
     this.pressed = false,
+    this.pressDuration = const Duration(milliseconds: 90),
+    this.releaseDuration = const Duration(milliseconds: 160),
     this.freezeTopLeft = false,
     this.freezeTopRight = false,
     this.freezeBottomLeft = false,
@@ -27,8 +29,11 @@ class MorphRadiusAndPaddingMotion extends StatefulWidget {
     required this.builder,
   });
 
-  /// Retained for compatibility with the shared button motion API.
+  /// Legacy spring configuration retained for source compatibility. This
+  /// animator uses the explicit temporal profile, not a spring simulation.
   final SpringMotion motion;
+  final Duration pressDuration;
+  final Duration releaseDuration;
   final double internalLeft;
   final double internalRight;
   final double internalTop;
@@ -61,6 +66,7 @@ class _MorphRadiusAndPaddingMotionState
   @override
   void initState() {
     super.initState();
+    _validateDurations();
     final target = _target();
     _tween = _MorphShapeTween(begin: target, end: target);
     _activeCurve = widget.pressed ? _pressCurve : _releaseCurve;
@@ -92,12 +98,20 @@ class _MorphRadiusAndPaddingMotionState
   @override
   void didUpdateWidget(covariant MorphRadiusAndPaddingMotion oldWidget) {
     super.didUpdateWidget(oldWidget);
+    _validateDurations();
     if (widget.targetRadius == oldWidget.targetRadius &&
         widget.internalLeft == oldWidget.internalLeft &&
         widget.internalRight == oldWidget.internalRight &&
         widget.internalTop == oldWidget.internalTop &&
         widget.internalBottom == oldWidget.internalBottom &&
-        widget.snapToTarget == oldWidget.snapToTarget) {
+        widget.snapToTarget == oldWidget.snapToTarget &&
+        widget.pressed == oldWidget.pressed &&
+        widget.pressDuration == oldWidget.pressDuration &&
+        widget.releaseDuration == oldWidget.releaseDuration &&
+        widget.freezeTopLeft == oldWidget.freezeTopLeft &&
+        widget.freezeTopRight == oldWidget.freezeTopRight &&
+        widget.freezeBottomLeft == oldWidget.freezeBottomLeft &&
+        widget.freezeBottomRight == oldWidget.freezeBottomRight) {
       return;
     }
 
@@ -105,14 +119,17 @@ class _MorphRadiusAndPaddingMotionState
     final next = _target();
     _tween = _MorphShapeTween(begin: current, end: next);
     _activeCurve = widget.pressed ? _pressCurve : _releaseCurve;
-    if (widget.snapToTarget || MorphMotion.reduceMotionOf(context)) {
+    final duration = widget.pressed
+        ? widget.pressDuration
+        : widget.releaseDuration;
+    if (widget.snapToTarget ||
+        MorphMotion.reduceMotionOf(context) ||
+        duration == Duration.zero) {
       _controller.stop();
       _controller.value = 1;
       return;
     }
-    // A slower ease-in/out on release prevents the default radius from
-    // reappearing almost immediately after lifting a finger.
-    _controller.duration = Duration(milliseconds: widget.pressed ? 165 : 380);
+    _controller.duration = duration;
     _controller.forward(from: 0);
   }
 
@@ -149,6 +166,14 @@ class _MorphRadiusAndPaddingMotionState
         ),
       ),
     );
+  }
+
+  void _validateDurations() {
+    if (widget.pressDuration.isNegative || widget.releaseDuration.isNegative) {
+      throw ArgumentError(
+        'Button press/release durations must be non-negative.',
+      );
+    }
   }
 
   @override

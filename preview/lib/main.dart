@@ -32,19 +32,68 @@ import 'component_gallery.dart';
 import 'component_gif_capture.dart';
 import 'mobile_frosted_surfaces_lab.dart';
 import 'desktop_context_menu_lab.dart';
+import 'frosted_blur_benchmark_lab.dart';
+import 'aa_probe.dart';
+import 'edge_stress.dart';
+import 'native_check.dart';
+import 'shape_morph_lab.dart';
+import 'operation_loading_lab.dart';
+import 'tabs_lab.dart';
 
 void main() {
+  if (const bool.fromEnvironment('MORPH_FROSTED_BENCHMARK')) {
+    runApp(const MorphFrostedBlurBenchmarkLab());
+    return;
+  }
+  const nativeCheck = String.fromEnvironment('MORPH_NATIVE_CHECK');
+  if (nativeCheck.isNotEmpty) {
+    runApp(const NativeCheckApp(mode: nativeCheck));
+    return;
+  }
+  if (const bool.fromEnvironment('MORPH_AA_PROBE')) {
+    runApp(const AaProbeApp());
+    return;
+  }
+  if (const bool.fromEnvironment('MORPH_EDGE_STRESS')) {
+    runApp(const EdgeStressApp());
+    return;
+  }
   final capture = Uri.base.queryParameters['capture'];
+  if (Uri.base.queryParameters['lab'] == 'operations' ||
+      const String.fromEnvironment('MORPH_LAB') == 'operations') {
+    runApp(const MorphPreviewApp(operationLab: true));
+    return;
+  }
+  if (Uri.base.queryParameters['lab'] == 'tabs' ||
+      const String.fromEnvironment('MORPH_LAB') == 'tabs') {
+    runApp(const MorphPreviewApp(tabsLab: true));
+    return;
+  }
   if (capture != null) {
     runApp(MorphGifCaptureApp(scene: capture));
   } else {
-    runApp(const MorphPreviewApp());
+    runApp(
+      MorphPreviewApp(
+        shapeLab:
+            Uri.base.queryParameters['lab'] == 'shapes' ||
+            const String.fromEnvironment('MORPH_LAB') == 'shapes',
+      ),
+    );
   }
 }
 
 /// Aplicacion de preview web para evaluar los widgets Morph.
 class MorphPreviewApp extends StatefulWidget {
-  const MorphPreviewApp({super.key, this.mobileLab = false});
+  const MorphPreviewApp({
+    super.key,
+    this.mobileLab = false,
+    this.shapeLab = false,
+    this.operationLab = false,
+    this.tabsLab = false,
+  });
+  final bool shapeLab;
+  final bool tabsLab;
+  final bool operationLab;
 
   /// Opens the touch-first preview without changing the existing web gallery.
   final bool mobileLab;
@@ -106,7 +155,18 @@ class _MorphPreviewAppState extends State<MorphPreviewApp> {
               )
             : child ?? const SizedBox.shrink(),
       ),
-      home: widget.mobileLab
+      home: widget.tabsLab
+          ? TabsLab(onToggleTheme: () => setState(() => _darkMode = !_darkMode))
+          : widget.operationLab
+          ? OperationLoadingLab(
+              onToggleTheme: () => setState(() => _darkMode = !_darkMode),
+            )
+          : widget.shapeLab
+          ? ShapeMorphLab(
+              onToggleTheme: () => setState(() => _darkMode = !_darkMode),
+              onSeedChanged: (color) => setState(() => _seed = color),
+            )
+          : widget.mobileLab
           ? MorphFrostedSurfacesLab(
               darkMode: _darkMode,
               onToggleTheme: () => setState(() => _darkMode = !_darkMode),
@@ -147,6 +207,34 @@ class _MorphPreviewAppState extends State<MorphPreviewApp> {
                   ],
                 ),
                 actions: [
+                  Builder(
+                    builder: (buttonContext) => IconButton(
+                      tooltip: 'Tabs Lab',
+                      icon: Icon(FluentIcons.line.tab_desktop),
+                      onPressed: () => Navigator.of(buttonContext).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => TabsLab(
+                            onToggleTheme: () =>
+                                setState(() => _darkMode = !_darkMode),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Builder(
+                    builder: (buttonContext) => IconButton(
+                      tooltip: 'Operation & Skeleton Lab',
+                      icon: Icon(FluentIcons.line.arrow_sync),
+                      onPressed: () => Navigator.of(buttonContext).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => OperationLoadingLab(
+                            onToggleTheme: () =>
+                                setState(() => _darkMode = !_darkMode),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                   MorphMenu(
                     anchorBuilder: (buttonContext, open) => IconButton(
                       tooltip: 'Haptic settings',
@@ -219,6 +307,21 @@ class _MorphPreviewAppState extends State<MorphPreviewApp> {
                       _darkMode
                           ? FluentIcons.line.weather_sunny
                           : FluentIcons.line.weather_moon,
+                    ),
+                  ),
+                  Builder(
+                    builder: (buttonContext) => IconButton(
+                      tooltip: 'Shape & Interaction Lab',
+                      icon: Icon(FluentIcons.line.shapes),
+                      onPressed: () => Navigator.of(buttonContext).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => ShapeMorphLab(
+                            onToggleTheme: () =>
+                                setState(() => _darkMode = !_darkMode),
+                            onSeedChanged: (c) => setState(() => _seed = c),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   const Gap(12),

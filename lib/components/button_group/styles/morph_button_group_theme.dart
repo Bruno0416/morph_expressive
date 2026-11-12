@@ -32,7 +32,7 @@ class MorphButtonGroupMetrics {
 class MorphButtonGroupTheme extends MorphThemeExtension<MorphButtonGroupTheme> {
   /// Creates a button group theme.
   const MorphButtonGroupTheme({
-    this.connectedGap = 2,
+    this.connectedGap = 4,
     this.dividerThickness = 1,
     this.expandedRatio = 0.15,
     this.fullRoundRadius = 9999,
@@ -47,7 +47,10 @@ class MorphButtonGroupTheme extends MorphThemeExtension<MorphButtonGroupTheme> {
   /// Package defaults (spec tokens).
   static const MorphButtonGroupTheme defaults = MorphButtonGroupTheme();
 
-  /// Gap between connected segments (spec: 2dp at every size).
+  /// Resting gap (dp, `>= 0`; 0 is allowed) between connected segments, at
+  /// every size and along the group's main axis. Default 4 dp. A group's
+  /// [MorphButtonGroup.spacing] overrides it. Not the buttons' content padding;
+  /// focus rings still widen the gap next to the focused segment.
   final double connectedGap;
 
   /// Divider thickness between connected segments.

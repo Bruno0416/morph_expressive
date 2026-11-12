@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart'
     show
         Align,
+        BorderSide,
         Alignment,
         AnimatedBuilder,
         BlendMode,
@@ -13,17 +14,23 @@ import 'package:material_ui/material_ui.dart'
         BuildContext,
         CallbackShortcuts,
         Clip,
+        ClipRRect,
         Color,
         ColoredBox,
         Column,
         CompositedTransformFollower,
         CompositedTransformTarget,
+        Center,
+        InkWell,
+        MaterialType,
+        Overlay,
+        WidgetState,
+        Listenable,
         CrossAxisAlignment,
         DecoratedBox,
         EdgeInsets,
         EdgeInsetsDirectional,
         ExcludeSemantics,
-        FittedBox,
         FocusNode,
         FocusScope,
         FocusScopeNode,
@@ -117,6 +124,8 @@ class MorphFabMenu extends StatefulWidget {
     this.decoration,
     this.glass,
     this.controller,
+    this.renderer = MorphShapeRenderer.auto,
+    this.onRendererChanged,
     super.key,
   }) : assert(
          items.length >= 2 && items.length <= 6,
@@ -161,6 +170,15 @@ class MorphFabMenu extends StatefulWidget {
   /// opaque pills.
   final MorphSurfaceGlass? glass;
 
+  /// Renderer requested for the main surface: [MorphShapeRenderer.shader] /
+  /// [MorphShapeRenderer.auto] use the rounded-rectangle shader when it is
+  /// loaded; [MorphShapeRenderer.canvas] (and any fallback, e.g. a gradient
+  /// fill or a failed load) draws the equivalent `RRect` on Canvas.
+  final MorphShapeRenderer renderer;
+
+  /// Reports the renderer actually used by the main surface.
+  final ValueChanged<MorphShapeRenderStatus>? onRendererChanged;
+
   @override
   State<MorphFabMenu> createState() => _MorphFabMenuState();
 }
@@ -179,6 +197,7 @@ class _MorphFabMenuState extends State<MorphFabMenu>
   final GlobalKey _itemsStackKey = GlobalKey();
 
   final ValueNotifier<int?> _focusedItemIndex = ValueNotifier<int?>(null);
+  final ValueNotifier<bool> _surfaceFocused = ValueNotifier<bool>(false);
   late SingleMotionController _fabShapeCtrl;
   final List<Timer> _staggerTimers = <Timer>[];
   final FocusScopeNode _menuFocusScope = FocusScopeNode(
@@ -230,7 +249,12 @@ class _MorphFabMenuState extends State<MorphFabMenu>
       motion: _springMotion(MorphFabMenuTheme.defaults.fabShapeSpring),
       vsync: this,
     );
-    _menuFocusScope.traversalEdgeBehavior = TraversalEdgeBehavior.closedLoop;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && !_portal.isShowing) {
+        _portal.show();
+        setState(() {});
+      }
+    });
     MorphFocusInteraction.instance.addListener(_onFocusInteractionChanged);
     widget.controller?.attachClient(this);
     widget.controller?.updateOpen(open: false);
@@ -288,6 +312,7 @@ class _MorphFabMenuState extends State<MorphFabMenu>
     _menuFocusScope.dispose();
     _closeFocusNode.dispose();
     _focusedItemIndex.dispose();
+    _surfaceFocused.dispose();
     _transformHandle?.close();
     super.dispose();
   }
@@ -334,19 +359,18 @@ class _MorphFabMenuState extends State<MorphFabMenu>
           return;
         }
         setState(() => _itemVisible[itemIndex] = true);
+        // No reset to 0: an interrupted close continues from the visible value.
         _itemCtrls[itemIndex]
           ..motion = _expandMotion
-          ..value = 0
           ..animateTo(1);
-        // After the last item mounts, focus the close button (spec a11y).
         if (itemIndex == 0) {
-          _focusCloseAfterFrame();
+          _focusSurfaceAfterFrame();
         }
       }),
     );
   }
 
-  void _focusCloseAfterFrame() {
+  void _focusSurfaceAfterFrame() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_open) {
         return;
@@ -356,7 +380,6 @@ class _MorphFabMenuState extends State<MorphFabMenu>
   }
 
   void _revealMenuItems() {
-    _portal.show();
     // Cascade from the FAB upward: bottom item (nearest FAB) first.
     final int count = _itemCtrls.length;
     final int staggerMs = _stagger.inMilliseconds;
@@ -366,25 +389,56 @@ class _MorphFabMenuState extends State<MorphFabMenu>
     }
   }
 
+  /// The scrim/items layer exists while open or while anything is still
+  /// collapsing, so closing is as continuous as opening.
+  bool get _menuLayerVisible {
+    if (_open || _fabShapeCtrl.value > 0.002) {
+      return true;
+    }
+    for (final SingleMotionController c in _itemCtrls) {
+      if (c.value > 0.002) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool _itemShown(int i) => _itemVisible[i] || _itemCtrls[i].value > 0.002;
+
+  void _onSurfacePressed() {
+    MorphHaptics.triggerFor(context);
+    _toggle();
+  }
+
+  void _onSurfaceRenderer(MorphShapeRenderStatus status) =>
+      widget.onRendererChanged?.call(status);
+
   void _close() {
     if (!_open) {
       return;
     }
     _releaseOverlayHistory();
     _cancelStagger();
-    // Instant hide — no reverse width morph (entry springs only).
-    for (final SingleMotionController c in _itemCtrls) {
-      c.value = 0;
-    }
+    final bool hadMenuFocus = _menuFocusScope.hasFocus;
     _itemVisible = List<bool>.filled(_itemCtrls.length, false);
     _focusedItemIndex.value = null;
-    _closeFocusNode.unfocus();
-    _portal.hide();
+    _menuFocusScope.traversalEdgeBehavior = TraversalEdgeBehavior.parentScope;
     setState(() => _open = false);
     widget.controller?.updateOpen(open: false);
+    // Items collapse (from the current value, interruptible) together with
+    // the surface returning to its closed shape.
+    for (final SingleMotionController c in _itemCtrls) {
+      c
+        ..motion = _expandMotion
+        ..animateTo(0);
+    }
     _fabShapeCtrl
       ..motion = _fabShapeMotion
       ..animateTo(0);
+    if (hadMenuFocus) {
+      // Focus returns to the (same) main control.
+      _closeFocusNode.requestFocus();
+    }
   }
 
   void _openMenu() {
@@ -392,11 +446,8 @@ class _MorphFabMenuState extends State<MorphFabMenu>
       return;
     }
     _cancelStagger();
-    for (final SingleMotionController c in _itemCtrls) {
-      c.value = 0;
-    }
-    _itemVisible = List<bool>.filled(_itemCtrls.length, false);
     _focusedItemIndex.value = null;
+    _menuFocusScope.traversalEdgeBehavior = TraversalEdgeBehavior.closedLoop;
     setState(() => _open = true);
     _holdOverlayHistory();
     widget.controller?.updateOpen(open: true);

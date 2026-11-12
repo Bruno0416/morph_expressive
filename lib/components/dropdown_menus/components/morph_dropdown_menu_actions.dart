@@ -15,6 +15,12 @@ extension _MorphDropdownMenuActions<T> on _MorphDropdownMenuState<T> {
 
     // Reopening during the exit animation reverses it without removing
     // the existing overlay.
+    if (!_controller.isOpen || _closingPanel) {
+      _openingOriginX = widget.originFromTap
+          ? (_nextPointerOriginX ?? 0.5)
+          : 0.5;
+    }
+    _nextPointerOriginX = null;
     _closingPanel = false;
     if (!_controller.isOpen) {
       _controller.setOpen(open: true);
@@ -23,7 +29,12 @@ extension _MorphDropdownMenuActions<T> on _MorphDropdownMenuState<T> {
     _resolveOpeningDirection();
     _expandCtrl.motion = _resolvedOpenMotion.toMotion();
     _arrowCtrl.motion = _resolvedOpenMotion.toMotion();
-    _expandCtrl.animateTo(1);
+    if (widget.motionStyle == MorphDropdownMotionStyle.centered) {
+      _panelCtrl.forward();
+      _heightCtrl.forward();
+    } else {
+      _expandCtrl.animateTo(1);
+    }
     _arrowCtrl.animateTo(math.pi);
     _portalController.show();
     _holdOverlayHistory();
@@ -87,7 +98,12 @@ extension _MorphDropdownMenuActions<T> on _MorphDropdownMenuState<T> {
     }
     _expandCtrl.motion = _resolvedCloseMotion.toMotion();
     _arrowCtrl.motion = _resolvedCloseMotion.toMotion();
-    _expandCtrl.animateTo(0);
+    if (widget.motionStyle == MorphDropdownMotionStyle.centered) {
+      _panelCtrl.reverse();
+      _heightCtrl.reverse();
+    } else {
+      _expandCtrl.animateTo(0);
+    }
     _arrowCtrl.animateTo(0);
     _searchTextController.clear();
     _searchDebounce?.cancel();
@@ -101,6 +117,9 @@ extension _MorphDropdownMenuActions<T> on _MorphDropdownMenuState<T> {
       return;
     }
     _applyHaptic();
+    if (!fromPointer) {
+      _nextPointerOriginX = null;
+    }
     if (_controller.isOpen) {
       _close();
     } else {

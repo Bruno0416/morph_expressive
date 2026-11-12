@@ -1,3 +1,6 @@
+import 'dart:async' show scheduleMicrotask;
+
+import 'package:flutter/scheduler.dart' show SchedulerBinding, SchedulerPhase;
 import 'package:morph_expressive/foundations/foundations.dart';
 import 'package:morph_expressive/morph_components.dart' show MorphButton;
 import 'package:material_ui/material_ui.dart'
@@ -24,6 +27,17 @@ import 'package:material_ui/material_ui.dart'
         WidgetsBinding,
         protected;
 import 'package:motor/motor.dart';
+import 'package:flutter/gestures.dart'
+    show
+        PointerMoveEvent,
+        PointerEvent,
+        OneSequenceGestureRecognizer,
+        GestureDisposition,
+        kPrimaryButton,
+        kTouchSlop;
+import 'package:flutter/rendering.dart' show RenderBox;
+import 'package:flutter/widgets.dart'
+    show Offset, RawGestureDetector, GestureRecognizerFactoryWithHandlers;
 
 import '../enums/morph_button_enums.dart';
 import '../styles/morph_button_motion.dart';
@@ -46,6 +60,10 @@ mixin MorphBaseButtonState<T extends StatefulWidget> on State<T> {
 
   late WidgetStatesController statesController;
   bool _ownsController = false;
+  int? _activePointer;
+  Offset? _pointerOrigin;
+  bool _trackingEnabled = false;
+  bool _stateSyncPending = false;
 
   /// isPressedNotifier.
 
@@ -67,42 +85,87 @@ mixin MorphBaseButtonState<T extends StatefulWidget> on State<T> {
     required bool enabled,
     required Widget child,
   }) {
-    if (!enabled) {
-      return child;
-    }
-
-    return TapRegion(
-      onTapOutside: _onTapOutside,
-      child: Listener(
-        behavior: HitTestBehavior.translucent,
-        onPointerDown: _onPointerDown,
-        onPointerUp: _onPointerUp,
-        onPointerCancel: _onPointerCancel,
-        child: child,
+    _trackingEnabled = enabled;
+    return RawGestureDetector(
+      gestures: {
+        _PressArenaObserver:
+            GestureRecognizerFactoryWithHandlers<_PressArenaObserver>(
+              _PressArenaObserver.new,
+              (observer) => observer.onResolved = (pointer) {
+                // Arena callbacks may precede the winning Material recognizer's
+                // accept callback. Observe its final state, never activate here.
+                scheduleMicrotask(() {
+                  if (mounted &&
+                      pointer == _activePointer &&
+                      !statesController.value.contains(WidgetState.pressed)) {
+                    cancelPointerPress();
+                  }
+                });
+              },
+            ),
+      },
+      child: TapRegion(
+        onTapOutside: _onTapOutside,
+        child: Listener(
+          behavior: HitTestBehavior.translucent,
+          onPointerDown: _onPointerDown,
+          onPointerUp: _onPointerUp,
+          onPointerCancel: _onPointerCancel,
+          onPointerMove: _onPointerMove,
+          child: child,
+        ),
       ),
     );
   }
 
   void _onTapOutside(PointerDownEvent _) {
+    if (!_trackingEnabled) return;
     MorphFocusInteraction.instance.notePointerInteraction();
     if (effectiveFocusNode.hasPrimaryFocus) {
       effectiveFocusNode.unfocus();
     }
   }
 
-  void _onPointerDown(PointerDownEvent _) {
+  void _onPointerDown(PointerDownEvent event) {
+    if (!_trackingEnabled ||
+        _activePointer != null ||
+        event.buttons != kPrimaryButton) {
+      return;
+    }
+    _activePointer = event.pointer;
+    _pointerOrigin = event.position;
     MorphFocusInteraction.instance.notePointerInteraction();
     _setPointerDown(true);
   }
 
-  void _onPointerUp(PointerUpEvent _) {
+  void _onPointerUp(PointerUpEvent event) {
+    if (event.pointer != _activePointer) return;
     // Do not request focus here — Material may focus for a11y, but
     // visual focus chrome is ring-only (keyboard). Sticky post-tap
     // focus fill is suppressed in button overlay resolution.
-    _setPointerDown(false);
+    cancelPointerPress();
   }
 
-  void _onPointerCancel(PointerCancelEvent _) {
+  void _onPointerCancel(PointerCancelEvent event) {
+    if (event.pointer == _activePointer) cancelPointerPress();
+  }
+
+  void _onPointerMove(PointerMoveEvent event) {
+    if (event.pointer != _activePointer) return;
+    final box = context.findRenderObject();
+    final outside =
+        box is RenderBox &&
+        !(Offset.zero & box.size).contains(box.globalToLocal(event.position));
+    if (outside || (event.position - _pointerOrigin!).distance > kTouchSlop) {
+      cancelPointerPress();
+    }
+  }
+
+  /// Cancels visual tracking only; Material remains the activation authority.
+  @protected
+  void cancelPointerPress() {
+    _activePointer = null;
+    _pointerOrigin = null;
     _setPointerDown(false);
   }
 
@@ -243,6 +306,7 @@ mixin MorphBaseButtonState<T extends StatefulWidget> on State<T> {
         statesController.dispose();
       }
       _initController();
+      onStateChanged();
     }
   }
 
@@ -256,7 +320,11 @@ mixin MorphBaseButtonState<T extends StatefulWidget> on State<T> {
         _internalFocusNode?.dispose();
         _internalFocusNode = null;
       }
-      _initFocusNode();
+      if (externalFocusNode == null) {
+        _internalFocusNode = FocusNode(debugLabel: '$T');
+      }
+      effectiveFocusNode.addListener(_onFocusChanged);
+      _syncFocusHighlight();
     }
   }
 
@@ -292,9 +360,27 @@ mixin MorphBaseButtonState<T extends StatefulWidget> on State<T> {
     if (!mounted) {
       return;
     }
+    // Material may update disabled/pressed while its subtree is building.
+    // Never notify an ancestor ValueListenableBuilder from that descendant.
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      if (!_stateSyncPending) {
+        _stateSyncPending = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _stateSyncPending = false;
+          if (mounted) onStateChanged();
+        });
+      }
+      return;
+    }
+    final wasPressed = isPressedNotifier.value;
     isPressedNotifier.value = statesController.value.contains(
       WidgetState.pressed,
     );
+    if ((wasPressed && !isPressedNotifier.value) ||
+        statesController.value.contains(WidgetState.disabled)) {
+      cancelPointerPress();
+    }
     isHoveredNotifier.value = statesController.value.contains(
       WidgetState.hovered,
     );
@@ -315,5 +401,57 @@ mixin MorphBaseButtonState<T extends StatefulWidget> on State<T> {
     isPointerDownNotifier.dispose();
     isHoveredNotifier.dispose();
     isFocusedNotifier.dispose();
+  }
+}
+
+/// A non-activating arena participant. Inner Material recognizers win first;
+/// rejection also observes wins by scroll/drag/eager recognizers before tap-down.
+class _PressArenaObserver extends OneSequenceGestureRecognizer {
+  void Function(int pointer)? onResolved;
+  bool _withdrawing = false;
+  bool _disposed = false;
+  @override
+  void addAllowedPointer(PointerDownEvent event) {
+    if (event.buttons != kPrimaryButton) return;
+    startTrackingPointer(event.pointer, event.transform);
+    // Do not hold Material's tap pending (including connected group motion).
+    // Immediate competing winners are observed; later cancellation is supplied
+    // by Material state and pointer-slop tracking.
+    scheduleMicrotask(() {
+      if (_disposed) return;
+      _withdrawing = true;
+      resolve(GestureDisposition.rejected);
+      _withdrawing = false;
+    });
+  }
+
+  @override
+  void handleEvent(PointerEvent event) {
+    if (event is PointerUpEvent || event is PointerCancelEvent) {
+      resolve(GestureDisposition.rejected);
+      stopTrackingPointer(event.pointer);
+    }
+  }
+
+  @override
+  void acceptGesture(int pointer) {
+    onResolved?.call(pointer);
+    stopTrackingPointer(pointer);
+  }
+
+  @override
+  void rejectGesture(int pointer) {
+    if (!_withdrawing) onResolved?.call(pointer);
+    stopTrackingPointer(pointer);
+  }
+
+  @override
+  void didStopTrackingLastPointer(int pointer) {}
+  @override
+  String get debugDescription => 'Morph visual press observer';
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
   }
 }

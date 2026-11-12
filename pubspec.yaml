@@ -1,6 +1,6 @@
 name: morph_expressive
 description: A Flutter design system that builds on Material 3 Expressive with a focus on symmetry, rounded shapes, balanced colors, and smooth animations.
-version: 0.7.0
+version: 0.8.0
 homepage: https://github.com/Bruno0416/morph_expressive
 repository: https://github.com/Bruno0416/morph_expressive
 issue_tracker: https://github.com/Bruno0416/morph_expressive/issues
@@ -23,29 +23,28 @@ platforms:
   web:
   windows:
 
-# Reuse the 10 existing, verified GIFs for the 0.7.0 release.
-# New captures are not required for this version.
+# Ten animated screenshots for the pub.dev gallery (the README shows 14).
 screenshots:
-  - description: Standard Material 3 Expressive chips and animated Morph single and multiple selection.
-    path: doc/assets/gifs/chips.gif
-  - description: Search, outlined and animated filled text fields with a floating label.
-    path: doc/assets/gifs/textfields.gif
-  - description: Animated segmented toggle and connected button group.
-    path: doc/assets/gifs/segmented.gif
-  - description: Expressive buttons and selection states.
+  - description: Controlled async button going from loading to success (animated check) and to error, in preserved-width and compact modes.
+    path: doc/assets/gifs/async_button.gif
+  - description: Skeleton placeholders sharing one tilted shimmer, then the real content appears without moving the layout.
+    path: doc/assets/gifs/skeleton.gif
+  - description: FAB sizes, the extended FAB and a FAB menu whose main surface morphs while the items open and close.
+    path: doc/assets/gifs/fab_menu.gif
+  - description: The five button styles with 90/160 ms press response and ShapeButtons with rotation and morph.
     path: doc/assets/gifs/buttons.gif
-  - description: Linear, circular and expressive loading indicators.
+  - description: Segmented toggle, the connected button group and an automatically sized reactive group with a restrained neighbour response.
+    path: doc/assets/gifs/segmented.gif
+  - description: Tabs with a rounded underline and a pill surface whose indicator follows the page swipe.
+    path: doc/assets/gifs/tabs.gif
+  - description: Free and contained loaders with circular, circular wavy, linear and linear wavy progress.
     path: doc/assets/gifs/loading.gif
-  - description: Compact and wide animated navigation bars.
+  - description: Morph navigation bars with elastic selection, plus the page indicators.
     path: doc/assets/gifs/navigation.gif
-  - description: Animated Expressive icon-pill and Morph top-dash navigation with page indicators.
-    path: doc/assets/gifs/navigation_morph.gif
-  - description: Morph navigation rail and drawer with shared elastic selection.
-    path: doc/assets/gifs/navigation_rail_drawer.gif
-  - description: Animated list item swipe actions with expressive spring motion.
+  - description: Dropdown menu opening, selecting and closing with the updated render and motion.
+    path: doc/assets/gifs/dropdown.gif
+  - description: List rows revealing and closing spring swipe actions.
     path: doc/assets/gifs/lists.gif
-  - description: Floating dialogs with animated entrance and exit.
-    path: doc/assets/gifs/dialogs.gif
 
 environment:
   sdk: ^3.13.0
@@ -67,3 +66,13 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+
+flutter:
+  shaders:
+    - shaders/morph_shimmer.frag
+    - shaders/morph_ellipse.frag
+    - shaders/morph_rrect.frag
+    - shaders/frosted_kawase_single_pass.frag
+    - shaders/dropdown_liquid_unfold.frag
+    - shaders/chip_organic.frag
+    - shaders/date_range_reveal.frag

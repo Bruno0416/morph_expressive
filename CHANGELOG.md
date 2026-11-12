@@ -1,5 +1,82 @@
 # Changelog
 
+## 0.8.0 - 2026-11-12
+
+### Added
+
+- **Controlled operations and placeholders.** `MorphAsyncButton` (idle, loading,
+  success, error; preserved-width or compact; semantic error colors; animated
+  loader → success glyph; custom labels and icons) and `MorphSkeleton` /
+  `MorphSkeletonGroup` (one coordinated shimmer with a configurable tilt, pulse
+  and static effects, accessible replacement by the real content). Themes:
+  `MorphAsyncButtonTheme`, `MorphSkeletonTheme`
+  (`MorphThemeData.asyncButtonTheme` / `skeletonTheme`).
+  Guide: `doc/OPERATION_LOADING.md`.
+- **Shape engine.** Own cubic geometry (`MorphGeometryEngine`, `MorphContour`,
+  `MorphShape`), a shape catalog (`MorphShapeCatalog`: nine local definitions and
+  26 adaptations built through the public API), `MorphShapeView` with Canvas
+  reference rendering and a restricted ellipse Shader, and the existing
+  `MorphLoadingIndicator` rebuilt on the engine (`shapes`, `renderer`,
+  `containedInset`). Guide: `doc/SHAPE_ENGINE.md`.
+- **`MorphShapeButton`**: controlled shape button with press response, optional
+  `pressedShape` / `selectedShape`, and an optional continuous surface rotation.
+- **`MorphReactiveButtonGroup`** (single selection, multi toggle, independent
+  actions) with a bounded, local width compensation: pressed and selected items
+  widen a little and only their neighbours give way.
+- **Tabs.** `MorphTabs` gained a continuous indicator: rounded underline
+  (default) or a persistent surface (pill or rounded rectangle), slide or elastic
+  motion, content or tab fit, real measurement and a coordinated geometry for the
+  container, the surface and the content. With a shared `MorphTabsController`, a
+  `MorphTabsView` publishes its fractional position and the indicator follows
+  drags, flings and animated changes. Also `MorphTabsAlignment.content`,
+  `MorphTab.id` and tab / tab list / tab panel semantics. Guide: `doc/TABS.md`.
+- **Menus.** `MorphMenuSubmenuBehavior`: desktop submenus open on hover by default
+  (`MorphMenuSubmenuOpenMode.hover` or `.click`, with delays), accepted by
+  `MorphMenu`, `MorphMenu.entries` and `showMorphMenu`.
+- **Rendering foundations.** `MorphRoundedSurface` (rounded-rectangle Shader with
+  a Canvas fallback), `MorphEdgeCoverage` and `MorphSmoothEdges` for edge
+  antialiasing, and `MorphMenuSemantics`.
+- Preview labs `?lab=operations`, `?lab=shapes` and `?lab=tabs`, and 14 refreshed
+  animated captures (`doc/PREVIEW.md`).
+
+### Changed
+
+- **Buttons.** Press and release now use 90 ms / 160 ms
+  (`MorphButtonTheme.pressDuration` / `releaseDuration`), reversible from the
+  visible geometry. Connected inner radii grow from 8 / 4 to 11 / 6.
+- **Button groups.** A connected `MorphButtonGroup` no longer expands to the
+  available width: it measures its buttons and uses the widest as the common
+  width (`itemWidth` overrides it). `connectedGap` default 4 dp (was 2), set with
+  `spacing` or the theme.
+- **FAB menu.** One main surface morphs between the FAB and the close button;
+  `renderer` / `onRendererChanged` report Shader or Canvas.
+- **Dropdowns and menus.** Centered fade-and-scale motion by default
+  (`motionStyle`; `liquid` and `legacy` remain selectable); panel top margin 8 dp
+  (was 4).
+- **Organic stretch.** Rail, drawer, page indicator, segmented controls and chips
+  accept an organic stretch/bloom intensity (`0` keeps the original geometry; the
+  rail and page indicator default to 0.40).
+- Chips, date-range ink and the expressive loader were refined (see the guides).
+
+### Fixed
+
+- Edge antialiasing on sliders, progress indicators, buttons (including splash)
+  and list swipe actions on backends without partial edge coverage.
+- Exact 360° rotation of Shader shapes; Shader programs are no longer cached as
+  pending futures.
+- Menu semantics: a menu role is exposed only while it has children.
+- Focus no longer widens the neighbouring gap in connected groups.
+- Tabs: no overflow of stacked tabs with large text; the indicator is no longer
+  clipped at the bottom of scrolling bars.
+
+### Compatibility
+
+- Everything above is additive or has the defaults listed in `doc/UPGRADE_0_8_0.md`;
+  existing constructors, polygon types and re-exports remain.
+- Not included: the general migration of defaults, refresh indicator changes and a
+  continuous page indicator.
+- Publication of 0.8.0 is pending.
+
 ## 0.7.0 - 2026-11-02
 
 ### Added

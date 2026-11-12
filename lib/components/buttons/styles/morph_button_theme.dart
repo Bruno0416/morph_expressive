@@ -15,11 +15,17 @@ class MorphButtonTheme extends MorphThemeExtension<MorphButtonTheme> {
     this.focusRingGap = MorphButtonConstants.kFocusRingGap,
     this.minWidthFloor = 48,
     this.dividerHeight = 24,
-    this.connectedInnerRadius = 8,
-    this.connectedPressedInnerRadius = 4,
+    this.connectedInnerRadius = 11,
+    this.connectedPressedInnerRadius = 6,
     this.labelSlideDistance = 10,
     this.shapeSpring = MorphMotion.buttonMorph,
+    this.pressDuration = const Duration(milliseconds: 90),
+    this.releaseDuration = const Duration(milliseconds: 160),
   });
+
+  /// Temporal corner morph profile; independent of Material animationDuration.
+  final Duration pressDuration;
+  final Duration releaseDuration;
 
   /// defaults.
 
@@ -47,7 +53,8 @@ class MorphButtonTheme extends MorphThemeExtension<MorphButtonTheme> {
   /// Horizontal distance used by selection label transitions.
   final double labelSlideDistance;
 
-  /// Spatial spring for press/release corner morph (stiffness 1400 / damping 0.9).
+  /// Legacy spatial spring, retained for consumers and spring-based effects.
+  /// Button corner transitions use [pressDuration] / [releaseDuration].
   final MorphSpring shapeSpring;
 
   static final Map<MorphButtonSize, double> _squareRadiusTable = {
@@ -59,11 +66,11 @@ class MorphButtonTheme extends MorphThemeExtension<MorphButtonTheme> {
   };
 
   static final Map<MorphButtonSize, double> _pressedRadiusTable = {
-    MorphButtonSize.xs: 8,
-    MorphButtonSize.sm: 8,
-    MorphButtonSize.md: 12,
-    MorphButtonSize.lg: 16,
-    MorphButtonSize.xl: 16,
+    MorphButtonSize.xs: 10,
+    MorphButtonSize.sm: 10,
+    MorphButtonSize.md: 15,
+    MorphButtonSize.lg: 20,
+    MorphButtonSize.xl: 20,
   };
 
   /// Legacy intermediate hover radii (used by toggle; buttons keep resting).
@@ -267,6 +274,8 @@ class MorphButtonTheme extends MorphThemeExtension<MorphButtonTheme> {
     double? connectedPressedInnerRadius,
     double? labelSlideDistance,
     MorphSpring? shapeSpring,
+    Duration? pressDuration,
+    Duration? releaseDuration,
   }) {
     return MorphButtonTheme(
       focusRingWidth: focusRingWidth ?? this.focusRingWidth,
@@ -278,6 +287,8 @@ class MorphButtonTheme extends MorphThemeExtension<MorphButtonTheme> {
           connectedPressedInnerRadius ?? this.connectedPressedInnerRadius,
       labelSlideDistance: labelSlideDistance ?? this.labelSlideDistance,
       shapeSpring: shapeSpring ?? this.shapeSpring,
+      pressDuration: pressDuration ?? this.pressDuration,
+      releaseDuration: releaseDuration ?? this.releaseDuration,
     );
   }
 
@@ -307,6 +318,20 @@ class MorphButtonTheme extends MorphThemeExtension<MorphButtonTheme> {
         t,
       )!,
       shapeSpring: t < 0.5 ? shapeSpring : other.shapeSpring,
+      pressDuration: Duration(
+        microseconds: _lerpDouble(
+          pressDuration.inMicroseconds.toDouble(),
+          other.pressDuration.inMicroseconds.toDouble(),
+          t.clamp(0.0, 1.0),
+        )!.round(),
+      ),
+      releaseDuration: Duration(
+        microseconds: _lerpDouble(
+          releaseDuration.inMicroseconds.toDouble(),
+          other.releaseDuration.inMicroseconds.toDouble(),
+          t.clamp(0.0, 1.0),
+        )!.round(),
+      ),
     );
   }
 

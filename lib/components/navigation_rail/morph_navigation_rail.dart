@@ -1,5 +1,3 @@
-import 'dart:ui' show SemanticsRole;
-
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart'
     show
@@ -108,6 +106,7 @@ class MorphNavigationRail extends StatefulWidget {
   const MorphNavigationRail({
     this.motion = MorphNavigationMotion.standard,
     this.selectionDelay,
+    this.organicStretchIntensity = 0.40,
     super.key,
     this.type = MorphNavigationRailType.expanded,
     this.modality = MorphNavigationRailModality.standard,
@@ -136,6 +135,7 @@ class MorphNavigationRail extends StatefulWidget {
   /// A shared elastic selection pill that travels between destinations.
   const MorphNavigationRail.morph({
     this.selectionDelay,
+    this.organicStretchIntensity = 0.40,
     super.key,
     this.type = MorphNavigationRailType.expanded,
     this.modality = MorphNavigationRailModality.standard,
@@ -232,6 +232,10 @@ class MorphNavigationRail extends StatefulWidget {
 
   /// Optional trailing-edge pause for morph navigation. Defaults to 20ms.
   final Duration? selectionDelay;
+
+  /// Harmonic selection stretch (0 = original, 0.40 = MorphChip preset).
+  /// Only applied in Morph motion; shape returns to rest when motion ends.
+  final double organicStretchIntensity;
 
   @override
   State<MorphNavigationRail> createState() => _MorphNavigationRailState();

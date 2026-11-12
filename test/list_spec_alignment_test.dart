@@ -24,8 +24,8 @@ import 'package:material_ui/material_ui.dart'
 
 void main() {
   testWidgets(
-    'segmented middle row rests at 4.5 and rounds to 16 on hover',
-    _segmentedMiddleRowRestsAt4p5AndRoundsTo16OnHover,
+    'segmented middle row rests at 9.0 and rounds to 16 on hover',
+    _segmentedMiddleRowRestsAt9AndRoundsTo16OnHover,
   );
   testWidgets(
     'expandable header rounds on hover and keeps one trailing icon',
@@ -57,7 +57,7 @@ void main() {
   );
 }
 
-Future<void> _segmentedMiddleRowRestsAt4p5AndRoundsTo16OnHover(
+Future<void> _segmentedMiddleRowRestsAt9AndRoundsTo16OnHover(
   WidgetTester tester,
 ) async {
   await _pump(
@@ -71,7 +71,7 @@ Future<void> _segmentedMiddleRowRestsAt4p5AndRoundsTo16OnHover(
     ),
   );
 
-  expect(_radius(tester, 'Row 1').topLeft.x, 4.5);
+  expect(_radius(tester, 'Row 1').topLeft.x, 9.0);
 
   final TestGesture hover = await tester.createGesture(
     kind: PointerDeviceKind.mouse,
@@ -113,7 +113,7 @@ Future<void> _expandableHeaderRoundsOnHoverAndKeepsOneTrailingIcon(
         .first,
   );
   expect(pill.size, const Size(32, 40));
-  expect(_radius(tester, 'Row 1').topLeft.x, 4.5);
+  expect(_radius(tester, 'Row 1').topLeft.x, 9.0);
 
   final TestGesture hover = await tester.createGesture(
     kind: PointerDeviceKind.mouse,
@@ -341,11 +341,11 @@ Future<void> _expandedSubListJoinsTheParentCornersAndFill(
 
   final MorphCard first = _card(tester, 'Nest 0');
   final MorphCard last = _card(tester, 'Nest 1');
-  expect(first.borderRadius, BorderRadius.circular(4.5));
+  expect(first.borderRadius, BorderRadius.circular(9.0));
   expect(
     last.borderRadius,
     const BorderRadius.vertical(
-      top: Radius.circular(4.5),
+      top: Radius.circular(9.0),
       bottom: Radius.circular(16),
     ),
   );

@@ -77,23 +77,25 @@ class MorphListSwipeActionButton extends StatelessWidget {
     return SizedBox(
       width: width,
       height: resolvedHeight,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(resolvedHeight / 2),
-        child: OverflowBox(
-          minWidth: visualWidth,
-          maxWidth: visualWidth,
-          minHeight: resolvedHeight,
-          maxHeight: resolvedHeight,
-          child: MorphIconButton(
-            icon: action.icon,
-            onPressed: action.enabled ? handlePress : null,
-            tooltip: action.tooltip,
-            semanticLabel: action.semanticLabel,
-            haptic: MorphHapticFeedback.none,
-            variant: variant,
-            enableFeedback: false,
-            visualSize: Size(visualWidth, resolvedHeight),
-            decoration: decoration,
+      child: MorphSmoothEdges(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(resolvedHeight / 2),
+          child: OverflowBox(
+            minWidth: visualWidth,
+            maxWidth: visualWidth,
+            minHeight: resolvedHeight,
+            maxHeight: resolvedHeight,
+            child: MorphIconButton(
+              icon: action.icon,
+              onPressed: action.enabled ? handlePress : null,
+              tooltip: action.tooltip,
+              semanticLabel: action.semanticLabel,
+              haptic: MorphHapticFeedback.none,
+              variant: variant,
+              enableFeedback: false,
+              visualSize: Size(visualWidth, resolvedHeight),
+              decoration: decoration,
+            ),
           ),
         ),
       ),

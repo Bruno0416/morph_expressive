@@ -171,5 +171,5 @@ References:
 
 - [Material UI 1.8.0 changelog](https://pub.dev/packages/material_ui/changelog)
 - [Dart imports, prefixes and show/hide](https://dart.dev/language/libraries)
-- [Dart ambiguous_import diagnostic](https://dart.dev/tools/diagnostics/ambiguous_import)
+- [Dart ambiguous_import diagnostic](https://dart.dev/tool/diagnostics/ambiguous_import)
 - [pub.dev scoring](https://pub.dev/help/scoring)

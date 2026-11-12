@@ -79,6 +79,10 @@ class MorphButtonDecoration {
   /// animationDuration.
   final Duration? animationDuration;
 
+  /// Geometry timing: local decoration > decoration scope > button theme.
+  final Duration? pressDuration;
+  final Duration? releaseDuration;
+
   /// enableFeedback.
   final bool? enableFeedback;
 
@@ -152,6 +156,8 @@ class MorphButtonDecoration {
     this.visualDensity,
     this.tapTargetSize,
     this.animationDuration,
+    this.pressDuration,
+    this.releaseDuration,
     this.enableFeedback,
     this.alignment,
     this.splashFactory,
@@ -197,6 +203,8 @@ class MorphButtonDecoration {
     VisualDensity? visualDensity,
     MaterialTapTargetSize? tapTargetSize,
     Duration? animationDuration,
+    Duration? pressDuration,
+    Duration? releaseDuration,
     bool? enableFeedback,
     AlignmentGeometry? alignment,
     InteractiveInkFeatureFactory? splashFactory,
@@ -250,6 +258,8 @@ class MorphButtonDecoration {
       visualDensity: visualDensity,
       tapTargetSize: tapTargetSize,
       animationDuration: animationDuration,
+      pressDuration: pressDuration,
+      releaseDuration: releaseDuration,
       enableFeedback: enableFeedback,
       alignment: alignment,
       splashFactory: splashFactory,
@@ -294,6 +304,8 @@ class MorphButtonDecoration {
       visualDensity: other.visualDensity,
       tapTargetSize: other.tapTargetSize,
       animationDuration: other.animationDuration,
+      pressDuration: other.pressDuration,
+      releaseDuration: other.releaseDuration,
       enableFeedback: other.enableFeedback,
       alignment: other.alignment,
       splashFactory: other.splashFactory,
@@ -335,6 +347,8 @@ class MorphButtonDecoration {
     VisualDensity? visualDensity,
     MaterialTapTargetSize? tapTargetSize,
     Duration? animationDuration,
+    Duration? pressDuration,
+    Duration? releaseDuration,
     bool? enableFeedback,
     AlignmentGeometry? alignment,
     InteractiveInkFeatureFactory? splashFactory,
@@ -372,6 +386,8 @@ class MorphButtonDecoration {
       visualDensity: visualDensity ?? this.visualDensity,
       tapTargetSize: tapTargetSize ?? this.tapTargetSize,
       animationDuration: animationDuration ?? this.animationDuration,
+      pressDuration: pressDuration ?? this.pressDuration,
+      releaseDuration: releaseDuration ?? this.releaseDuration,
       enableFeedback: enableFeedback ?? this.enableFeedback,
       alignment: alignment ?? this.alignment,
       splashFactory: splashFactory ?? this.splashFactory,
@@ -414,6 +430,8 @@ class MorphButtonDecoration {
           visualDensity == other.visualDensity &&
           tapTargetSize == other.tapTargetSize &&
           animationDuration == other.animationDuration &&
+          pressDuration == other.pressDuration &&
+          releaseDuration == other.releaseDuration &&
           enableFeedback == other.enableFeedback &&
           alignment == other.alignment &&
           splashFactory == other.splashFactory &&
@@ -452,6 +470,8 @@ class MorphButtonDecoration {
     visualDensity,
     tapTargetSize,
     animationDuration,
+    pressDuration,
+    releaseDuration,
     enableFeedback,
     alignment,
     splashFactory,

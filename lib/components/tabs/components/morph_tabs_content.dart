@@ -2,18 +2,42 @@ part of '../morph_tabs.dart';
 
 /// Icon/label content composition and badge placement for [MorphTabs].
 extension _MorphTabsContent on _MorphTabsState {
+  /// Content colour between the unselected and the selected colour. [weight]
+  /// is the selection weight of the tab (see `_weights`).
+  Color _contentColor(
+    MorphTabTheme theme,
+    MorphColorScheme scheme, {
+    required double weight,
+    required bool interacting,
+  }) {
+    Color colorFor(bool selected) => theme.contentColor(
+      scheme,
+      variant: widget.variant,
+      selected: selected,
+      interacting: interacting,
+      style: _spec.style,
+    );
+    if (weight <= 0) {
+      return colorFor(false);
+    }
+    if (weight >= 1) {
+      return colorFor(true);
+    }
+    return Color.lerp(colorFor(false), colorFor(true), weight)!;
+  }
+
   Widget _content(
     MorphTabTheme theme,
     MorphTab tab,
-    bool selected,
+    double weight,
     bool interacting,
   ) {
     final data = MorphTheme.of(context);
     final scheme = data.colorScheme;
-    final Color color = theme.contentColor(
+    final Color color = _contentColor(
+      theme,
       scheme,
-      variant: widget.variant,
-      selected: selected,
+      weight: weight,
       interacting: interacting,
     );
     final Widget? icon = tab.icon == null
@@ -28,13 +52,14 @@ extension _MorphTabsContent on _MorphTabsState {
             tab.label!,
             maxLines: theme.labelMaxLines,
             overflow: TextOverflow.ellipsis,
-            style: theme.labelStyle(
-              data.typeScale,
-              scheme,
-              selected: selected,
-              variant: widget.variant,
-              interacting: interacting,
-            ),
+            style: theme
+                .labelStyle(
+                  data.typeScale,
+                  scheme,
+                  selected: false,
+                  variant: widget.variant,
+                )
+                .copyWith(color: color),
           );
     final bool stack =
         widget.variant == MorphTabsVariant.primary &&
@@ -45,13 +70,16 @@ extension _MorphTabsContent on _MorphTabsState {
         ? icon
         : _badge(tab, child: icon);
     if (stack) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          badgeIcon!,
-          SizedBox(height: theme.stackedIconLabelGap),
-          _labeled(theme, tab, label, inlineBadge),
-        ],
+      return Padding(
+        padding: EdgeInsets.only(top: _stackedLift),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            badgeIcon!,
+            SizedBox(height: theme.stackedIconLabelGap),
+            _labeled(theme, tab, label, inlineBadge),
+          ],
+        ),
       );
     }
     return Row(
@@ -111,7 +139,7 @@ extension _MorphTabsContent on _MorphTabsState {
       alignment: inline
           ? MorphBadgeAlignment.topCenter
           : MorphBadgeAlignment.topRight,
-      child: child ?? SizedBox(width: dot ? 6 : 32, height: mark),
+      child: child ?? SizedBox(width: dot ? 6.0 : 32.0, height: mark),
     );
   }
 }

@@ -1,4 +1,8 @@
 import 'dart:async';
+import 'dart:math' as math;
+
+import 'package:flutter/gestures.dart' show PointerDownEvent;
+import 'package:flutter/widgets.dart' show Listener;
 
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart'
@@ -63,6 +67,7 @@ import 'package:material_ui/material_ui.dart'
 import 'package:motor/motor.dart';
 
 import '../../foundations/foundations.dart';
+import 'morph_chip_organic_surface.dart';
 
 /// An option in a [MorphChipToggle]. Values must be unique in the group.
 class MorphChipToggleOption<T> {
@@ -103,7 +108,19 @@ class MorphChipToggle<T> extends StatefulWidget {
     this.horizontalPadding,
     this.scrollable = true,
     this.scrollPadding = EdgeInsets.zero,
-  }) : assert(options.length >= 2),
+    this.organicIntensity = 0,
+    this.organicBloomIntensity,
+    this.organicStretchIntensity,
+  }) : assert(organicIntensity >= 0 && organicIntensity <= 1),
+       assert(
+         organicBloomIntensity == null ||
+             (organicBloomIntensity >= 0 && organicBloomIntensity <= 1),
+       ),
+       assert(
+         organicStretchIntensity == null ||
+             (organicStretchIntensity >= 0 && organicStretchIntensity <= 1),
+       ),
+       assert(options.length >= 2),
        assert(multiSelection || (selected != null && onChanged != null)),
        assert(
          !multiSelection ||
@@ -136,17 +153,33 @@ class MorphChipToggle<T> extends StatefulWidget {
   final bool scrollable;
   final EdgeInsetsGeometry scrollPadding;
 
+  /// 0 preserves the original pill and bloom animations exactly. Higher values
+  /// increase the irregular outline of the first-selection bloom and a smooth
+  /// central-height pinch during stretch, without changing the rounded ends.
+  /// The ink returns to its original shape at rest.
+  final double organicIntensity;
+
+  /// Optional bloom-only override; null inherits [organicIntensity].
+  final double? organicBloomIntensity;
+
+  /// Optional stretch-only override; null inherits [organicIntensity].
+  final double? organicStretchIntensity;
+
   @override
   State<MorphChipToggle<T>> createState() => _MorphChipToggleState<T>();
 }
 
 typedef _ChipBounds = ({double left, double right});
 
-class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
+class _MorphChipToggleState<T> extends State<MorphChipToggle<T>>
+    with TickerProviderStateMixin {
   double _leftTarget = 0;
   double _rightTarget = 0;
   bool _initialized = false;
   Timer? _singlePhase;
+  late final AnimationController _singleInk;
+  final math.Random _random = math.Random();
+  double _singleSeed = 0;
 
   Set<T> _previousSelections = <T>{};
   final Set<T> _exiting = <T>{};
@@ -155,16 +188,33 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
   final Set<T> _bloomExits = <T>{};
   // Non-boundary chips borrow the nearest active pill, then stretch/move.
   final Map<T, _ChipBounds> _entryOrigins = <T, _ChipBounds>{};
+  // The first bloom starts where the pointer pressed; keyboard uses center.
+  final Map<T, Offset> _bloomTapOrigins = <T, Offset>{};
+
+  double get _bloomIntensity =>
+      widget.organicBloomIntensity ?? widget.organicIntensity;
+  double get _stretchIntensity =>
+      widget.organicStretchIntensity ?? widget.organicIntensity;
+  bool get _hasOrganicInk => _bloomIntensity > 0 || _stretchIntensity > 0;
 
   @override
   void initState() {
     super.initState();
+    _singleInk = AnimationController(
+      vsync: this,
+      duration: widget.duration,
+      value: 1,
+    );
     _previousSelections = Set<T>.of(widget.selectedValues ?? <T>{});
+    if (_hasOrganicInk) {
+      unawaited(MorphChipOrganicSurface.warmUp());
+    }
   }
 
   @override
   void dispose() {
     _singlePhase?.cancel();
+    _singleInk.dispose();
     super.dispose();
   }
 
@@ -270,6 +320,10 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
   @override
   void didUpdateWidget(covariant MorphChipToggle<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
+    _singleInk.duration = widget.duration;
+    if (_hasOrganicInk) {
+      unawaited(MorphChipOrganicSurface.warmUp());
+    }
     final tokens = _resolveTokens(context);
     final (widths, lefts) = _computeBounds(
       context,
@@ -314,8 +368,8 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
       } else {
         _bloomEntries.remove(value);
         final sources = before.isEmpty ? current : before;
-        _entryOrigins[value] =
-            _findNearest(value, sources, lefts, widths) ?? own;
+        final source = _findNearest(value, sources, lefts, widths);
+        _entryOrigins[value] = source ?? own;
       }
       _bloomExits.remove(value);
       _exiting.remove(value);
@@ -342,17 +396,20 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
     List<double> widths,
   ) {
     _singlePhase?.cancel();
+    _singleSeed = _random.nextDouble() * 1000;
     final source = _boundsFor(from, lefts, widths);
     final target = _boundsFor(to, lefts, widths);
     final bool rightwards = target.left > source.left;
     final bool reduced = MorphMotion.reduceMotionOf(context);
     if (reduced) {
+      _singleInk.value = 1;
       setState(() {
         _leftTarget = target.left;
         _rightTarget = target.right;
       });
       return;
     }
+    _singleInk.forward(from: 0);
     setState(() {
       if (rightwards) {
         _rightTarget = target.right;
@@ -447,18 +504,31 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
                 active: !MorphMotion.reduceMotionOf(context),
                 motion: motion,
                 value: _rightTarget,
-                builder: (context, right, _) => Positioned(
-                  left: left,
-                  top: 0,
-                  width: (right - left).clamp(0.0, totalWidth).toDouble(),
-                  height: widget.height,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: colors.primary,
-                      borderRadius: BorderRadius.circular(widget.radius),
-                    ),
-                  ),
-                ),
+                builder: (context, right, _) {
+                  final pad = _stretchIntensity > 0 && !reduced ? 9.0 : 0.0;
+                  return Positioned(
+                    left: left - pad,
+                    top: -pad,
+                    width:
+                        (right - left).clamp(0.0, totalWidth).toDouble() +
+                        2 * pad,
+                    height: widget.height + 2 * pad,
+                    child: _stretchIntensity > 0 && !reduced
+                        ? AnimatedBuilder(
+                            animation: _singleInk,
+                            builder: (context, _) =>
+                                _inkForSingle(colors.primary),
+                          )
+                        : DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: colors.primary,
+                              borderRadius: BorderRadius.circular(
+                                widget.radius,
+                              ),
+                            ),
+                          ),
+                  );
+                },
               ),
             ),
           Row(
@@ -466,22 +536,38 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
             children: [
               for (int i = 0; i < widget.options.length; i++) ...[
                 if (i > 0) Gap(tokens.spacing),
-                MorphTappable(
-                  onTap: () => _onTap(widget.options[i].value),
-                  semanticButton: true,
-                  semanticChecked: selected.contains(widget.options[i].value),
-                  semanticInMutuallyExclusiveGroup: !widget.multiSelection,
-                  builder: (context, _) => SizedBox(
-                    width: widths[i],
-                    height: widget.height,
-                    child: _Chip<T>(
-                      option: widget.options[i],
-                      selected: selected.contains(widget.options[i].value),
-                      padding: tokens.padding,
-                      duration: reduced ? Duration.zero : widget.duration,
-                      curve: widget.curve,
-                      labelStyle: tokens.style,
-                      iconSize: widget.iconSize,
+                Listener(
+                  onPointerDown: (PointerDownEvent event) {
+                    // This listener does not join the gesture arena: MorphTappable
+                    // retains its tap, keyboard and accessibility behavior.
+                    _bloomTapOrigins[widget.options[i].value] = Offset(
+                      (event.localPosition.dx / widths[i])
+                          .clamp(0.0, 1.0)
+                          .toDouble(),
+                      (event.localPosition.dy / widget.height)
+                          .clamp(0.0, 1.0)
+                          .toDouble(),
+                    );
+                  },
+                  onPointerCancel: (_) =>
+                      _bloomTapOrigins.remove(widget.options[i].value),
+                  child: MorphTappable(
+                    onTap: () => _onTap(widget.options[i].value),
+                    semanticButton: true,
+                    semanticChecked: selected.contains(widget.options[i].value),
+                    semanticInMutuallyExclusiveGroup: !widget.multiSelection,
+                    builder: (context, _) => SizedBox(
+                      width: widths[i],
+                      height: widget.height,
+                      child: _Chip<T>(
+                        option: widget.options[i],
+                        selected: selected.contains(widget.options[i].value),
+                        padding: tokens.padding,
+                        duration: reduced ? Duration.zero : widget.duration,
+                        curve: widget.curve,
+                        labelStyle: tokens.style,
+                        iconSize: widget.iconSize,
+                      ),
                     ),
                   ),
                 ),
@@ -502,6 +588,9 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
         widget.scrollable
             ? SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
+                clipBehavior: _hasOrganicInk && !reduced
+                    ? Clip.none
+                    : Clip.hardEdge,
                 padding: widget.scrollPadding,
                 child: control,
               )
@@ -509,6 +598,16 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
       ],
     );
   }
+
+  Widget _inkForSingle(Color color) => MorphChipOrganicSurface(
+    color: color,
+    radius: widget.radius,
+    intensity: _stretchIntensity,
+    progress: _singleInk.value,
+    seed: _singleSeed,
+    mode: MorphChipInkMode.stretch,
+    padding: 9,
+  );
 
   Widget _buildMultiPill({
     required T value,
@@ -522,9 +621,10 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
     final i = _indexOf(value);
     final own = _boundsFor(i, lefts, widths);
     final exiting = !selected.contains(value);
-    final target = exiting
-        ? (_findNearest(value, selected, lefts, widths) ?? own)
-        : own;
+    final nearest = exiting
+        ? _findNearest(value, selected, lefts, widths)
+        : null;
+    final target = exiting ? (nearest ?? own) : own;
     return _MorphTogglePill(
       key: ValueKey<T>(value),
       initial: reduced || widget.duration == Duration.zero
@@ -541,6 +641,9 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>> {
       color: color,
       duration: reduced ? Duration.zero : widget.duration,
       stretchDelay: reduced ? Duration.zero : widget.stretchDelay,
+      bloomIntensity: reduced ? 0 : _bloomIntensity,
+      stretchIntensity: reduced ? 0 : _stretchIntensity,
+      bloomOrigin: _bloomTapOrigins[value] ?? const Offset(0.5, 0.5),
       onExit: () {
         if (!mounted || !_exiting.contains(value)) return;
         setState(() {
@@ -572,6 +675,9 @@ class _MorphTogglePill extends StatefulWidget {
     required this.color,
     required this.duration,
     required this.stretchDelay,
+    required this.bloomIntensity,
+    required this.stretchIntensity,
+    required this.bloomOrigin,
     required this.onExit,
   });
 
@@ -587,6 +693,9 @@ class _MorphTogglePill extends StatefulWidget {
   final Color color;
   final Duration duration;
   final Duration stretchDelay;
+  final double bloomIntensity;
+  final double stretchIntensity;
+  final Offset bloomOrigin;
   final VoidCallback onExit;
 
   @override
@@ -595,12 +704,16 @@ class _MorphTogglePill extends StatefulWidget {
 
 class _MorphTogglePillState extends State<_MorphTogglePill>
     with TickerProviderStateMixin {
+  static const double _organicPadding = 9;
+
   late final AnimationController _bloom;
   late final AnimationController _transfer;
   late Animatable<double> _leftTween;
   late Animatable<double> _rightTween;
   int _generation = 0;
   bool _transferStartPending = false;
+  final math.Random _random = math.Random();
+  late double _organicSeed;
 
   bool get _usesBloom =>
       (widget.bloomIn && !widget.exiting) ||
@@ -609,6 +722,7 @@ class _MorphTogglePillState extends State<_MorphTogglePill>
   @override
   void initState() {
     super.initState();
+    _organicSeed = _random.nextDouble() * 1000;
     _bloom = AnimationController(
       vsync: this,
       duration: widget.duration,
@@ -663,6 +777,11 @@ class _MorphTogglePillState extends State<_MorphTogglePill>
         (oldWidget.bloomIn && !oldWidget.exiting) ||
         (oldWidget.bloomOut && oldWidget.exiting);
     if (_usesBloom) {
+      if (oldWidget.exiting != widget.exiting ||
+          oldWidget.bloomIn != widget.bloomIn ||
+          oldWidget.bloomOut != widget.bloomOut) {
+        _organicSeed = _random.nextDouble() * 1000;
+      }
       _transfer.stop();
       if (widget.duration == Duration.zero) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -698,6 +817,7 @@ class _MorphTogglePillState extends State<_MorphTogglePill>
     final fromLeft = _leftTween.transform(sampleTime);
     final fromRight = _rightTween.transform(sampleTime);
     final to = widget.target;
+    _organicSeed = _random.nextDouble() * 1000;
     final generation = ++_generation;
     _transfer.stop();
     if (widget.duration == Duration.zero ||
@@ -751,20 +871,32 @@ class _MorphTogglePillState extends State<_MorphTogglePill>
   @override
   Widget build(BuildContext context) {
     if (_usesBloom) {
+      final pad = widget.bloomIntensity > 0 ? _organicPadding : 0.0;
       return Positioned(
-        left: widget.bounds.left,
-        top: 0,
-        width: widget.bounds.right - widget.bounds.left,
-        height: widget.height,
+        left: widget.bounds.left - pad,
+        top: -pad,
+        width: widget.bounds.right - widget.bounds.left + 2 * pad,
+        height: widget.height + 2 * pad,
         child: AnimatedBuilder(
           animation: _bloom,
-          builder: (context, _) => CustomPaint(
-            painter: _CircularChipBloomPainter(
-              progress: _bloom.value,
-              color: widget.color,
-              radius: widget.radius,
-            ),
-          ),
+          builder: (context, _) => widget.bloomIntensity > 0
+              ? MorphChipOrganicSurface(
+                  color: widget.color,
+                  radius: widget.radius,
+                  intensity: widget.bloomIntensity,
+                  progress: _bloom.value,
+                  seed: _organicSeed,
+                  mode: MorphChipInkMode.bloom,
+                  padding: pad,
+                  bloomOrigin: widget.bloomOrigin,
+                )
+              : CustomPaint(
+                  painter: _CircularChipBloomPainter(
+                    progress: _bloom.value,
+                    color: widget.color,
+                    radius: widget.radius,
+                  ),
+                ),
         ),
       );
     }
@@ -774,17 +906,29 @@ class _MorphTogglePillState extends State<_MorphTogglePill>
         final time = _transferStartPending ? 0.0 : _transfer.value;
         final left = _leftTween.transform(time);
         final right = _rightTween.transform(time);
+        final pad = widget.stretchIntensity > 0 ? _organicPadding : 0.0;
         return Positioned(
-          left: left,
-          top: 0,
-          width: (right - left).clamp(0.0, widget.maxWidth).toDouble(),
-          height: widget.height,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: widget.color,
-              borderRadius: BorderRadius.circular(widget.radius),
-            ),
-          ),
+          left: left - pad,
+          top: -pad,
+          width:
+              (right - left).clamp(0.0, widget.maxWidth).toDouble() + 2 * pad,
+          height: widget.height + 2 * pad,
+          child: widget.stretchIntensity > 0
+              ? MorphChipOrganicSurface(
+                  color: widget.color,
+                  radius: widget.radius,
+                  intensity: widget.stretchIntensity,
+                  progress: time,
+                  seed: _organicSeed,
+                  mode: MorphChipInkMode.stretch,
+                  padding: pad,
+                )
+              : DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: widget.color,
+                    borderRadius: BorderRadius.circular(widget.radius),
+                  ),
+                ),
         );
       },
     );

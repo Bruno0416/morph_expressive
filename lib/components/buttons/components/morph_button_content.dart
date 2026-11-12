@@ -18,7 +18,9 @@ extension _MorphButtonContent on _MorphButtonState {
     final baseStyle = _buildBaseStyle();
 
     return wrapWithPointerPressTracking(
-      enabled: widget.enabled && widget.onPressed != null,
+      enabled:
+          widget.enabled &&
+          (widget.onPressed != null || widget.onLongPress != null),
       child: buildAnimatedContent(
         builder:
             (
@@ -118,7 +120,9 @@ extension _MorphButtonContent on _MorphButtonState {
     required bool isHovered,
     required bool isFocused,
   }) {
-    final effectivelyEnabled = widget.enabled && widget.onPressed != null;
+    final effectivelyEnabled =
+        widget.enabled &&
+        (widget.onPressed != null || widget.onLongPress != null);
     final targetRadius = _targetShape(
       effectivelyEnabled: effectivelyEnabled,
       isPressed: isPressed,
@@ -129,12 +133,15 @@ extension _MorphButtonContent on _MorphButtonState {
     Widget core = RepaintBoundary(
       child: MorphRadiusAndPaddingMotion(
         motion: springMotion,
+        pressDuration: _decoration?.pressDuration ?? _buttonTheme.pressDuration,
+        releaseDuration:
+            _decoration?.releaseDuration ?? _buttonTheme.releaseDuration,
         internalLeft: baseInternalPadding.left,
         internalRight: baseInternalPadding.right,
         internalTop: baseInternalPadding.top,
         internalBottom: baseInternalPadding.bottom,
         targetRadius: targetRadius,
-        pressed: isPressed,
+        pressed: effectivelyEnabled && isPressed,
         snapToTarget: MorphMotion.reduceMotionOf(context),
         freezeTopLeft: widget.isGroupConnected && shapes.freezeLeft,
         freezeBottomLeft: widget.isGroupConnected && shapes.freezeLeft,
@@ -191,7 +198,15 @@ extension _MorphButtonContent on _MorphButtonState {
       child = ExcludeSemantics(child: child);
     }
 
-    final style = baseStyle.copyWith(
+    final operationSurface = _decoration?.backgroundBuilder != null
+        ? null
+        : context.dependOnInheritedWidgetOfExactType<MorphOperationSurface>();
+    final materialStyle = operationSurface == null
+        ? baseStyle
+        : baseStyle.copyWith(
+            backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
+          );
+    final style = materialStyle.copyWith(
       padding: _decoration?.padding != null
           ? WidgetStateProperty.all<EdgeInsetsGeometry>(_decoration!.padding!)
           : WidgetStateProperty.all<EdgeInsetsGeometry>(internalPadding),
@@ -200,14 +215,37 @@ extension _MorphButtonContent on _MorphButtonState {
       ),
       backgroundBuilder: _withStateLayer(
         animatedRadius,
-        morphGradientSurfaceBuilder(
-          clipRadius: animatedRadius,
-          backgroundGradient: _decoration?.backgroundGradient,
-          overlayGradient: _decoration?.overlayGradient,
-          outlineGradient: _decoration?.outlineGradient,
-          outlineSide: _decoration?.side,
-          explicitBuilder: _decoration?.backgroundBuilder,
-        ),
+        operationSurface != null
+            ? (context, states, child) => Stack(
+                fit: StackFit.passthrough,
+                children: [
+                  Positioned.fill(
+                    child: LayoutBuilder(
+                      builder: (context, bounds) => MorphRoundedSurface(
+                        size: bounds.biggest,
+                        radius: animatedRadius.topLeft.x,
+                        color:
+                            baseStyle.backgroundColor?.resolve(states) ??
+                            Colors.transparent,
+                        gradient: _decoration?.backgroundGradient?.resolve(
+                          states,
+                        ),
+                        renderer: operationSurface.renderer,
+                        onRendererChanged: operationSurface.onRendererChanged,
+                      ),
+                    ),
+                  ),
+                  ?child,
+                ],
+              )
+            : morphGradientSurfaceBuilder(
+                clipRadius: animatedRadius,
+                backgroundGradient: _decoration?.backgroundGradient,
+                overlayGradient: _decoration?.overlayGradient,
+                outlineGradient: _decoration?.outlineGradient,
+                outlineSide: _decoration?.side,
+                explicitBuilder: _decoration?.backgroundBuilder,
+              ),
       ),
       foregroundBuilder: morphGradientForegroundBuilder(
         clipRadius: animatedRadius,
@@ -337,7 +375,10 @@ extension _MorphButtonContent on _MorphButtonState {
           inkSplashColor;
     }
 
-    Widget result = MorphInkSplashTheme(color: inkSplashColor, child: button);
+    Widget result = MorphInkSplashTheme(
+      color: inkSplashColor,
+      child: MorphSmoothEdges(bleed: 12, child: button),
+    );
     if (widget.tooltip != null) {
       result = MorphTooltip(message: widget.tooltip, child: result);
     }

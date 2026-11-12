@@ -266,11 +266,11 @@ void main() {
     expect(radius, closeTo(5, 0.1));
 
     await tester.pumpWidget(sample(false));
-    await tester.pump(const Duration(milliseconds: 75));
+    await tester.pump(const Duration(milliseconds: 30));
     final first = radius;
-    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 40));
     final second = radius;
-    await tester.pump(const Duration(milliseconds: 110));
+    await tester.pump(const Duration(milliseconds: 50));
     final third = radius;
 
     final reduced = MorphMotion.reduceMotionOf(

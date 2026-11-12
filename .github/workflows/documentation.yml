@@ -1,0 +1,30 @@
+name: Documentation and workflow guards
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  documentation:
+    name: Documentation, metadata and workflow validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - run: python3 tool/ci/check_final_release_language.py --revision HEAD
+      - run: python3 tool/ci/release_guard.py metadata
+      - run: python3 tool/ci/check_markdown_links.py
+      - run: python3 tool/ci/release_guard.py check-local-context
+      - name: Validate workflow schema and expressions with pinned actionlint
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --retry 3 \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.7/actionlint_1.7.7_linux_amd64.tar.gz \
+            --output "$RUNNER_TEMP/actionlint.tar.gz"
+          echo "023070a287cd8cccd71515fedc843f1985bf96c436b7effaecce67290e7e0757  $RUNNER_TEMP/actionlint.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" -color

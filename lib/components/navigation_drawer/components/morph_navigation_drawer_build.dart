@@ -115,6 +115,7 @@ extension _MorphNavigationDrawerBuild on _MorphNavigationDrawerState {
             leadSpring: theme.indicatorScaleSpring,
             axis: Axis.vertical,
             selectionDelay: widget.selectionDelay,
+            organicStretchIntensity: widget.organicStretchIntensity,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: rows,

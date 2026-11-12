@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import '../../foundations/foundations.dart';
 import '../buttons/utils/morph_button_gradient_layer.dart';
+import '../navigation_rail/components/morph_sliding_indicator.dart';
 import 'components/morph_segment_divider.dart';
 import 'enums/morph_segmented_button_enums.dart';
 import 'models/morph_segment.dart';
@@ -26,12 +27,14 @@ class MorphSegmentedButton<T> extends StatefulWidget {
     this.showSelectedIcon = true,
     this.density = MorphSegmentedButtonDensity.regular,
     this.enabled = true,
+    this.organicStretchIntensity = 0.40,
     this.semanticLabel,
     super.key,
   }) : assert(
          segments.length >= 2 && segments.length <= 5,
          'A segmented button needs 2–5 segments.',
-       );
+       ),
+       assert(organicStretchIntensity >= 0 && organicStretchIntensity <= 1);
 
   /// Segments rendered in reading order (2–5).
   final List<MorphSegment<T>> segments;
@@ -53,6 +56,10 @@ class MorphSegmentedButton<T> extends StatefulWidget {
 
   /// When false, the whole group is disabled.
   final bool enabled;
+
+  /// Harmonic motion for single selection (0 preserves original fills).
+  /// Multi-selection remains independent because it has multiple active fills.
+  final double organicStretchIntensity;
 
   /// Optional accessibility label for the group.
   final String? semanticLabel;
@@ -247,13 +254,63 @@ class _MorphSegmentedButtonState<T> extends State<MorphSegmentedButton<T>> {
       enabled: groupEnabled,
     );
     final Gradient? outlineGradient = segmentedButtonTheme.outlineGradient;
+    // A single active segment can share one moving indicator. Multi-select,
+    // gradient fills and zero intensity retain their existing independent art.
+    final sharedFill =
+        groupEnabled &&
+        !widget.multiSelect &&
+        widget.selected.length == 1 &&
+        widget.organicStretchIntensity > 0 &&
+        !MorphMotion.reduceMotionOf(context) &&
+        segmentedButtonTheme.selectedBackgroundGradient == null &&
+        segmentedButtonTheme.unselectedBackgroundGradient == null;
+    final row = Row(
+      key: _rowKey,
+      mainAxisSize: MainAxisSize.min,
+      children: _buildSegmentFills(
+        context,
+        segmentedButtonTheme,
+        ignoreSelected: sharedFill,
+      ),
+    );
     Widget visualBand = ClipRRect(
       borderRadius: borderRadius,
-      child: Row(
-        key: _rowKey,
-        mainAxisSize: MainAxisSize.min,
-        children: _buildSegmentFills(context, segmentedButtonTheme),
-      ),
+      child: sharedFill
+          ? Stack(
+              children: [
+                row,
+                Positioned.fill(
+                  child: MorphSlidingIndicator(
+                    organicStretchIntensity: widget.organicStretchIntensity,
+                    child: Row(
+                      children: [
+                        for (var i = 0; i < widget.segments.length; i++) ...[
+                          if (i > 0)
+                            SizedBox(width: segmentedButtonTheme.borderWidth),
+                          Expanded(
+                            child: MorphIndicatorTarget(
+                              selected: widget.selected.contains(
+                                widget.segments[i].value,
+                              ),
+                              decoration: BoxDecoration(
+                                color: segmentedButtonTheme.backgroundColor(
+                                  scheme,
+                                  selected: true,
+                                ),
+                                // Outer clipping retains the existing group
+                                // corners; interior divisions stay square.
+                                borderRadius: BorderRadius.zero,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : row,
     );
     visualBand = Container(
       height: visualHeight,
@@ -282,8 +339,9 @@ class _MorphSegmentedButtonState<T> extends State<MorphSegmentedButton<T>> {
   /// Selected fills and dividers (non-interactive paint layer).
   List<Widget> _buildSegmentFills(
     BuildContext context,
-    MorphSegmentedButtonTheme segmentedButtonTheme,
-  ) {
+    MorphSegmentedButtonTheme segmentedButtonTheme, {
+    bool ignoreSelected = false,
+  }) {
     final theme = MorphTheme.of(context);
     final children = <Widget>[];
     for (var i = 0; i < widget.segments.length; i++) {
@@ -303,7 +361,8 @@ class _MorphSegmentedButtonState<T> extends State<MorphSegmentedButton<T>> {
         );
       }
       final segment = widget.segments[i];
-      final selected = widget.selected.contains(segment.value);
+      final selected =
+          !ignoreSelected && widget.selected.contains(segment.value);
       final Gradient? gradient = selected
           ? segmentedButtonTheme.selectedBackgroundGradient
           : segmentedButtonTheme.unselectedBackgroundGradient;

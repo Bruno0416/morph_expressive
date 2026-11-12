@@ -19,15 +19,16 @@ while (($#)); do
     -h|--help)
       cat <<'HELP'
 Uso: bash tool/generate_component_gifs.sh [--only ESCENA ...] [--skip-build]
-Escenas: buttons dropdown segmented textfields chips sliders loading navigation navigation_morph navigation_rail_drawer lists dialogs
-Escenas chips/textfields: 640x480, 8.7s/8.2s para mostrar todas las variantes.
-Escena navigation_morph: 640x520, 7.2s (bar Morph, expressive y páginas).
-Escena navigation_rail_drawer: 640x500, 6.8s (rail y drawer Morph).
-Escena lists: 640x360, 5.8s para mostrar el reveal/close de swipe actions.
-Escena dialogs: 640x420, 6.5s para mostrar las animaciones del modal.
-Escenas sliders/loading: 640x360, 6.8s para capturar el aplanamiento wavy 90–98%.
-Otras escenas: 640x360, 4.8s (sin cambios).
-Variables: MORPH_GIF_FPS=15, MORPH_GIF_SECONDS=duración opcional, MORPH_GIF_PORT=8765
+Escenas (14 GIFs del README): buttons chips dialogs dropdown lists loading
+  navigation segmented sliders textfields async_button skeleton tabs fab_menu
+Escena solo para su guía: navigation_rail_drawer (no forma parte del conjunto por defecto).
+Cada escena marca su inicio; la grabación empieza 1.2 s después (fuentes y shaders listos).
+Los frames salen del screencast del compositor (~60/s, con su marca de tiempo real) y se
+muestrean en una rejilla uniforme: sin duplicar ni interpolar. 50 FPS (20 ms, el máximo
+uniforme de un GIF) en las escenas de movimiento y 25 FPS en las restantes. La escena
+navigation_rail_drawer comprueba además el renderer efectivo fuera de la imagen.
+Tamaños: ver sceneSettings en tool/gif_capture/capture.mjs.
+Variables: MORPH_GIF_FPS=8..50 (fuerza el mismo valor en todas las escenas), MORPH_GIF_SECONDS=duración opcional, MORPH_GIF_PORT=8765
 Requiere: flutter, npm/node, python3 y ffmpeg. Primera ejecución instala Playwright/Chromium.
 HELP
       exit 0 ;;

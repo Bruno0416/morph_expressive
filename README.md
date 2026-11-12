@@ -7,13 +7,63 @@ and smooth animations.
 The goal is to make components look and feel consistent while exploring new
 styles and interactions beyond Material 3 Expressive.
 
-## Highlights
+## What 0.8.0 adds
 
-- **Expressive components:** buttons, chips, text fields, lists, menus, dialogs, sheets, indicators and more.
-- **Frosted surfaces:** theme-aware glass for compatible floating surfaces and opt-in frosted cards.
-- **Blur-safe scrolling:** Flutter-like geometric stretch with `MorphScrollBehavior`.
-- **Navigation:** animated bars, rails and drawers, with floating, scroll-aware compositions.
-- **Interaction and accessibility:** spring-based motion, haptic feedback and reduced-motion support.
+- **Controlled operations and placeholders:** `MorphAsyncButton` and
+  `MorphSkeleton` / `MorphSkeletonGroup` with one coordinated, tiltable shimmer.
+- **Shapes:** an own geometry engine, a shape catalog, `MorphShapeButton` with
+  rotation and press response, and loaders built on the same engine.
+- **Buttons and groups:** 90/160 ms press response, automatic width and a
+  configurable gap for connected groups, and `MorphReactiveButtonGroup`.
+- **FAB menu:** a single main surface that morphs continuously while the items
+  open and close.
+- **Tabs:** a continuous indicator (rounded underline or surface) that follows
+  the real page swipe.
+- **Menus:** desktop submenus open on hover by default (click is configurable),
+  plus semantics fixes.
+- **Rendering fixes:** edge antialiasing, clipping, splash and exact 360° rotation.
+
+Everything is additive on top of 0.7.x. See the
+[upgrade guide](doc/UPGRADE_0_8_0.md) and the [changelog](CHANGELOG.md).
+Publication of 0.8.0 is pending.
+
+## Animated component previews
+
+Captured from Morph Expressive running in Flutter Web (dark theme, no cursor).
+
+### Operations and placeholders
+
+| | |
+|:---:|:---:|
+| **Async button** | **Skeleton** |
+| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/async_button.gif" alt="Async button going from loading to success and to error, in preserved-width and compact modes" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/skeleton.gif" alt="Skeleton placeholders sharing one tilted shimmer, then the real content" width="380"> |
+
+### FAB menu and buttons
+
+| | |
+|:---:|:---:|
+| **FABs and FAB menu** | **Buttons and ShapeButton** |
+| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/fab_menu.gif" alt="FAB sizes, extended FAB and the FAB menu whose main surface morphs while items open and close" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/buttons.gif" alt="Five button styles with press response and several ShapeButtons with rotation and morph" width="380"> |
+
+### Groups and tabs
+
+| | |
+|:---:|:---:|
+| **Segmented, connected and reactive groups** | **Tabs** |
+| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/segmented.gif" alt="Segmented toggle, connected button group and an automatically sized reactive button group" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/tabs.gif" alt="Rounded underline and pill tabs whose indicator follows the page swipe" width="380"> |
+
+### Indicators, navigation and the rest of the catalog
+
+| | |
+|:---:|:---:|
+| **Loaders and progress** | **Morph navigation** |
+| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/loading.gif" alt="Free and contained loaders with circular, circular wavy, linear and linear wavy progress" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/navigation.gif" alt="Morph navigation bars and page indicators" width="380"> |
+| **Dropdown** | **Lists and swipe actions** |
+| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/dropdown.gif" alt="Dropdown opening, selecting and closing" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/lists.gif" alt="List rows with spring swipe actions" width="380"> |
+| **Dialogs** | **Chips** |
+| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/dialogs.gif" alt="Floating dialog entrance and exit" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/chips.gif" alt="Single and multiple chip selection" width="380"> |
+| **Text fields** | **Sliders** |
+| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/textfields.gif" alt="Focus, typing and floating labels in filled and outlined fields" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/sliders.gif" alt="Normal and wavy sliders" width="380"> |
 
 ## Requirements
 
@@ -25,11 +75,11 @@ styles and interactions beyond Material 3 Expressive.
 
 ```yaml
 dependencies:
-  morph_expressive: ^0.7.0
+  morph_expressive: ^0.8.0
 ```
 
-Run `flutter pub get` after updating the dependency. For local development,
-you can use a Git/path dependency pointing at this checkout.
+Run `flutter pub get` after updating the dependency. 0.8.0 is not published yet:
+until it is, use a Git or path dependency pointing at this checkout.
 
 ## Quick start
 
@@ -65,93 +115,22 @@ void main() {
 This example uses a fixed light theme. For dynamic brightness, keep `MorphTheme`
 and the host Material theme synchronized. `MaterialApp.router` is supported.
 
-## Frosted surfaces and blur-safe scrolling
+## Where to go next
 
-`MorphSurfaceGlass` enables theme-aware blur, tint and border for compatible
-floating surfaces. Menus, dialogs, dropdown panels and sheets can inherit
-`MorphThemeData.floatingSurfaceGlass` or override it locally. Cards remain
-opaque by default; opt into frosted rendering with `MorphCard(frosted: true)`
-or an explicit `glass:` configuration.
-
-`MorphScrollBehavior` adds Flutter-like geometric stretch without an
-`ImageFiltered` ancestor above frosted content.
-
-```dart
-final theme = MorphThemeData.light(
-  seedColor: const Color(0xFF6750A4),
-).copyWith(
-  floatingSurfaceGlass: const MorphSurfaceGlass(
-    blurX: 12,
-    blurY: 12,
-    tintOpacity: 0.65,
-  ),
-);
-
-// Inside the MorphTheme subtree:
-ScrollConfiguration(
-  behavior: const MorphScrollBehavior(),
-  child: ListView(
-    children: const [
-      MorphCard(headline: 'Opaque by default'),
-      MorphCard(frosted: true, headline: 'Theme frosted'),
-    ],
-  ),
-)
-```
-
-The public [Frosted Surfaces example](example/frosted_surfaces.dart) demonstrates
-opaque, theme-frosted and explicitly frosted cards over a multicolor backdrop,
-plus dropdown, menu, dialog, sheet and blur-safe overscroll. It is also linked
-from the [existing component example](example/main.dart).
-
-Read [Frosted surfaces](doc/FROSTED_SURFACES.md) and
-[Blur-safe scrolling](doc/MORPH_SCROLL.md) for precedence rules, performance,
-platform trade-offs and tested integration patterns.
-
-## Navigation
-
-`MorphNavigationBar` supports standard, `.expressive()` and `.morph()` styles.
-`MorphNavigationBarHost` composes bottom navigation with scroll-aware visibility
-and optional pull-to-refresh, including nested scrolling layouts. Rail and
-drawer variants are also available.
-
-See the [navigation and glass guide](doc/NAVIGATION_MORPH.md) for complete
-examples, appearance settings and migration notes.
-
-## Animated component previews
-
-The examples below are captured directly from Morph Expressive running in
-Flutter Web (dark theme, no mouse cursor).
-
-| Buttons | Dropdown |
-|:---:|:---:|
-| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/buttons.gif" alt="Animated buttons" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/dropdown.gif" alt="Dropdown opening and closing" width="380"> |
-| **Segmented toggle** | **Text fields** |
-| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/segmented.gif" alt="Elastic segmented toggle" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/textfields.gif" alt="Search, outlined and filled text fields, including the floating label" width="380"> |
-| **Chips** | **Sliders** |
-| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/chips.gif" alt="Material 3 Expressive chips and Morph single/multiple selection" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/sliders.gif" alt="Linear and wavy sliders" width="380"> |
-| **Loading indicators** | **Navigation** |
-| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/loading.gif" alt="Animated progress and loading indicators" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/navigation.gif" alt="Animated navigation bars" width="380"> |
-| **Morph navigation + page indicator** | **Morph rail + drawer** |
-| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/navigation_morph.gif" alt="Expressive pill and Morph top-dash navigation bars with two page indicators" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/navigation_rail_drawer.gif" alt="Morph rail and drawer elastic selection" width="380"> |
-| **List items and swipe actions** | **Floating dialogs** |
-| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/lists.gif" alt="MorphList rows with spring swipe actions" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/dialogs.gif" alt="Expressive floating dialog transitions" width="380"> |
-
-## Documentation
-
-- [Getting started](https://github.com/Bruno0416/morph_expressive/blob/main/doc/GETTING_STARTED.md)
-- [Theming and typography](https://github.com/Bruno0416/morph_expressive/blob/main/doc/THEMING.md)
-- [Components](https://github.com/Bruno0416/morph_expressive/blob/main/doc/COMPONENTS.md)
-- [Frosted surfaces](doc/FROSTED_SURFACES.md)
-- [Blur-safe geometric scrolling](doc/MORPH_SCROLL.md)
-- [Motion](https://github.com/Bruno0416/morph_expressive/blob/main/doc/MOTION.md)
-- [Preview](https://github.com/Bruno0416/morph_expressive/blob/main/doc/PREVIEW.md)
-- [Changelog](CHANGELOG.md)
-
-For a practical interactive example of buttons, chips, text fields,
-list swipe actions, and dialogs, see
-[`example/main.dart`](https://github.com/Bruno0416/morph_expressive/blob/main/example/main.dart)
-and its [usage guide](example/README.md).
+- **Components:** [catalog](doc/COMPONENTS.md), the runnable
+  [example](example/main.dart) and the [preview](doc/PREVIEW.md) (a component
+  gallery plus labs for operations, shapes and tabs).
+- **Customization:** [theming](doc/THEMING.md), [motion](doc/MOTION.md) and
+  [reduced motion](doc/REDUCED_MOTION_ACCESSIBILITY.md).
+- **New in 0.8.0:** [operations and skeleton](doc/OPERATION_LOADING.md),
+  [shapes and renderers](doc/SHAPE_ENGINE.md), [tabs](doc/TABS.md),
+  [visual and interaction fixes](doc/R3_VISUAL_FIXES.md).
+- **Navigation, surfaces and scrolling:** [navigation](doc/NAVIGATION_MORPH.md),
+  [frosted surfaces](doc/FROSTED_SURFACES.md),
+  [blur-safe scrolling](doc/MORPH_SCROLL.md).
+- **Compatibility:** [upgrade from 0.7.x](doc/UPGRADE_0_8_0.md),
+  [pub.dev compatibility](doc/PUB_DEV_COMPATIBILITY.md) and the
+  [final report for 0.8.0](doc/RELEASE_0_8_0.md).
 
 ## Development
 
@@ -162,11 +141,10 @@ cd preview
 flutter run -d web-server --web-port 8080
 ```
 
-The preview is a separate Flutter application with a responsive component
-gallery. To regenerate existing animated captures, run
-`bash tool/generate_component_gifs.sh` from the repository root (requires
-Flutter, Node.js, Python 3 and FFmpeg). See the [preview guide](doc/PREVIEW.md)
-for details.
+The preview is a separate Flutter application. To regenerate the animated
+captures, run `bash tool/generate_component_gifs.sh` from the repository root
+(requires Flutter, Node.js, Python 3 and FFmpeg); see the
+[preview guide](doc/PREVIEW.md).
 
 ## Credits and license
 

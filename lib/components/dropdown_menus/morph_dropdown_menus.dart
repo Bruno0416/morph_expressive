@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
+import 'package:flutter/animation.dart'
+    show AnimationController, AnimationStatus;
 import 'package:material_ui/material_ui.dart'
     show
         Align,
@@ -296,6 +298,18 @@ class MorphDropdownMenu<T> extends StatefulWidget {
 
   // ── Animation ──
 
+  /// Centered opacity + 90%-100% scale is the default, independent of tap.
+  /// [MorphDropdownMotionStyle.liquid] opts back into tap-origin unfolding;
+  /// [MorphDropdownMotionStyle.legacy] restores the old height clip reveal.
+  final MorphDropdownMotionStyle motionStyle;
+
+  /// Edge tension used only by the explicit liquid unfolding style.
+  final double organicStretchIntensity;
+
+  /// Pointer origin for the optional liquid unfold style. Centered motion
+  /// always scales around the panel center regardless of this setting.
+  final bool originFromTap;
+
   /// The spring motion for the expand animation.
   ///
   /// When null, uses [MorphDropdownMenuTheme.openSpring].
@@ -358,6 +372,9 @@ class MorphDropdownMenu<T> extends StatefulWidget {
     this.closeOnBackButton = false,
     this.openMotion,
     this.closeMotion,
+    this.motionStyle = MorphDropdownMotionStyle.centered,
+    this.organicStretchIntensity = 0.35,
+    this.originFromTap = true,
     this.splashFactory = NoSplash.splashFactory,
     this.haptic = MorphHapticFeedback.inherit,
     this.glass,
@@ -365,7 +382,8 @@ class MorphDropdownMenu<T> extends StatefulWidget {
        assert(
          limit == null || limit > 0,
          'limit must be null or greater than 0',
-       );
+       ),
+       assert(organicStretchIntensity >= 0 && organicStretchIntensity <= 1);
 
   /// Creates an [MorphDropdownMenu] that loads items asynchronously.
   const MorphDropdownMenu.future({
@@ -396,6 +414,9 @@ class MorphDropdownMenu<T> extends StatefulWidget {
     this.closeOnBackButton = false,
     this.openMotion,
     this.closeMotion,
+    this.motionStyle = MorphDropdownMotionStyle.centered,
+    this.organicStretchIntensity = 0.35,
+    this.originFromTap = true,
     this.splashFactory = NoSplash.splashFactory,
     this.haptic = MorphHapticFeedback.inherit,
     this.glass,
@@ -403,7 +424,8 @@ class MorphDropdownMenu<T> extends StatefulWidget {
        assert(
          limit == null || limit > 0,
          'limit must be null or greater than 0',
-       );
+       ),
+       assert(organicStretchIntensity >= 0 && organicStretchIntensity <= 1);
 
   @override
   State<MorphDropdownMenu<T>> createState() => _MorphDropdownMenuState<T>();
@@ -438,6 +460,8 @@ class _MorphDropdownMenuState<T> extends State<MorphDropdownMenu<T>>
     debugLabel: 'MorphDropdownMenu.trap',
   );
   bool? _openingShowOnTop;
+  double _openingOriginX = 0.5;
+  double? _nextPointerOriginX;
 
   final TextEditingController _searchTextController = TextEditingController();
   Timer? _searchDebounce;
@@ -447,6 +471,13 @@ class _MorphDropdownMenuState<T> extends State<MorphDropdownMenu<T>>
 
   late final SingleMotionController _expandCtrl;
   late final SingleMotionController _arrowCtrl;
+  // A bounded timeline, separate from the arrow's spring. A panel must be
+  // visible from frame zero and reverse without rebuilding its overlay.
+  late final AnimationController _panelCtrl;
+  // Independent 240/200ms height reveal: finishes before the 300/250ms
+  // centered fade + scale, and reverses continuously if reopened mid-close.
+  late final AnimationController _heightCtrl;
+  static const double _contentFadeFraction = 0.35;
   late final ValueNotifier<bool> _loadingNotifier;
 
   /// Whether the field should paint the keyboard focus ring.
@@ -486,6 +517,8 @@ class _MorphDropdownMenuState<T> extends State<MorphDropdownMenu<T>>
       ..removeListener(_onExpandAnimationTick)
       ..dispose();
     _arrowCtrl.dispose();
+    _panelCtrl.dispose();
+    _heightCtrl.dispose();
     _searchDebounce?.cancel();
     _searchTextController.dispose();
     _loadingNotifier.dispose();
