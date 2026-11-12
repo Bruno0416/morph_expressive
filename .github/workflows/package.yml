@@ -16,6 +16,11 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-flutter
+      - name: Install screenshot processing tools for pana
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends webp
+          bash tool/ci/check_pana_tools.sh
       - name: Check the pub.dev archive without publishing
         run: dart pub publish --dry-run
       - name: Generate and inspect pub's actual archive (no upload)
@@ -26,6 +31,7 @@ jobs:
         if: ${{ !cancelled() }}
         run: |
           set -euo pipefail
+          bash tool/ci/check_pana_tools.sh
           dart pub global activate pana 0.23.19
           dart pub global run pana:pana --json --exit-code-threshold=0 . | tee "$RUNNER_TEMP/pana.json"
       - name: Retain package and analysis evidence

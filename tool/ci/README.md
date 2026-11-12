@@ -213,3 +213,30 @@ actual guard with the current README, a default-branch URL and a missing asset.
 Apply a correction before running its tests: the old 4.5dp and whole-widget
 label-center assertions are not the updated geometry tests. The combined
 README/geometry correction replaces the earlier standalone geometry patch.
+
+
+## Pana screenshot system dependencies
+
+The package job installs Ubuntu's `webp` package before pana and checks
+`webpinfo`, `cwebp`, `dwebp`, `gif2webp` and `webpmux` explicitly. These are used
+by pana 0.23.19 to convert screenshots and extract/resize animated thumbnails.
+For a local pana run install the equivalent WebP tools, then run:
+
+```bash
+bash tool/ci/check_pana_tools.sh
+dart pub global activate pana 0.23.19
+dart pub global run pana:pana --json --exit-code-threshold=0 .
+```
+
+In run 117305498364, tests, both compatibility resolutions and documentation
+passed. Pana scored 150/160: screenshot processing reported 40 problems,
+including missing executables (`No such file or directory`). Exit 127 was the
+score gate's failure status, not evidence that the pana executable was missing.
+The zero-point-loss gate is preserved; installing the image tools fixes the
+runner prerequisites rather than suppressing screenshot failures.
+
+Release ordering is already enforced: successful upload → pub.dev version and
+exact archive confirmation → immutable tag → GitHub Release. Finalization is
+not an always-run step after failed publication. Registry absence/errors or
+archive mismatch must create neither tag nor release. Recovery only finalizes
+a package whose publication is already confirmed, without re-uploading.

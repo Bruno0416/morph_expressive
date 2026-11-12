@@ -67,6 +67,36 @@ class ReleaseOperationsTest(unittest.TestCase):
                             next(i for i, e in enumerate(events) if e[:3] == ('gh', 'release', 'create')))
             main.assert_not_called()
 
+    def test_absent_registry_version_prevents_tag_and_release_after_all_retries(self):
+        with patch.object(release, 'require_main_push', return_value=SHA), \
+             patch.object(release.guard, 'read_metadata', return_value=('0.8.0', 'notes')), \
+             patch.object(release.guard, 'published_status', return_value=False) as status, \
+             patch.object(release.time, 'sleep'), \
+             patch.object(release, 'run') as run:
+            with self.assertRaisesRegex(ValueError, 'has not confirmed'):
+                release.finalize(Path('.'), Path('archive'), SHA)
+            self.assertEqual(5, status.call_count)
+            run.assert_not_called()
+
+    def test_wrong_published_archive_prevents_finalization_side_effects(self):
+        with patch.object(release, 'require_main_push', return_value=SHA), \
+             patch.object(release.guard, 'read_metadata', return_value=('0.8.0', 'notes')), \
+             patch.object(release.guard, 'published_status', return_value=True), \
+             patch.object(release.guard, 'published_archive_matches', return_value=False), \
+             patch.object(release, 'run') as run:
+            with self.assertRaisesRegex(ValueError, 'differs'):
+                release.finalize(Path('.'), Path('archive'), SHA)
+            run.assert_not_called()
+
+    def test_workflow_cannot_finalize_before_successful_upload(self):
+        workflow = (TOOL.parents[1] / '.github/workflows/publish.yml').read_text()
+        self.assertLess(workflow.index('run: bash tool/ci/publish.sh'),
+                        workflow.index('run: python3 tool/ci/release.py finalize'))
+        self.assertNotIn('continue-on-error: true', workflow)
+        final_step = workflow.split('- name: Confirm archive, then create immutable tag and GitHub Release', 1)[1]
+        self.assertNotIn('always()', final_step)
+        self.assertNotIn('failure()', final_step)
+
     def test_tag_conflict_never_overwrites_remote(self):
         with patch.object(release, 'require_main_push', return_value=SHA), \
              patch.object(release.guard, 'read_metadata', return_value=('0.8.0', 'notes')), \
