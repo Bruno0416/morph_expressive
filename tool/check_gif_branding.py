@@ -94,6 +94,11 @@ for name in README_GIFS:
     if f"{name}.gif" not in referenced:
         problems.append(f"README does not show {name}.gif")
 
+# Relative sources follow the branch/commit being viewed, including new GIFs.
+for source in re.findall(r'<img\b[^>]*\bsrc=["\']([^"\']+)["\']', readme, re.I):
+    if '.gif' in source.lower() and not re.fullmatch(r'doc/assets/gifs/[\w.-]+\.gif', source):
+        problems.append(f"README GIF must use a branch-relative local path: {source}")
+
 # Retired names must not remain in current documentation.
 current_docs = [ROOT / "README.md", ROOT / "pubspec.yaml"] + sorted((ROOT / "doc").glob("*.md"))
 skip = {"CHANGELOG.md", "UPGRADE_0_8_0.md", "RELEASE_0_8_0.md", "RELEASE_0_7_0.md"}

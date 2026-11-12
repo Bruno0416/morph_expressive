@@ -18,6 +18,8 @@ jobs:
       - uses: ./.github/actions/setup-flutter
       - name: Test automation and publication safeguards
         run: python3 -m unittest discover -s tool/ci/tests -p 'test_*.py'
+      - name: Resolve package and preview before formatting
+        run: flutter pub get && (cd preview && flutter pub get)
       - name: Validate Dart formatting
         run: dart format --output=none --set-exit-if-changed lib test example preview/lib preview/test
       - name: Analyze and test the package and preview

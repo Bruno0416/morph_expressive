@@ -172,3 +172,44 @@ to the old names. Verify cloud trust for the new caller `ci.yml` and reusable
 publisher `publish.yml` paths before a release-intended merge. This patch does
 not change external variables or cloud settings. Package identity, publication
 order and main-only gating are unchanged.
+
+
+## Reproducing the tests job from a clean local copy
+
+```bash
+python3 -m unittest discover -s tool/ci/tests -p 'test_check_bootstrap.py'
+python3 tool/ci/reproduce_tests.py
+```
+
+The first command runs four orchestration regressions using SDK command doubles.
+It reproduces the logged root-only dependency setup failure, checks both package
+resolutions before analysis, and ensures failed/missing preview configuration
+stops analysis. This does not replace Flutter tests.
+
+The second command requires the pinned Flutter/Dart SDK on PATH. It copies the
+current source into a temporary directory excluding package configurations and
+build caches, then runs the validation steps from `tests.yml`: automation tests,
+root/preview dependency resolution, Dart format and `tool/check.sh`. It returns the first failure unchanged,
+deletes only the temporary copy and leaves the original checkout untouched.
+The SDK and global pub cache are reused; this does not emulate SDK installation
+or the GitHub runner itself.
+
+In the supplied logs for commit `b42f05ab5c27d5e071221fd5b8ac615a47fe546d`,
+root analysis ran before `preview` dependency resolution and produced 71 issues.
+The aggregate check correctly failed after tests failed; later stages were
+skipped. The 18:34 snapshot already puts preview resolution before analysis.
+This correction preserves that ordering, explicitly checks both generated
+package configurations, adds regression coverage and prints aggregate results.
+No analyzer exclusions, suppressed errors or relaxed release gates are added.
+
+
+## README image sources
+
+README GIF images use relative `doc/assets/gifs/*.gif` sources so repository
+views use assets from their own branch or commit. `tool/check_gif_branding.py`
+rejects absolute GIF sources in the HTML image grid, checks all 14 files and
+keeps the ten-image pub.dev gallery contract. Integration tests exercise the
+actual guard with the current README, a default-branch URL and a missing asset.
+Apply a correction before running its tests: the old 4.5dp and whole-widget
+label-center assertions are not the updated geometry tests. The combined
+README/geometry correction replaces the earlier standalone geometry patch.

@@ -1533,6 +1533,7 @@ class _CaptureSceneState extends State<_CaptureScene> {
         _captureLabel('Fixed states · held for the whole clip'),
         const SizedBox(height: 10),
         Row(
+          key: const ValueKey('async_fixed_states'),
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             for (final (label, state) in const [
@@ -1541,27 +1542,29 @@ class _CaptureSceneState extends State<_CaptureScene> {
               ('Success', MorphOperationState.success),
               ('Error', MorphOperationState.error),
             ])
-              Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _captureLabel(label),
-                    const SizedBox(height: 8),
-                    MorphAsyncButton(
-                      // Preserved width reserves the widest label: the longest
-                      // ones are the idle label, so the success and error texts fit.
-                      label: 'Save changes',
-                      state: state,
-                      presentation: MorphOperationPresentation.preserveWidth,
-                      icon: Icon(FluentIcons.line.heart, size: 20),
-                      labels: const {
-                        MorphOperationState.success: 'Saved',
-                        MorphOperationState.error: 'Retry',
-                      },
-                      onPressed: () {},
-                    ),
-                  ],
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _captureLabel(label),
+                      const SizedBox(height: 8),
+                      MorphAsyncButton(
+                        // Each Expanded cell provides finite width, so labels
+                        // can ellipsize instead of overflowing the capture.
+                        label: 'Save changes',
+                        state: state,
+                        presentation: MorphOperationPresentation.preserveWidth,
+                        icon: Icon(FluentIcons.line.heart, size: 20),
+                        labels: const {
+                          MorphOperationState.success: 'Saved',
+                          MorphOperationState.error: 'Retry',
+                        },
+                        onPressed: () {},
+                      ),
+                    ],
+                  ),
                 ),
               ),
           ],

@@ -36,34 +36,34 @@ Captured from Morph Expressive running in Flutter Web (dark theme, no cursor).
 | | |
 |:---:|:---:|
 | **Async button** | **Skeleton** |
-| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/async_button.gif" alt="Async button going from loading to success and to error, in preserved-width and compact modes" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/skeleton.gif" alt="Skeleton placeholders sharing one tilted shimmer, then the real content" width="380"> |
+| <img src="doc/assets/gifs/async_button.gif" alt="Async button going from loading to success and to error, in preserved-width and compact modes" width="380"> | <img src="doc/assets/gifs/skeleton.gif" alt="Skeleton placeholders sharing one tilted shimmer, then the real content" width="380"> |
 
 ### FAB menu and buttons
 
 | | |
 |:---:|:---:|
 | **FABs and FAB menu** | **Buttons and ShapeButton** |
-| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/fab_menu.gif" alt="FAB sizes, extended FAB and the FAB menu whose main surface morphs while items open and close" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/buttons.gif" alt="Five button styles with press response and several ShapeButtons with rotation and morph" width="380"> |
+| <img src="doc/assets/gifs/fab_menu.gif" alt="FAB sizes, extended FAB and the FAB menu whose main surface morphs while items open and close" width="380"> | <img src="doc/assets/gifs/buttons.gif" alt="Five button styles with press response and several ShapeButtons with rotation and morph" width="380"> |
 
 ### Groups and tabs
 
 | | |
 |:---:|:---:|
 | **Segmented, connected and reactive groups** | **Tabs** |
-| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/segmented.gif" alt="Segmented toggle, connected button group and an automatically sized reactive button group" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/tabs.gif" alt="Rounded underline and pill tabs whose indicator follows the page swipe" width="380"> |
+| <img src="doc/assets/gifs/segmented.gif" alt="Segmented toggle, connected button group and an automatically sized reactive button group" width="380"> | <img src="doc/assets/gifs/tabs.gif" alt="Rounded underline and pill tabs whose indicator follows the page swipe" width="380"> |
 
 ### Indicators, navigation and the rest of the catalog
 
 | | |
 |:---:|:---:|
 | **Loaders and progress** | **Morph navigation** |
-| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/loading.gif" alt="Free and contained loaders with circular, circular wavy, linear and linear wavy progress" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/navigation.gif" alt="Morph navigation bars and page indicators" width="380"> |
+| <img src="doc/assets/gifs/loading.gif" alt="Free and contained loaders with circular, circular wavy, linear and linear wavy progress" width="380"> | <img src="doc/assets/gifs/navigation.gif" alt="Morph navigation bars and page indicators" width="380"> |
 | **Dropdown** | **Lists and swipe actions** |
-| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/dropdown.gif" alt="Dropdown opening, selecting and closing" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/lists.gif" alt="List rows with spring swipe actions" width="380"> |
+| <img src="doc/assets/gifs/dropdown.gif" alt="Dropdown opening, selecting and closing" width="380"> | <img src="doc/assets/gifs/lists.gif" alt="List rows with spring swipe actions" width="380"> |
 | **Dialogs** | **Chips** |
-| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/dialogs.gif" alt="Floating dialog entrance and exit" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/chips.gif" alt="Single and multiple chip selection" width="380"> |
+| <img src="doc/assets/gifs/dialogs.gif" alt="Floating dialog entrance and exit" width="380"> | <img src="doc/assets/gifs/chips.gif" alt="Single and multiple chip selection" width="380"> |
 | **Text fields** | **Sliders** |
-| <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/textfields.gif" alt="Focus, typing and floating labels in filled and outlined fields" width="380"> | <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/sliders.gif" alt="Normal and wavy sliders" width="380"> |
+| <img src="doc/assets/gifs/textfields.gif" alt="Focus, typing and floating labels in filled and outlined fields" width="380"> | <img src="doc/assets/gifs/sliders.gif" alt="Normal and wavy sliders" width="380"> |
 
 ## Requirements
 

@@ -217,6 +217,38 @@ void main() {
     });
   }
 
+  testWidgets('async fixed-state cells stay inside the capture width', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(640, 340);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(const MorphGifCaptureApp(scene: 'async_button'));
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    final row = find.byKey(const ValueKey('async_fixed_states'));
+    expect(row, findsOneWidget);
+    final bounds = tester.getRect(row);
+    final buttons = find.descendant(
+      of: row,
+      matching: find.byType(MorphAsyncButton),
+    );
+    expect(buttons, findsNWidgets(4));
+    expect(
+      tester.widgetList<MorphAsyncButton>(buttons).map((b) => b.state).toSet(),
+      MorphOperationState.values.toSet(),
+    );
+    for (var i = 0; i < 4; i++) {
+      final rect = tester.getRect(buttons.at(i));
+      expect(rect.width, greaterThan(0));
+      expect(rect.left, greaterThanOrEqualTo(bounds.left - 0.01));
+      expect(rect.right, lessThanOrEqualTo(bounds.right + 0.01));
+    }
+    await tester.pumpWidget(const SizedBox());
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('async button scene shows both widths and every state', (
     tester,
   ) async {

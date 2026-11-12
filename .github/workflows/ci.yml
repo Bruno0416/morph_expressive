@@ -43,6 +43,7 @@ jobs:
           DOCUMENTATION_RESULT: ${{ needs.documentation.result }}
           PACKAGE_RESULT: ${{ needs.package.result }}
         run: |
+          printf 'Validation results: tests=%s compatibility=%s documentation=%s package=%s\n' "$TESTS_RESULT" "$COMPATIBILITY_RESULT" "$DOCUMENTATION_RESULT" "$PACKAGE_RESULT"
           test "$TESTS_RESULT" = success
           test "$COMPATIBILITY_RESULT" = success
           test "$DOCUMENTATION_RESULT" = success
