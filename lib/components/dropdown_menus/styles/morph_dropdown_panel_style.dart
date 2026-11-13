@@ -28,7 +28,8 @@ class MorphDropdownPanelStyle with Diagnosticable {
   /// Maximum height of the dropdown panel.
   final double maxHeight;
 
-  /// Gap between the field and the dropdown panel.
+  /// Gap between the field and the dropdown panel. Defaults to 8 dp,
+  /// matching the panel's default content padding.
   final double marginTop;
 
   /// Text shown when search yields no matches. Ignored when `emptyBuilder` is not null.
@@ -61,7 +62,7 @@ class MorphDropdownPanelStyle with Diagnosticable {
     this.backgroundColor,
     this.elevation = 3,
     this.maxHeight = 350,
-    this.marginTop = 4,
+    this.marginTop = 8,
     this.noItemsFoundText = 'No items found',
     this.header,
     this.footer,
@@ -110,7 +111,7 @@ class MorphDropdownPanelStyle with Diagnosticable {
       backgroundColor: Color.lerp(a?.backgroundColor, b?.backgroundColor, t),
       elevation: lerpDouble(a?.elevation, b?.elevation, t) ?? 3,
       maxHeight: lerpDouble(a?.maxHeight, b?.maxHeight, t) ?? 350,
-      marginTop: lerpDouble(a?.marginTop, b?.marginTop, t) ?? 4,
+      marginTop: lerpDouble(a?.marginTop, b?.marginTop, t) ?? 8,
       noItemsFoundText: t < 0.5
           ? (a?.noItemsFoundText ?? 'No items found')
           : (b?.noItemsFoundText ?? 'No items found'),

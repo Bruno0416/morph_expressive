@@ -61,8 +61,8 @@ void _registerSquishTests() {
     _iconOnlyActionsSquishWithSlotWidths,
   );
   testWidgets(
-    'connected group fills bounded width with equal segments',
-    _connectedGroupFillsBoundedWidthWithEqualSegments,
+    'connected group shares the widest content width and does not fill',
+    _connectedGroupSharesWidestContentWidth,
   );
 }
 
@@ -72,7 +72,7 @@ void _registerSizeTokenTests() {
     _sizeTokensDriveVisualHeightAndStandardBetweenSpace,
   );
   testWidgets(
-    'connected size tokens drive visual height and 2dp gap',
+    'connected size tokens drive visual height and 4dp gap',
     _connectedSizeTokensDriveVisualHeightAnd2dpGap,
   );
   testWidgets(
@@ -156,7 +156,7 @@ Future<void> _iconOnlyActionsSquishWithSlotWidths(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-Future<void> _connectedGroupFillsBoundedWidthWithEqualSegments(
+Future<void> _connectedGroupSharesWidestContentWidth(
   WidgetTester tester,
 ) async {
   await tester.pumpWidget(
@@ -186,10 +186,11 @@ Future<void> _connectedGroupFillsBoundedWidthWithEqualSegments(
     tester.getSize(buttons.at(1)).width,
     tester.getSize(buttons.at(2)).width,
   ];
-  // Spec: connected spans the surface; segments share width equally.
-  expect(widths[0], closeTo(widths[1], 1));
-  expect(widths[1], closeTo(widths[2], 1));
-  expect(widths[0] + widths[1] + widths[2], greaterThan(350));
+  // Automatic width: segments share the widest content width and the group
+  // does not expand to the available 400 dp.
+  expect(widths[0], closeTo(widths[1], .01));
+  expect(widths[1], closeTo(widths[2], .01));
+  expect(widths[0] + widths[1] + widths[2], lessThan(300));
 }
 
 Future<void> _sizeTokensDriveVisualHeightAndStandardBetweenSpace(
@@ -257,7 +258,7 @@ Future<void> _connectedSizeTokensDriveVisualHeightAnd2dpGap(
   final xsGap =
       tester.getTopLeft(xsButtons.at(1)).dx -
       tester.getTopRight(xsButtons.at(0)).dx;
-  expect(xsGap, closeTo(2, 0.5));
+  expect(xsGap, closeTo(4, 0.5));
 
   await _pumpConnectedPair(tester, MorphButtonSize.md);
   expect(
@@ -271,7 +272,7 @@ Future<void> _connectedSizeTokensDriveVisualHeightAnd2dpGap(
   final xlGap =
       tester.getTopLeft(xlButtons.at(1)).dx -
       tester.getTopRight(xlButtons.at(0)).dx;
-  expect(xlGap, closeTo(2, 0.5));
+  expect(xlGap, closeTo(4, 0.5));
 }
 
 Future<void> _pumpConnectedPair(

@@ -45,8 +45,8 @@ void _registerCheckboxThemeTests() {
     _themeDefaultsMatchTheCheckboxSpec,
   );
   testWidgets(
-    'control is a 48dp target with a 16dp Fluent mark and 2dp corners',
-    _controlIsA48dpTargetWithAn18dpIconAnd2dpCorners,
+    'control is a 48dp target with a 16dp Fluent mark and 3.6dp corners',
+    _controlIsA48dpTargetWithAn18dpIconAnd3p6dpCorners,
   );
   testWidgets('unselected outline is 2dp', _unselectedOutlineIs2dp);
   testWidgets(
@@ -87,7 +87,7 @@ void _expectCheckboxThemeMetrics(
   expect(theme.targetSize, 48);
   expect(theme.borderWidth, 2);
   expect(theme.selectedOutlineWidth, 0);
-  expect(theme.borderRadius, const BorderRadius.all(Radius.circular(2)));
+  expect(theme.borderRadius, const BorderRadius.all(Radius.circular(3.6)));
   expect(theme.disabledOpacity, 0.38);
   expect(theme.hoverStateLayerOpacity, 0.08);
   expect(theme.focusStateLayerOpacity, 0.1);
@@ -139,7 +139,7 @@ void _expectCheckboxThemeColors(
   expect(theme.checkIconPadding, EdgeInsets.zero);
 }
 
-Future<void> _controlIsA48dpTargetWithAn18dpIconAnd2dpCorners(
+Future<void> _controlIsA48dpTargetWithAn18dpIconAnd3p6dpCorners(
   WidgetTester tester,
 ) async {
   await tester.pumpWidget(_host(MorphCheckbox(value: true, onChanged: (_) {})));
@@ -151,7 +151,7 @@ Future<void> _controlIsA48dpTargetWithAn18dpIconAnd2dpCorners(
 
   final box = tester.widget<AnimatedContainer>(find.byType(AnimatedContainer));
   final decoration = box.decoration! as BoxDecoration;
-  expect(decoration.borderRadius, const BorderRadius.all(Radius.circular(2)));
+  expect(decoration.borderRadius, const BorderRadius.all(Radius.circular(3.6)));
   final border = decoration.border! as Border;
   expect(border.top.width, 0);
 

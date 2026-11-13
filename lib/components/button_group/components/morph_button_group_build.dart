@@ -9,7 +9,7 @@ extension _MorphButtonGroupBuild on _MorphButtonGroupState {
       widget.density,
       isConnected: widget._connected,
     );
-    final spacing = widget.spacing ?? metrics.spacing;
+    final spacing = math.max(0.0, widget.spacing ?? metrics.spacing);
     _isRtl = Directionality.of(context) == TextDirection.rtl;
 
     Widget group = MorphButtonGroupProvider(

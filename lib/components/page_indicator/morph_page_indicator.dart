@@ -37,6 +37,7 @@ class MorphPageIndicator extends StatefulWidget {
     this.inactiveColor,
     this.spring = MorphMotion.navigationSelection,
     this.selectionDelay,
+    this.organicStretchIntensity = 0.40,
     this.semanticLabelBuilder,
     super.key,
   }) : assert(count > 0),
@@ -62,6 +63,9 @@ class MorphPageIndicator extends StatefulWidget {
 
   /// Optional trailing-edge pause for page selection. Defaults to 60ms.
   final Duration? selectionDelay;
+
+  /// Stretch perpendicular to the dot travel (0 restores the original).
+  final double organicStretchIntensity;
 
   /// Localized override; receives the zero-based index and page count.
   final String Function(int index, int count)? semanticLabelBuilder;
@@ -154,6 +158,7 @@ class _MorphPageIndicatorState extends State<MorphPageIndicator> {
     final visual = MorphSlidingIndicator(
       leadSpring: spring,
       selectionDelay: selectionDelay,
+      organicStretchIntensity: widget.organicStretchIntensity,
       foreground: true,
       child: Row(
         mainAxisSize: MainAxisSize.min,

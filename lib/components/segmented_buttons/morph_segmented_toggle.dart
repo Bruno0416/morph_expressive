@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart'
 import 'package:motor/motor.dart';
 
 import '../../foundations/foundations.dart';
+import '../chips/morph_organic_indicator_surface.dart';
 
 /// Una opcion inmutable del selector segmentado Morph.
 @immutable
@@ -35,6 +36,7 @@ class MorphSegmentedToggle<T> extends StatefulWidget {
     this.duration = MorphMotion.selectionDuration,
     this.curve = MorphMotion.spatial,
     this.stretchDelay = MorphMotion.selectionStretchDelay,
+    this.organicStretchIntensity = 0.40,
     this.height = 48,
     this.padding = 4,
     this.backgroundColor,
@@ -43,7 +45,8 @@ class MorphSegmentedToggle<T> extends StatefulWidget {
     this.unselectedForegroundColor,
   }) : assert(options.length >= 2),
        assert(height > 0),
-       assert(padding >= 0 && padding * 2 < height);
+       assert(padding >= 0 && padding * 2 < height),
+       assert(organicStretchIntensity >= 0 && organicStretchIntensity <= 1);
 
   final List<MorphSegmentedToggleOption<T>> options;
   final T selected;
@@ -52,6 +55,9 @@ class MorphSegmentedToggle<T> extends StatefulWidget {
   final Duration duration;
   final Curve curve;
   final Duration stretchDelay;
+
+  /// Stretch perpendicular to selection travel; 0 keeps the original pill.
+  final double organicStretchIntensity;
   final double height;
   final double padding;
   final Color? backgroundColor;
@@ -69,6 +75,8 @@ class _MorphSegmentedToggleState<T> extends State<MorphSegmentedToggle<T>> {
   double _right = 0;
   double? _width;
   Timer? _stretchTimer;
+  double _transitionStartLeft = 0;
+  double _transitionStartRight = 0;
 
   int _indexOf(T value) =>
       widget.options.indexWhere((option) => option.value == value);
@@ -82,6 +90,8 @@ class _MorphSegmentedToggleState<T> extends State<MorphSegmentedToggle<T>> {
     final segment = width / widget.options.length;
     _left = index * segment;
     _right = (index + 1) * segment;
+    _transitionStartLeft = _left;
+    _transitionStartRight = _right;
   }
 
   @override
@@ -120,6 +130,8 @@ class _MorphSegmentedToggleState<T> extends State<MorphSegmentedToggle<T>> {
       return;
     }
     final rightward = newIndex > oldIndex;
+    _transitionStartLeft = _left;
+    _transitionStartRight = _right;
     setState(() {
       if (rightward) {
         _right = targetRight;
@@ -141,6 +153,15 @@ class _MorphSegmentedToggleState<T> extends State<MorphSegmentedToggle<T>> {
         }
       });
     });
+  }
+
+  double _segmentOrganicProgress(double left, double right) {
+    final total =
+        (_transitionStartLeft - _left).abs() +
+        (_transitionStartRight - _right).abs();
+    if (total < 0.01) return 1.0;
+    final remaining = (left - _left).abs() + (right - _right).abs();
+    return (1.0 - remaining / total).clamp(0.0, 1.0).toDouble();
   }
 
   @override
@@ -203,14 +224,29 @@ class _MorphSegmentedToggleState<T> extends State<MorphSegmentedToggle<T>> {
                             width: (right - left - 2 * widget.padding)
                                 .clamp(0.0, width)
                                 .toDouble(),
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                color: widget.selectedColor ?? scheme.primary,
-                                borderRadius: BorderRadius.circular(
-                                  innerRadius,
-                                ),
-                              ),
-                            ),
+                            child:
+                                widget.organicStretchIntensity > 0 &&
+                                    !MorphMotion.reduceMotionOf(context)
+                                ? MorphOrganicIndicatorSurface(
+                                    color:
+                                        widget.selectedColor ?? scheme.primary,
+                                    radius: innerRadius,
+                                    intensity: widget.organicStretchIntensity,
+                                    progress: _segmentOrganicProgress(
+                                      left,
+                                      right,
+                                    ),
+                                  )
+                                : DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      color:
+                                          widget.selectedColor ??
+                                          scheme.primary,
+                                      borderRadius: BorderRadius.circular(
+                                        innerRadius,
+                                      ),
+                                    ),
+                                  ),
                           ),
                           Positioned.fill(
                             child: Material(

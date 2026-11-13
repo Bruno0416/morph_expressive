@@ -7,6 +7,8 @@ import '../../components/badges/styles/morph_badge_theme.dart';
 import '../../components/bottom_sheets/styles/morph_bottom_sheet_theme.dart';
 import '../../components/button_group/styles/morph_button_group_theme.dart';
 import '../../components/buttons/styles/morph_button_theme.dart';
+import '../../components/buttons/styles/morph_async_button_theme.dart';
+import '../../components/skeleton/morph_skeleton_theme.dart';
 import '../../components/cards/styles/morph_card_theme.dart';
 import '../../components/carousel/styles/morph_carousel_theme.dart';
 import '../../components/checkbox/styles/morph_checkbox_theme.dart';
@@ -76,6 +78,8 @@ class MorphThemeData {
     this.badgeTheme = MorphBadgeTheme.defaults,
     this.bottomSheetTheme = MorphBottomSheetTheme.defaults,
     this.buttonTheme = MorphButtonTheme.defaults,
+    this.asyncButtonTheme = MorphAsyncButtonTheme.defaults,
+    this.skeletonTheme = MorphSkeletonTheme.defaults,
     this.cardTheme = MorphCardTheme.defaults,
     this.carouselTheme = MorphCarouselTheme.defaults,
     this.checkboxTheme = MorphCheckboxTheme.defaults,
@@ -264,6 +268,8 @@ class MorphThemeData {
 
   /// Button component theme.
   final MorphButtonTheme buttonTheme;
+  final MorphAsyncButtonTheme asyncButtonTheme;
+  final MorphSkeletonTheme skeletonTheme;
 
   /// Card component theme.
   final MorphCardTheme cardTheme;
@@ -419,6 +425,8 @@ class MorphThemeData {
     MorphBadgeTheme? badgeTheme,
     MorphBottomSheetTheme? bottomSheetTheme,
     MorphButtonTheme? buttonTheme,
+    MorphAsyncButtonTheme? asyncButtonTheme,
+    MorphSkeletonTheme? skeletonTheme,
     MorphCardTheme? cardTheme,
     MorphCarouselTheme? carouselTheme,
     MorphCheckboxTheme? checkboxTheme,
@@ -483,6 +491,8 @@ class MorphThemeData {
     badgeTheme: badgeTheme,
     bottomSheetTheme: bottomSheetTheme,
     buttonTheme: buttonTheme,
+    asyncButtonTheme: asyncButtonTheme,
+    skeletonTheme: skeletonTheme,
     cardTheme: cardTheme,
     carouselTheme: carouselTheme,
     checkboxTheme: checkboxTheme,

@@ -343,26 +343,29 @@ Las regresiones de la barra flotante se comprueban con
 `flutter test test/navigation_refinement_test.dart` y
 `(cd preview && flutter test test/floating_navigation_sample_test.dart)`.
 
-## GIFs de navegación (escenas actualizadas en 0.6.0)
+## GIFs de navegación
 
-- `navigation.gif`: variantes estándar MD3E compacta y wide (se conserva).
-- `navigation_morph.gif`: píldora `.expressive` y línea `.morph`, junto a los
-  efectos `expand` y `slide` de `MorphPageIndicator`.
-- `navigation_rail_drawer.gif`: transiciones de selección independientes
-  en `MorphNavigationRail.morph` y `MorphNavigationDrawer.morph`.
+- `navigation.gif` (0.8.0): solo variantes propias de Morph — píldora
+  `.expressive`, línea `.morph` y los efectos `expand` y `slide` de
+  `MorphPageIndicator`. Sustituye a la escena estándar MD3E y a la antigua
+  `navigation_morph`, que se retiró para no duplicar contenido.
+- `navigation_rail_drawer.gif`: transiciones de selección independientes en
+  `MorphNavigationRail.morph` y `MorphNavigationDrawer.morph`, con el stretch
+  orgánico (`organicStretchIntensity` 0.40). Regenerado con el código de 0.8.0 a
+  50 fps; la captura comprueba fuera de la imagen que el stretch usa el Shader y
+  falla si cae a Canvas. Solo se conserva para esta guía; no forma parte de los 14
+  GIFs del README ni de la galería de pub.dev.
 
-La actualización 0.6.1 no modifica la apariencia ni las escenas de captura;
-no exige regenerar estos GIFs. Para volver a capturar la escena de 0.6.0,
-desde la raíz:
+Para volver a capturarlos, desde la raíz:
 
 ```bash
-bash tool/generate_component_gifs.sh --only navigation_morph
+bash tool/generate_component_gifs.sh --only navigation
+bash tool/generate_component_gifs.sh --only navigation_rail_drawer
 python3 tool/check_gif_branding.py
 ```
 
-La generación requiere Flutter Web, Chromium/Playwright y FFmpeg.
-`navigation_rail_drawer.gif` sigue siendo válido si su escena no cambió;
-no se debe sustituir el GIF original `navigation.gif`.
+La generación requiere Flutter Web, Chromium/Playwright y FFmpeg; consulta
+[PREVIEW.md](PREVIEW.md).
 
 ## Indicadores compactos y AppBar con gradiente nativo
 

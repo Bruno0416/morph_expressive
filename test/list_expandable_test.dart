@@ -96,9 +96,12 @@ void main() {
 
 Future<void> _sublistBottomRounding(WidgetTester tester) async {
   const double outer = 16;
-  const double inner = 4.5;
+  const double inner = 9;
 
-  Future<double> lastNestBottom(MorphExpandableStyle style) async {
+  Future<double> lastNestBottom(
+    MorphExpandableStyle style, {
+    double? innerRadius,
+  }) async {
     await pumpList(
       tester,
       _dataList(
@@ -110,6 +113,7 @@ Future<void> _sublistBottomRounding(WidgetTester tester) async {
             expanded: MorphExpandableExpanded.list(
               MorphList(
                 embedded: true,
+                innerRadius: innerRadius,
                 itemCount: 2,
                 itemBuilder: (BuildContext context, int index) =>
                     MorphListItem(headline: 'Nest $index'),
@@ -144,6 +148,14 @@ Future<void> _sublistBottomRounding(WidgetTester tester) async {
   expect(
     await lastNestBottom(const MorphExpandableStyle(roundSublistBottom: false)),
     moreOrLessEquals(inner, epsilon: 0.01),
+  );
+  // Default tokens changed; explicit consumer radii must still be respected.
+  expect(
+    await lastNestBottom(
+      const MorphExpandableStyle(roundSublistBottom: false),
+      innerRadius: 4.5,
+    ),
+    moreOrLessEquals(4.5, epsilon: 0.01),
   );
 }
 
@@ -388,7 +400,7 @@ Future<void> _expandableLeadingSelectDoesNotExpand(WidgetTester tester) async {
 
 Future<void> _expandableNestedLastClosesBottom(WidgetTester tester) async {
   const double outer = 16;
-  const double inner = 4.5;
+  const double inner = 9;
 
   await pumpList(
     tester,
@@ -425,17 +437,22 @@ Future<void> _expandableNestedLastClosesBottom(WidgetTester tester) async {
     matching: find.byType(MorphCard),
   );
 
-  expect(
-    tester.widget<MorphCard>(nest0).borderRadius,
-    BorderRadius.circular(inner),
-  );
-  expect(
-    tester.widget<MorphCard>(nest1).borderRadius,
-    const BorderRadius.vertical(
-      top: Radius.circular(inner),
-      bottom: Radius.circular(outer),
-    ),
-  );
+  void expectCorner(Radius corner, double expected) {
+    expect(corner.x, closeTo(expected, 0.01));
+    expect(corner.y, closeTo(expected, 0.01));
+  }
+
+  // Spring settling can leave subpixel residuals; check every corner/axis.
+  final BorderRadius first = tester.widget<MorphCard>(nest0).borderRadius!;
+  final BorderRadius last = tester.widget<MorphCard>(nest1).borderRadius!;
+  expectCorner(first.topLeft, inner);
+  expectCorner(first.topRight, inner);
+  expectCorner(first.bottomLeft, inner);
+  expectCorner(first.bottomRight, inner);
+  expectCorner(last.topLeft, inner);
+  expectCorner(last.topRight, inner);
+  expectCorner(last.bottomLeft, outer);
+  expectCorner(last.bottomRight, outer);
 }
 
 Widget _nestedExpandableReorderList({

@@ -83,6 +83,7 @@ extension _MorphDropdownMenuPanel<T> on _MorphDropdownMenuState<T> {
     if (_controller.isOpen) {
       _close();
     } else if (_portalController.isShowing) {
+      _recordFieldOrigin(event.position);
       _open();
     }
     return true;
@@ -107,7 +108,9 @@ extension _MorphDropdownMenuPanel<T> on _MorphDropdownMenuState<T> {
     final dd = widget.dropdownStyle;
 
     return AnimatedBuilder(
-      animation: _expandCtrl,
+      animation: widget.motionStyle == MorphDropdownMotionStyle.centered
+          ? Listenable.merge([_panelCtrl, _heightCtrl])
+          : _expandCtrl,
       builder: (context, child) => _wrapExpandAnimation(showOnTop, child),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: dd.maxHeight),
@@ -133,6 +136,20 @@ extension _MorphDropdownMenuPanel<T> on _MorphDropdownMenuState<T> {
         if (dd.footer != null) dd.footer!,
       ],
     );
+    final Widget panelContent =
+        widget.motionStyle == MorphDropdownMotionStyle.centered
+        ? AnimatedBuilder(
+            animation: _panelCtrl,
+            child: content,
+            builder: (context, child) => Opacity(
+              key: const ValueKey('morph-dropdown-content-opacity'),
+              opacity: MorphMotion.reduceMotionOf(context)
+                  ? 1.0
+                  : _centeredContentOpacity(_panelCtrl.value),
+              child: child,
+            ),
+          )
+        : content;
     final panelColor =
         dd.backgroundColor ?? menuTheme.panelBackgroundColor(scheme);
     final panelRadius = BorderRadius.circular(
@@ -146,7 +163,7 @@ extension _MorphDropdownMenuPanel<T> on _MorphDropdownMenuState<T> {
         color: panelColor,
         shape: RoundedRectangleBorder(borderRadius: panelRadius),
         clipBehavior: Clip.antiAlias,
-        child: content,
+        child: panelContent,
       );
     }
     return MorphGlassSurface(
@@ -158,16 +175,63 @@ extension _MorphDropdownMenuPanel<T> on _MorphDropdownMenuState<T> {
       child: Material(
         color: Colors.transparent,
         clipBehavior: Clip.antiAlias,
-        child: content,
+        child: panelContent,
       ),
     );
   }
 
-  /// Expansión real del contenido, desde el borde unido al campo.
-  /// No escala las letras ni refluye el layout de la página (OverlayPortal).
+  /// Motion of the overlay surface without relaying out the surrounding page.
+  /// Centered uses fade + center scale + faster vertical reveal.
+  /// Liquid and legacy retain their original clip reveals.
   Widget _wrapExpandAnimation(bool showOnTop, Widget? child) {
+    if (widget.motionStyle == MorphDropdownMotionStyle.centered) {
+      // Keep the panel mounted even at alpha zero. Unlike the liquid reveal,
+      // scaling always pivots around its own center, never the pointer origin.
+      final reduced = MorphMotion.reduceMotionOf(context);
+      final t = reduced ? 1.0 : _panelCtrl.value.clamp(0.0, 1.0).toDouble();
+      final eased = _closingPanel
+          ? 1.0 - MorphMotion.exit.transform(1.0 - t)
+          : MorphMotion.enter.transform(t);
+      // Reveal the real surface from the anchor-side edge. Never scale the
+      // content vertically: ClipRect + Align clips it at its native size.
+      // A separate controller means quick closing/reopening has no size jump.
+      final height = reduced
+          ? 1.0
+          : MorphMotion.standard.transform(_heightCtrl.value);
+      final verticalReveal = ClipRect(
+        child: Align(
+          key: const ValueKey('morph-dropdown-height-reveal'),
+          alignment: showOnTop ? Alignment.bottomCenter : Alignment.topCenter,
+          heightFactor: height.clamp(0.0, 1.0).toDouble(),
+          child: child,
+        ),
+      );
+      return Opacity(
+        key: const ValueKey('morph-dropdown-panel-opacity'),
+        opacity: eased.clamp(0.0, 1.0).toDouble(),
+        child: Transform.scale(
+          key: const ValueKey('morph-dropdown-centered-scale'),
+          alignment: Alignment.center,
+          scale: 0.80 + 0.20 * eased,
+          child: verticalReveal,
+        ),
+      );
+    }
+
     final progress = _expandCtrl.value.clamp(0.0, 1.0).toDouble();
     if (progress <= 0.001) return const SizedBox.shrink();
+
+    if (widget.motionStyle == MorphDropdownMotionStyle.liquid) {
+      return MorphLiquidUnfold(
+        progress: progress,
+        opensAbove: showOnTop,
+        originX: _openingOriginX,
+        intensity: widget.organicStretchIntensity,
+        radius: widget.dropdownStyle.containerRadius ?? widget.containerRadius,
+        highlightColor: MorphTheme.of(context).colorScheme.onSurfaceVariant,
+        child: child!,
+      );
+    }
 
     final reveal = MorphMotion.standard.transform(progress);
     final Widget revealed = ClipRect(
@@ -184,6 +248,20 @@ extension _MorphDropdownMenuPanel<T> on _MorphDropdownMenuState<T> {
       opacity: MorphMotion.enter.transform(progress).clamp(0.0, 1.0),
       child: revealed,
     );
+  }
+
+  double _centeredContentOpacity(double progress) {
+    final t = progress.clamp(0.0, 1.0).toDouble();
+    if (_closingPanel) {
+      final exit = ((1 - t) / _MorphDropdownMenuState._contentFadeFraction)
+          .clamp(0.0, 1.0)
+          .toDouble();
+      return 1.0 - MorphMotion.exit.transform(exit);
+    }
+    final enter = (t / _MorphDropdownMenuState._contentFadeFraction)
+        .clamp(0.0, 1.0)
+        .toDouble();
+    return MorphMotion.enter.transform(enter);
   }
 
   Widget _buildPanelBody(

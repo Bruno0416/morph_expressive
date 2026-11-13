@@ -16,7 +16,9 @@ import '../enums/morph_menu_color_style.dart';
 import '../enums/morph_menu_selection_mode.dart';
 import '../enums/morph_menu_variant.dart';
 import '../models/morph_menu_node.dart';
+import '../models/morph_menu_submenu_behavior.dart';
 import '../styles/morph_menu_theme.dart';
+import '../utils/morph_menu_overlay_rect.dart';
 import '../utils/morph_menu_placer.dart';
 import '../utils/morph_menu_spring_motion.dart';
 import 'morph_menu_content.dart';
@@ -41,13 +43,18 @@ Future<T?> showMorphMenu<T>({
   T? selectedValue,
   bool closeOnSelect = true,
   double? preferredWidth,
+  MorphDropdownMotionStyle motionStyle = MorphDropdownMotionStyle.centered,
+  double organicStretchIntensity = 0.35,
+  Offset? tapPosition,
   FocusNode? callerFocusNode,
   MorphMenuTheme? themeOverride,
   MorphSurfaceGlass? glass,
   List<MorphMenuNode> Function()? readChildren,
   ValueChanged<Object?>? onItemChosen,
   void Function(OverlayEntry entry)? onEntry,
+  MorphMenuSubmenuBehavior submenuBehavior = const MorphMenuSubmenuBehavior(),
 }) {
+  assert(organicStretchIntensity >= 0 && organicStretchIntensity <= 1);
   final completer = Completer<T?>();
   final ModalRoute<dynamic>? historyRoute = ModalRoute.of(context);
   final OverlayState overlay = Overlay.of(context, rootOverlay: true);
@@ -68,6 +75,14 @@ Future<T?> showMorphMenu<T>({
         selectedValue: selectedValue,
         closeOnSelect: closeOnSelect,
         preferredWidth: preferredWidth,
+        motionStyle: motionStyle,
+        organicStretchIntensity: organicStretchIntensity,
+        submenuBehavior: submenuBehavior,
+        originX: tapPosition == null || anchor.width <= 0
+            ? 0.5
+            : ((tapPosition.dx - anchor.left) / anchor.width)
+                  .clamp(0.0, 1.0)
+                  .toDouble(),
         callerFocusNode: callerFocusNode,
         themeOverride: themeOverride,
         glass: glass,
@@ -174,12 +189,17 @@ class MorphMenuPopup<T> extends StatefulWidget {
     this.selectedValue,
     this.closeOnSelect = true,
     this.preferredWidth,
+    this.motionStyle = MorphDropdownMotionStyle.centered,
+    this.organicStretchIntensity = 0.35,
+    this.originX = 0.5,
     this.callerFocusNode,
     this.themeOverride,
     this.glass,
     this.historyRoute,
     this.onItemChosen,
     this.isSubmenu = false,
+    this.submenuBehavior = const MorphMenuSubmenuBehavior(),
+    this.onPointerInside,
     super.key,
   });
 
@@ -211,6 +231,12 @@ class MorphMenuPopup<T> extends StatefulWidget {
   /// preferredWidth.
   final double? preferredWidth;
 
+  /// Centered and liquid use centered fade + scale for popup menus;
+  /// legacy retains the old anchored spring.
+  final MorphDropdownMotionStyle motionStyle;
+  final double organicStretchIntensity;
+  final double originX;
+
   /// callerFocusNode.
   final FocusNode? callerFocusNode;
 
@@ -235,6 +261,13 @@ class MorphMenuPopup<T> extends StatefulWidget {
   /// True when this popup was opened from another menu row.
   final bool isSubmenu;
 
+  /// Submenu opening policy (hover / click and delays).
+  final MorphMenuSubmenuBehavior submenuBehavior;
+
+  /// Submenus report whether the pointer is over them, so the parent can keep
+  /// them open while the pointer crosses from the parent row.
+  final ValueChanged<bool>? onPointerInside;
+
   /// onSelected.
   final ValueChanged<Object?> onSelected;
 
@@ -249,8 +282,14 @@ class MorphMenuPopup<T> extends StatefulWidget {
 }
 
 class _MorphMenuPopupState<T> extends State<MorphMenuPopup<T>>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final SingleMotionController _expandCtrl;
+  // Unlike the legacy spring, bounded timelines keep centered fade +
+  // 80%-to-100% scale and the faster vertical reveal independently reversible.
+  late final AnimationController _popupCtrl;
+  late final AnimationController _heightCtrl;
+  static const double _contentFraction = 0.35; // 65% shorter than the panel.
+
   bool _isDismissing = false;
   final ValueNotifier<bool> _dismissing = ValueNotifier<bool>(false);
   bool _selected = false;
@@ -258,6 +297,104 @@ class _MorphMenuPopupState<T> extends State<MorphMenuPopup<T>>
   late final bool _keyboardActivated;
 
   OverlayEntry? _submenuEntry;
+  Rect? _openSubmenuAnchor;
+  Timer? _hoverOpenTimer;
+  Timer? _hoverCloseTimer;
+  bool _overSelf = false;
+  bool _overSubmenu = false;
+
+  bool get _hoverMode =>
+      widget.submenuBehavior.mode == MorphMenuSubmenuOpenMode.hover;
+
+  void _cancelHoverTimers() {
+    _hoverOpenTimer?.cancel();
+    _hoverOpenTimer = null;
+    _hoverCloseTimer?.cancel();
+    _hoverCloseTimer = null;
+  }
+
+  /// Mouse entered a row. [submenu] is non-null for submenu rows.
+  void _onRowEnter(BuildContext rowContext, List<MorphMenuNode>? submenu) {
+    if (!_hoverMode || _removed || _isDismissing) {
+      return;
+    }
+    _overSelf = true;
+    _hoverCloseTimer?.cancel();
+    _hoverCloseTimer = null;
+    // Entering another row always cancels what the previous row had pending.
+    _hoverOpenTimer?.cancel();
+    _hoverOpenTimer = null;
+    if (submenu == null) {
+      if (_submenuEntry != null) {
+        _scheduleSubmenuClose();
+      }
+      return;
+    }
+    if (_isOpenFor(morphOverlayRectFor(rowContext))) {
+      return; // already open for this row
+    }
+    _hoverOpenTimer = Timer(widget.submenuBehavior.hoverDelay, () {
+      _hoverOpenTimer = null;
+      if (!mounted || _removed || _isDismissing || !rowContext.mounted) {
+        return;
+      }
+      final Rect? rect = morphOverlayRectFor(rowContext);
+      if (rect != null) {
+        _openSubmenu(rect, submenu);
+      }
+    });
+  }
+
+  /// Rows are rebuilt (new node instances), so identity is the row's rect.
+  bool _isOpenFor(Rect? rect) {
+    final Rect? open = _openSubmenuAnchor;
+    return _submenuEntry != null &&
+        rect != null &&
+        open != null &&
+        (open.top - rect.top).abs() < 1 &&
+        (open.left - rect.left).abs() < 1;
+  }
+
+  void _onSelfPointer(bool inside) {
+    if (!_hoverMode) {
+      return;
+    }
+    _overSelf = inside;
+    if (inside) {
+      _hoverCloseTimer?.cancel();
+      _hoverCloseTimer = null;
+    } else {
+      _hoverOpenTimer?.cancel();
+      _hoverOpenTimer = null;
+      if (_submenuEntry != null) {
+        _scheduleSubmenuClose();
+      }
+    }
+  }
+
+  void _onSubmenuPointer(bool inside) {
+    _overSubmenu = inside;
+    if (inside) {
+      _hoverCloseTimer?.cancel();
+      _hoverCloseTimer = null;
+    } else if (_submenuEntry != null) {
+      _scheduleSubmenuClose();
+    }
+    // Keep the parent chain alive while a descendant is hovered.
+    widget.onPointerInside?.call(inside || _overSelf);
+  }
+
+  void _scheduleSubmenuClose() {
+    _hoverCloseTimer?.cancel();
+    _hoverCloseTimer = Timer(widget.submenuBehavior.closeDelay, () {
+      _hoverCloseTimer = null;
+      if (!mounted || _overSelf || _overSubmenu) {
+        return;
+      }
+      _removeSubmenu();
+    });
+  }
+
   MorphOverlayHistory? _overlayHistory;
 
   final FocusScopeNode _focusScopeNode = FocusScopeNode(
@@ -287,11 +424,31 @@ class _MorphMenuPopupState<T> extends State<MorphMenuPopup<T>>
       onBack: () => _dismiss(),
     );
 
+    _popupCtrl = AnimationController(
+      vsync: this,
+      duration: MorphMotion.medium2, // 300 ms opening.
+      reverseDuration: MorphMotion.medium1, // 250 ms closing.
+    )..addStatusListener(_onPopupStatus);
+    _heightCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 240),
+      reverseDuration: const Duration(milliseconds: 200),
+    );
     _expandCtrl = MorphMotionController(
       motion: MorphMotion.expressiveSpatialDefault.toMotion(),
       vsync: this,
     )..addListener(_onExpandTick);
-    if (widget.themeOverride?.openInstantly ?? false) {
+
+    if (widget.motionStyle != MorphDropdownMotionStyle.legacy) {
+      _expandCtrl.value = 1; // Legacy spring is inactive in liquid mode.
+      if (widget.themeOverride?.openInstantly ?? false) {
+        _popupCtrl.value = 1;
+        _heightCtrl.value = 1;
+      } else {
+        _popupCtrl.forward();
+        _heightCtrl.forward();
+      }
+    } else if (widget.themeOverride?.openInstantly ?? false) {
       _expandCtrl.value = 1;
     } else {
       _expandCtrl.animateTo(1);
@@ -302,7 +459,14 @@ class _MorphMenuPopupState<T> extends State<MorphMenuPopup<T>>
         return;
       }
       final MorphMenuTheme openTheme = _resolvedTheme(context);
-      if (openTheme.openInstantly) {
+      if (widget.motionStyle != MorphDropdownMotionStyle.legacy) {
+        // Do not restart the opening after the first frame. That caused the
+        // initial transition to appear instant or invisible.
+        if (openTheme.openInstantly || MorphMotion.reduceMotionOf(context)) {
+          _popupCtrl.value = 1;
+          _heightCtrl.value = 1;
+        }
+      } else if (openTheme.openInstantly) {
         _expandCtrl.value = 1;
       } else if (_expandCtrl.value < 1) {
         _expandCtrl.motion = openTheme.openMotion.toMotion();
@@ -320,11 +484,16 @@ class _MorphMenuPopupState<T> extends State<MorphMenuPopup<T>>
 
   @override
   void dispose() {
+    _cancelHoverTimers();
     _typeaheadTimer?.cancel();
     _releaseOverlayHistory();
     _expandCtrl
       ..removeListener(_onExpandTick)
       ..dispose();
+    _popupCtrl
+      ..removeStatusListener(_onPopupStatus)
+      ..dispose();
+    _heightCtrl.dispose();
     _removeSubmenu();
     _dismissing.dispose();
     _focusScopeNode.dispose();
@@ -334,15 +503,43 @@ class _MorphMenuPopupState<T> extends State<MorphMenuPopup<T>>
   }
 
   void _onExpandTick() {
-    if (_isDismissing && !_removed && _expandCtrl.value <= 0.01 && mounted) {
+    if (widget.motionStyle == MorphDropdownMotionStyle.legacy &&
+        _isDismissing &&
+        !_removed &&
+        _expandCtrl.value <= 0.01 &&
+        mounted) {
       _removed = true;
       widget.onRemove();
     }
   }
 
+  void _onPopupStatus(AnimationStatus status) {
+    if (status == AnimationStatus.dismissed &&
+        _isDismissing &&
+        !_removed &&
+        mounted) {
+      _removed = true;
+      widget.onRemove();
+    }
+  }
+
+  // Both fades use a 35% window. On exit the content becomes invisible
+  // during the FIRST 35% of closing, while the panel continues to 0%.
+  double _popupContentOpacity(double progress) {
+    final t = progress.clamp(0.0, 1.0).toDouble();
+    if (_isDismissing) {
+      final exit = ((1 - t) / _contentFraction).clamp(0.0, 1.0).toDouble();
+      return 1 - MorphMotion.exit.transform(exit);
+    }
+    final enter = (t / _contentFraction).clamp(0.0, 1.0).toDouble();
+    return MorphMotion.enter.transform(enter);
+  }
+
   void _removeSubmenu() {
     _submenuEntry?.remove();
     _submenuEntry = null;
+    _openSubmenuAnchor = null;
+    _overSubmenu = false;
   }
 
   /// Closes immediately (no exit animation), e.g. when another menu replaces
@@ -351,6 +548,7 @@ class _MorphMenuPopupState<T> extends State<MorphMenuPopup<T>>
     if (_removed) {
       return;
     }
+    _cancelHoverTimers();
     _releaseOverlayHistory();
     _removeSubmenu();
     if (!_isDismissing && !_selected) {
@@ -366,6 +564,7 @@ class _MorphMenuPopupState<T> extends State<MorphMenuPopup<T>>
     if (_isDismissing || _removed) {
       return;
     }
+    _cancelHoverTimers();
     _dismissing.value = true;
     _releaseOverlayHistory();
     _removeSubmenu();
@@ -376,13 +575,19 @@ class _MorphMenuPopupState<T> extends State<MorphMenuPopup<T>>
     if (_keyboardActivated && restoreFocus) {
       widget.callerFocusNode?.requestFocus();
     }
-    if (_resolvedTheme(context).openInstantly) {
+    if (_resolvedTheme(context).openInstantly ||
+        MorphMotion.reduceMotionOf(context)) {
       _removed = true;
       widget.onRemove();
       return;
     }
-    _expandCtrl.motion = _resolvedTheme(context).closeMotion.toMotion();
-    _expandCtrl.animateTo(0);
+    if (widget.motionStyle != MorphDropdownMotionStyle.legacy) {
+      _popupCtrl.reverse();
+      _heightCtrl.reverse();
+    } else {
+      _expandCtrl.motion = _resolvedTheme(context).closeMotion.toMotion();
+      _expandCtrl.animateTo(0);
+    }
   }
 
   void _handleSelect(Object? value) {
@@ -399,7 +604,15 @@ class _MorphMenuPopupState<T> extends State<MorphMenuPopup<T>>
   }
 
   void _openSubmenu(Rect itemRect, List<MorphMenuNode> children) {
+    // A click / key on a row whose submenu is already open keeps it open (no
+    // toggling, no flicker); it also supersedes a pending hover open.
+    _hoverOpenTimer?.cancel();
+    _hoverOpenTimer = null;
+    if (_isOpenFor(itemRect)) {
+      return;
+    }
     _removeSubmenu();
+    _openSubmenuAnchor = itemRect;
     final MorphMenuVariant childVariant = widget.variant;
     late OverlayEntry entry;
     entry = OverlayEntry(
@@ -415,10 +628,14 @@ class _MorphMenuPopupState<T> extends State<MorphMenuPopup<T>>
           closeOnSelect: widget.closeOnSelect,
           callerFocusNode: widget.callerFocusNode,
           themeOverride: widget.themeOverride,
+          motionStyle: widget.motionStyle,
+          organicStretchIntensity: widget.organicStretchIntensity,
           glass: widget.glass,
           historyRoute: widget.historyRoute,
           onItemChosen: widget.onItemChosen,
           isSubmenu: true,
+          submenuBehavior: widget.submenuBehavior,
+          onPointerInside: _onSubmenuPointer,
           onSelected: (Object? value) {
             _selected = true;
             widget.onSelected(value);

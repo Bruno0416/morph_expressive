@@ -1,6 +1,9 @@
 part of '../morph_fab_menu.dart';
 
-/// Closed FAB that morphs into the menu's close target.
+/// The in-layout slot of the FAB menu. The visible control is one persistent
+/// surface (see [_MorphFabMenuOverlay.surface]) that never changes owner:
+/// closed, opening, open, closing and interrupted states all paint the same
+/// widget, only its size, radius, colors and icon change.
 class _MorphFabMenuTrigger {
   const _MorphFabMenuTrigger(this.menu);
 
@@ -10,103 +13,49 @@ class _MorphFabMenuTrigger {
     return MorphComponentTheme(
       builder: (BuildContext context) {
         final theme = MorphTheme.of(context);
-        final fabMenuTheme = theme.fabMenuTheme;
-        final fabTheme = theme.fabTheme;
-        final metrics = fabTheme.resolve(
+        final double closedSize = theme.fabMenuTheme.resolveClosedContainer(
           size: menu.widget.size,
-          color: menu.widget.color,
-          scheme: theme.colorScheme,
+          fabTheme: theme.fabTheme,
         );
-        final double closedSize = fabMenuTheme.resolveClosedContainer(
-          size: menu.widget.size,
-          fabTheme: fabTheme,
+        final double openSize = theme.fabMenuTheme.openFabContainer;
+        final overlay = _MorphFabMenuOverlay(
+          menu,
+          closedSize: closedSize,
+          openSize: openSize,
         );
-        final double openSize = fabMenuTheme.openFabContainer;
-        final double closedRadius = metrics.radius;
-        final double openRadius = openSize / 2;
+        final Widget slot = CompositedTransformTarget(
+          link: menu._link,
+          child: SizedBox(
+            key: menu._fabKey,
+            width: closedSize,
+            height: closedSize,
+          ),
+        );
+        if (Overlay.maybeOf(context) == null) {
+          // No Overlay (isolated tests / custom hosts): paint the surface
+          // inline; the menu layer needs an Overlay and stays unavailable.
+          return Stack(
+            clipBehavior: Clip.none,
+            children: <Widget>[
+              slot,
+              Positioned.fill(child: overlay.surface(context)),
+            ],
+          );
+        }
         return OverlayPortal(
           controller: menu._portal,
-          overlayChildBuilder: (BuildContext context) => _MorphFabMenuOverlay(
-            menu,
-            closedSize: closedSize,
-            openSize: openSize,
-          ).build(context),
-          child: CompositedTransformTarget(
-            link: menu._link,
-            child: AnimatedBuilder(
-              animation: menu._fabShapeCtrl,
-              builder: (BuildContext context, Widget? child) {
-                final double t = menu._fabShapeCtrl.value;
-                final double radius = lerpDouble(closedRadius, openRadius, t)!;
-                final double fabSize = lerpDouble(closedSize, openSize, t)!;
-                final MorphFabColor closeColor =
-                    MorphFabMenuTheme.closeFabColor(menu._colorSet);
-                final bool showClose = t > 0.5;
-                final double regularIcon = fabTheme
-                    .resolve(
-                      size: MorphFabSize.regular,
-                      color: closeColor,
-                      scheme: theme.colorScheme,
-                    )
-                    .iconSize;
-                final double iconSize = lerpDouble(
-                  metrics.iconSize,
-                  fabMenuTheme.closeIconSize,
-                  t.clamp(0.0, 1.0),
-                )!;
-                // Morph toward the top trailing corner (shared with the bottom
-                // of the menu stack / close button top).
-                return SizedBox(
-                  key: menu._fabKey,
-                  width: closedSize,
-                  height: closedSize,
-                  child: Align(
-                    alignment: menu._fabAlign,
-                    child: Opacity(
-                      // Overlay owns the interactive close while open.
-                      opacity: menu._open ? 0 : 1,
-                      child: IgnorePointer(
-                        ignoring: menu._open,
-                        child: SizedBox(
-                          width: fabSize,
-                          height: fabSize,
-                          child: FittedBox(
-                            child: Semantics(
-                              button: true,
-                              label: 'Toggle menu',
-                              expanded: menu._open,
-                              child: MorphFab(
-                                icon: Transform.scale(
-                                  scale: iconSize / regularIcon,
-                                  child: showClose
-                                      ? menu._resolvedCollapseIcon
-                                      : menu._resolvedExpandIcon,
-                                ),
-                                color: showClose
-                                    ? closeColor
-                                    : menu.widget.color,
-                                size: showClose
-                                    ? MorphFabSize.regular
-                                    : menu.widget.size,
-                                cornerRadius: radius,
-                                decoration: showClose
-                                    ? null
-                                    : menu.widget.decoration,
-                                elevation: fabMenuTheme.closeElevation,
-                                hoverElevation:
-                                    fabMenuTheme.closeHoverElevation,
-                                onPressed: menu._toggle,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
+          overlayChildBuilder: overlay.build,
+          // Until the portal is shown (first frame) the identical closed
+          // surface is painted inline, so there is never an empty frame.
+          child: menu._portal.isShowing
+              ? slot
+              : Stack(
+                  clipBehavior: Clip.none,
+                  children: <Widget>[
+                    slot,
+                    Positioned.fill(child: overlay.surface(context)),
+                  ],
+                ),
         );
       },
     );

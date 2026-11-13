@@ -153,6 +153,30 @@ void main() {
       expect(g.borderWidth, 0);
       expect(g.opaqueInHighContrast, isTrue);
       expect(g.webBackdropBlur, isTrue);
+      expect(g.boundedBlur, isFalse);
+    });
+
+    test('bounded sampling is opt-in and participates in value semantics', () {
+      const original = MorphSurfaceGlass(blurX: 8);
+      final bounded = original.copyWith(boundedBlur: true);
+      expect(bounded.boundedBlur, isTrue);
+      expect(bounded, const MorphSurfaceGlass(blurX: 8, boundedBlur: true));
+      expect(bounded, isNot(original));
+      expect(bounded.copyWith(boundedBlur: false), original);
+    });
+
+    testWidgets('bounded glass resolves a layout-aware filter', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          const MorphCard(
+            headline: 'Bounded',
+            glass: MorphSurfaceGlass(boundedBlur: true),
+          ),
+        ),
+      );
+      final filter = tester.widget<BackdropFilter>(find.byType(BackdropFilter));
+      expect(filter.filterConfig, isNotNull);
+      expect(filter.filterConfig!.filter, isNull);
     });
 
     test('disabled() turns the whole effect off', () {

@@ -14,7 +14,7 @@ class MorphList extends StatefulWidget {
     required this.itemCount,
     required this.itemBuilder,
     this.outerRadius = MorphListCardListTheme.defaultOuterRadius,
-    this.innerRadius = MorphListCardListTheme.defaultInnerRadius,
+    double? innerRadius,
     this.gap = MorphListCardListTheme.defaultGap,
     this.color,
     this.colorBuilder,
@@ -47,7 +47,13 @@ class MorphList extends StatefulWidget {
     this.collapseMotion,
     this.onExpansionChanged,
     this.expandController,
-  }) : assert(
+  }) : innerRadius =
+           innerRadius ??
+           outerRadius *
+               MorphListCardListTheme.defaultInnerRadius /
+               MorphListCardListTheme.defaultOuterRadius,
+       _innerRadiusExplicit = innerRadius != null,
+       assert(
          !reorder || onReorder != null,
          'onReorder is required when reorder is true',
        ),
@@ -64,7 +70,7 @@ class MorphList extends StatefulWidget {
     required this.itemCount,
     required this.itemBuilder,
     this.outerRadius = MorphListCardListTheme.defaultOuterRadius,
-    this.innerRadius = MorphListCardListTheme.defaultInnerRadius,
+    double? innerRadius,
     this.gap = MorphListCardListTheme.defaultGap,
     this.color,
     this.colorBuilder,
@@ -102,7 +108,13 @@ class MorphList extends StatefulWidget {
     this.collapseMotion,
     this.onExpansionChanged,
     this.expandController,
-  }) : assert(
+  }) : innerRadius =
+           innerRadius ??
+           outerRadius *
+               MorphListCardListTheme.defaultInnerRadius /
+               MorphListCardListTheme.defaultOuterRadius,
+       _innerRadiusExplicit = innerRadius != null,
+       assert(
          !reorder || onReorder != null,
          'onReorder is required when reorder is true',
        ),
@@ -114,7 +126,7 @@ class MorphList extends StatefulWidget {
     required this.itemCount,
     required this.itemBuilder,
     this.outerRadius = MorphListCardListTheme.defaultOuterRadius,
-    this.innerRadius = MorphListCardListTheme.defaultInnerRadius,
+    double? innerRadius,
     this.gap = MorphListCardListTheme.defaultGap,
     this.color,
     this.colorBuilder,
@@ -144,7 +156,13 @@ class MorphList extends StatefulWidget {
     this.collapseMotion,
     this.onExpansionChanged,
     this.expandController,
-  }) : _layout = _MorphListLayout.sliver,
+  }) : innerRadius =
+           innerRadius ??
+           outerRadius *
+               MorphListCardListTheme.defaultInnerRadius /
+               MorphListCardListTheme.defaultOuterRadius,
+       _innerRadiusExplicit = innerRadius != null,
+       _layout = _MorphListLayout.sliver,
        reorder = false,
        onReorder = null,
        reorderState = null,
@@ -165,8 +183,11 @@ class MorphList extends StatefulWidget {
   /// Outer corner radius.
   final double outerRadius;
 
-  /// Inner corner radius.
+  /// Internal (non-end) corner radius. Defaults to 9dp with a 16dp outer
+  /// radius, scaling proportionally when the outer radius changes.
   final double innerRadius;
+
+  final bool _innerRadiusExplicit;
 
   /// Gap between rows.
   final double gap;

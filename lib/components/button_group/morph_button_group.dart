@@ -23,6 +23,8 @@ import 'package:material_ui/material_ui.dart'
         CrossAxisAlignment,
         DefaultTextStyle,
         Directionality,
+        Localizations,
+        MediaQuery,
         EdgeInsets,
         Expanded,
         Flex,
@@ -119,6 +121,7 @@ part 'components/morph_button_group_render.dart';
 part 'components/morph_button_group_measurement.dart';
 part 'components/morph_button_group_action_radii.dart';
 part 'components/morph_button_group_layout.dart';
+part 'components/morph_button_group_uniform_row.dart';
 part 'components/morph_button_group_overflow_button.dart';
 part 'components/morph_button_group_scroll.dart';
 part 'components/morph_button_group_build.dart';
@@ -146,6 +149,7 @@ class MorphButtonGroup extends StatefulWidget {
     this.style = MorphButtonStyle.filled,
     this.density = MorphButtonGroupDensity.regular,
     this.spacing,
+    this.itemWidth,
     this.direction = Axis.horizontal,
     this.selectedIndex,
     this.selectedIndices,
@@ -187,8 +191,21 @@ class MorphButtonGroup extends StatefulWidget {
   /// Density level (0…−3) that shrinks container height.
   final MorphButtonGroupDensity density;
 
-  /// Optional between-space override; defaults to size / connection tokens.
+  /// Optional between-space override (dp, `>= 0`; 0 allowed). Precedence:
+  /// this widget value → [MorphButtonGroupTheme] (`connectedGap` for connected
+  /// groups, size tokens for standard) → package default (connected: 4 dp).
+  /// The gap is separate from the buttons' internal padding and is deducted
+  /// from the width budget before the shared item width is resolved.
   final double? spacing;
+
+  /// Connected groups only: common resting width (dp) of every button.
+  ///
+  /// `null` (default) is automatic: the widest natural content (text, icons,
+  /// gaps, padding, text scale, selected-state content) becomes the shared
+  /// width. Precedence: [MorphButtonGroupAction.width] (that action only) >
+  /// this value > automatic. Always limited to the per-item budget of the
+  /// constraints (after gaps); labels then keep one line with ellipsis.
+  final double? itemWidth;
 
   /// Main layout axis.
   final Axis direction;

@@ -28,7 +28,7 @@ for directory in SCAN_DIRS:
         if any(part in GENERATED_DIRS for part in path.parts):
             continue
         # The branding scan only needs pubspec.lock; Gradle and other native
-        # build tools produce binary *.lock files that are not package text.
+        # build tool produce binary *.lock files that are not package text.
         if path.suffix == ".lock" and path.name != "pubspec.lock":
             continue
         try:

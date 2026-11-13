@@ -699,19 +699,25 @@ class _CarouselViewState extends State<MorphCarouselView> {
               );
         final Widget sliver = _buildSliverCarousel(context);
         final EdgeInsetsGeometry? leadingPadding = _leadingScrollPadding();
-        return CustomScrollView(
-          scrollDirection: widget.scrollDirection,
-          reverse: widget.reverse,
-          controller: _controller,
-          physics: widget.physics ?? physics,
-          clipBehavior: Clip.none,
-          scrollCacheExtent: const ScrollCacheExtent.viewport(0),
-          slivers: <Widget>[
-            if (leadingPadding == null)
-              sliver
-            else
-              SliverPadding(padding: leadingPadding, sliver: sliver),
-          ],
+        // Carousels communicate position through their items, not scrollbars.
+        // Keep inherited physics and gestures; suppress automatic bars only
+        // for this carousel, including on desktop.
+        return ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: CustomScrollView(
+            scrollDirection: widget.scrollDirection,
+            reverse: widget.reverse,
+            controller: _controller,
+            physics: widget.physics ?? physics,
+            clipBehavior: Clip.none,
+            scrollCacheExtent: const ScrollCacheExtent.viewport(0),
+            slivers: <Widget>[
+              if (leadingPadding == null)
+                sliver
+              else
+                SliverPadding(padding: leadingPadding, sliver: sliver),
+            ],
+          ),
         );
       },
     );

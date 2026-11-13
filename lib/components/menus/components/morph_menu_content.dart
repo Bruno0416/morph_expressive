@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart' show PointerEnterEvent;
 import 'package:flutter/widgets.dart';
 
 import '../../../foundations/foundations.dart';
@@ -24,6 +25,7 @@ class MorphMenuContent extends StatelessWidget {
     required this.onSelect,
     required this.closeOnSelect,
     this.onOpenSubmenu,
+    this.onRowEnter,
     this.selectedValue,
     this.applyGroupShapes = true,
     this.autofocusFirst = true,
@@ -43,6 +45,12 @@ class MorphMenuContent extends StatelessWidget {
 
   /// onOpenSubmenu.
   final MorphMenuOpenSubmenuCallback? onOpenSubmenu;
+
+  /// Called when a mouse pointer enters a row. `submenu` is the row's
+  /// children for submenu rows, `null` otherwise. Mouse only (touch never
+  /// hovers).
+  final void Function(BuildContext rowContext, List<MorphMenuNode>? submenu)?
+  onRowEnter;
 
   /// selectedValue.
   final Object? selectedValue;
@@ -250,6 +258,7 @@ class MorphMenuContent extends StatelessWidget {
       requestFocus: requestFocus,
       enabled: item.enabled,
       onFocused: onFocused,
+      submenu: item.enabled ? item.children : null,
       child: MorphMenuNodeBuilders.submenu(
         item,
         autofocus: requestFocus && item.enabled,
@@ -289,11 +298,23 @@ class MorphMenuContent extends StatelessWidget {
     required bool enabled,
     required VoidCallback onFocused,
     required Widget child,
+    List<MorphMenuNode>? submenu,
   }) {
     if (requestFocus && enabled) {
       onFocused();
     }
-    return <Widget>[child];
+    final enter = onRowEnter;
+    if (enter == null) {
+      return <Widget>[child];
+    }
+    return <Widget>[
+      Builder(
+        builder: (BuildContext rowContext) => MouseRegion(
+          onEnter: (PointerEnterEvent e) => enter(rowContext, submenu),
+          child: child,
+        ),
+      ),
+    ];
   }
 
   List<Widget> _buildGroup(

@@ -25,17 +25,20 @@ separate 40-family preview application.
 Create a Flutter app with Flutter >= 3.47 and Dart >= 3.13, then run:
 
 ```bash
-# After 0.7.0 has been published:
-flutter pub add 'morph_expressive:^0.7.0' material_ui
+# After 0.8.0 has been published:
+flutter pub add 'morph_expressive:^0.8.0' material_ui
 ```
 
 Copy [`main.dart`](main.dart) and [`frosted_surfaces.dart`](frosted_surfaces.dart)
 into the same application's `lib/` directory and run `flutter run`. To try
-the **unpublished** 0.7.0 source, use a
+the **unpublished** 0.8.0 source, use a
 `path:` dependency pointed at your local checkout instead of the hosted
 version. Alternatively copy `frosted_surfaces.dart` to `lib/main.dart` for
 the standalone glass showcase. These examples do not cover every navigation
 API; see the navigation guide for those.
+
+[`whats_new_0_8_0.dart`](whats_new_0_8_0.dart) is a standalone tour of the 0.8.0
+additions (`flutter run -t example/whats_new_0_8_0.dart`).
 
 For all available components and advanced APIs see
 [`../doc/COMPONENTS.md`](../doc/COMPONENTS.md). For the complete Web

@@ -4,14 +4,16 @@
 // names, layout, styling, motion and/or source refactoring).
 // See NOTICE for the original attribution and Apache-2.0 license terms.
 
-import 'dart:async';
 import 'dart:math' as math;
+
+import 'package:flutter/scheduler.dart' show Ticker;
+import 'package:flutter/widgets.dart' show TickerMode;
 
 import 'package:flutter/physics.dart';
 import 'package:flutter/semantics.dart';
 import 'package:material_new_shapes/material_new_shapes.dart'
-    as shapes
-    show Morph, MorphToPathExtension, RoundedPolygon;
+    as legacy_shapes
+    show RoundedPolygon;
 import 'package:material_ui/material_ui.dart'
     show
         AnimatedBuilder,
@@ -19,22 +21,15 @@ import 'package:material_ui/material_ui.dart'
         AspectRatio,
         BoxConstraints,
         BuildContext,
-        Canvas,
         Center,
         Color,
         ConstrainedBox,
-        CustomPaint,
-        CustomPainter,
         Listenable,
-        Matrix4,
-        Offset,
-        Paint,
-        PaintingStyle,
-        Path,
         ProgressIndicator,
-        Rect,
         RepaintBoundary,
         Semantics,
+        TweenAnimationBuilder,
+        Tween,
         Size,
         SizedBox,
         State,
@@ -52,7 +47,9 @@ import '../styles/morph_loading_indicator_theme.dart';
 class MorphExpressiveLoadingIndicator extends ProgressIndicator {
   /// A list of [shapes.RoundedPolygon]s for the sequence of shapes this loading indicator
   /// will morph between. The loading indicator expects at least two items in that list.
-  final List<shapes.RoundedPolygon>? polygons;
+  final List<legacy_shapes.RoundedPolygon>? polygons;
+  final List<MorphShape>? shapes;
+  final MorphShapeRenderer renderer;
 
   /// Indicator colors cycled and interpolated during morphing.
   final List<Color>? indicatorColors;
@@ -63,6 +60,11 @@ class MorphExpressiveLoadingIndicator extends ProgressIndicator {
   /// Defines minimum and maximum sizes for an [MorphExpressiveLoadingIndicator].
   /// If null, then the [ProgressIndicatorThemeData.constraints] will be used. Otherwise, defaults to a minimum width and height of 48 pixels.
   final BoxConstraints? constraints;
+
+  /// When non-null (dp), the active size is scaled down uniformly so the
+  /// farthest point of the whole sequence (any rotation, largest pulse) stays
+  /// within this radius from the center. Used by the contained variant.
+  final double? radialBudget;
 
   /// Full 360° continuous spin period. Defaults to theme.
   final Duration? globalRotationDuration;
@@ -98,8 +100,11 @@ class MorphExpressiveLoadingIndicator extends ProgressIndicator {
     super.key,
     super.color,
     this.polygons,
+    this.shapes,
+    this.renderer = MorphShapeRenderer.canvas,
     this.indicatorColors,
     this.indicatorSize,
+    this.radialBudget,
     this.constraints,
     this.globalRotationDuration,
     this.morphInterval,
@@ -113,6 +118,10 @@ class MorphExpressiveLoadingIndicator extends ProgressIndicator {
     super.semanticsLabel,
     super.semanticsValue,
   }) : assert(
+         shapes == null || polygons == null,
+         'shapes and polygons are exclusive',
+       ),
+       assert(
          !(polygons != null) || polygons.length > 1,
          'polygons must contain more than one shape when provided',
        );
@@ -125,7 +134,7 @@ class MorphExpressiveLoadingIndicator extends ProgressIndicator {
 class _MorphExpressiveLoadingIndicatorState
     extends State<MorphExpressiveLoadingIndicator>
     with TickerProviderStateMixin {
-  static final List<shapes.RoundedPolygon> _defaultPolygons = [
+  static final List<legacy_shapes.RoundedPolygon> _defaultPolygons = [
     MorphMaterialNewShapes.softBurst,
     MorphMaterialNewShapes.cookie9Sided,
     MorphMaterialNewShapes.pentagon,
@@ -135,11 +144,11 @@ class _MorphExpressiveLoadingIndicatorState
     MorphMaterialNewShapes.oval,
   ];
 
-  late final List<shapes.RoundedPolygon> _polygons;
+  late List<MorphShape> _shapeSequence;
+  late MorphPreparedGeometry _activeMorph;
+  MorphContour get _visibleContour => _activeMorph.at(_morphController.value);
 
   static const double _fullRotation = 360;
-
-  late final List<shapes.Morph> _morphSequence;
 
   late final AnimationController _morphController;
   late final AnimationController _globalRotationController;
@@ -147,7 +156,8 @@ class _MorphExpressiveLoadingIndicatorState
   int _currentMorphIndex = 0;
   double _morphRotationTargetAngle = 0;
 
-  Timer? _morphTimer;
+  late final Ticker _cycleClock;
+  Duration _lastCycle = Duration.zero;
 
   late BoxConstraints _constraints;
   late List<Color> _indicatorColors;
@@ -179,6 +189,51 @@ class _MorphExpressiveLoadingIndicatorState
 
   double get _activeSize =>
       widget.indicatorSize ?? _loadingTheme.activeIndicatorSize;
+
+  static final Expando<double> _radius = Expando('loader shape radius');
+
+  /// Largest pulse scale (≥ 1) from simulating the pulse spring.
+  double get _pulseMax {
+    final sim = SpringSimulation(
+      _pulseSpring.toDescription(),
+      _pulseStartScale,
+      1,
+      _pulseSpringVelocity,
+    );
+    var m = math.max(1.0, _pulseStartScale);
+    for (var t = 0.0; t < 4; t += .004) {
+      m = math.max(m, sim.x(t));
+    }
+    return m;
+  }
+
+  /// Stable per-sequence scale; never derived from the instantaneous bounds.
+  Object? _envelopeKey;
+  double _envelopeValue = 1;
+  double get _envelopeScale {
+    final budget = widget.radialBudget;
+    if (budget == null) return 1;
+    final key = Object.hash(
+      identityHashCode(_shapeSequence),
+      budget,
+      _activeSize,
+      _pulseStartScale,
+      _pulseSpring,
+      _pulseSpringVelocity,
+    );
+    if (key == _envelopeKey) return _envelopeValue;
+    _envelopeKey = key;
+    return _envelopeValue = _computeEnvelope(budget);
+  }
+
+  double _computeEnvelope(double budget) {
+    var r = 0.0;
+    for (final s in _shapeSequence) {
+      r = math.max(r, _radius[s] ??= s.contour.maxRadius());
+    }
+    final needed = r * _activeSize * _pulseMax;
+    return needed <= budget ? 1 : budget / needed;
+  }
 
   bool get _manualRotation => widget.rotationTurns != null;
 
@@ -216,7 +271,6 @@ class _MorphExpressiveLoadingIndicatorState
         );
 
     // Fit polygons into the active shape size only — outer container stays fixed.
-    final shapesScaleFactor = _calculateScaleFactor(_polygons);
 
     return Semantics.fromProperties(
       properties: SemanticsProperties(
@@ -267,22 +321,21 @@ class _MorphExpressiveLoadingIndicatorState
                     angle: totalRotationRadians,
                     child: Transform.scale(
                       scale: pulseScale,
-                      child: SizedBox(
-                        width: _activeSize,
-                        height: _activeSize,
-                        child: CustomPaint(
-                          painter: _MorphPainter(
-                            morph: _morphSequence[_currentMorphIndex],
-                            progress: morphProgress,
+                      child: TweenAnimationBuilder<double>(
+                        tween: Tween<double>(end: _envelopeScale),
+                        duration: _reduced
+                            ? Duration.zero
+                            : const Duration(milliseconds: 240),
+                        builder: (context, k, _) => SizedBox(
+                          width: _activeSize * k,
+                          height: _activeSize * k,
+                          child: MorphShapeView(
+                            shape: _shapeSequence[_currentMorphIndex],
+                            contour: _visibleContour,
                             color: indicatorColor,
-                            scaleFactor: shapesScaleFactor,
-                            repaint: Listenable.merge([
-                              _morphController,
-                              _globalRotationController,
-                              _pulseController,
-                            ]),
+                            renderer: widget.renderer,
+                            size: Size.square(_activeSize * k),
                           ),
-                          child: const SizedBox.expand(),
                         ),
                       ),
                     ),
@@ -298,7 +351,7 @@ class _MorphExpressiveLoadingIndicatorState
 
   @override
   void dispose() {
-    _morphTimer?.cancel();
+    _cycleClock.dispose();
     _morphController.dispose();
     _globalRotationController.dispose();
     _pulseController.dispose();
@@ -309,15 +362,23 @@ class _MorphExpressiveLoadingIndicatorState
   void initState() {
     super.initState();
 
-    _polygons = widget.polygons ?? _defaultPolygons;
-
-    _morphSequence = _createMorphSequence(_polygons, circularSequence: true);
+    _readSequence();
+    _activeMorph = const MorphGeometryEngine().prepare(
+      _shapeSequence.first.contour,
+      _shapeSequence.first.contour,
+    );
 
     _morphController = AnimationController.unbounded(vsync: this);
     _pulseController = AnimationController.unbounded(vsync: this, value: 1);
 
     // continuous linear rotation — duration applied once theme is available
     _globalRotationController = AnimationController(vsync: this);
+    _cycleClock = createTicker((elapsed) {
+      if (elapsed - _lastCycle >= _morphInterval) {
+        _lastCycle = elapsed;
+        _startMorphCycle();
+      }
+    });
 
     // Theme is read in didChangeDependencies before first morph tick.
   }
@@ -327,7 +388,7 @@ class _MorphExpressiveLoadingIndicatorState
     super.didChangeDependencies();
     _loadingTheme = MorphTheme.of(context).loadingIndicatorTheme;
     _reduced = MorphMotion.reduceMotionOf(context);
-    if (_reduced) {
+    if (_reduced || !TickerMode.valuesOf(context).enabled) {
       _enterManualRotation();
       _animationsStarted = false;
     } else {
@@ -338,6 +399,22 @@ class _MorphExpressiveLoadingIndicatorState
   @override
   void didUpdateWidget(MorphExpressiveLoadingIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.shapes != widget.shapes ||
+        oldWidget.polygons != widget.polygons) {
+      final current = _visibleContour;
+      _readSequence();
+      _currentMorphIndex = 0;
+      _activeMorph = const MorphGeometryEngine().prepare(
+        current,
+        _shapeSequence.first.contour,
+      );
+      _morphController.value = 0;
+      if (!_reduced &&
+          !_manualRotation &&
+          TickerMode.valuesOf(context).enabled) {
+        _animateMorph();
+      }
+    }
     final wasManual = oldWidget.rotationTurns != null;
     final isManual = widget.rotationTurns != null;
     if (_reduced) return;
@@ -375,8 +452,7 @@ class _MorphExpressiveLoadingIndicatorState
   }
 
   void _enterManualRotation() {
-    _morphTimer?.cancel();
-    _morphTimer = null;
+    _cycleClock.stop();
     _globalRotationController.stop();
     _morphController.stop();
     _pulseController
@@ -393,8 +469,7 @@ class _MorphExpressiveLoadingIndicatorState
     if (!_globalRotationController.isAnimating) {
       _globalRotationController.repeat();
     }
-    _morphTimer?.cancel();
-    _morphTimer = Timer.periodic(_morphInterval, (_) => _startMorphCycle());
+    _restartClock();
     _startMorphCycle();
   }
 
@@ -415,66 +490,41 @@ class _MorphExpressiveLoadingIndicatorState
     if (_manualRotation || _reduced) {
       return;
     }
-    _morphTimer?.cancel();
     _syncGlobalRotationDuration();
     if (!_globalRotationController.isAnimating) {
       _globalRotationController.repeat();
     }
-    _morphTimer = Timer.periodic(_morphInterval, (_) => _startMorphCycle());
+    _restartClock();
   }
 
-  List<shapes.Morph> _createMorphSequence(
-    List<shapes.RoundedPolygon> polygons, {
-    required bool circularSequence,
-  }) {
-    final morphs = <shapes.Morph>[];
-
-    for (var i = 0; i < polygons.length; i++) {
-      if (i + 1 < polygons.length) {
-        morphs.add(shapes.Morph(polygons[i], polygons[i + 1]));
-      } else if (circularSequence) {
-        // morph from last shape back to first shape
-        morphs.add(shapes.Morph(polygons[i], polygons[0]));
-      }
+  void _readSequence() {
+    if (widget.shapes != null && widget.polygons != null) {
+      throw ArgumentError('shapes and polygons are mutually exclusive');
     }
-
-    return morphs;
+    final sequence =
+        widget.shapes ??
+        (widget.polygons ?? _defaultPolygons)
+            .map((p) => MorphShape.fromPolygon(p))
+            .toList();
+    if (sequence.length < 2) {
+      throw ArgumentError('At least two shapes are required');
+    }
+    // Normalize only when definitions change, never per frame.
+    _shapeSequence = List.unmodifiable(
+      sequence.map(
+        (s) => MorphShape(
+          name: s.name,
+          contour: s.contour.normalized(),
+          provenance: s.provenance,
+        ),
+      ),
+    );
   }
 
-  /// Calculates a scale factor that will be used when scaling the provided `RoundedPolygon`s into a
-  /// specified sized container.
-  ///
-  /// Since the polygons may rotate, a simple `RoundedPolygon.calculateBounds` is not enough to
-  /// determine the size the polygon will occupy as it rotates. Using the simple bounds calculation may
-  /// result in a clipped shape.
-  ///
-  /// This function calculates and returns a scale factor by utilizing the
-  /// `RoundedPolygon.calculateMaxBounds` and comparing its result to the
-  /// `RoundedPolygon.calculateBounds`. The scale factor can later be used when calling `processPath`.
-  ///
-  /// Port of Kotlin implementation.
-  double _calculateScaleFactor(List<shapes.RoundedPolygon> polygons) {
-    var scaleFactor = 1.0;
-
-    for (final polygon in polygons) {
-      final bounds = polygon.calculateBounds();
-      final maxBounds = polygon.calculateMaxBounds();
-
-      final boundsWidth = bounds[2] - bounds[0];
-      final boundsHeight = bounds[3] - bounds[1];
-
-      final maxBoundsWidth = maxBounds[2] - maxBounds[0];
-      final maxBoundsHeight = maxBounds[3] - maxBounds[1];
-
-      final scaleX = boundsWidth / maxBoundsWidth;
-      final scaleY = boundsHeight / maxBoundsHeight;
-
-      // We use max(scaleX, scaleY) to handle cases like a pill-shape that can throw off the
-      // entire calculation.
-      scaleFactor = math.min(scaleFactor, math.max(scaleX, scaleY));
-    }
-
-    return scaleFactor;
+  void _restartClock() {
+    _cycleClock.stop();
+    _lastCycle = Duration.zero;
+    _cycleClock.start();
   }
 
   void _startAnimations() {
@@ -485,7 +535,7 @@ class _MorphExpressiveLoadingIndicatorState
     _globalRotationController.repeat();
 
     // periodic morph cycle
-    _morphTimer = Timer.periodic(_morphInterval, (_) => _startMorphCycle());
+    _restartClock();
 
     _startMorphCycle();
   }
@@ -533,17 +583,31 @@ class _MorphExpressiveLoadingIndicatorState
   }
 
   void _startMorphCycle() {
-    if (!mounted || _manualRotation) {
+    if (!mounted ||
+        _manualRotation ||
+        _reduced ||
+        !TickerMode.valuesOf(context).enabled) {
       return;
     }
 
     // move to next morph in sequence
-    _currentMorphIndex = (_currentMorphIndex + 1) % _morphSequence.length;
+    final current = _visibleContour;
+    _currentMorphIndex = (_currentMorphIndex + 1) % _shapeSequence.length;
+    _activeMorph = const MorphGeometryEngine().prepare(
+      current,
+      _shapeSequence[_currentMorphIndex].contour,
+    );
 
-    // accumulate rotation target
+    // Capture the visible transition rotation before resetting its progress.
     _morphRotationTargetAngle =
-        (_morphRotationTargetAngle + _morphRotationDegrees) % _fullRotation;
+        (_morphRotationTargetAngle +
+            _morphController.value.clamp(0.0, 1.0) * _morphRotationDegrees) %
+        _fullRotation;
 
+    _animateMorph();
+  }
+
+  void _animateMorph() {
     // Reset and start morph animation (slower spring + lower velocity by default)
     _morphController
       ..value = 0.0
@@ -568,68 +632,5 @@ class _MorphExpressiveLoadingIndicatorState
           _pulseSpringVelocity,
         ),
       );
-  }
-}
-
-class _MorphPainter extends CustomPainter {
-  final shapes.Morph morph;
-  final double progress;
-  final Color color;
-
-  /// A scale factor that will be taken into account uniformly when the path is
-  /// scaled (i.e. the scaleX would be the size width x the scale factor, and the scaleY would be
-  /// the size height x the scale factor)
-  final double scaleFactor;
-
-  _MorphPainter({
-    required this.morph,
-    required this.progress,
-    required this.color,
-    this.scaleFactor = 1.0,
-    super.repaint,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final path = shapes.MorphToPathExtension(morph).toPath(progress: progress);
-    final processedPath = _processPath(path, size);
-    canvas.drawPath(
-      processedPath,
-      Paint()
-        ..style = PaintingStyle.fill
-        ..color = color,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_MorphPainter oldDelegate) {
-    return oldDelegate.morph != morph ||
-        oldDelegate.progress != progress ||
-        oldDelegate.color != color ||
-        oldDelegate.scaleFactor != scaleFactor;
-  }
-
-  /// Process a given path to scale it and center it inside the given size.
-  ///
-  /// [path] takes a [Path] generated by a normalized [shapes.Morph] or
-  /// [shapes.RoundedPolygon].
-  /// [size] takes a [Size] that the provided [path] is going to be scaled and centered into.
-  Path _processPath(Path path, Size size) {
-    // a [Matrix] that would be used to apply the scaling. Note that any provided
-    // matrix will be reset in this function.
-    final scaleMatrix = Matrix4.diagonal3Values(
-      size.width * scaleFactor,
-      size.height * scaleFactor,
-      1,
-    );
-    final Path scaledPath = path.transform(scaleMatrix.storage);
-
-    // Translate the path so that its center aligns with the center of the container.
-    final Rect bounds = scaledPath.getBounds();
-    final Offset translation =
-        Offset(size.width / 2, size.height / 2) - bounds.center;
-    final Path finalPath = scaledPath.shift(translation);
-
-    return finalPath;
   }
 }

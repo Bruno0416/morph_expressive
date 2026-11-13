@@ -80,7 +80,14 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
         onPointerDown: _onScrimPointerDown,
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onTap: _dismiss,
+          // A tap on the row that owns this submenu is the owner's click (it
+          // keeps the submenu open); anywhere else dismisses it.
+          onTapUp: (TapUpDetails d) {
+            if (widget.isSubmenu && widget.anchor.contains(d.globalPosition)) {
+              return;
+            }
+            _dismiss();
+          },
           child: IgnorePointer(
             child: ColoredBox(color: menuTheme.scrimColor(scheme)),
           ),
@@ -108,10 +115,14 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
       top: placement.top,
       bottom: placement.bottom,
       child: AnimatedBuilder(
-        animation: _expandCtrl,
+        animation: widget.motionStyle != MorphDropdownMotionStyle.legacy
+            ? Listenable.merge([_popupCtrl, _heightCtrl])
+            : _expandCtrl,
         builder: (BuildContext context, Widget? child) {
           return _expandTransform(
-            progress: _expandCtrl.value,
+            progress: widget.motionStyle != MorphDropdownMotionStyle.legacy
+                ? _popupCtrl.value
+                : _expandCtrl.value,
             scaleAlignment: scaleAlignment,
             child: child,
           );
@@ -122,10 +133,22 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
             maxWidth: placement.width,
             maxHeight: placement.maxHeight,
           ),
-          child: _buildSurfaces(
-            menuTheme: menuTheme,
-            scheme: scheme,
-            maxHeight: placement.maxHeight,
+          // Pointer presence of this panel (mouse only) drives hover-opened
+          // submenus: the parent keeps its submenu while the pointer crosses.
+          child: MouseRegion(
+            onEnter: (PointerEnterEvent e) {
+              _onSelfPointer(true);
+              widget.onPointerInside?.call(true);
+            },
+            onExit: (PointerExitEvent e) {
+              _onSelfPointer(false);
+              widget.onPointerInside?.call(false);
+            },
+            child: _buildSurfaces(
+              menuTheme: menuTheme,
+              scheme: scheme,
+              maxHeight: placement.maxHeight,
+            ),
           ),
         ),
       ),
@@ -190,6 +213,42 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
     required Alignment scaleAlignment,
     required Widget? child,
   }) {
+    if (widget.motionStyle != MorphDropdownMotionStyle.legacy) {
+      final t = MorphMotion.reduceMotionOf(context)
+          ? 1.0
+          : progress.clamp(0.0, 1.0).toDouble();
+      final eased = _isDismissing
+          ? 1.0 - MorphMotion.exit.transform(1.0 - t)
+          : MorphMotion.enter.transform(t);
+      // Both entrance and exit are centered, regardless of placement or tap.
+      // Keep the full child mounted from the first frame: opacity 0 is NOT
+      // equivalent to SizedBox.shrink() for overlay geometry and animation.
+      // Clip the surface from its anchor-side edge, while keeping the
+      // popup scale centered and every row at its normal text size.
+      final height = MorphMotion.reduceMotionOf(context)
+          ? 1.0
+          : MorphMotion.standard.transform(_heightCtrl.value);
+      final verticalReveal = ClipRect(
+        child: Align(
+          key: const ValueKey('morph-popup-height-reveal'),
+          alignment: scaleAlignment,
+          heightFactor: height.clamp(0.0, 1.0).toDouble(),
+          child: child,
+        ),
+      );
+      return Opacity(
+        key: const ValueKey('morph-popup-panel-opacity'),
+        opacity: eased.clamp(0.0, 1.0).toDouble(),
+        child: Transform.scale(
+          key: const ValueKey('morph-popup-centered-scale'),
+          alignment: Alignment.center,
+          scale: 0.80 + 0.20 * eased,
+          child: verticalReveal,
+        ),
+      );
+    }
+
+    // Legacy explicitly retains the original spring / anchor transform.
     final clampedProgress = progress.clamp(0.0, 1.5);
     final clampedScale = clampedProgress.clamp(0.0, 1.2);
     if (clampedProgress <= 0.01) {
@@ -293,7 +352,7 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
     required MorphMenuColors palette,
     required MorphMenuGroup surface,
   }) {
-    final Widget content = Padding(
+    final Widget rows = Padding(
       padding: EdgeInsets.symmetric(
         vertical: menuTheme.verticalPadding,
         horizontal: menuTheme.contentHorizontalPadding,
@@ -305,10 +364,26 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
         closeOnSelect: widget.closeOnSelect,
         onSelect: _handleSelect,
         onOpenSubmenu: _openSubmenu,
+        onRowEnter: _onRowEnter,
         autofocusFirst: false,
         applyGroupShapes: false,
       ),
     );
+    // Fade only the rows; the surface and shadow follow the slower outer
+    // animation. This also preserves text size and glass treatment.
+    final Widget content = widget.motionStyle != MorphDropdownMotionStyle.legacy
+        ? AnimatedBuilder(
+            animation: _popupCtrl,
+            child: rows,
+            builder: (BuildContext context, Widget? child) => Opacity(
+              key: const ValueKey('morph-popup-content-opacity'),
+              opacity: MorphMotion.reduceMotionOf(context)
+                  ? 1.0
+                  : _popupContentOpacity(_popupCtrl.value),
+              child: child,
+            ),
+          )
+        : rows;
     final MorphSurfaceGlass? glass = MorphGlassSurface.resolve(
       context,
       widget.glass,

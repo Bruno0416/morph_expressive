@@ -319,7 +319,8 @@ extension _MorphDropdownMenuField<T> on _MorphDropdownMenuState<T> {
 
   void _onFieldHover(bool hover) => setState(() => _isHoveredField = hover);
 
-  void _onFieldTapDown(TapDownDetails _) {
+  void _onFieldTapDown(TapDownDetails details) {
+    _recordFieldOrigin(details.globalPosition);
     MorphFocusInteraction.instance.notePointerInteraction();
     setState(() => _isPressedField = true);
   }
@@ -329,7 +330,22 @@ extension _MorphDropdownMenuField<T> on _MorphDropdownMenuState<T> {
     setState(() => _isPressedField = false);
   }
 
-  void _onFieldTapCancel() => setState(() => _isPressedField = false);
+  void _onFieldTapCancel() {
+    _nextPointerOriginX = null;
+    setState(() => _isPressedField = false);
+  }
+
+  void _recordFieldOrigin(Offset globalPosition) {
+    final box = context.findRenderObject() as RenderBox?;
+    if (box == null || !box.attached || !box.hasSize || box.size.width <= 0) {
+      _nextPointerOriginX = null;
+      return;
+    }
+    _nextPointerOriginX =
+        (box.globalToLocal(globalPosition).dx / box.size.width)
+            .clamp(0.0, 1.0)
+            .toDouble();
+  }
 
   Widget _buildFieldInkWell({
     required MorphDropdownFieldStyle fd,

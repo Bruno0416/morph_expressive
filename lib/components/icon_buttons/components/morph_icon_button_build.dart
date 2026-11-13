@@ -382,6 +382,9 @@ extension _MorphIconButtonBuild on _MorphIconButtonState {
     final morphSpring = MorphTheme.of(context).iconButtonTheme.morphSpring;
     return MorphRadiusAndPaddingMotion(
       motion: MorphMotion.springMotion(morphSpring),
+      // Keep this family's established temporal profile; R3 config is for buttons.
+      pressDuration: const Duration(milliseconds: 165),
+      releaseDuration: const Duration(milliseconds: 380),
       internalLeft: 0,
       internalRight: 0,
       internalTop: 0,

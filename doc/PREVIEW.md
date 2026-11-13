@@ -1,5 +1,47 @@
 # Component preview
 
+## Tabs Lab
+
+Gallery toolbar: **Tabs Lab**, or <http://127.0.0.1:8081/?lab=tabs>. Native direct
+entry: `flutter run -d linux --release --dart-define=MORPH_LAB=tabs` in `preview/`.
+Ten sections (underline, pill, rounded rectangle, slide vs elastic, fit,
+distribution, scrollable bar, icons and badges, bar linked to real pages with a
+live progress readout, independent controlled bar) and controls for presentation,
+motion, duration, radii, thickness, insets, requested vs effective renderer,
+reduced motion, RTL, 2× text and mobile width. Reproducible actions: first → last,
+rapid changes, slow jump to interrupt with a swipe, change a label/badge, add or
+remove tabs. See [Tabs: continuous selection](TABS.md).
+
+## Operation & Skeleton Lab
+
+Gallery toolbar: **Operation & Skeleton Lab**, or
+<http://127.0.0.1:8081/?lab=operations>. Native direct entry:
+`flutter run -d linux --release --dart-define=MORPH_LAB=operations` in `preview/`.
+See [operation/loading API and examples](OPERATION_LOADING.md).
+
+## Shape & Interaction Lab
+
+Open `?lab=shapes` or the gallery toolbar's **Shape & Interaction Lab** action.
+Route priority is benchmark environment flag > `?capture=...` > `?lab=shapes`
+> existing gallery/mobile selection. Theme and seed controls use the Morph host.
+The lab includes 35 shape pairs, progress/retarget, renderer diagnostics, an
+always-accessible procedural ellipse Shader example, button timings, live loader
+sequence and controlled shape buttons. Rounding/smoothing are explained as
+unavailable for fixed catalog definitions. No simulated FPS is displayed.
+
+Verified release server for this checkout:
+<http://127.0.0.1:8081/?lab=shapes>. It serves `preview/build/web`:
+
+```bash
+cd preview
+flutter build web --release
+python3 -m http.server 8081 --bind 0.0.0.0 --directory build/web
+```
+
+Remote access requires forwarding port 8081; this is not a public hosted URL.
+The existing Web/Linux runners are retained. Do not rerun `flutter create` merely
+to open the lab. Detailed capabilities and limits: [SHAPE_ENGINE.md](SHAPE_ENGINE.md).
+
 `preview/` is a separate Flutter application for inspecting and interacting
 with Morph Expressive. It is not part of the package's runtime API.
 
@@ -54,62 +96,68 @@ Read [Frosted surfaces](FROSTED_SURFACES.md) and
 
 ## Reproducible animated GIF scenes
 
-The twelve isolated capture scenes are `buttons`, `dropdown`, `segmented`,
-`textfields`, `chips`, `sliders`, `loading`, `navigation`, `navigation_morph`,
-`navigation_rail_drawer`, `lists` and `dialogs`; their
-source lives in `preview/lib/component_gif_capture.dart`. The URL query
-`?capture=<scene>` selects a scene without altering the normal gallery.
+The 14 README GIFs come from isolated capture scenes in
+`preview/lib/component_gif_capture.dart`; `?capture=<scene>` selects one without
+touching the gallery. Scenes: `buttons`, `chips`, `dialogs`, `dropdown`, `lists`,
+`loading`, `navigation`, `segmented`, `sliders`, `textfields`, `async_button`,
+`skeleton`, `tabs` and `fab_menu`. `navigation_rail_drawer` is kept only for the
+rail/drawer example in [NAVIGATION_MORPH.md](NAVIGATION_MORPH.md); it is not part
+of the default set.
 
-From the repository root, regenerate **only the changed scenes you touched**:
+| Scene | Canvas | Duration | GIF fps | Content |
+| --- | --- | --- | --- | --- |
+| `buttons` | 640×370 | 7.2 s | 50 | Filled, tonal, elevated, outlined and text buttons pressed one at a time; four `MorphShapeButton`s (rotation, press, morph, rotation + morph), each pressed twice so the loop joins |
+| `segmented` | 640×350 | 7.2 s | 50 | `MorphSegmentedToggle`, the connected `MorphButtonGroup` and the reactive group (expansion 0.08), one row at a time |
+| `loading` | 640×310 | 8 s | 50 | Free and contained loaders, circular, circular wavy, linear and linear wavy progress; determinate values advance together |
+| `navigation` | 640×350 | 7.2 s | 50 | Only Morph variants (`.expressive`, `.morph`) and page indicators |
+| `async_button` | 640×260 | 10.6 s | 50 | Preserved/compact: idle → loading → success → loading → error |
+| `skeleton` | 640×340 | 8.3 s | 50 | One tilted shimmer, then the real content |
+| `tabs` | 640×380 | 7.5 s | 50 | Rounded underline and pill; selection change, reversed swipe, completed swipe |
+| `fab_menu` | 640×400 | 7.7 s | 50 | FAB small / regular / medium / large, extended FABs, and the FAB menu opening and closing |
+| `navigation_rail_drawer` | 640×380 | 7.6 s | 50 | Rail and drawer selection with the organic stretch (renderer checked outside the image) |
+| `lists`, `sliders`, `dropdown` | 640×340 / 360 / 320 | 5.8 / 6.8 / 4.8 s | 50 | Unchanged sequences |
+| `chips`, `textfields`, `dialogs` | 640×340 / 420 / 360 | 8.7 / 8.2 / 6.5 s | 25 | Unchanged sequences; the page produces 40, 25 and 14 real frames per second respectively, so 25 fps does not repeat frames artificially |
+
+All headers are compact (title and short description on one line) so the
+components use the canvas; the watermark stays clear of every scene.
+
+Scenes drive the real widgets: state changes through timers and, where press or
+drag feedback matters (buttons, segmented, async button, tabs), real pointer
+events dispatched to the gesture binding. No cursor is rendered, no lab controls
+or debug metrics appear, and no component is altered for the capture.
+
+Each scene prints a start marker (`MORPH_GIF_SCENE_START`) once its first frame
+is laid out. The capture tool starts recording 1.2 s later, after fonts and
+shader programs had time to load. Frames come from the compositor screencast
+(about 60 per second, each with its real timestamp) and are sampled on a uniform
+1/fps grid: nothing is duplicated or interpolated to raise the rate, so playback
+speed matches the real animation (a still screen repeats the last real frame).
+GIF delays are centiseconds, so 50 fps (20 ms) is the fastest uniform rate. Sequences
+return to their first state so the loop joins; the continuous rotation of the
+ShapeButton is the only element with a small phase offset at the seam. Scenes
+also print the effective renderer (`MORPH_GIF_RENDERER`); the rail/drawer capture
+fails unless the organic stretch really runs on the Shader.
+
+From the repository root (requires Flutter, Node.js/npm, Python 3, curl and
+FFmpeg; Playwright/Chromium install on first use and are never a consumer
+dependency):
 
 ```bash
-bash tool/generate_component_gifs.sh --only chips
-bash tool/generate_component_gifs.sh --only textfields
-bash tool/generate_component_gifs.sh --only lists --only dialogs
-bash tool/generate_component_gifs.sh --only sliders --only loading
-bash tool/generate_component_gifs.sh --only navigation_morph
-python3 tool/check_gif_branding.py
+bash tool/generate_component_gifs.sh                 # all 14, builds the Web preview
+bash tool/generate_component_gifs.sh --only tabs     # one scene
+python3 tool/check_gif_branding.py                   # assets, README and pub.dev gallery
 ```
 
-Chips uses **640 x 480 at 15 FPS over approximately 8.7 seconds** and shows
-three variants: MD3-inspired filter/input/assist, expressive single selection,
-and expressive multiple selection. The multiple sequence shows a circular
-first/last transition and connected duplicate/merge between active pills.
+`--skip-build` reuses a previous release build and must not be used after
+editing a scene. `MORPH_GIF_FPS` (8–50) forces one frame rate for every scene; `MORPH_GIF_COLORS` and
+`MORPH_GIF_DITHER` tune the palette.
+Inspect the first frame, intermediate states, open/expanded states, the close
+and the loop join before committing GIFs together with their README references.
 
-Text fields uses **640 x 480 at 15 FPS over approximately 8.2 seconds** and
-preserves search and outlined fields while adding the filled exterior-label
-sequence (focus, placeholder, typing and blur).
-
-Lists uses **640 x 360 at 15 FPS over approximately 5.8 seconds** and shows
-a regular MorphList item alongside swipe-enabled rows revealing actions
-without an added trailing overflow icon.
-
-Dialogs uses **640 x 420 at 15 FPS over approximately 6.5 seconds** to show
-MorphDialog opening and closing with its scrim and spring transition.
-
-Sliders and loading use **640 x 360 at 15 FPS over 6.8 seconds**; both now
-show the 90–98% smoothstep wave flattening, including the wavy range slider
-and the determinate circular/linear wavy indicators. Regenerate these GIFs
-after changing the wavy amplitude curve. The other standard scenes
-retain their 640 x 360, ~4.8-second captures.
-Navigation keeps the original MD3E `navigation.gif` unchanged. The new
-`navigation_morph` scene (640 × 520, 7.2 seconds) shows the elastic
-`.expressive()` M3 pill, the `.morph()` sliding top-dash bar and
-expanding/sliding page indicators. This scene was refreshed for 0.6.0 after
-the constructor mapping, icon sizing and bar geometry changed. The 0.6.1
-nested-scrolling fix does not alter the scene or require a new GIF.
-`navigation_rail_drawer` (640 × 500, 6.8 seconds) shows independent selection
-animations in a vertical rail and standard drawer. Both use real Morph widgets
-and scripted state transitions, not manually rendered mock animations.
-
-The capture script requires Flutter, Node.js/npm, Python 3, curl and FFmpeg;
-it installs Playwright/Chromium on first use and builds the Web preview in
-release mode. No Playwright dependency is installed for library consumers.
-
-You can override `MORPH_GIF_FPS` (8-30), `MORPH_GIF_SECONDS` or the local server
-port. `--skip-build` reuses a previously built release preview and **must not**
-be used after editing scene source. Review the generated files before a
-release, and commit GIF changes together with their README references.
+pub.dev declares ten of the images (`pubspec.yaml` → `screenshots`: async_button,
+skeleton, fab_menu, buttons, segmented, tabs, loading, navigation, dropdown,
+lists); the README shows all 14. Screenshots are documentation only and are not
+Flutter assets.
 
 ## 0.3.0 interaction review
 

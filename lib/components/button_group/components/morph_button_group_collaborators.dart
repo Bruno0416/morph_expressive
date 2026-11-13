@@ -305,14 +305,10 @@ class _FocusRingGapRenderer {
     required double spacing,
     required double focusRingOutset,
   }) {
-    var gap = spacing;
-    if (connected) {
-      final isFocusedLeft = focusedIndex == beforeIndex;
-      final isFocusedRight = focusedIndex == beforeIndex + 1;
-      if (isFocusedLeft || isFocusedRight) {
-        gap += focusRingOutset;
-      }
-    }
+    // The resting gap is normalized: focus no longer widens the gap next to
+    // the focused segment (it made the spacing non-uniform). The ring is
+    // painted in the gap; with a smaller gap it overlaps the neighbour.
+    final gap = spacing;
     return gap;
   }
 }

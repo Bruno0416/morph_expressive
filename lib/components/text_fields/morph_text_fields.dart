@@ -138,10 +138,8 @@ class MorphTextField extends StatefulWidget {
   /// Filled defaults to bodyMedium; outlined keeps bodySmall.
   final TextStyle? floatingLabelTextStyle;
 
-  /// Always reserve the exterior floating-label space in filled fields.
-  ///
-  /// Useful when adjacent fields must keep their painted surfaces aligned
-  /// regardless of focus or content. Defaults to false for existing layouts.
+  /// Retained for source compatibility. Filled fields with labels now always
+  /// reserve the floating-label space to avoid moving surrounding form rows.
   /// Outlined fields are unaffected.
   final bool reserveFloatingLabelSpace;
 

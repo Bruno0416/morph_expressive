@@ -1,5 +1,25 @@
 # Component catalog
 
+## New in 0.8.0
+
+| Component | What it is | Guide |
+| --- | --- | --- |
+| `MorphAsyncButton` | Controlled idle / loading / success / error button | [OPERATION_LOADING.md](OPERATION_LOADING.md) |
+| `MorphSkeleton`, `MorphSkeletonGroup` | Placeholders with one coordinated, tiltable shimmer | [OPERATION_LOADING.md](OPERATION_LOADING.md) |
+| `MorphReactiveButtonGroup` | Group whose neighbours respond to presses | [OPERATION_LOADING.md](OPERATION_LOADING.md) |
+| `MorphShapeButton`, `MorphShapeView` | Shape-engine button and presentation | [SHAPE_ENGINE.md](SHAPE_ENGINE.md) |
+| `MorphTabs` / `MorphTabsView` | Continuous indicator following the page swipe | [TABS.md](TABS.md) |
+| `MorphFabMenu` | One morphing main surface, renderer reporting | [R3_VISUAL_FIXES.md](R3_VISUAL_FIXES.md) |
+| `MorphMenu` | Hover submenus (`MorphMenuSubmenuBehavior`) | [R3_VISUAL_FIXES.md](R3_VISUAL_FIXES.md) |
+
+See [Upgrading from 0.7.x](UPGRADE_0_8_0.md) for changed defaults.
+
+`MorphShapeButton` is an additive action control using `MorphShape` cubics,
+controlled selection, press/selected shapes and optional container-only rotation
+in radians. `MorphShapeView` is a non-interactive Canvas/Shader presentation.
+Both loaders additionally accept `shapes` and `renderer`; legacy `polygons`
+remains supported. See [SHAPE_ENGINE.md](SHAPE_ENGINE.md) for contracts and limits.
+
 Import `package:morph_expressive/morph_expressive.dart` to access public
 components and foundations. The public `morph_components.dart` exports
 components spanning 39 showcase families:
@@ -183,6 +203,10 @@ tab does not automatically move its enclosing scroll viewport. Opt in with
 `autoScrollToFocusedTab: true` if the app needs focus-following scrolling.
 The animated indicator and keyboard focus behavior remain available.
 
+The indicator now supports an underline or a persistent surface, slide or elastic
+motion, content or tab fit, and follows the real progress of a linked
+`MorphTabsView`. See [Tabs: continuous selection](TABS.md).
+
 ## Refresh, progress indicators and sliders (0.4.0)
 
 `MorphRefreshIndicator` includes an animated circular progress ring during
@@ -277,3 +301,7 @@ component overrides support `inherit` and `none` where provided. See
 
 For constructor parameters and the complete public API, consult Dart API
 references and the exports in `lib/`.
+# Operation and loading placeholders
+
+`MorphAsyncButton`, `MorphSkeleton` and `MorphSkeletonGroup` are exported from
+the public entry point. See [API, themes and examples](OPERATION_LOADING.md).

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:morph_expressive/components/text_fields/components/morph_text_field_container_painter.dart';
 import 'package:morph_expressive/morph_components.dart';
 import 'package:material_ui/material_ui.dart'
     show
@@ -6,6 +7,7 @@ import 'package:material_ui/material_ui.dart'
         Color,
         ColoredBox,
         Column,
+        CustomPaint,
         EditableText,
         Expanded,
         FocusNode,
@@ -123,18 +125,31 @@ Future<void> _morphtextfieldCentersTheLabelUntilItFloats(
   );
   await tester.pumpAndSettle();
 
-  final Rect field = tester.getRect(find.byType(MorphTextField));
+  final Finder fieldFinder = find.byType(MorphTextField);
+  final Finder surfaceFinder = find.descendant(
+    of: fieldFinder,
+    matching: find.byWidgetPredicate(
+      (Widget widget) =>
+          widget is CustomPaint &&
+          widget.painter is MorphTextFieldContainerPainter,
+    ),
+  );
+  expect(surfaceFinder, findsOneWidget);
+  final Rect field = tester.getRect(fieldFinder);
+  final Rect surface = tester.getRect(surfaceFinder);
+  // The filled field reserves space above its painted surface for the label.
+  expect(surface.top, greaterThan(field.top));
   expect(
     tester.getRect(find.text('Name')).center.dy,
-    closeTo(field.center.dy, 1),
+    closeTo(surface.center.dy, 1),
   );
 
   await tester.tap(find.byType(MorphTextField));
   await tester.pumpAndSettle();
-  expect(
-    tester.getRect(find.text('Name')).center.dy,
-    lessThan(field.center.dy - 4),
-  );
+  expect(tester.getRect(find.text('Name')).center.dy, lessThan(surface.top));
+  // Floating the label must not move the surface or adjacent form fields.
+  expect(tester.getRect(fieldFinder), field);
+  expect(tester.getRect(surfaceFinder), surface);
 }
 
 Future<void> _morphtextfieldCentersTheInputWhenThereIsNoLabel(

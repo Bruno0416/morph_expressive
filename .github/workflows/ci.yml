@@ -1,0 +1,58 @@
+name: Quality and release
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  tests:
+    uses: ./.github/workflows/tests.yml
+
+  compatibility:
+    needs: tests
+    uses: ./.github/workflows/compatibility.yml
+
+  documentation:
+    needs: compatibility
+    uses: ./.github/workflows/documentation.yml
+
+  package:
+    needs: documentation
+    uses: ./.github/workflows/package.yml
+
+  quality:
+    name: All required quality checks
+    if: ${{ always() }}
+    needs: [tests, compatibility, documentation, package]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require every stage to succeed
+        env:
+          TESTS_RESULT: ${{ needs.tests.result }}
+          COMPATIBILITY_RESULT: ${{ needs.compatibility.result }}
+          DOCUMENTATION_RESULT: ${{ needs.documentation.result }}
+          PACKAGE_RESULT: ${{ needs.package.result }}
+        run: |
+          printf 'Validation results: tests=%s compatibility=%s documentation=%s package=%s\n' "$TESTS_RESULT" "$COMPATIBILITY_RESULT" "$DOCUMENTATION_RESULT" "$PACKAGE_RESULT"
+          test "$TESTS_RESULT" = success
+          test "$COMPATIBILITY_RESULT" = success
+          test "$DOCUMENTATION_RESULT" = success
+          test "$PACKAGE_RESULT" = success
+
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: quality
+    permissions:
+      contents: write
+      id-token: write
+    uses: ./.github/workflows/publish.yml

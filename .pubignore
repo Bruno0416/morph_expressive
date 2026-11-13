@@ -25,3 +25,11 @@
 /docs/.last_build_id
 *.patch
 *.zip
+
+# Repository CI scripts and local agent context are not published to pub.dev
+/tool/ci/
+/.agents/
+/.serena/
+/AGENTS.md
+/**/AGENTS.md
+gha-creds-*.json

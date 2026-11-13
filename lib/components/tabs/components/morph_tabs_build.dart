@@ -5,7 +5,7 @@ part of '../morph_tabs.dart';
 extension _MorphTabsBuild on _MorphTabsState {
   Widget _build(BuildContext context) {
     final theme = MorphTheme.of(context);
-    final tabTheme = theme.tabTheme;
+    final tabTheme = widget.tabTheme ?? theme.tabTheme;
     final scheme = theme.colorScheme;
     final bar = _bar(theme, tabTheme, scheme);
     if (!widget._sliver) {
@@ -23,10 +23,35 @@ extension _MorphTabsBuild on _MorphTabsState {
     MorphColorScheme scheme,
   ) {
     final bool stacked = _stacked(tabTheme);
+    _spec = tabTheme.resolveIndicator(
+      scheme,
+      widget.variant,
+      style: widget.indicatorStyle,
+      motion: widget.indicatorMotion,
+      fit: widget.indicatorFit,
+      renderer: widget.indicatorRenderer,
+      duration: widget.indicatorDuration,
+    );
+    final double labelLine = MediaQuery.textScalerOf(context).scale(20);
+    // A stacked badge mark is centred near the icon corner and scales with the
+    // text: keep it inside the bar at large text scales.
+    final bool stackedBadge =
+        stacked &&
+        widget.tabs.any((MorphTab t) => t.hasBadge && !_inlineBadge(t));
+    final double clearance = stackedBadge
+        ? math.max(0, 16 * (labelLine / 20) - 14)
+        : 0;
+    _stackedLift = clearance > 4 ? clearance - 4 : 0;
     final double barHeight = tabTheme.barHeight(
       widget.variant,
       stacked: stacked,
+      labelLineHeight: labelLine,
+      badgeClearance: clearance,
+      verticalChrome: _spec.isSurface
+          ? 2 * _spec.verticalPadding + 2 * _spec.surfaceInset
+          : 8,
     );
+    _barHeight = barHeight;
     final style = tabTheme.labelStyle(
       theme.typeScale,
       scheme,
@@ -46,7 +71,14 @@ extension _MorphTabsBuild on _MorphTabsState {
           height: barHeight,
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
-              return _barStack(constraints, tabTheme, style, scheme);
+              return _barStack(
+                context,
+                constraints,
+                tabTheme,
+                style,
+                scheme,
+                theme,
+              );
             },
           ),
         ),
@@ -66,19 +98,60 @@ extension _MorphTabsBuild on _MorphTabsState {
   }
 
   Widget _barStack(
+    BuildContext context,
     BoxConstraints constraints,
     MorphTabTheme tabTheme,
     TextStyle style,
     MorphColorScheme scheme,
+    MorphThemeData theme,
   ) {
     final scroll = _useScroll(constraints.maxWidth, tabTheme, style);
-    final primary = widget.variant == MorphTabsVariant.primary;
+    final MorphTabIndicatorSpec spec = _spec;
+    _observe(
+      Object.hash(
+        constraints.maxWidth,
+        MediaQuery.textScalerOf(context).scale(14),
+        Directionality.of(context),
+        widget.variant,
+        widget.alignment,
+        scroll,
+        spec.style,
+        spec.fit,
+        spec.tabInset,
+        spec.padding,
+        spec.contentInset,
+        spec.minLength,
+        spec.surfaceInset,
+        spec.verticalPadding,
+        spec.thickness,
+      ),
+      Object.hash(_tabsSignature(), tabTheme, theme.typeScale.titleSmall),
+    );
+    // The tab list role sits on the row itself, not on the scroll viewport:
+    // its semantic children must all be tabs.
+    final Widget tabs = Semantics(
+      role: SemanticsRole.tabBar,
+      container: true,
+      child: scroll ? _scrollable(tabTheme) : _fixed(tabTheme, style),
+    );
+    final Widget track = Stack(
+      key: _trackKey,
+      clipBehavior: Clip.none,
+      children: <Widget>[
+        _groupBackground(),
+        _indicatorLayer(surface: true),
+        tabs,
+        _indicatorLayer(surface: false),
+      ],
+    );
     return Stack(
       clipBehavior: Clip.none,
       children: <Widget>[
-        if (scroll) _scrollable(tabTheme) else _fixed(tabTheme, style),
         _divider(tabTheme, scheme),
-        _indicatorOverlay(tabTheme, scheme, primary),
+        if (scroll)
+          Positioned.fill(child: _scrollView(tabTheme, track))
+        else
+          Positioned.fill(child: track),
       ],
     );
   }
@@ -93,46 +166,20 @@ extension _MorphTabsBuild on _MorphTabsState {
     );
   }
 
-  Widget _indicatorOverlay(
-    MorphTabTheme tabTheme,
-    MorphColorScheme scheme,
-    bool primary,
-  ) {
-    return AnimatedBuilder(
-      animation: Listenable.merge(<Listenable>[
-        _indicatorLeft,
-        _indicatorWidth,
-        _scroll,
-      ]),
-      builder: (BuildContext context, Widget? _) {
-        final double dx =
-            _indicatorLeft.value - (_scroll.hasClients ? _scroll.offset : 0);
-        return Positioned(
-          left: dx,
-          width: math.max(0, _indicatorWidth.value),
-          bottom: 0,
-          height: tabTheme.indicatorExtent(widget.variant),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: tabTheme.indicatorColor(scheme),
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(
-                  primary ? tabTheme.indicatorCornerRadius : 0,
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   Widget _fixed(MorphTabTheme theme, TextStyle style) {
     if (widget.alignment == MorphTabsAlignment.fill) {
       return Row(
         children: <Widget>[
           for (var i = 0; i < widget.tabs.length; i++)
             Expanded(child: _tab(theme, i, scrollable: false)),
+        ],
+      );
+    }
+    if (widget.alignment == MorphTabsAlignment.content) {
+      return Row(
+        children: <Widget>[
+          for (var i = 0; i < widget.tabs.length; i++)
+            _tab(theme, i, scrollable: true),
         ],
       );
     }
@@ -151,24 +198,33 @@ extension _MorphTabsBuild on _MorphTabsState {
   }
 
   Widget _scrollable(MorphTabTheme theme) {
+    return Row(
+      children: <Widget>[
+        for (var i = 0; i < widget.tabs.length; i++)
+          _tab(theme, i, scrollable: true),
+      ],
+    );
+  }
+
+  /// The scroll viewport. The track (tabs and indicator) is its child, so the
+  /// indicator shares the coordinate space of the tabs and the scroll offset is
+  /// applied once, by the scrollable itself.
+  Widget _scrollView(MorphTabTheme theme, Widget track) {
+    // Clipped to the viewport horizontally only: the antialiased edge of a
+    // rounded underline at the bottom of the bar is never cut.
     return NotificationListener<ScrollNotification>(
-      onNotification: (ScrollNotification notification) {
-        _measure();
-        return false;
-      },
-      child: SingleChildScrollView(
-        controller: _scroll,
-        scrollDirection: Axis.horizontal,
-        clipBehavior: Clip.none,
-        padding: EdgeInsetsDirectional.only(
-          start: theme.scrollableLeadingOffset,
-          end: theme.scrollableLeadingOffset,
-        ),
-        child: Row(
-          children: <Widget>[
-            for (var i = 0; i < widget.tabs.length; i++)
-              _tab(theme, i, scrollable: true),
-          ],
+      onNotification: _onScrollNotification,
+      child: ClipRect(
+        clipper: const _ViewportClipper(),
+        child: SingleChildScrollView(
+          controller: _scroll,
+          scrollDirection: Axis.horizontal,
+          clipBehavior: Clip.none,
+          padding: EdgeInsetsDirectional.only(
+            start: theme.scrollableLeadingOffset,
+            end: theme.scrollableLeadingOffset,
+          ),
+          child: track,
         ),
       ),
     );
@@ -197,8 +253,25 @@ extension _MorphTabsBuild on _MorphTabsState {
     );
     return KeyedSubtree(
       key: _slotKeys[index],
-      child: Semantics(selected: selected, child: body),
+      // One node: the tab role, its selected state, the activation action of
+      // the tappable and the relation to the page it controls.
+      child: MergeSemantics(
+        child: Semantics(
+          role: SemanticsRole.tab,
+          selected: selected,
+          controlsNodes: _panelNodes(index),
+          child: body,
+        ),
+      ),
     );
+  }
+
+  Set<String>? _panelNodes(int index) {
+    final MorphTabsController? controller = widget.controller;
+    if (controller == null) {
+      return null;
+    }
+    return <String>{controller.panelIdentifier(index)};
   }
 
   Widget _tabContent({
@@ -221,11 +294,27 @@ extension _MorphTabsBuild on _MorphTabsState {
       scheme,
       variant: widget.variant,
       selected: selected,
+      style: _spec.style,
     );
     final Widget label = KeyedSubtree(
       key: _contentKeys[index],
-      child: _content(theme, tab, selected, interacting),
+      child: AnimatedBuilder(
+        animation: _pulse,
+        builder: (BuildContext context, Widget? _) =>
+            _content(theme, tab, _weightOf(index), interacting),
+      ),
     );
+    if (_spec.isSurface) {
+      return _surfaceTabBody(
+        theme: theme,
+        scheme: scheme,
+        label: label,
+        layer: layer,
+        opacity: opacity,
+        focused: state.focused,
+        shrink: scrollable,
+      );
+    }
     final Widget? ring = state.focused ? _focusRing(theme, scheme) : null;
     if (scrollable) {
       return _scrollableTabBody(theme, label, layer, opacity, ring);
@@ -264,9 +353,7 @@ extension _MorphTabsBuild on _MorphTabsState {
         alignment: Alignment.center,
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: theme.scrollableTabPadding,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: _slotPadding(theme)),
             child: label,
           ),
           Positioned.fill(
@@ -318,4 +405,80 @@ extension _MorphTabsBuild on _MorphTabsState {
       ),
     );
   }
+
+  /// Body of a tab for the surface presentation.
+  ///
+  /// The hover / pressed layer and the focus ring use the geometry of the
+  /// surface itself (same inset, same inner radius): a capsule for a pill, the
+  /// inner radius for a rounded rectangle. The whole slot stays the hit target.
+  Widget _surfaceTabBody({
+    required MorphTabTheme theme,
+    required MorphColorScheme scheme,
+    required Widget label,
+    required Color layer,
+    required double opacity,
+    required bool focused,
+    required bool shrink,
+  }) {
+    final MorphTabIndicatorSpec spec = _spec;
+    final double radius = spec.innerRadius(_barHeight);
+    // A hugging layout, or a content fit, sizes the tab by its content.
+    final bool hug = shrink || spec.fit == MorphTabsIndicatorFit.content;
+    final double gap = math.min(2, spec.surfaceInset);
+    Widget surface = DecoratedBox(
+      key: const ValueKey<String>('morph-tabs-interaction'),
+      decoration: BoxDecoration(
+        color: opacity > 0 ? layer.withValues(alpha: opacity) : null,
+        borderRadius: BorderRadius.circular(radius),
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: hug ? spec.padding : 0),
+        child: Center(widthFactor: hug ? 1 : null, child: label),
+      ),
+    );
+    if (focused) {
+      surface = Stack(
+        clipBehavior: Clip.none,
+        children: <Widget>[
+          surface,
+          Positioned(
+            left: -gap,
+            top: -gap,
+            right: -gap,
+            bottom: -gap,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                key: const ValueKey<String>('morph-tabs-focus'),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(radius + gap),
+                  border: Border.all(
+                    color: theme.focusColor(scheme),
+                    width: theme.focusThickness,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+    return SizedBox(
+      height: double.infinity,
+      child: Padding(
+        padding: EdgeInsets.all(spec.surfaceInset),
+        child: hug ? Align(widthFactor: 1, child: surface) : surface,
+      ),
+    );
+  }
+}
+
+/// Clips to the bar width with a small vertical margin for edge coverage.
+class _ViewportClipper extends CustomClipper<Rect> {
+  const _ViewportClipper();
+
+  @override
+  Rect getClip(Size size) => Rect.fromLTRB(0, -4, size.width, size.height + 4);
+
+  @override
+  bool shouldReclip(_ViewportClipper oldClipper) => false;
 }

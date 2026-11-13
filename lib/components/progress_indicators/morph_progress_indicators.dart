@@ -420,6 +420,8 @@ class _MorphProgressIndicatorState extends State<MorphProgressIndicator>
   }
 
   Widget _buildCircular(MorphThemeData theme) {
+    // SmoothEdges is the repaint boundary. An inner RepaintBoundary would
+    // repaint independently of its captured image, leaving stale edge pixels.
     final MorphCircularProgressTheme circular =
         theme.progressIndicatorTheme.circular;
     final MorphColorScheme scheme = theme.colorScheme;
@@ -432,7 +434,7 @@ class _MorphProgressIndicatorState extends State<MorphProgressIndicator>
     final Color active = widget.color ?? circular.activeColor(scheme);
     final Color track = widget.trackColor ?? circular.trackColor(scheme);
 
-    return RepaintBoundary(
+    return MorphSmoothEdges(
       child: SizedBox(
         width: resolvedSize,
         height: resolvedSize,
@@ -491,7 +493,7 @@ class _MorphProgressIndicatorState extends State<MorphProgressIndicator>
           ])
         : _spinController;
 
-    return RepaintBoundary(
+    return MorphSmoothEdges(
       child: SizedBox(
         width: resolvedSize,
         height: resolvedSize,
@@ -551,7 +553,7 @@ class _MorphProgressIndicatorState extends State<MorphProgressIndicator>
     final indet = widget.value == null;
     final double height = math.max(stroke, trackStroke);
     final TextDirection textDirection = Directionality.of(context);
-    return RepaintBoundary(
+    return MorphSmoothEdges(
       child: SizedBox(
         height: height,
         width: double.infinity,
@@ -623,7 +625,7 @@ class _MorphProgressIndicatorState extends State<MorphProgressIndicator>
           ])
         : _spinController;
 
-    return RepaintBoundary(
+    return MorphSmoothEdges(
       child: SizedBox(
         height: height,
         width: double.infinity,

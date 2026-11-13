@@ -8,6 +8,7 @@ import 'enums/morph_menu_color_style.dart';
 import 'enums/morph_menu_selection_mode.dart';
 import 'enums/morph_menu_variant.dart';
 import 'models/morph_menu_node.dart';
+import 'models/morph_menu_submenu_behavior.dart';
 import 'utils/morph_menu_overlay_rect.dart';
 
 export 'components/morph_menu_content.dart';
@@ -20,6 +21,7 @@ export 'enums/morph_menu_item_shape.dart';
 export 'enums/morph_menu_selection_mode.dart';
 export 'enums/morph_menu_variant.dart';
 export 'models/morph_menu_node.dart';
+export 'models/morph_menu_submenu_behavior.dart';
 export 'styles/morph_menu_theme.dart';
 export 'utils/morph_menu_overlay_rect.dart';
 export 'utils/morph_menu_placer.dart';
@@ -50,6 +52,10 @@ class MorphMenu extends StatefulWidget {
     this.onSelected,
     this.selectedValue,
     this.glass,
+    this.motionStyle = MorphDropdownMotionStyle.centered,
+    this.organicStretchIntensity = 0.35,
+    this.originFromTap = true,
+    this.submenuBehavior = const MorphMenuSubmenuBehavior(),
     super.key,
   }) : assert(
          children != null || entries != null,
@@ -66,6 +72,10 @@ class MorphMenu extends StatefulWidget {
     MorphMenuVariant variant = MorphMenuVariant.vertical,
     MorphMenuSelectionMode selectionMode = MorphMenuSelectionMode.single,
     bool closeOnSelect = true,
+    MorphDropdownMotionStyle motionStyle = MorphDropdownMotionStyle.centered,
+    double organicStretchIntensity = 0.35,
+    bool originFromTap = true,
+    MorphMenuSubmenuBehavior submenuBehavior = const MorphMenuSubmenuBehavior(),
     ValueChanged<Object?>? onSelected,
     Object? selectedValue,
   }) {
@@ -78,6 +88,10 @@ class MorphMenu extends StatefulWidget {
       variant: variant,
       selectionMode: selectionMode,
       closeOnSelect: closeOnSelect,
+      motionStyle: motionStyle,
+      organicStretchIntensity: organicStretchIntensity,
+      originFromTap: originFromTap,
+      submenuBehavior: submenuBehavior,
       onSelected: onSelected,
       selectedValue: selectedValue,
     );
@@ -122,6 +136,14 @@ class MorphMenu extends StatefulWidget {
   /// pass [MorphSurfaceGlass.disabled] to force the classic opaque menus.
   final MorphSurfaceGlass? glass;
 
+  /// Liquid uses a centered fade + scale. Legacy retains anchored spring scale.
+  final MorphDropdownMotionStyle motionStyle;
+  final double organicStretchIntensity;
+  final bool originFromTap;
+
+  /// Submenu opening policy: hover (default, with delays) or click.
+  final MorphMenuSubmenuBehavior submenuBehavior;
+
   List<MorphMenuNode> get _nodes => children ?? entries!;
 
   @override
@@ -133,6 +155,7 @@ class _MorphMenuState extends State<MorphMenu> {
   final FocusNode _anchorFocus = FocusNode(debugLabel: 'MorphMenuAnchor');
   OverlayEntry? _menuEntry;
   bool _open = false;
+  Offset? _lastPointerDown;
 
   bool get _multi => widget.selectionMode == MorphMenuSelectionMode.multi;
 
@@ -184,11 +207,16 @@ class _MorphMenuState extends State<MorphMenu> {
       selectedValue: widget.selectedValue,
       callerFocusNode: _focusedAnchorNode(),
       glass: widget.glass,
+      motionStyle: widget.motionStyle,
+      organicStretchIntensity: widget.organicStretchIntensity,
+      tapPosition: widget.originFromTap ? _lastPointerDown : null,
+      submenuBehavior: widget.submenuBehavior,
       onItemChosen: stayOpen ? widget.onSelected : null,
       onEntry: (OverlayEntry entry) => _menuEntry = entry,
     );
 
     _menuEntry = null;
+    _lastPointerDown = null;
     if (mounted) {
       setState(() => _open = false);
     }
@@ -221,6 +249,7 @@ class _MorphMenuState extends State<MorphMenu> {
     if (!openKey) {
       return KeyEventResult.ignored;
     }
+    _lastPointerDown = null;
     _openMenu();
     return KeyEventResult.handled;
   }
@@ -231,12 +260,16 @@ class _MorphMenuState extends State<MorphMenu> {
       builder: (BuildContext context) {
         return KeyedSubtree(
           key: _anchorKey,
-          child: Focus(
-            focusNode: _anchorFocus,
-            canRequestFocus: false,
-            skipTraversal: true,
-            onKeyEvent: _onAnchorKey,
-            child: widget.anchorBuilder(context, _openMenu),
+          child: Listener(
+            behavior: HitTestBehavior.translucent,
+            onPointerDown: (event) => _lastPointerDown = event.position,
+            child: Focus(
+              focusNode: _anchorFocus,
+              canRequestFocus: false,
+              skipTraversal: true,
+              onKeyEvent: _onAnchorKey,
+              child: widget.anchorBuilder(context, _openMenu),
+            ),
           ),
         );
       },

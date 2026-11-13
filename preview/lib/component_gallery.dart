@@ -56,6 +56,7 @@ import 'package:material_ui/material_ui.dart'
 import 'package:morph_expressive/morph_expressive.dart';
 
 import 'component_catalog.dart';
+import 'chip_organic_lab.dart';
 import 'floating_navigation_sample.dart';
 import 'gradient_app_bar_sample.dart';
 
@@ -389,9 +390,18 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
   String _lastSwipeAction = 'None';
   String _splitChoice = 'One';
   int _tabIndex = 0;
+  final MorphTabsController _tabsController = MorphTabsController();
+
+  @override
+  void dispose() {
+    _tabsController.dispose();
+    super.dispose();
+  }
+
   int _pageIndex = 0;
   String _radioValue = 'one';
   double _sliderValue = 0.6;
+  double _sharedOrganicStretch = 0.40;
   int _presses = 0;
   int? _groupSelected = 0;
   String _toggleChipSelection = 'Daily';
@@ -406,6 +416,21 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
     child: _samples(
       MorphTheme.of(context).colorScheme,
       category: widget.category,
+    ),
+  );
+
+  Widget _sharedStretchControl() => _panel(
+    'Harmonic stretch · 0 is the original indicator',
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Intensity: ${_sharedOrganicStretch.toStringAsFixed(2)}'),
+        MorphSlider(
+          key: const ValueKey('shared_organic_stretch_slider'),
+          value: _sharedOrganicStretch,
+          onChanged: (value) => setState(() => _sharedOrganicStretch = value),
+        ),
+      ],
     ),
   );
 
@@ -948,8 +973,16 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
             ),
           ),
         );
+        samples.add(
+          _panel(
+            'Organic ink · dedicated chip lab',
+            const MorphChipOrganicLab(),
+            width: 600,
+          ),
+        );
         break;
       case 'segmented_buttons':
+        samples.add(_sharedStretchControl());
         samples.add(
           _panel(
             'Morph segmented toggle · elastic selection',
@@ -963,6 +996,7 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
                 ),
               ],
               selected: _mediaSelection,
+              organicStretchIntensity: _sharedOrganicStretch,
               onChanged: (value) => setState(() => _mediaSelection = value),
             ),
             width: 680,
@@ -978,6 +1012,7 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
                 MorphSegment(value: 'Three', label: 'Three'),
               ],
               selected: _segmented,
+              organicStretchIntensity: _sharedOrganicStretch,
               onSelectionChanged: (selected) =>
                   setState(() => _segmented = selected),
             ),
@@ -1177,8 +1212,9 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
       case 'tabs':
         samples.add(
           _panel(
-            'Morph tabs',
+            'Morph tabs · linked to the swipeable body below',
             MorphTabs(
+              controller: _tabsController,
               tabs: const [
                 MorphTab(label: 'Home'),
                 MorphTab(label: 'Explore'),
@@ -1218,6 +1254,7 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
             SizedBox(
               height: 100,
               child: MorphTabsView(
+                controller: _tabsController,
                 selectedIndex: _tabIndex,
                 onTabSelected: (index) => setState(() => _tabIndex = index),
                 children: [
@@ -1231,6 +1268,7 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
         );
         break;
       case 'navigation_bar':
+        samples.add(_sharedStretchControl());
         samples.add(
           _panel(
             'Compact navigation',
@@ -1299,6 +1337,7 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
               key: const ValueKey('preview_nav_expressive_compact'),
               builder: (selectedIndex, onSelected) =>
                   MorphNavigationBar.expressive(
+                    organicStretchIntensity: _sharedOrganicStretch,
                     safeArea: false,
                     autoLayout: false,
                     selectedIndex: selectedIndex,
@@ -1330,6 +1369,7 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
               key: const ValueKey('preview_nav_expressive_wide'),
               builder: (selectedIndex, onSelected) =>
                   MorphNavigationBar.expressive(
+                    organicStretchIntensity: _sharedOrganicStretch,
                     safeArea: false,
                     autoLayout: false,
                     layout: MorphNavBarLayout.wide,
@@ -1363,6 +1403,7 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
               key: const ValueKey('preview_nav_morph'),
               builder: (selectedIndex, onSelected) => MorphNavigationBar.morph(
                 safeArea: false,
+                organicStretchIntensity: _sharedOrganicStretch,
                 iconSize: 32,
                 unselectedIconScale: 0.9,
                 selectedIndex: selectedIndex,
@@ -1400,12 +1441,14 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
         }
         break;
       case 'page_indicator':
+        samples.add(_sharedStretchControl());
         samples.add(
           _panel(
             'Morph onboarding · equal pills',
             MorphPageIndicator(
               count: 3,
               selectedIndex: _pageIndex,
+              organicStretchIntensity: _sharedOrganicStretch,
               activeWidth: 16,
               inactiveWidth: 16,
               effect: MorphPageIndicatorEffect.slide,
@@ -1419,6 +1462,7 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
             MorphPageIndicator(
               count: 3,
               selectedIndex: _pageIndex,
+              organicStretchIntensity: _sharedOrganicStretch,
               activeWidth: 40,
               inactiveWidth: 16,
               onPageSelected: (i) => setState(() => _pageIndex = i),
@@ -1431,6 +1475,7 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
             MorphPageIndicator(
               count: 3,
               selectedIndex: _pageIndex,
+              organicStretchIntensity: _sharedOrganicStretch,
               activeWidth: 28,
               inactiveWidth: 10,
               height: 20,
@@ -1442,7 +1487,11 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
         samples.add(
           _panel(
             'Read-only page status',
-            MorphPageIndicator(count: 3, selectedIndex: _pageIndex),
+            MorphPageIndicator(
+              count: 3,
+              selectedIndex: _pageIndex,
+              organicStretchIntensity: _sharedOrganicStretch,
+            ),
           ),
         );
         break;
@@ -1804,6 +1853,7 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
         );
         break;
       case 'navigation_drawer':
+        samples.add(_sharedStretchControl());
         samples.add(
           _panel(
             'Standard navigation drawer',
@@ -1813,6 +1863,7 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
               child: MorphNavigationDrawer.morph(
                 headline: 'Navigation',
                 selectedIndex: _drawerIndex,
+                organicStretchIntensity: _sharedOrganicStretch,
                 onDestinationSelected: (i) => setState(() => _drawerIndex = i),
                 destinations: [
                   MorphNavigationDestination(
@@ -1835,6 +1886,7 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
         );
         break;
       case 'navigation_rail':
+        samples.add(_sharedStretchControl());
         samples.add(
           _panel(
             'Navigation rail',
@@ -1847,6 +1899,7 @@ class _MorphSampleFamilyState extends State<_MorphSampleFamily> {
                 // they must not tint the rail as if its own content scrolled under.
                 scrollUnder: false,
                 selectedIndex: _railIndex,
+                organicStretchIntensity: _sharedOrganicStretch,
                 onDestinationSelected: (i) => setState(() => _railIndex = i),
                 sections: [
                   MorphNavigationRailSection(

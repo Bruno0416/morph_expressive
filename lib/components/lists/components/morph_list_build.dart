@@ -229,11 +229,12 @@ extension _MorphListBuild on _MorphListState {
       widget.outerRadius,
       MorphListCardListTheme.defaultOuterRadius,
     );
-    final double usedInner = _baselineOr(
-      itemTheme,
-      widget.innerRadius,
-      MorphListCardListTheme.defaultInnerRadius,
-    );
+    final double usedInner = widget._innerRadiusExplicit
+        ? widget.innerRadius
+        : (cardList.outerRadius <= 0
+              ? 0
+              : usedOuter * cardList.innerRadius / cardList.outerRadius);
+
     // Reorder rows get their gap from the reorder host instead (see
     // `_reorder`), so it can sit detached from the dragged card.
     final double usedGap = suppressOwnGap

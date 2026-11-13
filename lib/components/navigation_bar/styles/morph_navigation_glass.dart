@@ -16,6 +16,7 @@ class MorphNavigationGlass {
     this.blurDuringScroll = false,
     this.blurRevealProgress = 0.35,
     this.webBackdropBlur = true,
+    this.boundedBlur = false,
   }) : assert(blurX >= 0),
        assert(blurY >= 0),
        assert(blurRevealProgress >= 0 && blurRevealProgress <= 1),
@@ -59,4 +60,8 @@ class MorphNavigationGlass {
   /// tint, gradient and border without a BackdropFilter on web; native targets
   /// continue to use real blur. Useful for previews with animated backgrounds.
   final bool webBackdropBlur;
+
+  /// Optional layout-bounded native Gaussian sampling for experimentation.
+  /// Disabled by default to preserve the existing glass appearance.
+  final bool boundedBlur;
 }

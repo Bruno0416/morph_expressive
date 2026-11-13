@@ -17,7 +17,7 @@ brightness, configure adaptive handling with `MorphTheme` (`autoTheming`,
 `dynamicColoring` and optionally a `MorphThemeController`). Keep the host
 Material colors and Morph surface colors synchronized.
 
-## Frosted floating surfaces (unreleased source checkout)
+## Frosted floating surfaces
 
 `MorphThemeData.floatingSurfaceGlass` configures compatible floating overlays
 (menu popups, dropdown panels, dialogs, sheets, tooltips). Widget-level `glass:`
@@ -40,6 +40,19 @@ final frostedTheme = MorphThemeData.light(
 This does not replace the separate `MorphAppBarGlass` /
 `MorphNavigationGlass` APIs. For detailed precedence and performance, see
 [Frosted surfaces](FROSTED_SURFACES.md).
+
+## Component themes added in 0.8.0
+
+`MorphThemeData` carries `asyncButtonTheme` (`MorphAsyncButtonTheme`: surface
+transition, per-state decorations, icon transition) and `skeletonTheme`
+(`MorphSkeletonTheme`: duration, transition, intensity, angle, colors); both take part in `copyWith`. Existing themes gained
+fields with compatible defaults: `MorphButtonTheme.pressDuration` /
+`releaseDuration` (90 / 160 ms), `MorphButtonGroupTheme.connectedGap` (4 dp),
+`MorphLoadingIndicatorTheme.containedInset` (5 dp) and, in `MorphTabTheme`, the
+indicator fields documented in [TABS.md](TABS.md) (`MorphTabs.tabTheme` replaces
+the inherited tab theme for one bar). Precedence is always widget argument →
+local theme → inherited theme → package default. Defaults that changed are
+listed in [Upgrading from 0.7.x](UPGRADE_0_8_0.md).
 
 ## Typography
 

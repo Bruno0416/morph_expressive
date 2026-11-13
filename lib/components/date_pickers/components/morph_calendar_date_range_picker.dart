@@ -1,3 +1,9 @@
+import 'dart:async' show unawaited;
+
+import 'package:flutter/animation.dart' show AnimationController;
+import 'package:flutter/widgets.dart'
+    show MediaQuery, SingleTickerProviderStateMixin;
+
 import 'package:material_ui/material_ui.dart'
     show
         BuildContext,
@@ -19,6 +25,7 @@ import '../../../foundations/foundations.dart';
 import '../models/morph_date_picker_models.dart';
 import '../utils/morph_date_picker_utils.dart';
 import 'morph_day_picker.dart';
+import 'morph_date_range_ink.dart';
 
 /// Calendar for selecting a date range.
 class MorphCalendarDateRangePicker extends StatefulWidget {
@@ -32,8 +39,9 @@ class MorphCalendarDateRangePicker extends StatefulWidget {
     this.currentDate,
     this.onEndDateChanged,
     this.selectableDayPredicate,
+    this.organicStretchIntensity = 0.40,
     super.key,
-  });
+  }) : assert(organicStretchIntensity >= 0 && organicStretchIntensity <= 1);
 
   /// firstDate.
 
@@ -60,13 +68,24 @@ class MorphCalendarDateRangePicker extends StatefulWidget {
   /// selectableDayPredicate.
   final MorphSelectableDayForRangePredicate? selectableDayPredicate;
 
+  /// Perpendicular ink stretch of the expanding range highlight (0 = none).
+  /// Defaults to the same 0.40 intensity as Morph navigation and chips.
+  final double organicStretchIntensity;
+
   @override
   State<MorphCalendarDateRangePicker> createState() =>
       _MorphCalendarDateRangePickerState();
 }
 
 class _MorphCalendarDateRangePickerState
-    extends State<MorphCalendarDateRangePicker> {
+    extends State<MorphCalendarDateRangePicker>
+    with SingleTickerProviderStateMixin {
+  // One timeline shared by every visible month keeps the reveal continuous.
+  late final AnimationController _rangeReveal = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 320),
+    value: 1,
+  );
   late ScrollController _controller;
   late DateTime _firstDate;
   late DateTime _lastDate;
@@ -78,6 +97,7 @@ class _MorphCalendarDateRangePickerState
   void initState() {
     super.initState();
     _controller = ScrollController();
+    unawaited(MorphDateRangeInk.warmUp());
     _firstDate = MorphDatePickerUtils.dateOnly(widget.firstDate);
     _lastDate = MorphDatePickerUtils.dateOnly(widget.lastDate);
     _currentDate = MorphDatePickerUtils.dateOnly(
@@ -99,11 +119,15 @@ class _MorphCalendarDateRangePickerState
     }
     if (widget.initialEndDate != oldWidget.initialEndDate) {
       _endDate = widget.initialEndDate;
+      if (_startDate != null && _endDate != null) {
+        _animateRangeReveal();
+      }
     }
   }
 
   @override
   void dispose() {
+    _rangeReveal.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -115,6 +139,14 @@ class _MorphCalendarDateRangePickerState
     return MorphDatePickerUtils.addMonthsToMonthDate(_firstDate, index);
   }
 
+  void _animateRangeReveal() {
+    if (MediaQuery.maybeOf(context)?.disableAnimations ?? false) {
+      _rangeReveal.value = 1;
+    } else {
+      _rangeReveal.forward(from: 0);
+    }
+  }
+
   void _updateSelection(DateTime date) {
     MorphHaptics.selectionFor(context);
     setState(() {
@@ -122,10 +154,12 @@ class _MorphCalendarDateRangePickerState
           _endDate == null &&
           !date.isBefore(_startDate!)) {
         _endDate = date;
+        _animateRangeReveal();
         widget.onEndDateChanged?.call(_endDate!);
       } else {
         _startDate = date;
         _endDate = null;
+        _rangeReveal.value = 1;
         widget.onStartDateChanged(_startDate!);
       }
     });
@@ -165,6 +199,8 @@ class _MorphCalendarDateRangePickerState
               selectableDayPredicate: widget.selectableDayPredicate,
               rangeStart: _startDate,
               rangeEnd: _endDate,
+              rangeReveal: _rangeReveal,
+              rangeStretchIntensity: widget.organicStretchIntensity,
             ),
             const SizedBox(height: 8),
           ],

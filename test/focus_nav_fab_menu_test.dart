@@ -30,7 +30,7 @@ void registerFabMenuTabVisitsEveryItemTests() {
     const labels = <String>['Image', 'Video', 'Audio', 'Document'];
     await pumpFabMenuApp(tester, labels: labels);
 
-    await tester.tap(find.byType(MorphFab));
+    await tester.tap(find.byType(MorphRoundedSurface));
     await tester.pumpAndSettle();
     for (final label in labels) {
       expect(find.text(label), findsOneWidget);
@@ -79,7 +79,7 @@ void registerFabMenuEscapeClosesOpenMenuTests() {
   testWidgets('FAB menu Escape closes open menu', (WidgetTester tester) async {
     await pumpFabMenuApp(tester, labels: const <String>['Image', 'Video']);
 
-    await tester.tap(find.byType(MorphFab));
+    await tester.tap(find.byType(MorphRoundedSurface));
     await tester.pumpAndSettle();
     expect(find.text('Image'), findsOneWidget);
 

@@ -1,4 +1,4 @@
-import 'dart:ui' show ImageFilter;
+import 'dart:ui' show ImageFilter, TileMode;
 
 import 'package:flutter/widgets.dart';
 
@@ -123,11 +123,25 @@ class MorphGlassSurface extends StatelessWidget {
       ),
     );
     if (!opaque && glass.wantsBlur) {
-      backdrop = BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: glass.blurX, sigmaY: glass.blurY),
-        blendMode: glass.blendMode,
-        child: backdrop,
-      );
+      backdrop = glass.boundedBlur
+          ? BackdropFilter(
+              filterConfig: ImageFilterConfig.blur(
+                sigmaX: glass.blurX,
+                sigmaY: glass.blurY,
+                tileMode: TileMode.clamp,
+                bounded: true,
+              ),
+              blendMode: glass.blendMode,
+              child: backdrop,
+            )
+          : BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: glass.blurX,
+                sigmaY: glass.blurY,
+              ),
+              blendMode: glass.blendMode,
+              child: backdrop,
+            );
     }
 
     Widget surface = ClipPath(

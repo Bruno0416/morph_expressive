@@ -12,10 +12,10 @@ void main() {
     );
   });
 
-  test('list items use 5dp spacing and 12.5% softer inside corners', () {
+  test('list items use 5dp spacing and slightly rounder inside corners', () {
     expect(MorphListCardListTheme.defaultGap, 5);
     expect(MorphListCardListTheme.defaultOuterRadius, 16);
-    expect(MorphListCardListTheme.defaultInnerRadius, 4.5);
+    expect(MorphListCardListTheme.defaultInnerRadius, 9.0);
   });
 
   test('connected selection and navigation have calm themeable springs', () {

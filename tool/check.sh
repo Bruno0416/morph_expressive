@@ -20,12 +20,23 @@ command -v flutter >/dev/null || {
   exit 1
 }
 flutter pub get
+# Root analysis also visits the nested preview package on a clean CI checkout.
+# Resolve BOTH package configurations before the first analysis or test.
+(
+  cd preview
+  flutter pub get
+)
+for package_config in .dart_tool/package_config.json preview/.dart_tool/package_config.json; do
+  test -s "$package_config" || {
+    printf 'Missing package configuration after dependency resolution: %s\n' "$package_config" >&2
+    exit 1
+  }
+done
 flutter analyze
 flutter test
 
 (
   cd preview
-  flutter pub get
   flutter analyze
   flutter test
 )

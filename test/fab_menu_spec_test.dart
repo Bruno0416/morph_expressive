@@ -183,7 +183,7 @@ Future<void> _fabMenuOpensAndShowsItems(WidgetTester tester) async {
     ),
   );
 
-  await tester.tap(find.byType(MorphFab));
+  await tester.tap(find.byType(MorphRoundedSurface));
   await tester.pumpAndSettle();
   expect(find.text('Image'), findsOneWidget);
   expect(find.text('Audio'), findsOneWidget);
@@ -245,7 +245,7 @@ Future<void> _fabMenuItemContainerTransformOpensAndCloses(
     ),
   );
 
-  await tester.tap(find.byType(MorphFab));
+  await tester.tap(find.byType(MorphRoundedSurface));
   await tester.pumpAndSettle();
   await tester.tap(find.text('Image'));
   await tester.pumpAndSettle();
@@ -295,7 +295,7 @@ Future<void> _focusedItemRingPaintsAboveNeighboringPills(
     ),
   );
 
-  await tester.tap(find.byType(MorphFab));
+  await tester.tap(find.byType(MorphRoundedSurface));
   await tester.pumpAndSettle();
 
   MorphFocusInteraction.instance.noteKeyboardHighlight();
@@ -341,12 +341,12 @@ Future<void> _largeFabKeepsLastItemAboveCloseWithMenuOffset(
     ),
   );
 
-  await tester.tap(find.byType(MorphFab));
+  await tester.tap(find.byType(MorphRoundedSurface));
   await tester.pumpAndSettle();
 
   final lastItem = tester.getBottomRight(find.text('Audio'));
   // Overlay close is the last MorphFab; its top must sit below the item + gap.
-  final closeTop = tester.getTopRight(find.byType(MorphFab).last).dy;
+  final closeTop = tester.getTopRight(find.byType(MorphRoundedSurface)).dy;
   expect(lastItem.dy, lessThanOrEqualTo(closeTop - 8));
 }
 
@@ -375,12 +375,12 @@ Future<void> _shortViewportKeepsCloseHittableWhileItemsScroll(
     ),
   );
 
-  await tester.tap(find.byType(MorphFab).first);
+  await tester.tap(find.byType(MorphRoundedSurface));
   await tester.pumpAndSettle();
   expect(find.byType(SingleChildScrollView), findsWidgets);
 
   // Close remains tappable (overlay close FAB).
-  await tester.tap(find.byType(MorphFab).last);
+  await tester.tap(find.byType(MorphRoundedSurface));
   await tester.pumpAndSettle();
   expect(find.text('One'), findsNothing);
 }
@@ -404,7 +404,7 @@ Future<void> _systemBackClosesTheMenuBeforeTheRoute(WidgetTester tester) async {
   await tester.tap(find.text('Root'));
   await tester.pumpAndSettle();
 
-  await tester.tap(find.byType(MorphFab));
+  await tester.tap(find.byType(MorphRoundedSurface));
   await tester.pumpAndSettle();
   expect(find.text('Image'), findsOneWidget);
 

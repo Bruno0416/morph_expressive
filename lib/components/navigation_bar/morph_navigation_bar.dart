@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'dart:ui' show ImageFilter;
+import 'dart:ui' show ImageFilter, TileMode;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/rendering.dart';
@@ -87,6 +87,7 @@ class MorphNavigationBar extends StatefulWidget {
     this.floating = false,
     this.glass,
     this.selectionDelay,
+    this.organicStretchIntensity = 0.40,
     this.iconSize,
     this.unselectedIconScale = 1.0,
     this.labelStyle,
@@ -130,6 +131,7 @@ class MorphNavigationBar extends StatefulWidget {
     this.floating = false,
     this.glass,
     this.selectionDelay,
+    this.organicStretchIntensity = 0.40,
     this.iconSize,
     this.unselectedIconScale = 1.0,
     this.labelStyle,
@@ -175,6 +177,7 @@ class MorphNavigationBar extends StatefulWidget {
     this.floating = false,
     this.glass,
     this.selectionDelay,
+    this.organicStretchIntensity = 0.40,
     this.iconSize = 32,
     this.unselectedIconScale = 1.0,
     this.labelStyle = const TextStyle(fontSize: 14),
@@ -301,6 +304,10 @@ class MorphNavigationBar extends StatefulWidget {
 
   /// Optional trailing-edge pause for morph navigation. Defaults to 60ms.
   final Duration? selectionDelay;
+
+  /// Harmonic selection stretch (0 = original, 0.40 = MorphChip preset).
+  /// Only applied in Morph motion; shape returns to rest when motion ends.
+  final double organicStretchIntensity;
 
   /// Base glyph size in logical pixels, resolved through the navigation
   /// theme when null. The top-dash `.morph()` variant defaults to 32dp.

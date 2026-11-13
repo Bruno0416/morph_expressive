@@ -2,7 +2,7 @@
 # check for errors, warnings, and lints.
 #
 # The issues identified by the analyzer are surfaced in the UI of Dart-enabled
-# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
+# IDEs (https://dart.dev/tool#ides-and-editors). The analyzer can also be
 # invoked from the command line by running `flutter analyze`.
 
 # The following line activates a set of recommended lints for Flutter apps,
@@ -16,6 +16,7 @@ analyzer:
     - android/**
     - ios/**
     - linux/**
+    - macos/**
 
 linter:
   # The lint rules applied to this project can be customized in the

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="$(git rev-parse --show-toplevel)"
+python3 "$ROOT/tool/ci/release_guard.py" check-local-context
+python3 "$ROOT/tool/ci/check_final_release_language.py" --staged
