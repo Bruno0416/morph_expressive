@@ -17,6 +17,18 @@ import time
 
 import release_guard as guard
 
+# pub.dev announces that a new version may take up to 10 minutes to appear.
+# The default budget covers that window with a 2 minute margin; the bound keeps
+# the whole job well inside its 30 minute timeout.
+CONFIRM_TIMEOUT_ENV = 'PUB_DEV_CONFIRM_TIMEOUT_SECONDS'
+DEFAULT_CONFIRM_TIMEOUT = 720
+MIN_CONFIRM_TIMEOUT = 60
+MAX_CONFIRM_TIMEOUT = 900
+FIRST_CONFIRM_INTERVAL = 10.0
+MAX_CONFIRM_INTERVAL = 60.0
+CONFIRM_BACKOFF = 1.5
+MAX_CONSECUTIVE_TRANSIENT_ERRORS = 5
+
 
 def run(*args: str, check: bool = True, cwd: Path | None = None) -> subprocess.CompletedProcess:
     result = subprocess.run(args, cwd=cwd, capture_output=True, text=True, check=False)
@@ -138,15 +150,58 @@ def plan(root: Path, archive: Path) -> dict[str, str]:
     return dict(result, decision=decision)
 
 
-def confirm(archive: Path, version: str) -> None:
-    for attempt in range(5):
-        if guard.published_status(version):
-            if not guard.published_archive_matches(archive, version):
-                raise ValueError('Published package differs from the validated package archive')
-            return
-        if attempt < 4:
-            time.sleep(5)
-    raise ValueError('pub.dev has not confirmed the immutable version')
+def confirm_timeout() -> int:
+    raw = os.environ.get(CONFIRM_TIMEOUT_ENV, '').strip()
+    if not raw:
+        return DEFAULT_CONFIRM_TIMEOUT
+    if not re.fullmatch(r'\d+', raw) or not MIN_CONFIRM_TIMEOUT <= int(raw) <= MAX_CONFIRM_TIMEOUT:
+        raise ValueError(f'{CONFIRM_TIMEOUT_ENV} must be an integer between '
+                         f'{MIN_CONFIRM_TIMEOUT} and {MAX_CONFIRM_TIMEOUT} seconds')
+    return int(raw)
+
+
+def confirm(archive: Path, version: str, *, timeout: float | None = None) -> None:
+    """Wait, within a bounded monotonic deadline, for pub.dev to serve the
+    exact validated archive.
+
+    The first check runs immediately. A version that is not listed yet, or
+    whose metadata/archive endpoint still answers 404, is retried with a
+    capped backoff. Transient network/server errors get a few consecutive
+    retries. Anything else fails at once: a different archive, a checksum
+    mismatch, auth/TLS failures or unexpected responses. No tag or GitHub
+    Release exists before this returns.
+    """
+    budget = confirm_timeout() if timeout is None else timeout
+    start = time.monotonic()
+    deadline = start + budget
+    interval = FIRST_CONFIRM_INTERVAL
+    checks = transient = 0
+    while True:
+        checks += 1
+        try:
+            if guard.published_status(version):
+                if not guard.published_archive_matches(archive, version):
+                    raise ValueError('Published package differs from the validated package archive')
+                print(f'pub.dev confirmed {version} with the validated archive '
+                      f'after {checks} check(s) in {time.monotonic() - start:.0f}s.', flush=True)
+                return
+            state, transient = 'version not listed yet', 0
+        except guard.RegistryPendingError as exc:
+            state, transient = f'listed, resource pending ({exc})', 0
+        except guard.RegistryTransientError as exc:
+            transient += 1
+            if transient >= MAX_CONSECUTIVE_TRANSIENT_ERRORS:
+                raise RuntimeError(f'pub.dev failed {transient} consecutive checks: {exc}') from exc
+            state = f'transient error {transient}/{MAX_CONSECUTIVE_TRANSIENT_ERRORS} ({exc})'
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise ValueError(f'pub.dev has not confirmed the immutable version {version} '
+                             f'within {budget:.0f}s ({checks} checks; last state: {state})')
+        wait = min(interval, remaining)
+        print(f'Waiting for pub.dev: {state}; check {checks}, next in {wait:.0f}s '
+              f'({remaining:.0f}s left).', flush=True)
+        time.sleep(wait)
+        interval = min(interval * CONFIRM_BACKOFF, MAX_CONFIRM_INTERVAL)
 
 
 def finalize(root: Path, archive: Path, release_sha: str) -> None:

@@ -4,12 +4,14 @@ from __future__ import annotations
 import importlib.util
 import hashlib
 import io
+import ssl
 import json
 from pathlib import Path
 import tarfile
 import tempfile
 import subprocess
 import unittest
+from urllib.error import HTTPError, URLError
 from unittest.mock import patch
 
 SCRIPT = Path(__file__).resolve().parents[1] / 'release_guard.py'
@@ -147,6 +149,64 @@ class ReleaseGuardTest(unittest.TestCase):
             **common, publication_confirmed=True))
 
 
+
+
+class RegistryErrorClassificationTest(unittest.TestCase):
+    """Only explicit statuses become pending or transient; the rest fail closed."""
+
+    @staticmethod
+    def http(code):
+        return HTTPError('https://pub.dev/x', code, 'status', {}, io.BytesIO(b''))
+
+    def classify(self, error, call):
+        with patch.object(release_guard, 'urlopen', side_effect=error):
+            with self.assertRaises(RuntimeError) as raised:
+                call()
+        return raised.exception
+
+    def archive_call(self):
+        with tempfile.NamedTemporaryFile(suffix='.tar.gz', delete=False) as handle:
+            handle.write(WorkflowPathTests.archive(None, {
+                'pubspec.yaml': b'name: morph_expressive\nversion: 1.0.0\n'}))
+        path = Path(handle.name)
+        self.addCleanup(path.unlink)
+        return lambda: release_guard.published_archive_matches(path, '1.0.0')
+
+    def test_version_resource_404_is_pending_but_package_404_is_fatal(self):
+        pending = self.classify(self.http(404), self.archive_call())
+        self.assertIsInstance(pending, release_guard.RegistryPendingError)
+        fatal = self.classify(self.http(404), lambda: release_guard.published_status('1.0.0'))
+        self.assertNotIsInstance(fatal, (release_guard.RegistryPendingError,
+                                         release_guard.RegistryTransientError))
+
+    def test_server_throttling_and_network_errors_are_transient(self):
+        for error in (self.http(429), self.http(500), self.http(503), self.http(504),
+                      URLError(ConnectionRefusedError()), TimeoutError(), ConnectionResetError()):
+            for call in (lambda: release_guard.published_status('1.0.0'), self.archive_call()):
+                with self.subTest(error=repr(error)):
+                    self.assertIsInstance(self.classify(error, call),
+                                          release_guard.RegistryTransientError)
+
+    def test_auth_tls_and_unexpected_errors_are_never_retryable(self):
+        for error in (self.http(400), self.http(401), self.http(403), self.http(410),
+                      URLError(ssl.SSLCertVerificationError('bad certificate')), PermissionError()):
+            for call in (lambda: release_guard.published_status('1.0.0'), self.archive_call()):
+                with self.subTest(error=repr(error)):
+                    exc = self.classify(error, call)
+                    self.assertNotIsInstance(exc, (release_guard.RegistryPendingError,
+                                                   release_guard.RegistryTransientError))
+
+    def test_malformed_registry_payload_fails_closed(self):
+        class Response:
+            def __enter__(self): return self
+            def __exit__(self, *args): return False
+            def read(self): return b'<html>'
+        for call in (lambda: release_guard.published_status('1.0.0'), self.archive_call()):
+            with patch.object(release_guard, 'urlopen', return_value=Response()):
+                with self.assertRaises(RuntimeError) as raised:
+                    call()
+                self.assertNotIsInstance(raised.exception, (release_guard.RegistryPendingError,
+                                                            release_guard.RegistryTransientError))
 
 
 class WorkflowPathTests(unittest.TestCase):
