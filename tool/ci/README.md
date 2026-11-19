@@ -119,6 +119,95 @@ later main run has superseded it, inspect the published package and tag state
 before deciding the next action. Do not manually create a tag to trigger
 publication: there is no tag-triggered publication workflow.
 
+### pub.dev confirmation window
+
+pub.dev reports that a new version can take up to 10 minutes to become
+available after a successful upload. `release.py finalize` therefore waits
+within a bounded deadline before it creates any tag or GitHub Release:
+
+| Setting | Value |
+| --- | --- |
+| Confirmation budget | 720 s by default (10 minutes + 2 minutes margin) |
+| Override | `PUB_DEV_CONFIRM_TIMEOUT_SECONDS`, integer from 60 to 900 |
+| First check | Immediately; an already available version never waits |
+| Retry intervals | 10 s, then ×1.5 per check, capped at 60 s; the last wait is clipped to the deadline |
+| Clock | Monotonic deadline; never an unbounded loop or a fixed long sleep |
+| Job timeout | 30 minutes, which covers the 900 s maximum plus setup, upload and request timeouts |
+
+Each check classifies the registry response:
+
+- **Version not listed yet**, or a **404 from the version metadata or archive
+  endpoint** while propagation is in progress: pending; retry until the
+  deadline.
+- **Network errors, timeouts, HTTP 408/425/429/500/502/503/504**: transient;
+  at most 5 consecutive failures, then the release stops.
+- **Version served**: download its metadata and archive, verify the archive
+  SHA-256 against pub.dev's `archive_sha256`, then compare every package file
+  with the archive validated by this job. Only an exact match confirms.
+- **Checksum mismatch, different files, HTTP 401/403/other 4xx, TLS
+  verification failures, malformed responses**: fail at once. These are never
+  treated as pending.
+
+A deadline expiry fails with the last observed state and creates no tag or
+release. Because the upload already happened, the next step is recovery, never
+a second upload.
+
+### Recovering a partial release
+
+A partial release is a version visible on pub.dev without its `vX.Y.Z` tag or
+GitHub Release. Recovery reuses the original run:
+
+1. Inspect the failure without changing anything:
+
+   ```bash
+   gh run view <run-id> --repo Bruno0416/morph_expressive
+   gh run view <run-id> --repo Bruno0416/morph_expressive --log-failed
+   ```
+
+2. Confirm that `main` still points to the run's `headSha`
+   (`git ls-remote origin refs/heads/main`), that pub.dev lists the version,
+   and that neither the tag nor the release exists, or that the tag points to
+   the run's SHA.
+3. Rerun only the failed job of that same run:
+
+   ```bash
+   gh run rerun <run-id> --repo Bruno0416/morph_expressive --failed
+   ```
+
+   The rerun keeps the original `push` event and SHA. Its preflight regenerates
+   the archive, proves equality with pub.dev and returns `recover`. Publisher
+   authentication and `publish.sh` are skipped; `finalize` confirms the archive,
+   then creates only the missing tag and/or release.
+4. Verify the remote objects, not just the job status: `git ls-remote --tags
+   origin refs/tags/vX.Y.Z` must point to the run's SHA, and
+   `gh release view vX.Y.Z` must show a public, stable (not draft) release.
+
+Recovery is idempotent: a tag already on the tested SHA is kept and only the
+missing release is created; a complete release returns `complete` and does
+nothing.
+
+**If `main` advanced** after the failed run, its rerun returns `stale-skip`
+and does nothing. The new `main` run evaluates the same version itself:
+
+- package archive identical to pub.dev and no tag: `recover`, tagging the
+  **new head** (its package is proven identical), not the original commit;
+- tag already on an ancestor with an identical package: that tag is kept and
+  only the missing release is created;
+- package changed: `existing-version-conflict`; bump the version.
+
+To keep the tag on the original commit, recover before merging anything else
+to `main`. Inspect the state before acting.
+
+**If a conflicting tag exists** (pointing to a commit that is not the tested
+SHA or an ancestor with the same package), the release stops with
+`tag-conflict`. Tags are immutable; never move or delete them to make a
+release pass. Investigate and, if the package changed, ship a new version.
+
+**Never repeat the upload manually.** A pub.dev version is immutable: a second
+`dart pub publish` for the same version is rejected or, with different
+contents, would make the registry and the tested commit diverge. Recovery
+never requests publisher credentials.
+
 ## Required external configuration
 
 An authorized administrator must independently verify:

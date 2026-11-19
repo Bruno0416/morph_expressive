@@ -8,11 +8,13 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+from http.client import IncompleteRead
 import io
 import json
 from pathlib import Path
 import posixpath
 import re
+import ssl
 import subprocess
 import sys
 import tarfile
@@ -24,6 +26,54 @@ VERSION_RE = re.compile(r"\d+\.\d+\.\d+\Z")
 PUBSPEC_VERSION = re.compile(r"(?m)^version:\s*([^\s#]+)\s*(?:#.*)?$")
 PREVIEW_VERSION = re.compile(r'(?m)^  morph_expressive:\n(?:.*\n){0,8}?\s+version: "([^"]+)"')
 CHANGELOG_HEADER = re.compile(r"(?m)^##[ \t]+(\d+\.\d+\.\d+)(?:[ \t]+[-—][^\n]*|[ \t]*\([^\n]*\))?[ \t]*$")
+USER_AGENT = 'morph-release-guard/1'
+# Server-side or throttling statuses that may clear on a bounded retry.
+TRANSIENT_HTTP_STATUSES = frozenset({408, 425, 429, 500, 502, 503, 504})
+
+
+class RegistryTransientError(RuntimeError):
+    """A network or server failure that a bounded retry may clear.
+
+    It stays a RuntimeError, so every caller that does not retry explicitly
+    still fails closed.
+    """
+
+
+class RegistryPendingError(RuntimeError):
+    """pub.dev lists the version, but one of its resources is not served yet.
+
+    Only a 404 from the per-version metadata or archive endpoint is classified
+    this way. Integrity is still verified in full once the resource appears.
+    """
+
+
+def fetch_registry(url: str, *, what: str, timeout: int, accept: str | None = None,
+                   pending_when_missing: bool = False) -> bytes:
+    """GET one pub.dev resource and classify every failure explicitly.
+
+    Authentication, authorization, TLS verification and unexpected statuses
+    are plain RuntimeErrors: they are never pending and never retried.
+    """
+    headers = {'User-Agent': USER_AGENT}
+    if accept:
+        headers['Accept'] = accept
+    try:
+        with urlopen(Request(url, headers=headers), timeout=timeout) as response:
+            return response.read()
+    except HTTPError as exc:
+        if pending_when_missing and exc.code == 404:
+            raise RegistryPendingError(f'{what}: HTTP 404, not propagated yet') from exc
+        if exc.code in TRANSIENT_HTTP_STATUSES:
+            raise RegistryTransientError(f'{what}: HTTP {exc.code}') from exc
+        raise RuntimeError(f'{what}: HTTP {exc.code}') from exc
+    except URLError as exc:
+        if isinstance(exc.reason, ssl.SSLCertVerificationError):
+            raise RuntimeError(f'{what}: TLS verification failed') from exc
+        raise RegistryTransientError(f'{what}: {exc.reason}') from exc
+    except (TimeoutError, ConnectionError, IncompleteRead) as exc:
+        raise RegistryTransientError(f'{what}: {type(exc).__name__}') from exc
+    except OSError as exc:
+        raise RuntimeError(f'{what}: {exc}') from exc
 
 
 def read_metadata(root: Path, tag: str | None = None) -> tuple[str, str]:
@@ -60,13 +110,13 @@ def read_metadata(root: Path, tag: str | None = None) -> tuple[str, str]:
 def published_status(version: str, package: str = 'morph_expressive') -> bool:
     if not VERSION_RE.fullmatch(version):
         raise ValueError('Version must be stable x.y.z')
-    url = f'https://pub.dev/api/packages/{package}'
-    request = Request(url, headers={'Accept': 'application/json', 'User-Agent': 'morph-release-guard/1'})
+    what = 'Cannot verify package versions on pub.dev'
+    body = fetch_registry(f'https://pub.dev/api/packages/{package}', what=what,
+                          timeout=20, accept='application/json')
     try:
-        with urlopen(request, timeout=20) as response:
-            record = json.load(response)
-    except (HTTPError, URLError, TimeoutError, ValueError) as exc:
-        raise RuntimeError(f'Cannot verify package versions on pub.dev: {exc}') from exc
+        record = json.loads(body)
+    except ValueError as exc:
+        raise RuntimeError(f'{what}: {exc}') from exc
     versions = record.get('versions') if isinstance(record, dict) else None
     if not isinstance(versions, list) or any(
         not isinstance(item, dict) or not isinstance(item.get('version'), str)
@@ -190,20 +240,21 @@ def published_archive_matches(local_archive: Path, version: str) -> bool:
     local_version = PUBSPEC_VERSION.search(expected['pubspec.yaml'].decode())
     if not local_version or local_version.group(1) != version:
         raise ValueError('Local package archive version differs from requested version')
+    what = 'Cannot verify published archive'
     api_url = f'https://pub.dev/api/packages/morph_expressive/versions/{version}'
+    body = fetch_registry(api_url, what=what, timeout=30, accept='application/json',
+                          pending_when_missing=True)
     try:
-        with urlopen(Request(api_url, headers={'Accept': 'application/json'}), timeout=30) as response:
-            metadata = json.loads(response.read())
-        if not isinstance(metadata, dict):
-            raise ValueError('Unexpected pub.dev version metadata response')
-        archive_url = metadata.get('archive_url')
-        expected_url = f'https://pub.dev/api/archives/morph_expressive-{version}.tar.gz'
-        if archive_url != expected_url:
-            raise RuntimeError('Unexpected pub.dev archive URL')
-        with urlopen(Request(archive_url), timeout=60) as response:
-            archive_bytes = response.read()
-    except (HTTPError, URLError, TimeoutError, ValueError, OSError) as exc:
-        raise RuntimeError(f'Cannot verify published archive: {exc}') from exc
+        metadata = json.loads(body)
+    except ValueError as exc:
+        raise RuntimeError(f'{what}: {exc}') from exc
+    if not isinstance(metadata, dict):
+        raise RuntimeError(f'{what}: unexpected pub.dev version metadata response')
+    archive_url = metadata.get('archive_url')
+    expected_url = f'https://pub.dev/api/archives/morph_expressive-{version}.tar.gz'
+    if archive_url != expected_url:
+        raise RuntimeError('Unexpected pub.dev archive URL')
+    archive_bytes = fetch_registry(archive_url, what=what, timeout=60, pending_when_missing=True)
     digest = metadata.get('archive_sha256')
     if not isinstance(digest, str) or hashlib.sha256(archive_bytes).hexdigest() != digest:
         raise RuntimeError('Published archive checksum does not match pub.dev metadata')
