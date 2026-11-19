@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/review/v1.0.0-visual/doc/assets/banner.png" alt="Morph Expressive: expressive Material 3 components for Flutter, shown over rounded shapes in a purple palette" width="100%">
+  <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/banner.png" alt="Morph Expressive: expressive Material 3 components for Flutter, shown over rounded shapes in a purple palette" width="100%">
 </p>
 
 # Morph Expressive
@@ -41,21 +41,21 @@ Captured from Morph Expressive running in Flutter Web (dark theme).
 <table>
   <tr>
     <td align="center" valign="top" width="50%">
-      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/review/v1.0.0-visual/doc/assets/gifs/buttons.gif" alt="Filled, tonal, outlined, elevated and text buttons pressed one at a time, followed by shape buttons that morph on press" width="420"><br>
+      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/buttons.gif" alt="Filled, tonal, outlined, elevated and text buttons pressed one at a time, followed by shape buttons that morph on press" width="420"><br>
       <sub>Five button types, each shown with its press response, followed by shape buttons that morph when pressed.</sub>
     </td>
     <td align="center" valign="top" width="50%">
-      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/review/v1.0.0-visual/doc/assets/gifs/variants.gif" alt="Buttons shown in the primary, secondary, tertiary, muted and danger color variants" width="420"><br>
+      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/variants.gif" alt="Buttons shown in the primary, secondary, tertiary, muted and danger color variants" width="420"><br>
       <sub>The same button types recolored with <code>variant</code> roles: primary, secondary, tertiary, muted and danger.</sub>
     </td>
   </tr>
   <tr>
     <td align="center" valign="top" width="50%">
-      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/review/v1.0.0-visual/doc/assets/gifs/async_button.gif" alt="Async button going from loading to success and to error, in preserved-width and compact modes" width="420"><br>
+      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/async_button.gif" alt="Async button going from loading to success and to error, in preserved-width and compact modes" width="420"><br>
       <sub><code>MorphAsyncButton</code> going from loading to success and to error without shifting the layout.</sub>
     </td>
     <td align="center" valign="top" width="50%">
-      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/review/v1.0.0-visual/doc/assets/gifs/fab_menu.gif" alt="FAB sizes, extended FAB and a FAB menu whose main surface morphs while items open and close" width="420"><br>
+      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/fab_menu.gif" alt="FAB sizes, extended FAB and a FAB menu whose main surface morphs while items open and close" width="420"><br>
       <sub>FAB menu with one main surface that morphs continuously as items open and close.</sub>
     </td>
   </tr>
@@ -66,21 +66,21 @@ Captured from Morph Expressive running in Flutter Web (dark theme).
 <table>
   <tr>
     <td align="center" valign="top" width="50%">
-      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/review/v1.0.0-visual/doc/assets/gifs/segmented.gif" alt="A toggle, a multi-select segmented button and a connected button group being tapped" width="420"><br>
+      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/segmented.gif" alt="A toggle, a multi-select segmented button and a connected button group being tapped" width="420"><br>
       <sub>A toggle whose pill glides between options, a multi-select segmented button and a connected group whose neighbors squish.</sub>
     </td>
     <td align="center" valign="top" width="50%">
-      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/review/v1.0.0-visual/doc/assets/gifs/chips.gif" alt="Filter chips, removable input chips with an assist chip, and a multi-select chip group" width="420"><br>
+      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/chips.gif" alt="Filter chips, removable input chips with an assist chip, and a multi-select chip group" width="420"><br>
       <sub>Filter chips, input chips removed and re-added with an assist chip, and a chip group with a shared morphing pill.</sub>
     </td>
   </tr>
   <tr>
     <td align="center" valign="top" width="50%">
-      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/review/v1.0.0-visual/doc/assets/gifs/textfields.gif" alt="Filled, outlined and search text fields being typed into, with floating label, validation error and counter" width="420"><br>
+      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/textfields.gif" alt="Filled, outlined and search text fields being typed into, with floating label, validation error and counter" width="420"><br>
       <sub>Typing into filled, outlined and search fields: floating label, validation error, character counter and clear button.</sub>
     </td>
     <td align="center" valign="top" width="50%">
-      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/review/v1.0.0-visual/doc/assets/gifs/dropdown.gif" alt="Single-select and multi-select dropdown menus opening, hovering and selecting options" width="420"><br>
+      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/dropdown.gif" alt="Single-select and multi-select dropdown menus opening, hovering and selecting options" width="420"><br>
       <sub>Single-select and multi-select dropdown menus: open, hover, choose an option and close.</sub>
     </td>
   </tr>
@@ -91,11 +91,11 @@ Captured from Morph Expressive running in Flutter Web (dark theme).
 <table>
   <tr>
     <td align="center" valign="top" width="50%">
-      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/review/v1.0.0-visual/doc/assets/gifs/sliders.gif" alt="A linear slider, a wavy slider and a wavy range slider being dragged" width="420"><br>
+      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/sliders.gif" alt="A linear slider, a wavy slider and a wavy range slider being dragged" width="420"><br>
       <sub>A linear slider, a wavy slider and a wavy range slider dragged by pointer.</sub>
     </td>
     <td align="center" valign="top" width="50%">
-      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/review/v1.0.0-visual/doc/assets/gifs/loading.gif" alt="Loading indicators and circular, wavy and linear progress indicators" width="420"><br>
+      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/loading.gif" alt="Loading indicators and circular, wavy and linear progress indicators" width="420"><br>
       <sub>Free and contained loading indicators, plus circular, circular wavy and linear progress.</sub>
     </td>
   </tr>
@@ -106,11 +106,11 @@ Captured from Morph Expressive running in Flutter Web (dark theme).
 <table>
   <tr>
     <td align="center" valign="top" width="50%">
-      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/review/v1.0.0-visual/doc/assets/gifs/navigation.gif" alt="Two navigation bars changing destination as items are tapped" width="420"><br>
+      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/navigation.gif" alt="Two navigation bars changing destination as items are tapped" width="420"><br>
       <sub>Two navigation bars changing destination on tap, with elastic selection.</sub>
     </td>
     <td align="center" valign="top" width="50%">
-      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/review/v1.0.0-visual/doc/assets/gifs/tabs.gif" alt="Rounded underline and pill tabs whose indicator follows the page swipe" width="420"><br>
+      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/tabs.gif" alt="Rounded underline and pill tabs whose indicator follows the page swipe" width="420"><br>
       <sub>Tabs whose rounded underline or pill surface follows the real page swipe.</sub>
     </td>
   </tr>
@@ -121,17 +121,17 @@ Captured from Morph Expressive running in Flutter Web (dark theme).
 <table>
   <tr>
     <td align="center" valign="top" width="50%">
-      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/review/v1.0.0-visual/doc/assets/gifs/density.gif" alt="One theme switch changing the density of the same components" width="420"><br>
+      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/density.gif" alt="One theme switch changing the density of the same components" width="420"><br>
       <sub>One global <code>MorphDensity</code> switch (compact, standard, comfortable); nothing else changes.</sub>
     </td>
     <td align="center" valign="top" width="50%">
-      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/review/v1.0.0-visual/doc/assets/gifs/context_menu.gif" alt="Desktop context menu opened with a secondary click, with a submenu" width="420"><br>
+      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/context_menu.gif" alt="Desktop context menu opened with a secondary click, with a submenu" width="420"><br>
       <sub>Desktop context menu: secondary click opens it at the pointer, rows highlight on hover, a submenu opens and an action closes it.</sub>
     </td>
   </tr>
   <tr>
     <td align="center" valign="top" colspan="2">
-      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/review/v1.0.0-visual/doc/assets/gifs/frosted.gif" alt="A frosted card, an opened dropdown panel and a floating navigation bar blurring colorful shapes that drift behind them" width="420"><br>
+      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/gifs/frosted.gif" alt="A frosted card, an opened dropdown panel and a floating navigation bar blurring colorful shapes that drift behind them" width="420"><br>
       <sub>Frosted surfaces on components that support them: a card, an opened dropdown panel and a floating navigation bar blur the shapes drifting behind them.</sub>
     </td>
   </tr>
