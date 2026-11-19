@@ -90,7 +90,7 @@ class _MorphSideSheetIconActionState extends State<MorphSideSheetIconAction> {
             s.contains(WidgetState.pressed) ||
             _focused(s);
         return MorphIconButton(
-          variant: MorphIconButtonVariant.standard,
+          type: MorphIconButtonType.standard,
           icon: widget.icon,
           onPressed: widget.onPressed,
           tooltip: widget.label,

@@ -134,7 +134,7 @@ class MorphTimePickerEntryModeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MorphIconButton(
-      variant: MorphIconButtonVariant.standard,
+      type: MorphIconButtonType.standard,
       icon: Icon(icon),
       tooltip: tooltip,
       onPressed: onPressed,

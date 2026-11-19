@@ -403,7 +403,7 @@ class _MorphSearchAnchorBarState extends State<_MorphSearchAnchorBar> {
     }
     return <Widget>[
       MorphIconButton(
-        variant: MorphIconButtonVariant.standard,
+        type: MorphIconButtonType.standard,
         icon: const Icon(MorphIcons.close),
         tooltip: MorphSearchConstants.clearButtonTooltip,
         onPressed: widget.controller.clear,

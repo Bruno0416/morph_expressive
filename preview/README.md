@@ -1,11 +1,14 @@
-# Morph Expressive Component Studio
+# Morph Expressive Widgetbook
 
-Run from the root:
+Widgetbook catalog of every exported Morph Expressive widget. Run from the
+root:
 
 ```bash
-bash tool/setup_preview.sh
+flutter pub get
 cd preview
-flutter run -d web-server --web-port 8080
+flutter pub get
+dart run build_runner build
+flutter run -d web-server --web-hostname 127.0.0.1 --web-port 8081
 ```
 
 All documentation is in [`../doc/PREVIEW.md`](../doc/PREVIEW.md).

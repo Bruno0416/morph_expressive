@@ -300,7 +300,8 @@ class _MorphCardGroupState extends State<MorphCardGroup>
 
   @override
   Widget build(BuildContext context) {
-    final cardTheme = MorphTheme.of(context).cardTheme;
+    final MorphThemeData morphTheme = MorphTheme.of(context);
+    final cardTheme = morphTheme.cardTheme.withDensity(morphTheme.density);
     final double gap = cardTheme.resolveGap(widget.gap);
     return MorphComponentTheme(
       builder: (BuildContext context) {

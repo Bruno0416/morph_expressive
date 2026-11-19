@@ -297,6 +297,44 @@ class MorphNavigationRailTheme
   /// Spring for rail width, show/hide, and modal travel.
   final MorphSpring widthSpring;
 
+  /// The rail theme of [context] with the global density applied once.
+  static MorphNavigationRailTheme resolve(BuildContext context) {
+    final MorphThemeData theme = MorphTheme.of(context);
+    return theme.navigationRailTheme.withDensity(theme.density);
+  }
+
+  /// This theme with the layout [density] applied once.
+  ///
+  /// Items keep at least their standard (48dp) height so the target never
+  /// shrinks: compact only tightens gaps, comfortable also grows the item and
+  /// its indicator by 4dp. Widths and typography are unchanged.
+  MorphNavigationRailTheme withDensity(MorphDensity density) {
+    if (density == MorphDensity.standard) {
+      return this;
+    }
+    final MorphDensityMetrics m = density.metrics;
+    final double grow = density == MorphDensity.comfortable
+        ? m.controlHeightFor(1)
+        : 0;
+    return copyWith(
+      itemExpandedHeight: itemExpandedHeight + grow,
+      itemCollapsedHeight: MorphDensityMetrics.adjust(
+        itemCollapsedHeight,
+        m.controlHeightFor(1),
+        min: 56,
+      ),
+      shortItemHeight: shortItemHeight + grow,
+      expandedIndicatorHeight: expandedIndicatorHeight + grow,
+      iconLabelGap: MorphDensityMetrics.adjust(iconLabelGap, m.gap),
+      verticalIconLabelGap: MorphDensityMetrics.adjust(
+        verticalIconLabelGap,
+        m.gap / 2,
+      ),
+      itemVerticalGap: MorphDensityMetrics.adjust(itemVerticalGap, m.gap),
+      expandedItemGap: MorphDensityMetrics.adjust(expandedItemGap, m.gap),
+    );
+  }
+
   @override
   MorphNavigationRailTheme copyWith({
     double? collapsedWidth,

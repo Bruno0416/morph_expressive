@@ -111,7 +111,7 @@ class MorphSnackbar extends StatelessWidget {
   Widget _buildBar(BuildContext context) {
     final theme = MorphTheme.of(context);
     final scheme = theme.colorScheme;
-    final snackTheme = theme.snackBarTheme;
+    final snackTheme = theme.snackBarTheme.withDensity(theme.density);
     final TextDirection direction = Directionality.of(context);
     final bool hasAction =
         actionLabel != null && actionLabel!.trim().isNotEmpty;
@@ -431,7 +431,7 @@ class MorphSnackbar extends StatelessWidget {
       height: height,
       child: Center(
         child: MorphIconButton(
-          variant: MorphIconButtonVariant.standard,
+          type: MorphIconButtonType.standard,
           visualSize: Size.square(height),
           inflateHitTarget: false,
           semanticLabel: 'Dismiss',

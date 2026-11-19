@@ -48,7 +48,7 @@ class MorphTextFieldAffordance extends StatelessWidget {
       icon: Icon(icon, size: iconSize),
       onPressed: onPressed,
       semanticLabel: semanticLabel,
-      variant: MorphIconButtonVariant.standard,
+      type: MorphIconButtonType.standard,
       decoration: MorphIconButtonDecoration(
         foregroundColor: WidgetStatePropertyAll<Color?>(color),
       ),

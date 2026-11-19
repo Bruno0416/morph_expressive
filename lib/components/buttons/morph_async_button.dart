@@ -9,6 +9,7 @@ import 'morph_buttons.dart';
 import 'morph_operation_state.dart';
 import 'components/morph_operation_glyph.dart';
 import 'components/morph_operation_surface.dart';
+import 'utils/morph_button_variant_palette.dart';
 export 'components/morph_operation_glyph.dart'
     show MorphOperationIconTransition;
 export 'morph_operation_state.dart';
@@ -25,6 +26,8 @@ class MorphAsyncButton extends StatelessWidget {
     this.state = MorphOperationState.idle,
     this.presentation = MorphOperationPresentation.preserveWidth,
     this.style = MorphButtonStyle.filled,
+    this.variant,
+    this.surface = MorphSurface.solid,
     this.size = MorphButtonSize.sm,
     this.shape = MorphButtonShape.round,
     this.enabled = true,
@@ -52,6 +55,13 @@ class MorphAsyncButton extends StatelessWidget {
   final MorphOperationState state;
   final MorphOperationPresentation presentation;
   final MorphButtonStyle style;
+
+  /// Chromatic role forwarded to the inner [MorphButton]. Null keeps the
+  /// canonical colors of [style]. Error-state decorations still win.
+  final MorphVariant? variant;
+
+  /// Finish forwarded to the inner [MorphButton].
+  final MorphSurface surface;
   final MorphButtonSize size;
   final MorphButtonShape shape;
   final bool enabled, blockWhileLoading, showLoadingLabel;
@@ -78,7 +88,7 @@ class MorphAsyncButton extends StatelessWidget {
     final busy = state == MorphOperationState.loading;
     final active = enabled && onPressed != null;
     final blocked = busy && blockWhileLoading;
-    final m = buttonTheme.measurements(size);
+    final m = buttonTheme.measurements(size, density: theme.density);
     final type = theme.typeScale;
     final baseText = switch (size.name) {
       'xs' => type.labelSmall,
@@ -110,6 +120,7 @@ class MorphAsyncButton extends StatelessWidget {
         }
       });
     }
+    final palette = variant?.resolve(theme.colorScheme);
     final states = <WidgetState>{if (!active) WidgetState.disabled};
     final bg =
         dec.backgroundColor?.resolve(states) ??
@@ -118,11 +129,15 @@ class MorphAsyncButton extends StatelessWidget {
             : style == MorphButtonStyle.outlined ||
                   style == MorphButtonStyle.text
             ? const Color(0x00000000)
+            : palette != null
+            ? palette.containerFor(theme.colorScheme, style)
             : buttonTheme.container(theme.colorScheme, style));
     final fg =
         dec.foregroundColor?.resolve(states) ??
         (!active
             ? theme.colorScheme.onSurface.withValues(alpha: .38)
+            : palette != null
+            ? palette.contentFor(style)
             : buttonTheme.foreground(theme.colorScheme, style));
     final textStyle = baseText.merge(dec.textStyle);
     final painter = TextPainter(
@@ -290,6 +305,8 @@ class MorphAsyncButton extends StatelessWidget {
                       enabled: active,
                       enableFeedback: !blocked,
                       style: style,
+                      variant: variant,
+                      surface: surface,
                       size: size,
                       shape: shape,
                       focusNode: focusNode,

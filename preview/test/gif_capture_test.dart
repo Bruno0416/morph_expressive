@@ -202,6 +202,10 @@ void main() {
     ('tabs', 380, 9),
     ('fab_menu', 400, 8),
     ('navigation_rail_drawer', 380, 9),
+    ('variants', 360, 7),
+    ('density', 360, 8),
+    ('context_menu', 360, 9),
+    ('frosted', 360, 8),
   ]) {
     testWidgets('GIF scene $scene runs its full timeline', (tester) async {
       tester.view.physicalSize = Size(640, height.toDouble());
@@ -388,6 +392,89 @@ void main() {
     ]) {
       expect(find.text(label), findsOneWidget);
     }
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('variants scene shows five variants of four styles and icons', (
+    tester,
+  ) async {
+    await open(tester, 'variants', 360);
+    expect(find.byType(MorphButton), findsNWidgets(20));
+    expect(find.byType(MorphIconButton), findsNWidgets(5));
+    final variants = tester
+        .widgetList<MorphButton>(find.byType(MorphButton))
+        .map((button) => button.variant)
+        .toSet();
+    expect(variants, MorphVariant.values.toSet());
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('density scene changes only the theme density', (tester) async {
+    await open(tester, 'density', 360);
+    MorphDensity current() =>
+        MorphTheme.of(tester.element(find.byType(MorphButton).first)).density;
+    expect(current(), MorphDensity.standard);
+    expect(find.text('density: .standard'), findsOneWidget);
+    final seen = <MorphDensity>[];
+    for (var ms = 0; ms < 8000; ms += 100) {
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(tester.takeException(), isNull);
+      final density = current();
+      if (seen.isEmpty || seen.last != density) seen.add(density);
+    }
+    expect(seen, [
+      MorphDensity.standard,
+      MorphDensity.compact,
+      MorphDensity.standard,
+      MorphDensity.comfortable,
+      MorphDensity.standard,
+    ]);
+    expect(find.byType(MorphChip), findsNWidgets(3));
+    expect(find.byType(MorphTextField), findsOneWidget);
+    expect(find.byType(MorphListItem), findsNWidgets(3));
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('context menu scene opens a real desktop menu and submenu', (
+    tester,
+  ) async {
+    await open(tester, 'context_menu', 360);
+    expect(find.byType(MorphContextMenuRegion<String>), findsNWidgets(3));
+    expect(find.text('Rename'), findsNothing);
+    var sawMenu = false;
+    var sawSubmenu = false;
+    var sawResult = false;
+    for (var ms = 0; ms < 8000; ms += 50) {
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(tester.takeException(), isNull, reason: 'at ${ms}ms');
+      sawMenu = sawMenu || find.text('Rename').evaluate().isNotEmpty;
+      sawSubmenu = sawSubmenu || find.text('Projects').evaluate().isNotEmpty;
+      sawResult =
+          sawResult ||
+          find
+              .text('Moved Meeting notes.md to Documents')
+              .evaluate()
+              .isNotEmpty;
+    }
+    expect(sawMenu, isTrue, reason: 'the secondary click opened the menu');
+    expect(sawSubmenu, isTrue, reason: 'hovering Move to opened its submenu');
+    expect(sawResult, isTrue, reason: 'choosing Documents reported the move');
+    expect(find.text('Rename'), findsNothing, reason: 'the menu closed');
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('frosted scene pairs solid and frosted controls', (tester) async {
+    await open(tester, 'frosted', 360);
+    for (final type in [MorphButton, MorphCard]) {
+      expect(find.byType(type), findsWidgets);
+    }
+    final surfaces = tester
+        .widgetList<MorphButton>(find.byType(MorphButton))
+        .map((button) => button.surface)
+        .toSet();
+    expect(surfaces, MorphSurface.values.toSet());
+    expect(find.byType(MorphIconButton), findsNWidgets(2));
+    expect(find.byType(MorphCard), findsNWidgets(2));
     await tester.pumpWidget(const SizedBox());
   });
 }

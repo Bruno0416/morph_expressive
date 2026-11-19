@@ -26,6 +26,7 @@ class MorphMenuContent extends StatelessWidget {
     required this.closeOnSelect,
     this.onOpenSubmenu,
     this.onRowEnter,
+    this.onRowEnterAt,
     this.selectedValue,
     this.applyGroupShapes = true,
     this.autofocusFirst = true,
@@ -51,6 +52,15 @@ class MorphMenuContent extends StatelessWidget {
   /// hovers).
   final void Function(BuildContext rowContext, List<MorphMenuNode>? submenu)?
   onRowEnter;
+
+  /// Like [onRowEnter] but also receives the global pointer position. When
+  /// set it is used instead of [onRowEnter].
+  final void Function(
+    BuildContext rowContext,
+    List<MorphMenuNode>? submenu,
+    Offset globalPosition,
+  )?
+  onRowEnterAt;
 
   /// selectedValue.
   final Object? selectedValue;
@@ -304,13 +314,20 @@ class MorphMenuContent extends StatelessWidget {
       onFocused();
     }
     final enter = onRowEnter;
-    if (enter == null) {
+    final enterAt = onRowEnterAt;
+    if (enter == null && enterAt == null) {
       return <Widget>[child];
     }
     return <Widget>[
       Builder(
         builder: (BuildContext rowContext) => MouseRegion(
-          onEnter: (PointerEnterEvent e) => enter(rowContext, submenu),
+          onEnter: (PointerEnterEvent e) {
+            if (enterAt != null) {
+              enterAt(rowContext, submenu, e.position);
+            } else {
+              enter!(rowContext, submenu);
+            }
+          },
           child: child,
         ),
       ),

@@ -33,7 +33,7 @@ abstract final class MorphSearchConstants {
 
   /// disabledOpacity.
 
-  static const double disabledOpacity = 0.38;
+  static const double disabledOpacity = MorphStateOpacity.disabledContent;
 
   /// fullScreenBarHeight.
   static const double fullScreenBarHeight = 72;

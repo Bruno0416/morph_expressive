@@ -10,15 +10,16 @@ class MorphBadgeTheme extends MorphThemeExtension<MorphBadgeTheme> {
     this.dotSize = 6,
     this.dotCornerRadius = 3,
     this.smallOffset = const Offset(6, 6),
-    this.largeOffset = const Offset(12, 14),
-    this.labelHorizontalPadding = 4,
-    this.labelVerticalPadding = 0,
-    this.labelMinSize = 16,
-    this.labelCornerRadius = 8,
+    this.largeOffset = const Offset(13, 15),
+    this.labelHorizontalPadding = 5,
+    this.labelVerticalPadding = 1,
+    this.labelMinSize = 18,
+    this.labelCornerRadius = 9,
     this.labelFontSize = 11,
-    this.labelFontWeight = FontWeight.w500,
+    this.labelFontWeight = FontWeight.w600,
     this.labelLineHeight = 16,
     this.labelLetterSpacing = 0.5,
+    this.density,
   });
 
   /// defaults.
@@ -36,25 +37,27 @@ class MorphBadgeTheme extends MorphThemeExtension<MorphBadgeTheme> {
   final Offset smallOffset;
 
   /// Distance from icon top-trailing corner to badge bottom-leading (W×H).
-  /// Spec: 12×14dp for large badges.
+  /// Standard geometry: 13×15dp, which keeps the badge center where the
+  /// 16dp spec badge (12×14dp) had it.
   final Offset largeOffset;
 
-  /// Horizontal padding inside the large badge. Spec: 4dp.
+  /// Horizontal padding inside the large badge at standard density (5dp).
   final double labelHorizontalPadding;
 
-  /// Vertical padding inside the large badge. Spec: 0.
+  /// Vertical padding inside the large badge at standard density (1dp).
   final double labelVerticalPadding;
 
-  /// Minimum width and height for the large badge. Spec: 16dp.
+  /// Minimum width and height for the large badge at standard density (18dp).
   final double labelMinSize;
 
-  /// Large badge corner radius. Spec: 8dp.
+  /// Large badge corner radius at standard density: half of [labelMinSize], so
+  /// single characters stay circular and longer labels become pills.
   final double labelCornerRadius;
 
   /// Large badge label font size. Spec: 11pt.
   final double labelFontSize;
 
-  /// Large badge label weight. Spec: 500.
+  /// Large badge label weight. Semi-bold (600) for legibility at 11pt.
   final FontWeight labelFontWeight;
 
   /// Large badge label line height. Spec: 16pt.
@@ -62,6 +65,43 @@ class MorphBadgeTheme extends MorphThemeExtension<MorphBadgeTheme> {
 
   /// Large badge label tracking. Spec: 0.5pt.
   final double labelLetterSpacing;
+
+  /// Density override for this badge theme.
+  ///
+  /// When null, badges follow the global `MorphThemeData.density`. Density
+  /// only moves the large badge's padding, minimum size, radius and placement;
+  /// the font size, weight and the small dot never change.
+  final MorphDensity? density;
+
+  /// This theme with the layout metrics of [density] applied.
+  ///
+  /// [MorphDensity.standard] returns the theme unchanged, so the approved
+  /// geometry is preserved; compact tightens the large badge down to the
+  /// legacy 16dp footprint and comfortable adds a little air.
+  MorphBadgeTheme resolveDensity(MorphDensity global) {
+    final MorphDensity effective = density ?? global;
+    if (effective == MorphDensity.standard) {
+      return this;
+    }
+    final bool compact = effective == MorphDensity.compact;
+    final double h = compact ? -1 : 1;
+    final double v = compact ? -1 : 0.5;
+    final double size = compact ? -2 : 1;
+    final double radius = compact ? -1 : 0.5;
+    final double place = compact ? -1 : 0.5;
+    double adjust(double value, double delta) =>
+        MorphDensityMetrics.adjust(value, delta);
+    return copyWith(
+      largeOffset: Offset(
+        adjust(largeOffset.dx, place),
+        adjust(largeOffset.dy, place),
+      ),
+      labelHorizontalPadding: adjust(labelHorizontalPadding, h),
+      labelVerticalPadding: adjust(labelVerticalPadding, v),
+      labelMinSize: adjust(labelMinSize, size),
+      labelCornerRadius: adjust(labelCornerRadius, radius),
+    );
+  }
 
   /// The labelBorderRadius.
   BorderRadius get labelBorderRadius =>
@@ -100,6 +140,7 @@ class MorphBadgeTheme extends MorphThemeExtension<MorphBadgeTheme> {
     FontWeight? labelFontWeight,
     double? labelLineHeight,
     double? labelLetterSpacing,
+    MorphDensity? density,
   }) {
     return MorphBadgeTheme(
       dotSize: dotSize ?? this.dotSize,
@@ -115,6 +156,7 @@ class MorphBadgeTheme extends MorphThemeExtension<MorphBadgeTheme> {
       labelFontWeight: labelFontWeight ?? this.labelFontWeight,
       labelLineHeight: labelLineHeight ?? this.labelLineHeight,
       labelLetterSpacing: labelLetterSpacing ?? this.labelLetterSpacing,
+      density: density ?? this.density,
     );
   }
 
@@ -152,6 +194,7 @@ class MorphBadgeTheme extends MorphThemeExtension<MorphBadgeTheme> {
         other.labelLetterSpacing,
         t,
       )!,
+      density: t < 0.5 ? density : other.density,
     );
   }
 

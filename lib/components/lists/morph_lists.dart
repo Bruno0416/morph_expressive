@@ -140,7 +140,7 @@ class MorphListItem extends StatelessWidget {
   final MorphListAppearance? appearance;
 
   /// Outline variant override; falls back to [MorphListItemTheme.variant].
-  final MorphCardVariant? variant;
+  final MorphCardType? variant;
 
   /// Outline override; falls back to [MorphListItemTheme.border].
   final BorderSide? border;
@@ -225,8 +225,8 @@ class MorphListItem extends StatelessWidget {
         selection &&
         features!.selectionState.mode == MorphListSelectionMode.single;
     final BorderRadius radius = _radius(itemTheme, rowSelected);
-    final MorphCardVariant rowVariant = variant ?? itemTheme.variant;
-    final BorderSide? outline = rowVariant == MorphCardVariant.outlined
+    final MorphCardType rowVariant = variant ?? itemTheme.variant;
+    final BorderSide? outline = rowVariant == MorphCardType.outlined
         ? (border ?? itemTheme.border)
         : border;
 
@@ -247,7 +247,9 @@ class MorphListItem extends StatelessWidget {
   }
 
   MorphListItemTheme _theme(MorphThemeData theme) {
-    final MorphListItemTheme itemTheme = theme.listTheme.item;
+    final MorphListItemTheme itemTheme = theme.listTheme.item.withDensity(
+      theme.density,
+    );
     final MorphListAppearance? override = appearance;
     if (override == null || override == itemTheme.appearance) {
       return itemTheme;
@@ -463,7 +465,7 @@ class MorphListItem extends StatelessWidget {
       icon: const Icon(MorphIcons.more_vert),
       semanticLabel: 'Show swipe actions',
       tooltip: 'Reveal actions',
-      variant: MorphIconButtonVariant.standard,
+      type: MorphIconButtonType.standard,
       onPressed: reveal,
     );
     if (existing == null) return overflow;

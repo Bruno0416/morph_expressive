@@ -34,7 +34,7 @@ extension _MorphCarouselHeader on _MorphCarouselState {
           children: <Widget>[
             Expanded(child: widget.header!),
             MorphIconButton(
-              variant: MorphIconButtonVariant.standard,
+              type: MorphIconButtonType.standard,
               icon: const Icon(MorphIcons.arrow_forward),
               tooltip: 'Show all',
               onPressed: () => _openList(theme),

@@ -8,6 +8,7 @@ import '../utils/morph_menu_overlay_rect.dart';
 import 'morph_menu_content.dart';
 import 'morph_menu_item.dart';
 import 'morph_menu_key_registration.dart';
+import 'morph_menu_presentation_scope.dart';
 import 'morph_menu_style_scope.dart';
 
 /// Builds leaf [MorphMenuNode] widgets for [MorphMenuContent].
@@ -104,12 +105,7 @@ abstract final class MorphMenuNodeBuilders {
           label: item.label,
           leading:
               item.leading ??
-              Icon(
-                item.checked
-                    ? MorphIcons.check_box_rounded
-                    : MorphIcons.check_box_outline_blank_rounded,
-                size: menuTheme.iconSize,
-              ),
+              _ToggleIndicator(checked: item.checked, size: menuTheme.iconSize),
           trailing: item.trailing,
           trailingText: item.trailingText,
           badge: item.badge,
@@ -157,10 +153,7 @@ abstract final class MorphMenuNodeBuilders {
               label: item.label,
               leading: item.leading,
               badge: item.badge,
-              trailing: Icon(
-                MorphIcons.arrow_right_rounded,
-                size: menuTheme.iconSize,
-              ),
+              trailing: _SubmenuIndicator(size: menuTheme.iconSize),
               enabled: item.enabled,
               shape: item.shape,
               autofocus: autofocus,
@@ -317,5 +310,50 @@ abstract final class MorphMenuNodeBuilders {
         ],
       ),
     );
+  }
+}
+
+/// Check indicator of a [MorphMenuToggleable]: a checkbox glyph in the
+/// standard presentation, a plain check mark (blank when unchecked) in the
+/// desktop one.
+class _ToggleIndicator extends StatelessWidget {
+  const _ToggleIndicator({required this.checked, required this.size});
+
+  final bool checked;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    if (MorphMenuPresentationScope.isDesktop(context)) {
+      return checked
+          ? Icon(MorphIcons.check_rounded, size: size * 0.9)
+          : const SizedBox.shrink();
+    }
+    return Icon(
+      checked
+          ? MorphIcons.check_box_rounded
+          : MorphIcons.check_box_outline_blank_rounded,
+      size: size,
+    );
+  }
+}
+
+/// Submenu affordance: the arrow glyph in the standard presentation, a small
+/// chevron (mirrored in RTL) in the desktop one.
+class _SubmenuIndicator extends StatelessWidget {
+  const _SubmenuIndicator({required this.size});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    if (MorphMenuPresentationScope.isDesktop(context)) {
+      final bool rtl = Directionality.of(context) == TextDirection.rtl;
+      return Icon(
+        rtl ? MorphIcons.chevron_left : MorphIcons.chevron_right,
+        size: size,
+      );
+    }
+    return Icon(MorphIcons.arrow_right_rounded, size: size);
   }
 }

@@ -1,11 +1,11 @@
-# Accesibilidad del movimiento
+# Reduced motion
 
-Morph conserva sus curvas, duraciones y resortes en movimiento normal. Cuando
-el sistema solicita `disableAnimations` **o** `reduceMotion`, las transiciones
-decorativas adoptan su estado final y las ondas automáticas dejan de moverse.
-No hace falta configurar cada widget.
+Morph keeps its curves, durations and springs in normal motion. When the system
+requests `disableAnimations` **or** `reduceMotion`, decorative transitions take
+their final state and automatic waves stop moving. No per-widget configuration
+is needed. See also [Accessibility](ACCESSIBILITY.md#reduced-motion).
 
-## Configuración de la aplicación
+## App configuration
 
 ```dart
 final theme = MorphThemeData.light().copyWith(reduceMotion: true);
@@ -13,19 +13,19 @@ final theme = MorphThemeData.light().copyWith(reduceMotion: true);
 MorphMaterialApp(data: theme, home: const MyHome());
 ```
 
-`reduceMotion: false` es el valor predeterminado: sigue la preferencia del sistema.
-No fuerza las animaciones si el usuario pidió reducirlas. `copyWith`, los temas
-anidados y la derivación del tema oscuro conservan la propiedad.
+`reduceMotion: false` is the default and follows the system preference. It never
+forces animations against a user's request. `copyWith`, nested themes and the
+derived dark theme preserve the property.
 
-Para limitar la opción a un widget o una sección:
+To limit the option to one widget or section:
 
 ```dart
 MorphMotionScope(
   reduceMotion: true,
   child: MorphSegmentedToggle<String>(
     options: const [
-      MorphSegmentedToggleOption(value: 'a', label: 'Uno'),
-      MorphSegmentedToggleOption(value: 'b', label: 'Dos'),
+      MorphSegmentedToggleOption(value: 'a', label: 'One'),
+      MorphSegmentedToggleOption(value: 'b', label: 'Two'),
     ],
     selected: selected,
     onChanged: onChanged,
@@ -33,37 +33,37 @@ MorphMotionScope(
 );
 ```
 
-Un scope hijo con `false` no anula uno padre con `true`. Los overlays que capturan
-temas heredados conservan esta preferencia. Para overlays propios que no capturen
-temas, usa `InheritedTheme.captureAll(context, child)` o aplica explícitamente el
-scope al contenido del overlay.
+A child scope with `false` does not override a parent with `true`. Overlays that
+capture inherited themes keep this preference. For your own overlays that do not
+capture themes, use `InheritedTheme.captureAll(context, child)` or apply the
+scope explicitly to the overlay content.
 
-Para componentes propios:
+For your own components:
 
 ```dart
 final reduced = MorphMotion.reduceMotionOf(context);
 final duration = MorphMotion.durationOf(context, myDuration);
 ```
 
-## Comportamiento
+## Behavior
 
-| Familia o mecanismo | Con movimiento reducido |
+| Family or mechanism | With reduced motion |
 | --- | --- |
-| Selección, botones, navegación, tabs y resortes Morph | Estado final sin transferencia espacial |
-| Chip animado y segmented toggle | Sin estiramiento, bloom ni retardo de seguimiento |
-| Textfields | Etiqueta, forma y efectos alcanzan el objetivo; también al cambiar la preferencia durante la transición |
-| Progreso determinado | Valor real visible, onda decorativa estática |
-| Progreso indeterminado y loading | Fotograma estático reconocible; se conserva su semántica de progreso |
-| Sliders y range sliders | Onda estática; valor, teclado y arrastre siguen disponibles |
-| Carrusel | Distribución reducida coherente y navegación programática sin viaje animado |
-| Overlays, selección de listas y efectos implícitos | Transiciones reducidas, conservando interacción y foco |
+| Selection, buttons, navigation, tabs and Morph springs | Final state without spatial transfer |
+| Animated chip and segmented toggle | No stretch, bloom or trailing-edge delay |
+| Text fields | Label, shape and effects reach their target; also when the preference changes mid-transition |
+| Determinate progress | The real value stays visible; the decorative wave is static |
+| Indeterminate progress and loading | A recognizable static frame; progress semantics are kept |
+| Sliders and range sliders | Static wave; value, keyboard and drag remain available |
+| Carousel | Consistent reduced layout; programmatic navigation jumps without an animated trip |
+| Overlays, list selection and implicit effects | Reduced transitions, keeping interaction and focus |
 
-Los controladores de resorte completan el Future y notifican su estado al alcanzar
-el destino. No se usa `TickerMode(false)` para congelar widgets en estados
-intermedios. Las duraciones funcionales —por ejemplo, la permanencia de un
-snackbar— no se convierten en cero.
+Spring controllers complete their `Future` and notify their state when they
+reach the target. `TickerMode(false)` is not used to freeze widgets in
+intermediate states. Functional durations, such as how long a snackbar stays on
+screen, are not turned into zero.
 
-## Pruebas
+## Tests
 
 ```bash
 flutter pub get
@@ -71,21 +71,22 @@ flutter pub get
 python3 tool/audit_reduced_motion.py --profiles full reduced reduce-only
 ```
 
-Perfiles:
+Profiles:
 
-- `full`: ambas preferencias desactivadas.
-- `reduced`: ambas activadas.
-- `reduce-only`: solo `AccessibilityFeatures.reduceMotion` activado.
+- `full`: both preferences off.
+- `reduced`: both on.
+- `reduce-only`: only `AccessibilityFeatures.reduceMotion` on.
 
-El informe queda en `.dart_tool/motion_audit/REPORT.md`, con resultados estructurados
-y trazas. El comando devuelve error si una prueba falla. La suite ordinaria puede
-ejecutarse con `flutter test` sin activar instrumentación.
+The report is written to `.dart_tool/motion_audit/REPORT.md`, with structured
+results and traces. The command exits with an error if a test fails. The ordinary
+suite runs with `flutter test` without enabling the instrumentation.
 
-Los contratos comparan píxeles, geometría, estados finales y cambios de preferencia.
-Los tests de catálogo montan las 107 clases públicas de las 39 familias. Montar una
-clase no cubre todas sus variantes e interacciones, y la ausencia de movimiento
-en un muestreo pasivo no demuestra cumplimiento por sí sola.
+The contracts compare pixels, geometry, final states and preference changes. The
+catalog tests mount the public classes of every component family; mounting a
+class does not cover all its variants and interactions, and the absence of
+motion in passive sampling does not by itself prove compliance. See
+[Reduced motion tests](REDUCED_MOTION_TESTS.md) for the audit details.
 
-La matriz se ejecuta como pruebas de widgets en Linux. La evaluación visual en
-Firefox/Chromium y dispositivos físicos sigue siendo una comprobación adicional;
-esta suite no certifica toda la accesibilidad del producto.
+The matrix runs as widget tests on Linux. Visual evaluation in Firefox/Chromium
+and on physical devices remains a separate check; this suite does not certify
+the accessibility of the whole product.

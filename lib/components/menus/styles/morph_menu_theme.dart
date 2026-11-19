@@ -7,6 +7,9 @@ import '../../../foundations/foundations.dart';
 import '../enums/morph_menu_color_style.dart';
 import '../enums/morph_menu_item_shape.dart';
 import '../enums/morph_menu_variant.dart';
+import 'morph_menu_desktop_metrics.dart';
+
+export 'morph_menu_desktop_metrics.dart';
 
 part 'morph_menu_theme_values.dart';
 
@@ -102,7 +105,7 @@ class MorphMenuTheme extends MorphThemeExtension<MorphMenuTheme> {
     this.groupLabelVerticalPadding = 0,
     this.groupLabelHeight = 32,
     this.elevation = MorphElevation.level2,
-    this.disabledOpacity = 0.38,
+    this.disabledOpacity = MorphStateOpacity.disabledContent,
     this.scrimAlpha = 0.0,
     this.screenEdgePadding = 12,
     this.containerRadius = 16,
@@ -119,6 +122,7 @@ class MorphMenuTheme extends MorphThemeExtension<MorphMenuTheme> {
     this.itemGap = 4,
     this.dividerThickness = 1,
     this.dividerVerticalPadding = 0,
+    this.shortcutGap,
   });
 
   /// defaults.
@@ -141,6 +145,51 @@ class MorphMenuTheme extends MorphThemeExtension<MorphMenuTheme> {
     stateLayerInset: 0,
     dividerVerticalPadding: 8,
   );
+
+  /// Smallest width of the desktop presentation surface.
+  static const double desktopMinWidth = 180;
+
+  /// Largest width of the desktop presentation surface; longer labels ellipsize.
+  static const double desktopMaxWidth = 320;
+
+  /// This theme with the desktop presentation metrics of [density].
+  ///
+  /// Colors, motion, elevation and glass stay as configured on this theme;
+  /// only geometry changes (row height, paddings, radii, width range,
+  /// shortcut and divider spacing, no focus ring outline: the keyboard
+  /// highlight is the row fill).
+  MorphMenuTheme forDesktop(MorphDensity density) {
+    final MorphMenuDesktopMetrics m = MorphMenuDesktopMetrics.of(density);
+    return copyWith(
+      minWidth: desktopMinWidth,
+      maxWidth: desktopMaxWidth,
+      maxHeight: 4096,
+      verticalPadding: m.containerVerticalPadding,
+      contentHorizontalPadding: 0,
+      anchorOffset: 0,
+      entryHeight: m.itemHeight,
+      entryHorizontalPadding: m.horizontalPadding,
+      entryVerticalPadding: 0,
+      iconSize: m.iconSize,
+      iconGap: m.iconGap,
+      shortcutGap: m.shortcutGap,
+      groupSpacing: 0,
+      sectionGap: 0,
+      groupLabelHorizontalPadding: m.horizontalPadding,
+      groupLabelVerticalPadding: 0,
+      groupLabelHeight: m.groupLabelHeight,
+      screenEdgePadding: 8,
+      containerRadius: m.containerRadius,
+      containerBottomRadius: m.containerRadius,
+      itemRadius: m.itemRadius,
+      stateLayerInset: 4,
+      focusIndicatorWidth: 0,
+      focusIndicatorOffset: 0,
+      itemGap: m.itemGap,
+      dividerThickness: 1,
+      dividerVerticalPadding: 4,
+    );
+  }
 
   /// Metrics for [variant]. Vertical uses this theme. Baseline uses
   /// [baselineMetrics].
@@ -258,6 +307,12 @@ class MorphMenuTheme extends MorphThemeExtension<MorphMenuTheme> {
 
   /// Space above and below a divider stroke.
   final double dividerVerticalPadding;
+
+  /// Gap between a label and its trailing shortcut text. Null uses [iconGap].
+  final double? shortcutGap;
+
+  /// Resolved gap before a trailing shortcut text.
+  double get resolvedShortcutGap => shortcutGap ?? iconGap;
 
   /// The borderRadius.
 
@@ -508,6 +563,7 @@ class MorphMenuTheme extends MorphThemeExtension<MorphMenuTheme> {
     double? itemGap,
     double? dividerThickness,
     double? dividerVerticalPadding,
+    double? shortcutGap,
   }) {
     return MorphMenuTheme(
       minWidth: minWidth ?? this.minWidth,
@@ -550,6 +606,7 @@ class MorphMenuTheme extends MorphThemeExtension<MorphMenuTheme> {
       dividerThickness: dividerThickness ?? this.dividerThickness,
       dividerVerticalPadding:
           dividerVerticalPadding ?? this.dividerVerticalPadding,
+      shortcutGap: shortcutGap ?? this.shortcutGap,
     );
   }
 

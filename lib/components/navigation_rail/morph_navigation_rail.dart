@@ -578,15 +578,16 @@ class _MorphNavigationRailState extends State<MorphNavigationRail>
     if (!_canToggle) {
       return const SizedBox.shrink();
     }
-    final MorphNavigationRailTheme theme = MorphTheme.of(context)
-        .navigationRailTheme;
+    final MorphNavigationRailTheme theme = MorphNavigationRailTheme.resolve(
+      context,
+    );
     final Widget button = IconTheme(
       data: IconThemeData(
         color: theme.menuColorResolved(MorphTheme.of(context).colorScheme),
         size: theme.iconSize,
       ),
       child: MorphIconButton(
-        variant: MorphIconButtonVariant.standard,
+        type: MorphIconButtonType.standard,
         icon: Icon(_isExpanded ? MorphIcons.menu_open : MorphIcons.menu),
         tooltip: _isExpanded ? widget.collapseTooltip : widget.expandTooltip,
         onPressed: () => _setExpanded(!_isExpanded),
@@ -613,8 +614,9 @@ class _MorphNavigationRailState extends State<MorphNavigationRail>
       return null;
     }
     final double elevation = fab.elevation ?? 0;
-    final MorphNavigationRailTheme theme = MorphTheme.of(context)
-        .navigationRailTheme;
+    final MorphNavigationRailTheme theme = MorphNavigationRailTheme.resolve(
+      context,
+    );
     final double inset = showLabels
         ? theme.expandedItemInset
         : _collapsedInset(theme);

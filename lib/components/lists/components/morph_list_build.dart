@@ -286,7 +286,7 @@ extension _MorphListBuild on _MorphListState {
     );
   }
 
-  MorphCardVariant _variant(
+  MorphCardType _variant(
     BuildContext context,
     MorphListCardListTheme cardList,
   ) {
@@ -303,6 +303,14 @@ extension _MorphListBuild on _MorphListState {
   ) {
     if (theme.isBaseline && value == specDefault) {
       return 0;
+    }
+    if (value == specDefault) {
+      // Only the untouched spec gap follows the global density; an explicit
+      // gap stays exact.
+      return MorphDensityMetrics.adjust(
+        value,
+        MorphTheme.of(context).densityMetrics.gap / 2,
+      );
     }
     return value;
   }

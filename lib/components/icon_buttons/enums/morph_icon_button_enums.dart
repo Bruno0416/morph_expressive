@@ -37,8 +37,10 @@ enum MorphIconButtonShapeVariant {
   square,
 }
 
-/// Visual variants (kept from previous API).
-enum MorphIconButtonVariant {
+/// Visual type of a [MorphIconButton].
+///
+/// The chromatic role is chosen independently with `MorphVariant`.
+enum MorphIconButtonType {
   /// Transparent container with on-surface content.
   standard,
 
@@ -51,3 +53,10 @@ enum MorphIconButtonVariant {
   /// Outlined container with a border.
   outlined,
 }
+
+/// Previous name of [MorphIconButtonType].
+///
+/// `variant` now selects a chromatic role (`MorphVariant`); the visual type is
+/// the `type` parameter.
+@Deprecated('Use MorphIconButtonType')
+typedef MorphIconButtonVariant = MorphIconButtonType;

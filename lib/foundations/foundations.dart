@@ -4,6 +4,7 @@ library;
 
 export 'color/morph_color_scheme.dart';
 export 'color/morph_color_utils.dart';
+export 'color/morph_variant.dart';
 export 'components/morph_component_theme.dart';
 export 'interaction/morph_focus.dart';
 export 'interaction/morph_scroll_behavior.dart';
@@ -43,6 +44,7 @@ export 'theme/morph_theme_data.dart';
 export 'theme/morph_theme_defaults.dart';
 export 'theme/morph_theme_extension.dart';
 export 'theme/morph_theme_scope.dart';
+export 'tokens/morph_density.dart';
 export 'tokens/morph_dimensions.dart';
 export 'tokens/morph_elevation.dart';
 export 'tokens/morph_safe_area.dart';

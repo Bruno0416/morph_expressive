@@ -61,7 +61,7 @@ Widget morphDefaultTextFieldContextMenuBuilder(
 /// multi-line and text-area input, read-only and required fields, hover,
 /// focus, error and disabled states, and a keyboard focus ring.
 class MorphTextField extends StatefulWidget {
-  /// MorphTextField.
+  /// Creates a text field of the given [variant] (filled by default).
   const MorphTextField({
     this.controller,
     this.focusNode,
@@ -125,6 +125,134 @@ class MorphTextField extends StatefulWidget {
          'The password toggle needs a single-line field.',
        );
 
+  /// A filled text field (container with a bottom activation indicator).
+  const MorphTextField.filled({
+    this.controller,
+    this.focusNode,
+    this.label,
+    this.floatingLabelTextStyle,
+    this.reserveFloatingLabelSpace = false,
+    this.supportingText,
+    this.errorText,
+    this.leading,
+    this.trailing,
+    this.obscureText = false,
+    this.enabled = true,
+    this.keyboardType,
+    this.textInputAction,
+    this.inputFormatters,
+    this.onChanged,
+    this.onSubmitted,
+    this.onUnfocus,
+    this.onTapOutside,
+    this.maxLines = 1,
+    this.minLines,
+    this.readOnly = false,
+    this.autofocus = false,
+    this.isRequired = false,
+    this.prefixText,
+    this.suffixText,
+    this.prefixSemanticsLabel,
+    this.suffixSemanticsLabel,
+    this.placeholder,
+    this.maxLength,
+    this.showCounter,
+    this.counterSemanticsLabelBuilder = morphTextFieldCounterLabel,
+    this.supportingTextOnFocusOnly = false,
+    this.showErrorIcon = false,
+    this.errorIcon,
+    this.errorIconPosition = MorphTextFieldErrorIconPosition.suffix,
+    this.showClearButton = false,
+    this.showPasswordToggle = false,
+    this.clearButtonSemanticsLabel = 'Clear',
+    this.showPasswordSemanticsLabel = 'Show password',
+    this.hidePasswordSemanticsLabel = 'Hide password',
+    this.errorIconSemanticsLabel = 'Error',
+    this.mouseCursor,
+    this.contextMenuBuilder = morphDefaultTextFieldContextMenuBuilder,
+    this.textCapitalization = TextCapitalization.none,
+    this.textAlign = TextAlign.start,
+    this.density,
+    this.iconAlignment,
+    this.affixAlignment,
+    this.theme,
+    this.onTap,
+    this.onEditingComplete,
+    super.key,
+  }) : variant = MorphTextFieldVariant.filled,
+       assert(
+         !obscureText || maxLines == 1,
+         'Obscured text fields cannot be multi-line.',
+       ),
+       assert(
+         !showPasswordToggle || maxLines == 1,
+         'The password toggle needs a single-line field.',
+       );
+
+  /// An outlined text field (transparent container with a full outline).
+  const MorphTextField.outlined({
+    this.controller,
+    this.focusNode,
+    this.label,
+    this.floatingLabelTextStyle,
+    this.reserveFloatingLabelSpace = false,
+    this.supportingText,
+    this.errorText,
+    this.leading,
+    this.trailing,
+    this.obscureText = false,
+    this.enabled = true,
+    this.keyboardType,
+    this.textInputAction,
+    this.inputFormatters,
+    this.onChanged,
+    this.onSubmitted,
+    this.onUnfocus,
+    this.onTapOutside,
+    this.maxLines = 1,
+    this.minLines,
+    this.readOnly = false,
+    this.autofocus = false,
+    this.isRequired = false,
+    this.prefixText,
+    this.suffixText,
+    this.prefixSemanticsLabel,
+    this.suffixSemanticsLabel,
+    this.placeholder,
+    this.maxLength,
+    this.showCounter,
+    this.counterSemanticsLabelBuilder = morphTextFieldCounterLabel,
+    this.supportingTextOnFocusOnly = false,
+    this.showErrorIcon = false,
+    this.errorIcon,
+    this.errorIconPosition = MorphTextFieldErrorIconPosition.suffix,
+    this.showClearButton = false,
+    this.showPasswordToggle = false,
+    this.clearButtonSemanticsLabel = 'Clear',
+    this.showPasswordSemanticsLabel = 'Show password',
+    this.hidePasswordSemanticsLabel = 'Hide password',
+    this.errorIconSemanticsLabel = 'Error',
+    this.mouseCursor,
+    this.contextMenuBuilder = morphDefaultTextFieldContextMenuBuilder,
+    this.textCapitalization = TextCapitalization.none,
+    this.textAlign = TextAlign.start,
+    this.density,
+    this.iconAlignment,
+    this.affixAlignment,
+    this.theme,
+    this.onTap,
+    this.onEditingComplete,
+    super.key,
+  }) : variant = MorphTextFieldVariant.outlined,
+       assert(
+         !obscureText || maxLines == 1,
+         'Obscured text fields cannot be multi-line.',
+       ),
+       assert(
+         !showPasswordToggle || maxLines == 1,
+         'The password toggle needs a single-line field.',
+       );
+
   /// controller.
   final TextEditingController? controller;
 
@@ -155,7 +283,9 @@ class MorphTextField extends StatefulWidget {
   /// Trailing icon or 24dp image.
   final Widget? trailing;
 
-  /// variant.
+  /// Container style: filled or outlined.
+  ///
+  /// Prefer [MorphTextField.filled] and [MorphTextField.outlined].
   final MorphTextFieldVariant variant;
 
   /// Hides the input (single line only).
@@ -419,6 +549,19 @@ class _MorphTextFieldState extends State<MorphTextField>
 
   int _densityOf(MorphTextFieldTheme fieldTheme) =>
       MorphTextFieldTheme.clampDensity(widget.density ?? fieldTheme.density);
+
+  /// Container height: an explicit widget or theme step wins; otherwise the
+  /// global [MorphDensity] adjusts the spec height once.
+  double _heightOf(MorphThemeData theme, MorphTextFieldTheme fieldTheme) {
+    if (widget.density != null || fieldTheme.density != 0) {
+      return fieldTheme.heightFor(_densityOf(fieldTheme));
+    }
+    return MorphDensityMetrics.adjust(
+      fieldTheme.heightFor(0),
+      theme.densityMetrics.controlHeightFor(2),
+      min: 40,
+    );
+  }
 
   MorphTextFieldStates get _states => MorphTextFieldStates(
     enabled: widget.enabled,

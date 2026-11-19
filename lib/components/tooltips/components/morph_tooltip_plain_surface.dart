@@ -22,7 +22,7 @@ class MorphTooltipPlainSurface extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = MorphTheme.of(context);
-    final tokens = theme.tooltipTheme;
+    final tokens = theme.tooltipTheme.withDensity(theme.density);
     final content = Padding(
       padding: tokens.plainPadding,
       child: Text(

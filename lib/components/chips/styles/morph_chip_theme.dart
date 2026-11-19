@@ -21,8 +21,8 @@ class MorphChipTheme extends MorphThemeExtension<MorphChipTheme> {
     this.avatarRadius = 12,
     this.iconLabelGap = 8,
     this.outlineWidth = 1,
-    this.disabledContainerOpacity = 0.12,
-    this.disabledContentOpacity = 0.38,
+    this.disabledContainerOpacity = MorphStateOpacity.disabledContainer,
+    this.disabledContentOpacity = MorphStateOpacity.disabledContent,
     this.hoverStateLayerOpacity = 0.08,
     this.focusStateLayerOpacity = 0.1,
     this.pressedStateLayerOpacity = 0.1,
@@ -315,6 +315,41 @@ class MorphChipTheme extends MorphThemeExtension<MorphChipTheme> {
       );
     }
     return color;
+  }
+
+  /// This theme with the layout [density] applied once.
+  ///
+  /// Height, paddings, icon and avatar sizes and the icon/label gap move by
+  /// the additive density deltas; [removeTargetSize] (the hit target) and all
+  /// colors, shapes and typography stay untouched. Call this at the widget
+  /// that paints the chip, never on an already resolved theme.
+  MorphChipTheme withDensity(MorphDensity density) {
+    if (density == MorphDensity.standard) {
+      return this;
+    }
+    final MorphDensityMetrics m = density.metrics;
+    double h(double v) => MorphDensityMetrics.adjust(v, m.paddingHorizontal);
+    return copyWith(
+      height: MorphDensityMetrics.adjust(
+        height,
+        m.controlHeightFor(0),
+        min: 24,
+      ),
+      iconSize: MorphDensityMetrics.adjust(iconSize, m.iconSize, min: 14),
+      labelStartPadding: h(labelStartPadding),
+      iconStartPadding: h(iconStartPadding),
+      endPadding: h(endPadding),
+      trailingEndPadding: h(trailingEndPadding),
+      inputStartPadding: h(inputStartPadding),
+      avatarStartPadding: h(avatarStartPadding),
+      avatarSize: MorphDensityMetrics.adjust(avatarSize, m.iconSize, min: 16),
+      avatarRadius: MorphDensityMetrics.adjust(
+        avatarRadius,
+        m.iconSize / 2,
+        min: 8,
+      ),
+      iconLabelGap: MorphDensityMetrics.adjust(iconLabelGap, m.gap),
+    );
   }
 
   @override

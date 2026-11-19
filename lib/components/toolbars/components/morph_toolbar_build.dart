@@ -82,7 +82,9 @@ extension _MorphToolbarBuild on _MorphToolbarState {
   })
   _resolveToolbarChrome(BuildContext context) {
     final MorphThemeData theme = MorphTheme.of(context);
-    final MorphToolbarTheme toolbarTheme = theme.toolbarTheme;
+    final MorphToolbarTheme toolbarTheme = theme.toolbarTheme.withDensity(
+      theme.density,
+    );
     final MorphColorScheme scheme = theme.colorScheme;
     final MorphToolbarMetrics metrics = toolbarTheme.metricsFor(
       widget.placement,

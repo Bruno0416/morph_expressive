@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../foundations/foundations.dart';
-import '../../cards/enums/morph_card_variant.dart';
+import '../../cards/enums/morph_card_type.dart';
 import '../../lists/styles/morph_list_theme.dart';
 
 /// Theme values for selection list and selection app bar.
@@ -13,7 +13,7 @@ class MorphSelectionTheme extends MorphThemeExtension<MorphSelectionTheme> {
     this.innerRadius = MorphListCardListTheme.defaultInnerRadius,
     this.gap = MorphListCardListTheme.defaultGap,
     this.itemPadding = MorphListCardListTheme.defaultItemPadding,
-    this.variant = MorphCardVariant.filled,
+    this.variant = MorphCardType.filled,
     this.border,
     this.leadingFlipDuration = MorphMotion.selectionFlip,
     this.selectAllHeight = 48,
@@ -37,7 +37,7 @@ class MorphSelectionTheme extends MorphThemeExtension<MorphSelectionTheme> {
   final EdgeInsetsGeometry itemPadding;
 
   /// Card variant.
-  final MorphCardVariant variant;
+  final MorphCardType variant;
 
   /// Optional outline.
   final BorderSide? border;
@@ -69,13 +69,26 @@ class MorphSelectionTheme extends MorphThemeExtension<MorphSelectionTheme> {
   Color contextualForeground(MorphColorScheme scheme) =>
       scheme.onPrimaryContainer;
 
+  /// This theme with the layout [density] applied once.
+  ///
+  /// The select-all row is a 48dp target: compact keeps it, comfortable grows
+  /// it by the small-control delta. The contextual band follows the app bar
+  /// (see `MorphSelectionAppBar`), not this theme.
+  MorphSelectionTheme withDensity(MorphDensity density) {
+    if (density == MorphDensity.standard) {
+      return this;
+    }
+    final double grow = density.metrics.controlHeightFor(1);
+    return grow <= 0 ? this : copyWith(selectAllHeight: selectAllHeight + grow);
+  }
+
   @override
   MorphSelectionTheme copyWith({
     double? outerRadius,
     double? innerRadius,
     double? gap,
     EdgeInsetsGeometry? itemPadding,
-    MorphCardVariant? variant,
+    MorphCardType? variant,
     BorderSide? border,
     Duration? leadingFlipDuration,
     double? selectAllHeight,

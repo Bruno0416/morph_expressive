@@ -175,7 +175,7 @@ void main() {
             widget.semanticLabel == 'Show swipe actions',
       ),
     );
-    expect(overflow.variant, MorphIconButtonVariant.standard);
+    expect(overflow.type, MorphIconButtonType.standard);
     await tester.tap(find.byIcon(MorphIcons.more_vert));
     await tester.pumpAndSettle();
     expect(find.byIcon(MorphIcons.archive), findsOneWidget);

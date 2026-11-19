@@ -136,8 +136,9 @@ class MorphRailItemButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final MorphNavigationRailTheme theme = MorphTheme.of(context)
-        .navigationRailTheme;
+    final MorphNavigationRailTheme theme = MorphNavigationRailTheme.resolve(
+      context,
+    );
     final MorphThemeData morph = MorphTheme.of(context);
     final bool showLabel = _showLabel(isSelected) && label.isNotEmpty;
     final bool unlabeled = short || !showLabel;

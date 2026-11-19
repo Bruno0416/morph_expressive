@@ -205,11 +205,15 @@ No analyzer exclusions, suppressed errors or relaxed release gates are added.
 
 ## README image sources
 
-README GIF images use relative `doc/assets/gifs/*.gif` sources so repository
-views use assets from their own branch or commit. `tool/check_gif_branding.py`
-rejects absolute GIF sources in the HTML image grid, checks all 14 files and
-keeps the ten-image pub.dev gallery contract. Integration tests exercise the
-actual guard with the current README, a default-branch URL and a missing asset.
+README images use absolute `https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/doc/assets/...`
+URLs (GIF scenes and `banner.png`); the assets only appear remotely after they
+are pushed to `main`. `tool/check_gif_branding.py` rejects relative paths, other
+branches, `blob` links, query strings and SVG banner sources, and validates the
+local file behind every URL. The README may show a curated subset of the allowed
+scenes (weight limits apply); the guard also checks that the pub.dev gallery has
+at most ten images, each under 4 MiB with a description of at most 160
+characters. Integration tests exercise the actual guard with synthetic READMEs,
+a relative path, another branch and a missing asset.
 Apply a correction before running its tests: the old 4.5dp and whole-widget
 label-center assertions are not the updated geometry tests. The combined
 README/geometry correction replaces the earlier standalone geometry patch.

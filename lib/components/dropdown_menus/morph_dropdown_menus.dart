@@ -34,6 +34,7 @@ import 'package:material_ui/material_ui.dart'
         CrossAxisAlignment,
         Directionality,
         EdgeInsets,
+        EdgeInsetsGeometry,
         Expanded,
         Flexible,
         Flow,

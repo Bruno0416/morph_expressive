@@ -2,7 +2,8 @@ part of 'morph_full_screen_dialog.dart';
 
 extension _MorphFullScreenDialogParts on _MorphFullScreenDialogState {
   Widget _wrapSurface(MorphThemeData theme, Widget column) {
-    final MorphFullScreenDialogTheme fs = theme.dialogTheme.fullScreen;
+    final MorphFullScreenDialogTheme fs = theme.dialogTheme.fullScreen
+        .withDensity(theme.density);
     final MorphColorScheme scheme = theme.colorScheme;
     final Color color = morphDialogTinted(
       fs.resolveContainer(scheme),
@@ -79,7 +80,8 @@ extension _MorphFullScreenDialogParts on _MorphFullScreenDialogState {
     required Widget child,
   }) {
     final MorphThemeData theme = MorphTheme.of(context);
-    final MorphFullScreenDialogTheme fs = theme.dialogTheme.fullScreen;
+    final MorphFullScreenDialogTheme fs = theme.dialogTheme.fullScreen
+        .withDensity(theme.density);
     return AnimatedBuilder(
       animation: motion,
       child: child,
@@ -128,7 +130,7 @@ extension _MorphFullScreenDialogParts on _MorphFullScreenDialogState {
         children: <Widget>[
           SizedBox(width: dt.headerEdgeGap),
           MorphIconButton(
-            variant: MorphIconButtonVariant.standard,
+            type: MorphIconButtonType.standard,
             icon: widget.closeIcon ?? const Icon(MorphIcons.close),
             onPressed: _close,
             tooltip: widget.closeLabel,
@@ -161,7 +163,8 @@ extension _MorphFullScreenDialogParts on _MorphFullScreenDialogState {
 
   /// Header and action bar text buttons use the full-screen action tokens.
   Widget _actionScope(MorphThemeData theme, Widget child) {
-    final MorphFullScreenDialogTheme fs = theme.dialogTheme.fullScreen;
+    final MorphFullScreenDialogTheme fs = theme.dialogTheme.fullScreen
+        .withDensity(theme.density);
     return morphDialogActionScope(
       color: fs.resolveAction(theme.colorScheme),
       textStyle: fs.resolveActionText(theme),
@@ -179,7 +182,8 @@ extension _MorphFullScreenDialogParts on _MorphFullScreenDialogState {
   }
 
   Widget _buildContent(MorphThemeData theme) {
-    final MorphFullScreenDialogTheme fs = theme.dialogTheme.fullScreen;
+    final MorphFullScreenDialogTheme fs = theme.dialogTheme.fullScreen
+        .withDensity(theme.density);
     final String? headline = widget.contentHeadline;
     Widget content = widget.body;
     if (headline != null) {

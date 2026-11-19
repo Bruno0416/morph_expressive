@@ -1,17 +1,27 @@
 #!/usr/bin/env python3
 """Verify the animated assets used by the README and the pub.dev gallery.
 
-* The 14 README GIFs exist, are real GIF89a files and are not one of the
-  exports made before the Morph Expressive branding change (their hashes are
-  kept below; the watermark is embedded in the frames).
-* `pubspec.yaml` declares exactly the ten approved gallery images, in order,
-  with descriptions within the pub.dev limit, existing files and a size under
-  the pub.dev per-image limit.
-* Every GIF referenced by README.md exists, and every one of the 14 README GIFs
-  is referenced.
+* Every GIF in `doc/assets/gifs/` is a known scene (no strays), is a real
+  GIF89a file and is not one of the exports made before the Morph Expressive
+  branding change (their hashes are kept below; the watermark is embedded in
+  the frames).
+* README images use ONLY absolute `raw.githubusercontent.com` URLs on the
+  `main` branch of the repository (`doc/assets/gifs/<name>.gif` and
+  `doc/assets/banner.png`): no relative paths, no query strings, no `blob`
+  links and no SVG sources for the repository's own assets (third-party badges
+  on other hosts are not checked). The files must also exist locally, so a README
+  edit cannot point at an asset that was never created. The README may show a
+  curated subset of the scenes; every GIF it shows must be an allowed one.
+* README GIFs weigh at most 1.5 MiB each and 8 MiB in total.
+* `pubspec.yaml` declares at most ten gallery images, each an existing allowed
+  GIF under 4 MiB (the pub.dev limit) with a description of at most 160
+  characters.
 * Retired scene names are not referenced by current documentation.
 * Each GIF matches its scene in `tool/gif_capture/capture.mjs` (width, height and
   frame interval), which detects exports made with an older pipeline or scene.
+
+Absolute URLs 404 (or show the previous content) until the files are pushed to
+`main`; the guard therefore validates the local file behind every URL.
 """
 
 import re
@@ -21,19 +31,24 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 GIF_DIR = ROOT / "doc" / "assets" / "gifs"
 
-README_GIFS = [
-    "async_button", "skeleton", "fab_menu", "buttons", "segmented", "tabs",
-    "loading", "navigation", "dropdown", "lists", "dialogs", "chips",
-    "textfields", "sliders",
+RAW_BASE = "https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/"
+GIF_URL = re.compile(re.escape(RAW_BASE) + r"doc/assets/gifs/([a-z0-9_]+)\.gif")
+BANNER_URL = RAW_BASE + "doc/assets/banner.png"
+
+# Scenes the documentation may use (README and pub.dev gallery).
+ALLOWED_GIFS = [
+    "buttons", "variants", "async_button", "frosted", "density", "context_menu",
+    "tabs", "navigation", "chips", "dropdown", "lists", "dialogs", "textfields",
+    "sliders", "segmented", "loading", "skeleton", "fab_menu",
 ]
 # Kept for a guide that still explains it; not part of the README set.
 GUIDE_GIFS = ["navigation_rail_drawer"]
-PUBDEV_GALLERY = [
-    "async_button", "skeleton", "fab_menu", "buttons", "segmented", "tabs",
-    "loading", "navigation", "dropdown", "lists",
-]
+MIN_README_GIFS = 6
 RETIRED = ["navigation_morph.gif"]
 MAX_SCREENSHOT_BYTES = 4 * 1024 * 1024
+MAX_README_GIF_BYTES = 1536 * 1024
+MAX_README_TOTAL_BYTES = 8 * 1024 * 1024
+MAX_SCREENSHOTS = 10
 MAX_DESCRIPTION = 160
 
 LEGACY_EXPORTS = {
@@ -54,7 +69,10 @@ def gif(name):
     return GIF_DIR / f"{name}.gif"
 
 
-for name in README_GIFS + GUIDE_GIFS:
+known = set(ALLOWED_GIFS) | set(GUIDE_GIFS)
+
+# Every scene the docs may use exists and is a current export; nothing stray.
+for name in ALLOWED_GIFS + GUIDE_GIFS:
     path = gif(name)
     if not path.is_file():
         problems.append(f"Missing GIF: {path.name}")
@@ -65,6 +83,10 @@ for name in README_GIFS + GUIDE_GIFS:
     old = LEGACY_EXPORTS.get(path.name)
     if old and sha256(data).hexdigest() == old:
         problems.append(f"{path.name} is still the export with the former watermark")
+if GIF_DIR.is_dir():
+    for path in sorted(GIF_DIR.glob("*.gif")):
+        if path.stem not in known:
+            problems.append(f"{path.name} is not a known scene (add it to ALLOWED_GIFS)")
 
 # pub.dev gallery.
 pubspec = (ROOT / "pubspec.yaml").read_text(encoding="utf-8")
@@ -73,10 +95,15 @@ entries = re.findall(
     r"- description: (.+)\n\s+path: (doc/assets/gifs/[\w.]+)", block.group(1) if block else ""
 )
 declared = [Path(p).stem for _, p in entries]
-if declared != PUBDEV_GALLERY:
-    problems.append(f"pubspec screenshots {declared} != approved gallery {PUBDEV_GALLERY}")
+if len(entries) > MAX_SCREENSHOTS:
+    problems.append(f"pubspec declares {len(entries)} screenshots; pub.dev allows {MAX_SCREENSHOTS}")
+if len(set(declared)) != len(declared):
+    problems.append(f"pubspec screenshots repeat an image: {declared}")
 for description, path in entries:
-    if len(description.strip()) > MAX_DESCRIPTION:
+    stem = Path(path).stem
+    if stem not in ALLOWED_GIFS:
+        problems.append(f"{path}: not an allowed gallery scene")
+    if len(description.strip().strip("'\"")) > MAX_DESCRIPTION:
         problems.append(f"{path}: description longer than {MAX_DESCRIPTION} characters")
     file = ROOT / path
     if not file.is_file():
@@ -84,20 +111,44 @@ for description, path in entries:
     elif file.stat().st_size > MAX_SCREENSHOT_BYTES:
         problems.append(f"{path}: {file.stat().st_size} bytes exceeds the pub.dev limit")
 
-# README references.
+# README references: absolute raw URLs only, each backed by a local file.
 readme = (ROOT / "README.md").read_text(encoding="utf-8")
-referenced = set(re.findall(r"doc/assets/gifs/([\w.]+\.gif)", readme))
-for ref in sorted(referenced):
-    if not (GIF_DIR / ref).is_file():
-        problems.append(f"README references a missing GIF: {ref}")
-for name in README_GIFS:
-    if f"{name}.gif" not in referenced:
-        problems.append(f"README does not show {name}.gif")
-
-# Relative sources follow the branch/commit being viewed, including new GIFs.
-for source in re.findall(r'<img\b[^>]*\bsrc=["\']([^"\']+)["\']', readme, re.I):
-    if '.gif' in source.lower() and not re.fullmatch(r'doc/assets/gifs/[\w.-]+\.gif', source):
-        problems.append(f"README GIF must use a branch-relative local path: {source}")
+sources = re.findall(r'<img\b[^>]*?\bsrc=["\']([^"\']+)["\']', readme, re.I)
+sources += re.findall(r'<source\b[^>]*?\bsrcset=["\']([^"\'\s]+)', readme, re.I)
+sources += re.findall(r"!\[[^\]]*\]\(\s*<?([^)\s>]+)", readme)
+shown = []
+for source in sources:
+    gif_match = GIF_URL.fullmatch(source)
+    if gif_match:
+        shown.append(gif_match.group(1))
+    elif source == BANNER_URL:
+        if not (ROOT / "doc" / "assets" / "banner.png").is_file():
+            problems.append("README banner is referenced but doc/assets/banner.png is missing")
+    elif not re.match(r"https?://", source, re.I) or "doc/assets" in source:
+        problems.append(
+            f"README image must be an absolute URL under {RAW_BASE}doc/assets/ "
+            f"(gif scenes or banner.png), never a relative path: {source}"
+        )
+# Local assets must not be reached through any other spelling either.
+for ref in re.findall(r"(?<![\w/])doc/assets/gifs/[\w.-]+", readme):
+    problems.append(f"README references {ref} without the raw.githubusercontent.com base")
+for name in shown:
+    if name not in ALLOWED_GIFS:
+        problems.append(f"README shows {name}.gif, which is not an allowed scene")
+    elif not gif(name).is_file():
+        problems.append(f"README references a missing GIF: {name}.gif")
+unique = sorted(set(shown))
+if len(unique) < MIN_README_GIFS:
+    problems.append(f"README shows {len(unique)} GIFs; expected at least {MIN_README_GIFS}")
+total = 0
+for name in unique:
+    if gif(name).is_file():
+        size = gif(name).stat().st_size
+        total += size
+        if size > MAX_README_GIF_BYTES:
+            problems.append(f"{name}.gif is {size} bytes; README GIFs stay under {MAX_README_GIF_BYTES}")
+if total > MAX_README_TOTAL_BYTES:
+    problems.append(f"README GIFs weigh {total} bytes in total; limit is {MAX_README_TOTAL_BYTES}")
 
 # Retired names must not remain in current documentation.
 current_docs = [ROOT / "README.md", ROOT / "pubspec.yaml"] + sorted((ROOT / "doc").glob("*.md"))
@@ -140,6 +191,6 @@ for scene, body in re.findall(r"^  (\w+): \{ ([^}]*) \},?$", capture, re.M):
 if problems:
     raise SystemExit("\n".join(problems))
 print(
-    f"GIF assets OK: {len(README_GIFS)} README GIFs, "
-    f"{len(PUBDEV_GALLERY)} declared pub.dev screenshots"
+    f"GIF assets OK: {len(ALLOWED_GIFS)} scenes, {len(unique)} shown in the README "
+    f"({total // 1024} KiB), {len(entries)} declared pub.dev screenshots"
 )

@@ -347,6 +347,16 @@ extension _MorphDropdownMenuField<T> on _MorphDropdownMenuState<T> {
             .toDouble();
   }
 
+  /// Field padding with the global density applied once (the anchor field
+  /// only; menu panel rows are resolved by the menu theme).
+  EdgeInsetsGeometry _densityFieldPadding(EdgeInsetsGeometry padding) {
+    final MorphThemeData theme = MorphTheme.of(context);
+    if (theme.density == MorphDensity.standard || padding is! EdgeInsets) {
+      return padding;
+    }
+    return theme.densityMetrics.padding(padding);
+  }
+
   Widget _buildFieldInkWell({
     required MorphDropdownFieldStyle fd,
     required Color fgColor,
@@ -369,7 +379,7 @@ extension _MorphDropdownMenuField<T> on _MorphDropdownMenuState<T> {
       onTapDown: _onFieldTapDown,
       onTapUp: _onFieldTapUp,
       onTapCancel: _onFieldTapCancel,
-      child: Padding(padding: fd.padding, child: child),
+      child: Padding(padding: _densityFieldPadding(fd.padding), child: child),
     );
   }
 

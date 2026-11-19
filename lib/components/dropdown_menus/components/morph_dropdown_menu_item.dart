@@ -138,7 +138,8 @@ class _MorphDropdownMenuItemWidgetState<T>
     final id = widget.style;
     final item = widget.item;
     if (item.disabled) {
-      return id.disabledTextColor ?? scheme.onSurface.withValues(alpha: 0.38);
+      return id.disabledTextColor ??
+          scheme.onSurface.withValues(alpha: MorphStateOpacity.disabledContent);
     }
     if (item.selected) {
       return id.selectedTextColor ??
@@ -205,7 +206,7 @@ class _MorphDropdownMenuItemWidgetState<T>
       ),
       builder: (context, animatedRadius, child) {
         return MorphCard(
-          variant: MorphCardVariant.filled,
+          type: MorphCardType.filled,
           glass: const MorphSurfaceGlass.disabled(),
           borderRadius: animatedRadius ?? _buildEffectiveRadius(),
           color: bgColor,

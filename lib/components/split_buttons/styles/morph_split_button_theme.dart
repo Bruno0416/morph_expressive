@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart'
 import '../../../foundations/foundations.dart';
 import '../../buttons/enums/morph_button_enums.dart';
 import '../../buttons/styles/morph_button_motion.dart';
+import '../../buttons/styles/morph_button_theme.dart';
 
 /// Theme values for `MorphSplitButton`.
 @immutable
@@ -25,7 +26,17 @@ class MorphSplitButtonTheme extends MorphThemeExtension<MorphSplitButtonTheme> {
     this.popupMaxHeight = 400,
     this.popupScrimAlpha = 0.26,
     this.popupMotion = MorphButtonMotion.standardPopup,
+    this.density = MorphDensity.standard,
   });
+
+  /// Global density applied by the size-keyed accessors (height, horizontal
+  /// paddings and the icon/label gap). Resolve it once with [withDensity]
+  /// from the widget; the theme stored in [MorphThemeData] stays standard.
+  final MorphDensity density;
+
+  /// This theme resolving its size-keyed metrics for [density].
+  MorphSplitButtonTheme withDensity(MorphDensity density) =>
+      density == this.density ? this : copyWith(density: density);
 
   /// defaults.
 
@@ -232,7 +243,19 @@ class MorphSplitButtonTheme extends MorphThemeExtension<MorphSplitButtonTheme> {
 
   /// splitHeight.
 
-  double splitHeight(MorphButtonSize size) => _splitHeight[size] ?? 56;
+  ///
+  /// [density] adjusts the token height once; custom heights stay exact.
+  double splitHeight(MorphButtonSize size) {
+    final double base = _splitHeight[size] ?? 56;
+    if (density == MorphDensity.standard) {
+      return base;
+    }
+    return MorphDensityMetrics.adjust(
+      base,
+      density.metrics.controlHeightFor(MorphButtonTheme.sizeStep(size)),
+      min: 24,
+    );
+  }
 
   /// splitTrailingWidth.
 
@@ -298,23 +321,28 @@ class MorphSplitButtonTheme extends MorphThemeExtension<MorphSplitButtonTheme> {
   /// splitLeftOuterPadding.
 
   double splitLeftOuterPadding(MorphButtonSize size) =>
-      _splitLeftOuterPadding[size] ?? 24;
+      _h(_splitLeftOuterPadding[size] ?? 24);
+
+  double _h(double v) =>
+      MorphDensityMetrics.adjust(v, density.metrics.paddingHorizontal);
 
   /// splitGapIconToLabel.
 
   double splitGapIconToLabel(MorphButtonSize size) {
+    double base = 8;
     for (final variant in _splitGapIconToLabel.keys) {
       if (variant.name == size.name) {
-        return _splitGapIconToLabel[variant]!;
+        base = _splitGapIconToLabel[variant]!;
+        break;
       }
     }
-    return 8;
+    return MorphDensityMetrics.adjust(base, density.metrics.gap);
   }
 
   /// splitLabelRightPadding.
 
   double splitLabelRightPadding(MorphButtonSize size) =>
-      _splitLabelRightPadding[size] ?? 24;
+      _h(_splitLabelRightPadding[size] ?? 24);
 
   /// splitTrailingLeftInnerPadding — centered (open / geometric).
 
@@ -419,6 +447,7 @@ class MorphSplitButtonTheme extends MorphThemeExtension<MorphSplitButtonTheme> {
     double? popupMaxHeight,
     double? popupScrimAlpha,
     MorphButtonMotion? popupMotion,
+    MorphDensity? density,
   }) {
     return MorphSplitButtonTheme(
       minTapTarget: minTapTarget ?? this.minTapTarget,
@@ -437,6 +466,7 @@ class MorphSplitButtonTheme extends MorphThemeExtension<MorphSplitButtonTheme> {
       popupMaxHeight: popupMaxHeight ?? this.popupMaxHeight,
       popupScrimAlpha: popupScrimAlpha ?? this.popupScrimAlpha,
       popupMotion: popupMotion ?? this.popupMotion,
+      density: density ?? this.density,
     );
   }
 
@@ -480,6 +510,7 @@ class MorphSplitButtonTheme extends MorphThemeExtension<MorphSplitButtonTheme> {
       popupMaxHeight: _lerpDouble(popupMaxHeight, other.popupMaxHeight, t)!,
       popupScrimAlpha: _lerpDouble(popupScrimAlpha, other.popupScrimAlpha, t)!,
       popupMotion: t < 0.5 ? popupMotion : other.popupMotion,
+      density: t < 0.5 ? density : other.density,
     );
   }
 

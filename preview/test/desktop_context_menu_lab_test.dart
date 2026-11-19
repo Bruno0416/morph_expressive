@@ -2,7 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart' show Size, ValueKey;
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:morph_expressive_preview/main.dart';
+import 'widgetbook/support.dart';
 
 Future<void> _rightClick(WidgetTester tester, Finder finder) async {
   final TestGesture gesture = await tester.startGesture(
@@ -26,10 +26,11 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(const MorphPreviewApp());
-
-    await tester.tap(find.byTooltip('Desktop context menu preview'));
-    await tester.pumpAndSettle();
+    await openUseCase(
+      tester,
+      'overlays/menus/morphmenupopup/desktop-context-menu-lab',
+      size: const Size(1440, 900),
+    );
 
     expect(find.text('Desktop context menu preview'), findsOneWidget);
     expect(find.text('Validate desktop replacement behavior'), findsOneWidget);

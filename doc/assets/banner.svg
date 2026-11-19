@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-labelledby="t d">
+  <title id="t">Morph Expressive</title>
+  <desc id="d">Banner for Morph Expressive, expressive Material 3 components for Flutter, with the title on the left and abstract rounded shapes in the default purple palette on the right.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1D1727"/>
+      <stop offset="0.55" stop-color="#241A38"/>
+      <stop offset="1" stop-color="#33204F"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#6750A4" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#6750A4" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#EFB8C8" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#EFB8C8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cookie" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7F67BE"/>
+      <stop offset="1" stop-color="#4F378B"/>
+    </linearGradient>
+    <linearGradient id="pill" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#D0BCFF"/>
+      <stop offset="1" stop-color="#B69DF8"/>
+    </linearGradient>
+    <linearGradient id="rose" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F8C8D8"/>
+      <stop offset="1" stop-color="#D99BB0"/>
+    </linearGradient>
+    <linearGradient id="frost" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.26"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.08"/>
+    </linearGradient>
+    <clipPath id="card"><rect width="1200" height="320" rx="32"/></clipPath>
+    <path id="cookiePath" d="M106.0 0.0C106.0 3.4 105.1 7.0 103.7 10.2C102.4 13.5 100.1 16.6 98.1 19.5C96.1 22.4 93.5 25.1 91.6 27.8C89.8 30.5 88.0 33.1 86.8 36.0C85.6 38.9 85.1 41.9 84.5 45.1C83.8 48.4 83.8 52.1 83.1 55.6C82.5 59.1 81.9 62.9 80.6 66.1C79.2 69.4 77.4 72.5 75.0 75.0C72.5 77.4 69.4 79.2 66.1 80.6C62.9 81.9 59.1 82.5 55.6 83.1C52.1 83.8 48.4 83.8 45.1 84.5C41.9 85.1 38.9 85.6 36.0 86.8C33.1 88.0 30.5 89.8 27.8 91.6C25.1 93.5 22.4 96.1 19.5 98.1C16.6 100.1 13.5 102.4 10.2 103.7C7.0 105.1 3.4 106.0 0.0 106.0C-3.4 106.0 -7.0 105.1 -10.2 103.7C-13.5 102.4 -16.6 100.1 -19.5 98.1C-22.4 96.1 -25.1 93.5 -27.8 91.6C-30.5 89.8 -33.1 88.0 -36.0 86.8C-38.9 85.6 -41.9 85.1 -45.1 84.5C-48.4 83.8 -52.1 83.8 -55.6 83.1C-59.1 82.5 -62.9 81.9 -66.1 80.6C-69.4 79.2 -72.5 77.4 -75.0 75.0C-77.4 72.5 -79.2 69.4 -80.6 66.1C-81.9 62.9 -82.5 59.1 -83.1 55.6C-83.8 52.1 -83.8 48.4 -84.5 45.1C-85.1 41.9 -85.6 38.9 -86.8 36.0C-88.0 33.1 -89.8 30.5 -91.6 27.8C-93.5 25.1 -96.1 22.4 -98.1 19.5C-100.1 16.6 -102.4 13.5 -103.7 10.2C-105.1 7.0 -106.0 3.4 -106.0 0.0C-106.0 -3.4 -105.1 -7.0 -103.7 -10.2C-102.4 -13.5 -100.1 -16.6 -98.1 -19.5C-96.1 -22.4 -93.5 -25.1 -91.6 -27.8C-89.8 -30.5 -88.0 -33.1 -86.8 -36.0C-85.6 -38.9 -85.1 -41.9 -84.5 -45.1C-83.8 -48.4 -83.8 -52.1 -83.1 -55.6C-82.5 -59.1 -81.9 -62.9 -80.6 -66.1C-79.2 -69.4 -77.4 -72.5 -75.0 -75.0C-72.5 -77.4 -69.4 -79.2 -66.1 -80.6C-62.9 -81.9 -59.1 -82.5 -55.6 -83.1C-52.1 -83.8 -48.4 -83.8 -45.1 -84.5C-41.9 -85.1 -38.9 -85.6 -36.0 -86.8C-33.1 -88.0 -30.5 -89.8 -27.8 -91.6C-25.1 -93.5 -22.4 -96.1 -19.5 -98.1C-16.6 -100.1 -13.5 -102.4 -10.2 -103.7C-7.0 -105.1 -3.4 -106.0 -0.0 -106.0C3.4 -106.0 7.0 -105.1 10.2 -103.7C13.5 -102.4 16.6 -100.1 19.5 -98.1C22.4 -96.1 25.1 -93.5 27.8 -91.6C30.5 -89.8 33.1 -88.0 36.0 -86.8C38.9 -85.6 41.9 -85.1 45.1 -84.5C48.4 -83.8 52.1 -83.8 55.6 -83.1C59.1 -82.5 62.9 -81.9 66.1 -80.6C69.4 -79.2 72.5 -77.4 75.0 -75.0C77.4 -72.5 79.2 -69.4 80.6 -66.1C81.9 -62.9 82.5 -59.1 83.1 -55.6C83.8 -52.1 83.8 -48.4 84.5 -45.1C85.1 -41.9 85.6 -38.9 86.8 -36.0C88.0 -33.1 89.8 -30.5 91.6 -27.8C93.5 -25.1 96.1 -22.4 98.1 -19.5C100.1 -16.6 102.4 -13.5 103.7 -10.2C105.1 -7.0 106.0 -3.4 106.0 0.0Z"/>
+    <path id="cloverPath" d="M67.2 0.0C67.2 2.9 66.4 5.9 65.1 8.6C63.9 11.2 61.7 13.8 59.5 15.9C57.3 18.1 54.4 19.9 51.7 21.4C49.1 23.0 46.1 24.1 43.6 25.2C41.1 26.3 38.7 27.1 36.7 28.2C34.7 29.3 33.1 30.3 31.7 31.7C30.3 33.1 29.3 34.7 28.2 36.7C27.1 38.7 26.3 41.1 25.2 43.6C24.1 46.1 23.0 49.1 21.4 51.7C19.9 54.4 18.1 57.3 15.9 59.5C13.8 61.7 11.2 63.9 8.6 65.1C5.9 66.4 2.9 67.2 0.0 67.2C-2.9 67.2 -5.9 66.4 -8.6 65.1C-11.2 63.9 -13.8 61.7 -15.9 59.5C-18.1 57.3 -19.9 54.4 -21.4 51.7C-23.0 49.1 -24.1 46.1 -25.2 43.6C-26.3 41.1 -27.1 38.7 -28.2 36.7C-29.3 34.7 -30.3 33.1 -31.7 31.7C-33.1 30.3 -34.7 29.3 -36.7 28.2C-38.7 27.1 -41.1 26.3 -43.6 25.2C-46.1 24.1 -49.1 23.0 -51.7 21.4C-54.4 19.9 -57.3 18.1 -59.5 15.9C-61.7 13.8 -63.9 11.2 -65.1 8.6C-66.4 5.9 -67.2 2.9 -67.2 0.0C-67.2 -2.9 -66.4 -5.9 -65.1 -8.6C-63.9 -11.2 -61.7 -13.8 -59.5 -15.9C-57.3 -18.1 -54.4 -19.9 -51.7 -21.4C-49.1 -23.0 -46.1 -24.1 -43.6 -25.2C-41.1 -26.3 -38.7 -27.1 -36.7 -28.2C-34.7 -29.3 -33.1 -30.3 -31.7 -31.7C-30.3 -33.1 -29.3 -34.7 -28.2 -36.7C-27.1 -38.7 -26.3 -41.1 -25.2 -43.6C-24.1 -46.1 -23.0 -49.1 -21.4 -51.7C-19.9 -54.4 -18.1 -57.3 -15.9 -59.5C-13.8 -61.7 -11.2 -63.9 -8.6 -65.1C-5.9 -66.4 -2.9 -67.2 -0.0 -67.2C2.9 -67.2 5.9 -66.4 8.6 -65.1C11.2 -63.9 13.8 -61.7 15.9 -59.5C18.1 -57.3 19.9 -54.4 21.4 -51.7C23.0 -49.1 24.1 -46.1 25.2 -43.6C26.3 -41.1 27.1 -38.7 28.2 -36.7C29.3 -34.7 30.3 -33.1 31.7 -31.7C33.1 -30.3 34.7 -29.3 36.7 -28.2C38.7 -27.1 41.1 -26.3 43.6 -25.2C46.1 -24.1 49.1 -23.0 51.7 -21.4C54.4 -19.9 57.3 -18.1 59.5 -15.9C61.7 -13.8 63.9 -11.2 65.1 -8.6C66.4 -5.9 67.2 -2.9 67.2 0.0Z"/>
+  </defs>
+
+  <g clip-path="url(#card)">
+    <rect width="1200" height="320" fill="url(#bg)"/>
+    <circle cx="930" cy="170" r="330" fill="url(#glow)"/>
+    <circle cx="1080" cy="60" r="190" fill="url(#glow2)"/>
+  </g>
+  <rect x="0.5" y="0.5" width="1199" height="319" rx="31.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.14"/>
+
+  <!-- Decorative shapes (abstract, inspired by the rounded shape catalog) -->
+  <g>
+    <use href="#cookiePath" transform="translate(930 168) rotate(12)" fill="url(#cookie)"/>
+    <use href="#cloverPath" transform="translate(1084 104) rotate(22)" fill="url(#rose)"/>
+    <rect x="-84" y="-30" width="168" height="60" rx="30" transform="translate(800 252) rotate(-18)" fill="url(#pill)"/>
+    <rect x="936" y="188" width="156" height="92" rx="30" fill="url(#frost)" stroke="#FFFFFF" stroke-opacity="0.38"/>
+    <circle cx="1124" cy="236" r="15" fill="#CCC2DC"/>
+    <circle cx="770" cy="72" r="9" fill="#EFB8C8" fill-opacity="0.8"/>
+  </g>
+
+  <!-- Text -->
+  <g font-family="Roboto Flex, Roboto, 'Google Sans', 'Segoe UI', Helvetica, Arial, sans-serif">
+    <text x="72" y="152" font-size="68" font-weight="700" letter-spacing="-1" fill="#F6EDFF">Morph Expressive</text>
+    <text x="74" y="202" font-size="26" font-weight="400" fill="#E8DEF8">Expressive Material 3 components for Flutter</text>
+    <text x="74" y="252" font-size="19" font-weight="500" letter-spacing="0.4" fill="#CAC4D0">Rounded shapes  ·  Fluid motion  ·  Frosted surfaces</text>
+  </g>
+</svg>

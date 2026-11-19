@@ -122,7 +122,7 @@ class _MorphScrollBlurLabState extends State<MorphScrollBlurLab> {
                       MorphIconButton(
                         icon: Icon(FluentIcons.line.arrow_left),
                         tooltip: 'Back',
-                        variant: MorphIconButtonVariant.tonal,
+                        type: MorphIconButtonType.tonal,
                         onPressed: () => Navigator.of(context).maybePop(),
                       ),
                       Gap(12),
@@ -142,7 +142,7 @@ class _MorphScrollBlurLabState extends State<MorphScrollBlurLab> {
                               : FluentIcons.line.weather_moon,
                         ),
                         tooltip: 'Switch theme',
-                        variant: MorphIconButtonVariant.tonal,
+                        type: MorphIconButtonType.tonal,
                         onPressed: widget.onToggleTheme,
                       ),
                     ],
@@ -159,7 +159,7 @@ class _MorphScrollBlurLabState extends State<MorphScrollBlurLab> {
                   for (int i = 0; i < 14; i++) ...<Widget>[
                     MorphCard(
                       key: ValueKey<String>('lab-card-$i'),
-                      frosted: true,
+                      surface: MorphSurface.frosted,
                       headline: 'Frosted card ${i + 1}',
                       supportingText:
                           '${_variant.label} · blur ${widget.blur.round()} · '
@@ -180,7 +180,7 @@ class _MorphScrollBlurLabState extends State<MorphScrollBlurLab> {
   Widget _controls(MorphTypeScale type, MorphColorScheme scheme) {
     return MorphCard(
       key: const ValueKey<String>('lab-controls'),
-      frosted: true,
+      surface: MorphSurface.frosted,
       padding: const EdgeInsets.all(16),
       color: scheme.surfaceContainerHigh.withValues(alpha: 0.72),
       elevation: 0,

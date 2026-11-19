@@ -101,7 +101,7 @@ abstract final class MorphMotion {
   static const Curve exit = Cubic(0.62, 0.0, 0.96, 0.25);
 
   /// Movimiento espacial expresivo con un overshoot controlado.
-  /// No usar para opacidades ni valores que deban mantenerse en [0, 1].
+  /// No usar para opacidades ni valores que deban mantenerse en `[0, 1]`.
   static const Curve spatial = subtleOvershoot;
 
   /// Curva fluida de Morph Expressive, sin overshoot para opacidad y colores.
@@ -123,7 +123,7 @@ abstract final class MorphMotion {
     required double end,
   }) => Tween<double>(begin: begin, end: end).chain(CurveTween(curve: spatial));
 
-  /// Composable, bounded effect tween for opacity and other [0, 1] values.
+  /// Composable, bounded effect tween for opacity and other `[0, 1]` values.
   static Animatable<double> effectsTween({
     required double begin,
     required double end,

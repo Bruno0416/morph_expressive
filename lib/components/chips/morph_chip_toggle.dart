@@ -100,7 +100,7 @@ class MorphChipToggle<T> extends StatefulWidget {
     this.duration = MorphMotion.chipDuration,
     this.curve = MorphMotion.standard,
     this.stretchDelay = MorphMotion.chipStretchDelay,
-    this.height = 40,
+    this.height,
     this.labelSizeBoost = 1.5,
     this.iconSize = 20,
     this.radius = 20,
@@ -144,7 +144,10 @@ class MorphChipToggle<T> extends StatefulWidget {
   final Duration duration;
   final Curve curve;
   final Duration stretchDelay;
-  final double height;
+
+  /// Toggle height. Null resolves to 40 plus the global density delta
+  /// (36 / 40 / 44); an explicit value is used exactly.
+  final double? height;
   final double labelSizeBoost;
   final double iconSize;
   final double radius;
@@ -173,6 +176,28 @@ typedef _ChipBounds = ({double left, double right});
 
 class _MorphChipToggleState<T> extends State<MorphChipToggle<T>>
     with TickerProviderStateMixin {
+  /// Density-resolved height: explicit wins, else 40 plus the small-control
+  /// delta of the global density (36 / 40 / 44).
+  double get _height {
+    final double? explicit = widget.height;
+    if (explicit != null) {
+      return explicit;
+    }
+    final MorphThemeData theme = MorphTheme.of(context);
+    return 40 + theme.densityMetrics.controlHeightFor(0);
+  }
+
+  /// Corner radius kept within the pill: shrinks with a compact height and
+  /// follows an implicit comfortable height (an explicit height keeps it).
+  double get _radius {
+    final double h = _height;
+    final double base = widget.radius;
+    if (widget.height == null && h > 40) {
+      return base + (h - 40) / 2;
+    }
+    return base > h / 2 ? h / 2 : base;
+  }
+
   double _leftTarget = 0;
   double _rightTarget = 0;
   bool _initialized = false;
@@ -462,7 +487,7 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>>
     );
 
     final control = SizedBox(
-      height: widget.height,
+      height: _height,
       width: totalWidth,
       child: Stack(
         clipBehavior: Clip.none,
@@ -475,9 +500,9 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>>
                 DecoratedBox(
                   decoration: BoxDecoration(
                     color: colors.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(widget.radius),
+                    borderRadius: BorderRadius.circular(_radius),
                   ),
-                  child: SizedBox(width: widths[i], height: widget.height),
+                  child: SizedBox(width: widths[i], height: _height),
                 ),
               ],
             ],
@@ -512,7 +537,7 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>>
                     width:
                         (right - left).clamp(0.0, totalWidth).toDouble() +
                         2 * pad,
-                    height: widget.height + 2 * pad,
+                    height: _height + 2 * pad,
                     child: _stretchIntensity > 0 && !reduced
                         ? AnimatedBuilder(
                             animation: _singleInk,
@@ -522,9 +547,7 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>>
                         : DecoratedBox(
                             decoration: BoxDecoration(
                               color: colors.primary,
-                              borderRadius: BorderRadius.circular(
-                                widget.radius,
-                              ),
+                              borderRadius: BorderRadius.circular(_radius),
                             ),
                           ),
                   );
@@ -544,7 +567,7 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>>
                       (event.localPosition.dx / widths[i])
                           .clamp(0.0, 1.0)
                           .toDouble(),
-                      (event.localPosition.dy / widget.height)
+                      (event.localPosition.dy / _height)
                           .clamp(0.0, 1.0)
                           .toDouble(),
                     );
@@ -558,7 +581,7 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>>
                     semanticInMutuallyExclusiveGroup: !widget.multiSelection,
                     builder: (context, _) => SizedBox(
                       width: widths[i],
-                      height: widget.height,
+                      height: _height,
                       child: _Chip<T>(
                         option: widget.options[i],
                         selected: selected.contains(widget.options[i].value),
@@ -601,7 +624,7 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>>
 
   Widget _inkForSingle(Color color) => MorphChipOrganicSurface(
     color: color,
-    radius: widget.radius,
+    radius: _radius,
     intensity: _stretchIntensity,
     progress: _singleInk.value,
     seed: _singleSeed,
@@ -636,8 +659,8 @@ class _MorphChipToggleState<T> extends State<MorphChipToggle<T>>
       bloomOut: exiting && _bloomExits.contains(value),
       exiting: exiting,
       maxWidth: totalWidth,
-      height: widget.height,
-      radius: widget.radius,
+      height: _height,
+      radius: _radius,
       color: color,
       duration: reduced ? Duration.zero : widget.duration,
       stretchDelay: reduced ? Duration.zero : widget.stretchDelay,

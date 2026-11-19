@@ -16,7 +16,8 @@ class _MorphButtonIconLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final m = MorphTheme.of(context).buttonTheme.measurements(size);
+    final theme = MorphTheme.of(context);
+    final m = theme.buttonTheme.measurements(size, density: theme.density);
     final textScale = MediaQuery.textScalerOf(context).scale(1);
     final maxLines = textScale >= 2.0 ? 2 : 1;
     final children = <Widget>[
@@ -110,7 +111,10 @@ class _MorphButtonState extends State<MorphButton>
   }
 
   void _updateMeasurements() {
-    _measurements = _buttonTheme.measurements(widget.size);
+    _measurements = _buttonTheme.measurements(
+      widget.size,
+      density: MorphTheme.of(context).density,
+    );
   }
 
   @override

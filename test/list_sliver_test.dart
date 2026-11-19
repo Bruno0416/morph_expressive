@@ -34,7 +34,7 @@ Future<void> _plain(WidgetTester tester) async {
       const SliverPadding(
         padding: EdgeInsets.all(16),
         sliver: MorphList.sliver(
-          variant: MorphCardVariant.filled,
+          variant: MorphCardType.filled,
           itemCount: 30,
           itemBuilder: _item,
         ),

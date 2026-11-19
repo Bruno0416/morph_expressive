@@ -123,6 +123,39 @@ class MorphSnackbarTheme extends MorphThemeExtension<MorphSnackbarTheme> {
     return 0;
   }
 
+  /// This theme with the layout [density] applied once.
+  ///
+  /// Minimum heights follow the small-control delta, paddings and the action
+  /// gap follow the padding/gap deltas. Width and typography are unchanged.
+  MorphSnackbarTheme withDensity(MorphDensity density) {
+    if (density == MorphDensity.standard) {
+      return this;
+    }
+    final MorphDensityMetrics m = density.metrics;
+    final double h = m.controlHeightFor(0);
+    return copyWith(
+      singleLineMinHeight: MorphDensityMetrics.adjust(
+        singleLineMinHeight,
+        h,
+        min: 40,
+      ),
+      twoLineMinHeight: MorphDensityMetrics.adjust(
+        twoLineMinHeight,
+        h,
+        min: 56,
+      ),
+      startPadding: MorphDensityMetrics.adjust(
+        startPadding,
+        m.paddingHorizontal,
+      ),
+      verticalPadding: MorphDensityMetrics.adjust(
+        verticalPadding,
+        m.paddingVertical,
+      ),
+      actionGap: MorphDensityMetrics.adjust(actionGap, m.gap),
+    );
+  }
+
   @override
   MorphSnackbarTheme copyWith({
     double? singleLineMinHeight,

@@ -17,9 +17,10 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// The 14 README GIFs. `navigation_rail_drawer` is kept for its own guide only
-// (doc/NAVIGATION_MORPH.md); it is not part of the default set.
-const scenarios = ['buttons', 'chips', 'dialogs', 'dropdown', 'lists', 'loading', 'navigation', 'segmented', 'sliders', 'textfields', 'async_button', 'skeleton', 'tabs', 'fab_menu'];
+// The default set (every scene the documentation may use). The README picks a
+// subset; tool/check_gif_branding.py holds the curated list.
+// `navigation_rail_drawer` is kept for its own guide only (doc/NAVIGATION_MORPH.md).
+const scenarios = ['buttons', 'chips', 'dialogs', 'dropdown', 'lists', 'loading', 'navigation', 'segmented', 'sliders', 'textfields', 'async_button', 'skeleton', 'tabs', 'fab_menu', 'variants', 'density', 'context_menu', 'frosted'];
 const guideScenarios = ['navigation_rail_drawer'];
 const themes = ['purple', 'teal', 'blue'];
 const here = fileURLToPath(new URL('.', import.meta.url));
@@ -47,6 +48,12 @@ const sceneSettings = {
   tabs: { width: 640, height: 380, seconds: 7.5, theme: 'purple', fps: 50 },
   fab_menu: { width: 640, height: 400, seconds: 7.7, theme: 'teal', fps: 50 },
   navigation_rail_drawer: { width: 640, height: 380, seconds: 7.6, theme: 'teal', fps: 50 },
+  // 16:9 scenes added for 1.0.0. density holds each step long enough to read;
+  // frosted lasts exactly one cycle (6 s) of its drifting backdrop to loop.
+  variants: { width: 640, height: 360, seconds: 6, theme: 'purple', fps: 50 },
+  density: { width: 640, height: 360, seconds: 6.6, theme: 'purple', fps: 25 },
+  context_menu: { width: 640, height: 360, seconds: 7.2, theme: 'blue', fps: 50 },
+  frosted: { width: 640, height: 360, seconds: 6, theme: 'teal', fps: 20, colors: 64, dither: 'none' },
 };
 // The recording starts this long after the scene marks its own start, once the
 // shader programs and fonts have had time to load.

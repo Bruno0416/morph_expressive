@@ -22,8 +22,9 @@ extension _MorphNavigationRailWidth on _MorphNavigationRailState {
   }
 
   double _expandedTarget(BuildContext context) {
-    final MorphNavigationRailTheme theme = MorphTheme.of(context)
-        .navigationRailTheme;
+    final MorphNavigationRailTheme theme = MorphNavigationRailTheme.resolve(
+      context,
+    );
     return (widget.expandedWidth ?? theme.expandedMinWidth).clamp(
       theme.expandedMinWidth,
       theme.expandedMaxWidth,
@@ -31,8 +32,9 @@ extension _MorphNavigationRailWidth on _MorphNavigationRailState {
   }
 
   double _targetWidth(BuildContext context) {
-    final MorphNavigationRailTheme theme = MorphTheme.of(context)
-        .navigationRailTheme;
+    final MorphNavigationRailTheme theme = MorphNavigationRailTheme.resolve(
+      context,
+    );
     if (_isModal) {
       return _modalShown && _isExpanded ? _expandedTarget(context) : 0;
     }
@@ -43,8 +45,9 @@ extension _MorphNavigationRailWidth on _MorphNavigationRailState {
   }
 
   void _animateWidth() {
-    final MorphNavigationRailTheme theme = MorphTheme.of(context)
-        .navigationRailTheme;
+    final MorphNavigationRailTheme theme = MorphNavigationRailTheme.resolve(
+      context,
+    );
     final double target = _targetWidth(context);
     _width.motion = MorphMotion.springMotion(theme.widthSpring);
     if (!_widthSeeded) {

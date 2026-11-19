@@ -15,17 +15,22 @@ export 'components/morph_menu_content.dart';
 export 'components/morph_menu_divider.dart';
 export 'components/morph_menu_item.dart';
 export 'components/morph_menu_popup.dart';
+export 'components/morph_menu_presentation_scope.dart';
 export 'enums/morph_menu_anchor_position.dart';
 export 'enums/morph_menu_color_style.dart';
 export 'enums/morph_menu_item_shape.dart';
+export 'enums/morph_menu_presentation.dart';
 export 'enums/morph_menu_selection_mode.dart';
 export 'enums/morph_menu_variant.dart';
 export 'models/morph_menu_node.dart';
 export 'models/morph_menu_submenu_behavior.dart';
 export 'styles/morph_menu_theme.dart';
+export 'utils/morph_menu_desktop_layout.dart';
 export 'utils/morph_menu_overlay_rect.dart';
 export 'utils/morph_menu_placer.dart';
 export 'utils/morph_menu_spring_motion.dart';
+
+export 'morph_context_menu_region.dart';
 
 /// Builds the anchor for an [MorphMenu], given a callback to open the menu.
 typedef MorphMenuAnchorBuilder = Widget Function(

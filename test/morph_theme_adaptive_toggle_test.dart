@@ -92,7 +92,7 @@ Future<void> _morphthemecontrollerUpdatesCardBackgroundColorAfterToggl(
   MorphThemeData theme = MorphTheme.of(tester.element(find.byType(MorphCard)));
   final Color lightColor = theme.cardTheme.backgroundColor(
     theme.colorScheme,
-    MorphCardVariant.elevated,
+    MorphCardType.elevated,
   );
 
   AnimatedContainer container = tester.widget(containerFinder);
@@ -104,7 +104,7 @@ Future<void> _morphthemecontrollerUpdatesCardBackgroundColorAfterToggl(
   theme = MorphTheme.of(tester.element(find.byType(MorphCard)));
   final Color darkColor = theme.cardTheme.backgroundColor(
     theme.colorScheme,
-    MorphCardVariant.elevated,
+    MorphCardType.elevated,
   );
 
   container = tester.widget(containerFinder);

@@ -59,6 +59,10 @@ class MorphCarouselController extends ScrollController {
     _openAll = null;
   }
 
+  /// Animates the carousel scroll position to [offset].
+  ///
+  /// With reduced motion enabled the position jumps to [offset] instead and
+  /// the returned future completes immediately.
   @override
   Future<void> animateTo(
     double offset, {

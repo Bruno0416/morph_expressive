@@ -1,122 +1,238 @@
 # Getting started
 
+This guide takes you from an empty Flutter app to a themed screen that uses the
+v1 API. Every Dart snippet here is compiled by the package's own tests
+(`test/doc_examples_test.dart`).
+
 ## Requirements
 
 - Flutter >= 3.47.0 and Dart ^3.13.0.
-- Morph Expressive uses `material_ui` for the host Material widgets in the
-  examples; import it alongside `morph_expressive`.
+- Morph Expressive builds on `material_ui` (the Material widgets) and exports
+  the Fluent icon set as `FluentIcons`. Add `material_ui` to the app that uses
+  it and import it with an explicit `show` list.
 
 ## Install
 
-```yaml
-dependencies:
-  morph_expressive: ^0.8.0
+```bash
+flutter pub add morph_expressive material_ui
 ```
 
-Run `flutter pub get` after changing the constraint. To validate an
-unpublished fix, temporarily use a Git/path dependency pointing to the source
-checkout; restore the published version constraint before releasing your app.
-Morph Expressive 0.8.0 is not published yet; until then use a Git or path
-dependency. See the [upgrade guide](UPGRADE_0_8_0.md) when coming from 0.7.x.
+or edit `pubspec.yaml` and run `flutter pub get`:
 
-## Theme integration
+```yaml
+dependencies:
+  morph_expressive: ^1.0.0
+  material_ui: ^1.6.0
+```
+
+Version 1.0.0 is prepared in this repository and its publication is pending.
+Until it appears on pub.dev, depend on the published `^0.8.0` (see
+[Upgrading from 0.7.x](UPGRADE_0_8_0.md) and
+[Upgrading to the v1 API](UPGRADE_1_0_0.md)) or on a Git/path checkout:
+
+```yaml
+dependencies:
+  morph_expressive:
+    git:
+      url: https://github.com/Bruno0416/morph_expressive.git
+```
+
+One import exposes the components, the foundations (theme, color, motion,
+surfaces) and `FluentIcons`:
+
+```dart
+import 'package:morph_expressive/morph_expressive.dart';
+```
+
+## Option 1 - `MorphMaterialApp` (recommended)
+
+`MorphMaterialApp` creates the `MaterialApp`, derives the Material `ThemeData`
+for light and dark from one seed, and installs `MorphTheme` below the
+`Navigator`, so dialogs, menus and sheets see the same theme.
 
 ```dart
 import 'package:material_ui/material_ui.dart'
-    show Center, Color, MaterialApp, Scaffold, Text, runApp;
-import 'package:morph_expressive/morph_expressive.dart'
-    show MorphButton, MorphTheme, MorphThemeData;
+    show
+        BuildContext,
+        Center,
+        Color,
+        Column,
+        MainAxisSize,
+        Scaffold,
+        StatelessWidget,
+        Text,
+        Widget,
+        runApp;
+import 'package:morph_expressive/morph_expressive.dart';
 
-void main() {
-  const seed = Color(0xFF6750A4);
-  final theme = MorphThemeData.light(seedColor: seed);
+void main() => runApp(const MyApp());
 
-  runApp(MaterialApp(
-    theme: theme.toThemeData(),
-    home: MorphTheme(
-      data: theme,
-      child: Scaffold(
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MorphMaterialApp(
+      // One seed color generates the whole palette. Dark mode is derived from
+      // the same seed and follows the platform brightness.
+      data: MorphThemeData.light(seedColor: const Color(0xFF6750A4)),
+      autoTheming: true,
+      home: Scaffold(
         body: Center(
-          child: MorphButton(
-            onPressed: () {},
-            label: const Text('Continue'),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 16,
+            children: [
+              MorphButton(onPressed: () {}, child: const Text('Continue')),
+              MorphButton.tonal(
+                variant: .tertiary,
+                onPressed: () {},
+                child: const Text('Explore'),
+              ),
+              MorphButton.outlined(
+                variant: .danger,
+                surface: .frosted,
+                onPressed: () {},
+                child: const Text('Delete'),
+              ),
+            ],
           ),
         ),
       ),
-    ),
-  ));
+    );
+  }
 }
 ```
 
-This example uses a fixed light theme. For device brightness changes, keep the
-active Material theme and `MorphTheme` data synchronized; an adaptive
-`MorphTheme` or a `MorphThemeController` can help manage this. The library is
-compatible with `MaterialApp.router` via its `builder` property.
+`autoTheming: true` follows the platform brightness. To switch brightness from
+the app, pass a `MorphThemeController` (see [Theming](THEMING.md)). Without
+`autoTheming` or a controller the app stays in the brightness of `data`.
 
-The package import exports component families, foundations, and `FluentIcons`.
-The icon glyphs are provided by the `fluent_icons_kit` dependency.
+## Option 2 - keep your `MaterialApp`
 
-When using custom polygons alongside Material UI, use explicit `show` lists
-or a prefix with a `show` list. Morph's public polygons remain
-`material_new_shapes.RoundedPolygon`; Material UI's similarly named class is
-a different type. See [Dependency compatibility](PUB_DEV_COMPATIBILITY.md)
-for the historical 0.4.1 validation results.
-
-## Frosted cards and scroll compatibility (source checkout only)
-
-In the unreleased source tree, `MorphCard` is **opaque by default**. A theme
-with `floatingSurfaceGlass` enables its floating overlays, but cards need
-`frosted: true` to inherit that configuration. For a card-specific treatment,
-pass `glass: const MorphSurfaceGlass(...)` instead.
-
-When showing frosted cards inside a scrollable, use `ScrollConfiguration` with
-`const MorphScrollBehavior()` to avoid the shader-based stretch's image-filter
-ancestor. See [Frosted surfaces](FROSTED_SURFACES.md) and
-[MorphScrollBehavior](MORPH_SCROLL.md) for complete examples and limitations.
-
-## Navigation migration from 0.5.0
-
-Bottom-bar destinations now accept `IconData` directly:
+If the app already owns a `MaterialApp` (or `MaterialApp.router`), convert the
+Morph theme with `toThemeData()` and install `MorphTheme` in the `builder`:
 
 ```dart
-MorphNavigationBarDestination(
-  icon: MorphIcons.home,
-  selectedIcon: MorphIcons.search,
-  label: 'Home',
-)
+import 'package:material_ui/material_ui.dart'
+    show
+        Brightness,
+        BuildContext,
+        Center,
+        Color,
+        MaterialApp,
+        Scaffold,
+        SizedBox,
+        StatelessWidget,
+        Text,
+        Theme,
+        ThemeMode,
+        Widget,
+        runApp;
+import 'package:morph_expressive/morph_expressive.dart';
+
+void main() => runApp(const ExistingApp());
+
+class ExistingApp extends StatelessWidget {
+  const ExistingApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const seed = Color(0xFF6750A4);
+    final light = MorphThemeData.light(seedColor: seed);
+    final dark = MorphThemeData.dark(seedColor: seed);
+
+    return MaterialApp(
+      theme: light.toThemeData(),
+      darkTheme: dark.toThemeData(),
+      themeMode: ThemeMode.system,
+      // The builder wraps the Navigator, so dialogs, menus and sheets also see
+      // the Morph theme. Pick the data that matches the Material brightness.
+      builder: (context, child) => MorphTheme(
+        data: Theme.of(context).brightness == Brightness.dark ? dark : light,
+        child: child ?? const SizedBox.shrink(),
+      ),
+      home: Scaffold(
+        body: Center(
+          child: MorphButton(onPressed: () {}, child: const Text('Continue')),
+        ),
+      ),
+    );
+  }
+}
 ```
 
-For a custom widget instead, use `iconWidget` / `selectedIconWidget`.
-`MorphNavigationBar.expressive()` displays the animated icon pill;
-`MorphNavigationBar.morph()` displays the sliding upper dash. See
-[Navigation](NAVIGATION_MORPH.md) for `iconSize`, `unselectedIconScale`,
-wide distribution and the optional frosted AppBar/refresh composition.
-Since 0.6.1, the host also recognizes nested vertical pull-to-refresh and
-scroll-driven visibility, including diagonal vertical drags, without an API
-change.
+`MorphTheme(data: ...)` is a plain, fixed theme. Use `MorphMaterialApp`, or
+`MorphTheme` with `autoTheming`, `dynamicColoring` or a controller, when Morph
+itself should react to brightness changes (see [Theming](THEMING.md)).
 
-## Configure theme-level interactions (available since 0.2.0)
+## The three axes of the API
 
-Globally disable Morph-managed haptics when your app or accessibility policy
-requires it:
+| Axis | Chosen with | Examples |
+| --- | --- | --- |
+| Visual type | Named constructor | `MorphButton.outlined`, `MorphCard.filled`, `MorphIconButton.tonal` |
+| Color role | `variant:` | `.primary`, `.secondary`, `.tertiary`, `.muted`, `.danger` |
+| Surface finish | `surface:` | `.solid` (default), `.frosted` |
+
+`variant` and `surface` use Dart's enum shorthand (`.danger`); the long form
+`MorphVariant.danger` is equivalent. Omitting `variant` keeps each type's
+canonical Material 3 colors. See [Component API](API_V1.md).
+
+## First widgets
 
 ```dart
-final quietTheme = MorphThemeData.light(
-  seedColor: const Color(0xFF6750A4),
-).copyWith(hapticsEnabled: false);
+Widget firstWidgets({
+  required VoidCallback onContinue,
+  required TextEditingController controller,
+}) {
+  return Column(
+    spacing: 12,
+    children: [
+      MorphButton(onPressed: onContinue, child: const Text('Continue')),
+      MorphIconButton.tonal(
+        onPressed: () {},
+        tooltip: 'Add',
+        icon: Icon(FluentIcons.line.add),
+      ),
+      MorphTextField.outlined(controller: controller, label: 'Name'),
+      MorphChip.filter(label: 'Open now', selected: true, onPressed: () {}),
+      const MorphCard.filled(
+        headline: 'Welcome',
+        supportingText: 'A filled card in the primary container color.',
+      ),
+    ],
+  );
+}
 ```
 
-The 0.4.0 release uses Flutter's built-in haptics; no external haptics
-package or manual native framework linking is needed. For Light / Medium /
-Heavy and per-widget overrides, see [Theming](THEMING.md).
+`MorphButton` takes either a `child` or an `icon` and `label`; the callback is
+`onPressed`. The component catalog with every family and constructor is in
+[Components](COMPONENTS.md).
 
-For a runnable overview of selection, validation, swipe actions, and
-dialogs, see [`example/main.dart`](../example/main.dart) and the
-[example guide](../example/README.md). For deeper options, see
-[Components](COMPONENTS.md). For curves, spring timing and composable
-animation tweens, see [Motion](MOTION.md).
+## Density
 
-## Next steps
+Density is a theme-level setting that changes layout metrics (heights, padding,
+gaps), never fonts or colors:
 
-Open [Theming](THEMING.md), [Components](COMPONENTS.md),
-[Motion](MOTION.md), or run the [interactive preview](PREVIEW.md).
+```dart
+MorphThemeData compactTheme(Color seed) {
+  return MorphThemeData.light(seedColor: seed, density: .compact);
+}
+```
+
+Compact reduces the visible box but keeps the 48 dp tap target. See
+[Density and context menus](DENSITY_AND_CONTEXT_MENUS.md).
+
+## Where to go next
+
+- [Theming](THEMING.md): seeds, light/dark, contrast, dynamic color, nested
+  themes and component overrides.
+- [Components](COMPONENTS.md) and [Component API](API_V1.md).
+- [Frosted surfaces](FROSTED_SURFACES.md) and [MorphScrollBehavior](MORPH_SCROLL.md).
+- [Accessibility](ACCESSIBILITY.md) and [Motion](MOTION.md).
+- [Widgetbook preview](PREVIEW.md): every exported widget with live knobs.
+- [`example/`](../example/README.md): runnable apps.
+
+The package never requires native setup: haptics use Flutter's built-in
+services and dynamic color uses the `dynamic_color` plugin only when you enable
+`dynamicColoring`.

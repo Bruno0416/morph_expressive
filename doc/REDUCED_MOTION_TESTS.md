@@ -1,15 +1,16 @@
-# Reduced motion: pruebas y auditoría
+# Reduced motion: tests and audit
 
-Esta batería examina las **39 familias** de componentes de Morph Expressive.
-Añade instrumentación optativa y pruebas; no modifica las animaciones de `lib/`,
-las dependencias ni la versión del paquete. La preview recibe un filtro opcional
-de familias para aislar las pruebas; su valor por defecto conserva la galería
-completa. El carrusel se ejecuta en un isolate de pruebas separado para evitar
-que una aserción de su árbol de render contamine las demás familias.
+This battery examines the component families of Morph Expressive. It adds
+optional instrumentation and tests; it does not change the animations in `lib/`,
+the dependencies or the package version. The preview receives an optional family
+filter to isolate the tests; its default keeps the complete gallery. The
+carousel runs in a separate test isolate so that an assertion in its render tree
+does not contaminate the other families.
 
-## Ejecutar
+## Run
 
-Desde la raíz del repositorio, con Flutter 3.47.7:
+From the repository root (the audit was written against Flutter 3.47.7; CI pins
+the SDK in `.github/actions/setup-flutter`):
 
 ```bash
 flutter pub get
@@ -17,12 +18,12 @@ flutter pub get
 python3 tool/audit_reduced_motion.py
 ```
 
-El informe queda en `.dart_tool/motion_audit/REPORT.md`; `summary.json` conserva
-los resultados por familia y los archivos `*.jsonl` la salida original.
-El comando termina con código **1** si hay pruebas fallidas o familias sin
-montar. No convierte defectos conocidos en pruebas aprobadas ni los omite.
+The report is written to `.dart_tool/motion_audit/REPORT.md`; `summary.json`
+keeps the per-family results and the `*.jsonl` files the original output. The
+command exits with code **1** if tests fail or families are not mounted. It does
+not turn known defects into passing tests or skip them.
 
-Para ejecutar una parte:
+To run part of it:
 
 ```bash
 python3 tool/audit_reduced_motion.py --scope contracts --profiles full reduced
@@ -30,74 +31,76 @@ python3 tool/audit_reduced_motion.py --scope catalog --profiles reduced
 python3 tool/audit_reduced_motion.py --profiles reduce-only
 ```
 
-`--flutter /ruta/absoluta/flutter` permite usar un SDK que no esté en `PATH`.
-`--output /ruta/informe` cambia el directorio de resultados.
+`--scope` accepts `library`, `contracts`, `preview`, `catalog` or `all`.
+`--flutter /absolute/path/flutter` uses an SDK that is not on `PATH`;
+`--output /path/report` changes the results directory.
 
-## Preferencias independientes
+## Independent preferences
 
-| Perfil | `disableAnimations` | `reduceMotion` de plataforma |
+| Profile | `disableAnimations` | Platform `reduceMotion` |
 |---|---|---|
 | `full` | false | false |
 | `reduced` | true | true |
-| `reduce-only` (optativo) | false | true |
+| `reduce-only` (optional) | false | true |
 
-Se simula la plataforma mediante `FakeAccessibilityFeatures`, para que el valor
-llegue tanto al framework y sus `AnimationController` como a `MediaQuery`.
-Sobrescribir solamente un `MediaQuery` local no reproduce todo ese recorrido.
-La prueba del entorno verifica esa propagación antes de interpretar resultados.
+The platform is simulated through `FakeAccessibilityFeatures`, so the value
+reaches the framework and its `AnimationController`s as well as `MediaQuery`.
+Overriding only a local `MediaQuery` does not reproduce that whole path. The
+environment test verifies the propagation before results are interpreted.
 
-En Flutter 3.47.7, `reduceMotion` se observa en las características de plataforma;
-ese SDK todavía no expone un getter `MediaQueryData.reduceMotion`. No se asume
-que ambas preferencias sean intercambiables. `accessibleNavigation` se deja en
-false: la navegación accesible es otra preferencia, no un sinónimo de reduced motion.
+In Flutter 3.47.7, `reduceMotion` is observed in the platform features; that SDK
+does not yet expose a `MediaQueryData.reduceMotion` getter. The two preferences
+are not assumed to be interchangeable. `accessibleNavigation` is left false:
+accessible navigation is a different preference, not a synonym for reduced
+motion.
 
-## Qué se comprueba
+## What is checked
 
-1. **Suite funcional completa** de biblioteca y preview bajo cada perfil.
-   Conserva las interacciones y verificaciones existentes de los widgets.
-2. **Contratos de movimiento**: estados inicial, intermedio y final de controles
-   seleccionables; geometría y pintura visible; etiqueta de textfields al entrar
-   y salir del foco. Los snapshots comparan el mismo proceso/renderizador;
-   no dependen de imágenes golden de otra máquina.
-3. **Catálogo completo**: monta las 39 familias, cambia las preferencias mientras
-   están montadas, comprueba la propagación y las desmonta verificando que no
-   queden callbacks de ticker. Usa pumps acotados para no colgarse con loaders.
-4. **Muestreo pasivo** de animaciones observables en los frames que esas pruebas
-   solicitan. Registra componente, familia, preferencia efectiva, cambios de
-   valor y tiempo activo. No crea frames ni desactiva `TickerMode`.
+1. **The complete functional suite** of the library and preview under each
+   profile. It keeps the existing widget interactions and checks.
+2. **Motion contracts**: initial, intermediate and final states of selectable
+   controls; visible geometry and paint; the text-field label entering and
+   leaving focus. Snapshots compare the same process and renderer; they do not
+   depend on golden images from another machine.
+3. **Complete catalog**: mounts every family, changes the preferences while they
+   are mounted, checks the propagation and unmounts them verifying that no
+   ticker callbacks remain. It uses bounded pumps so loaders cannot hang it.
+4. **Passive sampling** of observable animations in the frames those tests
+   request. It records component, family, effective preference, value changes and
+   active time. It does not create frames or disable `TickerMode`.
 
-## Cómo interpretar un fallo
+## How to read a failure
 
-Los contratos proponen que las transiciones decorativas finitas alcancen su
-estado final dentro de **112 ms** con movimiento reducido. Ese margen permite
-feedback breve; no pretende definir una regla universal de accesibilidad.
-Los textfields verifican su comportamiento existente de salto inmediato.
+The contracts propose that finite decorative transitions reach their final state
+within **112 ms** with reduced motion. That margin allows brief feedback; it is
+not meant to define a universal accessibility rule. Text fields verify their
+existing behavior of jumping immediately.
 
-Una prueba funcional antigua puede fallar porque esperaba una animación normal,
-por ejemplo un bloom circular a mitad del recorrido. Eso requiere adaptar la
-expectativa de ese test al perfil y **no demuestra por sí solo un defecto** del
-widget. Los contratos dedicados y las trazas deben leerse por separado.
+An older functional test can fail because it expected a normal animation, for
+example a circular bloom halfway through its travel. That requires adapting the
+test's expectation to the profile and **does not by itself prove a defect** in
+the widget. Read the dedicated contracts and the traces separately.
 
-El informe marca animaciones observadas durante más de 80 ms para revisión.
-Esa señal **no es un fallo automático**: un desplazamiento controlado por el
-usuario o un indicador indeterminado de actividad pueden necesitar continuidad.
-Las ondas ornamentales y los movimientos espaciales se revisan individualmente.
+The report flags animations observed for more than 80 ms for review. That signal
+is **not an automatic failure**: a user-controlled scroll or an indeterminate
+activity indicator may need continuity. Ornamental waves and spatial movements
+are reviewed individually.
 
-## Límites explícitos
+## Explicit limits
 
-- Montar una familia no equivale a verificar cada combinación de parámetros.
-- La suite funcional aporta las interacciones; el test de catálogo no inventa
-  una interacción representativa única para todos los widgets.
-- La ausencia de movimiento observado **no equivale a cumplimiento**. Algunos
-  controladores privados, `Listenable.merge`, timers y transiciones que empiezan
-  y terminan entre dos pumps pueden escapar al muestreo.
-- Los componentes sin animación propia también se montan y desmontan; pueden
-  contener hijos que sí animan.
-- Son pruebas de widgets en VM. La validación visual en Firefox/Chrome, CanvasKit/
-  Skwasm, GPU y dispositivos nativos sigue siendo una comprobación diferente.
+- Mounting a family is not the same as verifying every parameter combination.
+- The functional suite provides the interactions; the catalog test does not
+  invent one representative interaction for every widget.
+- The absence of observed motion is **not compliance**. Some private
+  controllers, `Listenable.merge`, timers and transitions that start and end
+  between two pumps can escape the sampling.
+- Components without their own animation are also mounted and unmounted; they
+  can contain children that do animate.
+- These are widget tests on the VM. Visual validation in Firefox/Chrome,
+  CanvasKit/Skwasm, GPU and native devices remains a different check.
 
-Los archivos `test/audits/*.dart` y `preview/test/audits/*.dart` se invocan
-explícitamente por el runner. Así la auditoría puede mostrar defectos actuales
-sin introducir expectativas falsas o romper silenciosamente el comando normal
-`flutter test`. La instrumentación queda desactivada si no se proporciona
-`MORPH_MOTION_AUDIT_PROFILE`.
+The files `test/audits/*.dart` and `preview/test/audits/*.dart` are invoked
+explicitly by the runner. That way the audit can show current defects without
+introducing false expectations or silently breaking the ordinary `flutter test`
+command. The instrumentation stays off unless `MORPH_MOTION_AUDIT_PROFILE` is
+provided.

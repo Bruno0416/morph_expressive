@@ -80,6 +80,10 @@ extension _MorphButtonStyle on _MorphButtonState {
 
   Color? _resolveBackgroundColor(Set<WidgetState> states) {
     final dec = _decoration;
+    // Frosted buttons paint their (tinted) background in MorphGlassSurface.
+    if (widget.surface.isFrosted) {
+      return Colors.transparent;
+    }
     final activeStates = _selectionStates(states);
     if (dec?.backgroundColor != null) {
       final color = dec!.backgroundColor!.resolve(activeStates);
@@ -108,6 +112,10 @@ extension _MorphButtonStyle on _MorphButtonState {
 
   double? _resolveElevation(Set<WidgetState> states) {
     final dec = _decoration;
+    // Frosted surfaces never draw an elevation shadow over the backdrop.
+    if (widget.surface.isFrosted) {
+      return 0;
+    }
     if (dec?.elevation != null) {
       final e = dec!.elevation!.resolve(states);
       if (e != null) {
@@ -144,7 +152,10 @@ extension _MorphButtonStyle on _MorphButtonState {
         width: width,
       );
     }
-    return BorderSide(color: _buttonTheme.outline(_scheme), width: width);
+    return BorderSide(
+      color: _palette?.outline ?? _buttonTheme.outline(_scheme),
+      width: width,
+    );
   }
 
   MouseCursor? _resolveMouseCursor(Set<WidgetState> states) {
@@ -231,7 +242,15 @@ extension _MorphButtonStyle on _MorphButtonState {
     return {...states, WidgetState.selected};
   }
 
+  /// Resolved palette of [MorphButton.variant]; null keeps the historical
+  /// per-style colors.
+  MorphVariantPalette? get _palette => widget.variant?.resolve(_scheme);
+
   Color _selectionForegroundColor() {
+    final MorphVariantPalette? palette = _palette;
+    if (palette != null) {
+      return _variantForegroundColor(palette);
+    }
     if (!_usesSelection) {
       return _buttonTheme.foreground(_scheme, widget.style);
     }
@@ -248,7 +267,57 @@ extension _MorphButtonStyle on _MorphButtonState {
     };
   }
 
+  /// Variant content color. Selected toggles use the filled pair (except text,
+  /// which has no container); unselected toggles keep the neutral surface of
+  /// the style with accent content, and tonal keeps its container pair.
+  Color _variantForegroundColor(MorphVariantPalette palette) {
+    final bool selected = _usesSelection && _isSelected;
+    return switch (widget.style) {
+      MorphButtonStyle.filled =>
+        !_usesSelection || selected ? palette.onColor : palette.accent,
+      MorphButtonStyle.tonal =>
+        selected ? palette.onColor : palette.onContainer,
+      MorphButtonStyle.elevated => selected ? palette.onColor : palette.accent,
+      MorphButtonStyle.outlined => selected ? palette.onColor : palette.accent,
+      MorphButtonStyle.text => palette.accent,
+    };
+  }
+
+  /// Semantic base color the frosted tint derives from. Transparent types
+  /// (outlined, text) borrow `surfaceContainerLow` so the glass stays visible.
+  Color _frostedBaseColor({required bool disabled}) {
+    final Color fallback = _scheme.surfaceContainerLow;
+    final Color? explicit = _decoration?.backgroundColor?.resolve(
+      _selectionStates(<WidgetState>{if (disabled) WidgetState.disabled}),
+    );
+    if (explicit != null) {
+      return morphGlassBaseColor(explicit, fallback);
+    }
+    if (disabled) {
+      return fallback;
+    }
+    return morphGlassBaseColor(_selectionBackgroundColor(), fallback);
+  }
+
+  Color _variantBackgroundColor(MorphVariantPalette palette) {
+    final bool selected = _usesSelection && _isSelected;
+    return switch (widget.style) {
+      MorphButtonStyle.filled =>
+        !_usesSelection || selected ? palette.color : _scheme.surfaceContainer,
+      MorphButtonStyle.tonal => selected ? palette.color : palette.container,
+      MorphButtonStyle.elevated =>
+        selected ? palette.color : _scheme.surfaceContainerLow,
+      MorphButtonStyle.outlined =>
+        selected ? palette.color : Colors.transparent,
+      MorphButtonStyle.text => Colors.transparent,
+    };
+  }
+
   Color _selectionBackgroundColor() {
+    final MorphVariantPalette? palette = _palette;
+    if (palette != null) {
+      return _variantBackgroundColor(palette);
+    }
     if (!_usesSelection) {
       return _buttonTheme.container(_scheme, widget.style);
     }

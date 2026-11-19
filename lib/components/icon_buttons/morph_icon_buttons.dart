@@ -56,9 +56,11 @@ import 'package:material_ui/material_ui.dart'
         WidgetStatesController;
 
 import '../../foundations/foundations.dart';
+import '../../foundations/surface/morph_glass_surface.dart';
 import '../buttons/components/morph_radius_and_padding_motion.dart';
 import '../buttons/enums/morph_button_enums.dart';
 import '../buttons/utils/morph_button_gradient_layer.dart';
+import '../shared/morph_surface_glass_resolution.dart';
 import '../tooltips/morph_tooltips.dart';
 import 'enums/morph_icon_button_enums.dart';
 import 'styles/morph_icon_button_decoration.dart';
@@ -76,20 +78,23 @@ part 'components/morph_icon_button_build.dart';
 ///
 /// - Visual sizes are defined by [MorphIconButtonTheme.visual] (per size × width)
 /// - Tap target respects [MorphIconButtonTheme.target] with a minimum of 48×48 on XS/SM
-/// - Variants: standard, filled, tonal, outlined
+/// - Types: standard, filled, tonal, outlined (named constructors)
+/// - Roles: optional [variant] (primary, secondary, tertiary, muted, danger)
 /// - Shapes: round (pill) or square (rounded rect). Toggle can flip shape when selected.
 /// - Widths: default, narrow, wide
 /// - Toggle: [isSelected] + [selectedIcon]
 ///  - Badge: [String] or [num]
 class MorphIconButton extends StatefulWidget {
-  /// MorphIconButton.
+  /// Creates an icon button of the given [type] (filled by default).
   const MorphIconButton({
     super.key,
     required this.icon,
     this.onPressed,
     this.tooltip,
     this.semanticLabel,
-    this.variant = MorphIconButtonVariant.filled,
+    this.type = MorphIconButtonType.filled,
+    this.variant,
+    this.surface = MorphSurface.solid,
     this.size = MorphIconButtonSize.sm,
     this.shape = MorphIconButtonShapeVariant.round,
     this.width = MorphIconButtonWidth.defaultWidth,
@@ -112,6 +117,130 @@ class MorphIconButton extends StatefulWidget {
     this.onFocusChange,
   });
 
+  /// A standard icon button (no container, lowest emphasis).
+  const MorphIconButton.standard({
+    super.key,
+    required this.icon,
+    this.onPressed,
+    this.tooltip,
+    this.semanticLabel,
+    this.variant,
+    this.surface = MorphSurface.solid,
+    this.size = MorphIconButtonSize.sm,
+    this.shape = MorphIconButtonShapeVariant.round,
+    this.width = MorphIconButtonWidth.defaultWidth,
+    this.isSelected,
+    this.selectedIcon,
+    this.enableFeedback,
+    this.haptic = MorphHapticFeedback.inherit,
+    this.badgeValue,
+    this.suppressInk = false,
+    this.visualSize,
+    this.decoration,
+    this.isGroupConnected = false,
+    this.isFirstInGroup = true,
+    this.isLastInGroup = true,
+    this.inflateHitTarget = true,
+    this.matchParentConstraints = false,
+    this.statesController,
+    this.focusNode,
+    this.autofocus = false,
+    this.onFocusChange,
+  }) : type = MorphIconButtonType.standard;
+
+  /// A filled icon button (highest emphasis).
+  const MorphIconButton.filled({
+    super.key,
+    required this.icon,
+    this.onPressed,
+    this.tooltip,
+    this.semanticLabel,
+    this.variant,
+    this.surface = MorphSurface.solid,
+    this.size = MorphIconButtonSize.sm,
+    this.shape = MorphIconButtonShapeVariant.round,
+    this.width = MorphIconButtonWidth.defaultWidth,
+    this.isSelected,
+    this.selectedIcon,
+    this.enableFeedback,
+    this.haptic = MorphHapticFeedback.inherit,
+    this.badgeValue,
+    this.suppressInk = false,
+    this.visualSize,
+    this.decoration,
+    this.isGroupConnected = false,
+    this.isFirstInGroup = true,
+    this.isLastInGroup = true,
+    this.inflateHitTarget = true,
+    this.matchParentConstraints = false,
+    this.statesController,
+    this.focusNode,
+    this.autofocus = false,
+    this.onFocusChange,
+  }) : type = MorphIconButtonType.filled;
+
+  /// A tonal icon button (medium emphasis).
+  const MorphIconButton.tonal({
+    super.key,
+    required this.icon,
+    this.onPressed,
+    this.tooltip,
+    this.semanticLabel,
+    this.variant,
+    this.surface = MorphSurface.solid,
+    this.size = MorphIconButtonSize.sm,
+    this.shape = MorphIconButtonShapeVariant.round,
+    this.width = MorphIconButtonWidth.defaultWidth,
+    this.isSelected,
+    this.selectedIcon,
+    this.enableFeedback,
+    this.haptic = MorphHapticFeedback.inherit,
+    this.badgeValue,
+    this.suppressInk = false,
+    this.visualSize,
+    this.decoration,
+    this.isGroupConnected = false,
+    this.isFirstInGroup = true,
+    this.isLastInGroup = true,
+    this.inflateHitTarget = true,
+    this.matchParentConstraints = false,
+    this.statesController,
+    this.focusNode,
+    this.autofocus = false,
+    this.onFocusChange,
+  }) : type = MorphIconButtonType.tonal;
+
+  /// An outlined icon button (medium emphasis with a border).
+  const MorphIconButton.outlined({
+    super.key,
+    required this.icon,
+    this.onPressed,
+    this.tooltip,
+    this.semanticLabel,
+    this.variant,
+    this.surface = MorphSurface.solid,
+    this.size = MorphIconButtonSize.sm,
+    this.shape = MorphIconButtonShapeVariant.round,
+    this.width = MorphIconButtonWidth.defaultWidth,
+    this.isSelected,
+    this.selectedIcon,
+    this.enableFeedback,
+    this.haptic = MorphHapticFeedback.inherit,
+    this.badgeValue,
+    this.suppressInk = false,
+    this.visualSize,
+    this.decoration,
+    this.isGroupConnected = false,
+    this.isFirstInGroup = true,
+    this.isLastInGroup = true,
+    this.inflateHitTarget = true,
+    this.matchParentConstraints = false,
+    this.statesController,
+    this.focusNode,
+    this.autofocus = false,
+    this.onFocusChange,
+  }) : type = MorphIconButtonType.outlined;
+
   /// icon.
 
   final Widget icon;
@@ -125,8 +254,28 @@ class MorphIconButton extends StatefulWidget {
   /// semanticLabel.
   final String? semanticLabel;
 
-  /// variant.
-  final MorphIconButtonVariant variant;
+  /// Visual type: standard, filled, tonal or outlined. Defaults to filled.
+  ///
+  /// Prefer the named constructors ([MorphIconButton.standard],
+  /// [MorphIconButton.filled], [MorphIconButton.tonal],
+  /// [MorphIconButton.outlined]).
+  final MorphIconButtonType type;
+
+  /// Chromatic role, independent of [type]. Null keeps the canonical Material 3
+  /// pairing of the type (the historical look).
+  ///
+  /// A non-null variant resolves from the scheme through [MorphVariantPalette]:
+  /// filled uses color / onColor, tonal uses container / onContainer, outlined
+  /// and standard use accent content (outlined adds the palette outline).
+  /// Toggle buttons use the filled pair when selected; unselected toggles keep
+  /// their neutral surface with accent content (tonal keeps its container
+  /// pair). An explicit [decoration] color always wins.
+  final MorphVariant? variant;
+
+  /// Finish of the container. [MorphSurface.frosted] paints the Morph
+  /// frosted-glass treatment (theme `floatingSurfaceGlass` when enabled,
+  /// otherwise the default `MorphSurfaceGlass`) clipped to the animated shape.
+  final MorphSurface surface;
 
   /// size.
   final MorphIconButtonSize size;

@@ -20,17 +20,17 @@ extension MorphCardThemeResolve on MorphCardTheme {
   }
 
   /// Enabled container color for [variant].
-  Color backgroundColor(MorphColorScheme scheme, MorphCardVariant variant) {
+  Color backgroundColor(MorphColorScheme scheme, MorphCardType variant) {
     final Color? shared = containerColor;
     if (shared != null) {
       return shared;
     }
     switch (variant) {
-      case MorphCardVariant.elevated:
+      case MorphCardType.elevated:
         return elevatedContainerColor ?? scheme.surfaceContainerLow;
-      case MorphCardVariant.filled:
+      case MorphCardType.filled:
         return filledContainerColor ?? scheme.surfaceContainerHighest;
-      case MorphCardVariant.outlined:
+      case MorphCardType.outlined:
         return outlinedContainerColor ?? scheme.surface;
     }
   }
@@ -38,18 +38,18 @@ extension MorphCardThemeResolve on MorphCardTheme {
   /// Container color, including the disabled roles.
   Color containerColorFor(
     MorphColorScheme scheme,
-    MorphCardVariant variant, {
+    MorphCardType variant, {
     required bool enabled,
   }) {
     if (enabled) {
       return backgroundColor(scheme, variant);
     }
     switch (variant) {
-      case MorphCardVariant.elevated:
+      case MorphCardType.elevated:
         return disabledElevatedColor ?? scheme.surface;
-      case MorphCardVariant.filled:
+      case MorphCardType.filled:
         return disabledFilledColor ?? scheme.onSurface;
-      case MorphCardVariant.outlined:
+      case MorphCardType.outlined:
         return backgroundColor(scheme, variant);
     }
   }
@@ -114,7 +114,7 @@ extension MorphCardThemeResolve on MorphCardTheme {
   ///
   /// Disabled wins, then dragged, pressed, focused, hovered, then resting.
   double elevation(
-    MorphCardVariant variant, {
+    MorphCardType variant, {
     required bool hovered,
     bool focused = false,
     bool pressed = false,
@@ -139,57 +139,57 @@ extension MorphCardThemeResolve on MorphCardTheme {
     return _restingElevation(variant);
   }
 
-  double _restingElevation(MorphCardVariant variant) {
+  double _restingElevation(MorphCardType variant) {
     switch (variant) {
-      case MorphCardVariant.elevated:
+      case MorphCardType.elevated:
         return elevatedElevation;
-      case MorphCardVariant.filled:
+      case MorphCardType.filled:
         return filledElevation;
-      case MorphCardVariant.outlined:
+      case MorphCardType.outlined:
         return outlinedElevation;
     }
   }
 
-  double _hoverElevation(MorphCardVariant variant) {
+  double _hoverElevation(MorphCardType variant) {
     switch (variant) {
-      case MorphCardVariant.elevated:
+      case MorphCardType.elevated:
         return elevatedHoverElevation;
-      case MorphCardVariant.filled:
+      case MorphCardType.filled:
         return filledHoverElevation;
-      case MorphCardVariant.outlined:
+      case MorphCardType.outlined:
         return outlinedHoverElevation;
     }
   }
 
-  double _focusedElevation(MorphCardVariant variant) {
+  double _focusedElevation(MorphCardType variant) {
     switch (variant) {
-      case MorphCardVariant.elevated:
+      case MorphCardType.elevated:
         return elevatedFocusElevation;
-      case MorphCardVariant.filled:
+      case MorphCardType.filled:
         return filledFocusElevation;
-      case MorphCardVariant.outlined:
+      case MorphCardType.outlined:
         return outlinedFocusElevation;
     }
   }
 
-  double _pressedElevation(MorphCardVariant variant) {
+  double _pressedElevation(MorphCardType variant) {
     switch (variant) {
-      case MorphCardVariant.elevated:
+      case MorphCardType.elevated:
         return elevatedPressedElevation;
-      case MorphCardVariant.filled:
+      case MorphCardType.filled:
         return filledPressedElevation;
-      case MorphCardVariant.outlined:
+      case MorphCardType.outlined:
         return outlinedPressedElevation;
     }
   }
 
-  double _draggedElevation(MorphCardVariant variant) {
+  double _draggedElevation(MorphCardType variant) {
     switch (variant) {
-      case MorphCardVariant.elevated:
+      case MorphCardType.elevated:
         return elevatedDraggedElevation;
-      case MorphCardVariant.filled:
+      case MorphCardType.filled:
         return filledDraggedElevation;
-      case MorphCardVariant.outlined:
+      case MorphCardType.outlined:
         return outlinedDraggedElevation;
     }
   }

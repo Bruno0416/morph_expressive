@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart'
+    show Center, MaterialApp, Scaffold, StatefulBuilder;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_expressive.dart';
 import 'package:morph_expressive/components/chips/morph_chip_organic_surface.dart';

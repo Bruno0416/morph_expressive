@@ -19,7 +19,7 @@ class MorphDropdownMenuTheme
     this.itemInnerRadius = 4,
     this.openSpring = MorphMotion.dropdownOpen,
     this.closeSpring = MorphMotion.dropdownClose,
-    this.disabledOpacity = 0.38,
+    this.disabledOpacity = MorphStateOpacity.disabledContent,
   });
 
   /// defaults.

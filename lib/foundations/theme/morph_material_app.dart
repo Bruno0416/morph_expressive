@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show immutable, listEquals;
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart'
     show
@@ -381,6 +382,45 @@ class _MorphMaterialAppState extends State<MorphMaterialApp>
     );
   }
 
+  _ResolvedAppTheme? _resolvedTheme;
+  _AppThemeInputs? _resolvedInputs;
+
+  /// Applies the typography overrides and projects light/dark Material themes.
+  ///
+  /// Rebuilds are frequent (brightness changes, controller toggles, parent
+  /// updates) while the inputs rarely change. Regenerating the dark scheme
+  /// recomputes the Material Color Utilities palette and yields a new
+  /// [ThemeData] each time, so the result is memoised against its inputs.
+  _ResolvedAppTheme _resolveAppTheme() {
+    final _AppThemeInputs inputs = _AppThemeInputs(widget);
+    final _ResolvedAppTheme? cached = _resolvedTheme;
+    if (cached != null && inputs == _resolvedInputs) {
+      return cached;
+    }
+    MorphThemeData data = widget.data;
+    if (widget.typeScaleMode != null) {
+      data = data.copyWith(
+        typography: MorphTypography.material3(mode: widget.typeScaleMode!),
+      );
+    }
+    data = data.copyWith(
+      fontFamily: widget.fontFamily,
+      fontFamilyFallback: widget.fontFamilyFallback,
+      package: widget.package,
+      typeface: widget.typeface,
+      variableFont: widget.variableFont,
+      fontVariations: widget.fontVariations,
+    );
+    final _ResolvedAppTheme resolved = _ResolvedAppTheme(
+      data,
+      data.toThemeData(),
+      data.deriveDarkTemplate().toThemeData(),
+    );
+    _resolvedInputs = inputs;
+    _resolvedTheme = resolved;
+    return resolved;
+  }
+
   @override
   Widget build(BuildContext context) {
     final Brightness platformBrightness =
@@ -396,20 +436,8 @@ class _MorphMaterialAppState extends State<MorphMaterialApp>
     );
     SystemChrome.setSystemUIOverlayStyle(overlayStyle);
 
-    MorphThemeData data = widget.data;
-    if (widget.typeScaleMode != null) {
-      data = data.copyWith(
-        typography: MorphTypography.material3(mode: widget.typeScaleMode!),
-      );
-    }
-    data = data.copyWith(
-      fontFamily: widget.fontFamily,
-      fontFamilyFallback: widget.fontFamilyFallback,
-      package: widget.package,
-      typeface: widget.typeface,
-      variableFont: widget.variableFont,
-      fontVariations: widget.fontVariations,
-    );
+    final _ResolvedAppTheme resolved = _resolveAppTheme();
+    final MorphThemeData data = resolved.data;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: overlayStyle,
@@ -427,8 +455,8 @@ class _MorphMaterialAppState extends State<MorphMaterialApp>
         title: widget.title,
         onGenerateTitle: widget.onGenerateTitle,
         color: widget.color,
-        theme: widget.theme ?? data.toThemeData(),
-        darkTheme: widget.darkTheme ?? data.deriveDarkTemplate().toThemeData(),
+        theme: widget.theme ?? resolved.light,
+        darkTheme: widget.darkTheme ?? resolved.dark,
         highContrastTheme: widget.highContrastTheme,
         highContrastDarkTheme: widget.highContrastDarkTheme,
         themeMode: themeMode,
@@ -465,4 +493,58 @@ class _MorphMaterialAppState extends State<MorphMaterialApp>
       ),
     );
   }
+}
+
+/// Memoised result of [_MorphMaterialAppState._resolveAppTheme].
+class _ResolvedAppTheme {
+  const _ResolvedAppTheme(this.data, this.light, this.dark);
+
+  final MorphThemeData data;
+  final ThemeData light;
+  final ThemeData dark;
+}
+
+/// The widget fields that influence the resolved theme.
+@immutable
+class _AppThemeInputs {
+  _AppThemeInputs(MorphMaterialApp w)
+    : data = w.data,
+      typeScaleMode = w.typeScaleMode,
+      fontFamily = w.fontFamily,
+      fontFamilyFallback = w.fontFamilyFallback,
+      package = w.package,
+      typeface = w.typeface,
+      variableFont = w.variableFont,
+      fontVariations = w.fontVariations;
+
+  final MorphThemeData data;
+  final MorphTypeScaleMode? typeScaleMode;
+  final String? fontFamily;
+  final List<String>? fontFamilyFallback;
+  final String? package;
+  final MorphTypefaceConfig? typeface;
+  final MorphVariableFontConfig? variableFont;
+  final List<FontVariation>? fontVariations;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _AppThemeInputs &&
+      identical(other.data, data) &&
+      other.typeScaleMode == typeScaleMode &&
+      other.fontFamily == fontFamily &&
+      listEquals(other.fontFamilyFallback, fontFamilyFallback) &&
+      other.package == package &&
+      other.typeface == typeface &&
+      other.variableFont == variableFont &&
+      listEquals(other.fontVariations, fontVariations);
+
+  @override
+  int get hashCode => Object.hash(
+    identityHashCode(data),
+    typeScaleMode,
+    fontFamily,
+    package,
+    typeface,
+    variableFont,
+  );
 }

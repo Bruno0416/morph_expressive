@@ -108,7 +108,7 @@ class MorphNavigationBar extends StatefulWidget {
     this.distributeWideDestinations = false,
     this.size = MorphNavBarSize.medium,
     this.shapeFamily = MorphNavBarShapeFamily.square,
-    this.density = MorphNavBarDensity.regular,
+    this.density,
     this.backgroundColor,
     this.elevation,
     this.indicatorStyle = MorphNavBarIndicatorStyle.pill,
@@ -152,7 +152,7 @@ class MorphNavigationBar extends StatefulWidget {
     this.distributeWideDestinations = false,
     this.size = MorphNavBarSize.small,
     this.shapeFamily = MorphNavBarShapeFamily.square,
-    this.density = MorphNavBarDensity.regular,
+    this.density,
     this.backgroundColor,
     this.elevation,
     this.indicatorStyle = MorphNavBarIndicatorStyle.pill,
@@ -198,7 +198,7 @@ class MorphNavigationBar extends StatefulWidget {
     this.distributeWideDestinations = false,
     this.size = MorphNavBarSize.small,
     this.shapeFamily = MorphNavBarShapeFamily.square,
-    this.density = MorphNavBarDensity.regular,
+    this.density,
     this.backgroundColor,
     this.elevation,
     this.indicatorStyle = MorphNavBarIndicatorStyle.pill,
@@ -264,7 +264,7 @@ class MorphNavigationBar extends StatefulWidget {
   final MorphNavBarShapeFamily shapeFamily;
 
   /// density.
-  final MorphNavBarDensity density;
+  final MorphNavBarDensity? density;
 
   /// backgroundColor.
   final Color? backgroundColor;

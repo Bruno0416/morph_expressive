@@ -196,7 +196,7 @@ class _MorphDrawerDestinationButtonState
   @override
   Widget build(BuildContext context) {
     final theme = MorphTheme.of(context);
-    final drawerTheme = theme.navigationDrawerTheme;
+    final drawerTheme = theme.navigationDrawerTheme.withDensity(theme.density);
     final scheme = theme.colorScheme;
     final destination = widget.destination;
     final selected = widget.selected;

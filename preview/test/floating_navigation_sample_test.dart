@@ -6,9 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart' show MaterialApp, Scaffold;
 import 'package:morph_expressive/morph_expressive.dart';
 import 'package:morph_expressive_preview/floating_navigation_sample.dart';
-import 'package:morph_expressive_preview/main.dart';
 
-import 'showcase_scroll_helper.dart';
+import 'widgetbook/support.dart';
 
 void main() {
   for (final kind in [PointerDeviceKind.touch, PointerDeviceKind.mouse]) {
@@ -81,15 +80,14 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('actual gallery floating demo refreshes with mouse drag', (
+  testWidgets('catalog floating demo refreshes with mouse drag', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(1440, 1000);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(const MorphPreviewApp());
-    await revealShowcaseCategory(tester, 'navigation_bar');
+    await openUseCase(
+      tester,
+      'navigation/navigation-bar/floatingnavigationsample/floating-glass-sample',
+      size: const Size(1440, 1000),
+    );
     final list = find.byKey(const ValueKey('floating_navigation_content'));
     await tester.ensureVisible(list);
     await tester.pump();

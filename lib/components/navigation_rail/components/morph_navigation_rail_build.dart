@@ -5,7 +5,8 @@ part of '../morph_navigation_rail.dart';
 extension _MorphNavigationRailBuild on _MorphNavigationRailState {
   Widget _buildRailCore(BuildContext context, {required bool modal}) {
     final MorphThemeData morph = MorphTheme.of(context);
-    final MorphNavigationRailTheme theme = morph.navigationRailTheme;
+    final MorphNavigationRailTheme theme = morph.navigationRailTheme
+        .withDensity(morph.density);
     final MorphColorScheme scheme = morph.colorScheme;
     final bool raised = widget.scrollUnder && _scrolledUnder && !modal;
     final Color color =
@@ -84,8 +85,9 @@ extension _MorphNavigationRailBuild on _MorphNavigationRailState {
   }
 
   Widget _body(BuildContext context) {
-    final MorphNavigationRailTheme theme = MorphTheme.of(context)
-        .navigationRailTheme;
+    final MorphNavigationRailTheme theme = MorphNavigationRailTheme.resolve(
+      context,
+    );
     final double listTop = _destinationListTop(theme);
     final listPadding = EdgeInsets.only(top: listTop);
     final List<Widget> header = _headerChildren(context);

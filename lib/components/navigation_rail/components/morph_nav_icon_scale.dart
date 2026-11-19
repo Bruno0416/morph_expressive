@@ -39,7 +39,7 @@ class _MorphNavIconScaleState extends State<MorphNavIconScale>
       MorphMotion.springMotion(spring);
 
   SpringMotion get _motion =>
-      _springMotion(MorphTheme.of(context).navigationRailTheme.iconScaleSpring);
+      _springMotion(MorphNavigationRailTheme.resolve(context).iconScaleSpring);
 
   @override
   void initState() {

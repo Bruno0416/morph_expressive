@@ -224,7 +224,7 @@ class MorphList extends StatefulWidget {
   final MorphHapticFeedback haptic;
 
   /// Filled, outlined, or elevated. A nested list inherits the parent variant.
-  final MorphCardVariant? variant;
+  final MorphCardType? variant;
 
   /// Outline override.
   final BorderSide? border;

@@ -150,6 +150,32 @@ class MorphDialogTheme extends MorphThemeExtension<MorphDialogTheme> {
   Color scrimColor(MorphColorScheme scheme) =>
       scheme.scrim.withValues(alpha: scrimOpacity);
 
+  /// This theme with the layout [density] applied once.
+  ///
+  /// Content padding, the vertical gaps between icon, title, content and
+  /// actions, the action gap and selection row height follow the density
+  /// deltas. Widths, radii and typography are unchanged.
+  MorphDialogTheme withDensity(MorphDensity density) {
+    if (density == MorphDensity.standard) {
+      return this;
+    }
+    final MorphDensityMetrics m = density.metrics;
+    double g(double v) => MorphDensityMetrics.adjust(v, m.gap);
+    return copyWith(
+      padding: m.padding(padding),
+      gapAfterIcon: g(gapAfterIcon),
+      gapAfterTitle: g(gapAfterTitle),
+      gapBeforeActions: g(gapBeforeActions),
+      actionGap: g(actionGap),
+      stackedActionGap: g(stackedActionGap),
+      selectionItemHeight: MorphDensityMetrics.adjust(
+        selectionItemHeight,
+        m.rowHeight,
+        min: 48,
+      ),
+    );
+  }
+
   @override
   MorphDialogTheme copyWith({
     double? minWidth,

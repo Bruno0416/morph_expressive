@@ -84,6 +84,9 @@ MorphMenuTheme _lerpMenuTheme(MorphMenuTheme a, MorphMenuTheme b, double t) {
       b.dividerVerticalPadding,
       t,
     ),
+    shortcutGap: a.shortcutGap == null || b.shortcutGap == null
+        ? (t < 0.5 ? a.shortcutGap : b.shortcutGap)
+        : _menuLerpDouble(a.shortcutGap!, b.shortcutGap!, t),
   );
 }
 

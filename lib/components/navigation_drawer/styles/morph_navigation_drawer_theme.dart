@@ -266,6 +266,40 @@ class MorphNavigationDrawerTheme
     );
   }
 
+  /// The drawer theme of [context] with the global density applied once.
+  static MorphNavigationDrawerTheme resolve(BuildContext context) {
+    final MorphThemeData theme = MorphTheme.of(context);
+    return theme.navigationDrawerTheme.withDensity(theme.density);
+  }
+
+  /// This theme with the layout [density] applied once.
+  ///
+  /// Destination height follows the row height delta (never below the 48dp
+  /// target); paddings and the icon/label gap follow the padding and gap
+  /// deltas. Width, indicator and typography are unchanged.
+  MorphNavigationDrawerTheme withDensity(MorphDensity density) {
+    if (density == MorphDensity.standard) {
+      return this;
+    }
+    final MorphDensityMetrics m = density.metrics;
+    return copyWith(
+      destinationHeight: MorphDensityMetrics.adjust(
+        destinationHeight,
+        m.rowHeight,
+        min: 48,
+      ),
+      headlineVerticalPadding: MorphDensityMetrics.adjust(
+        headlineVerticalPadding,
+        m.paddingVertical,
+      ),
+      destinationVerticalPadding: MorphDensityMetrics.adjust(
+        destinationVerticalPadding,
+        m.paddingVertical / 2,
+      ),
+      iconLabelGap: MorphDensityMetrics.adjust(iconLabelGap, m.gap),
+    );
+  }
+
   @override
   MorphNavigationDrawerTheme copyWith({
     double? width,

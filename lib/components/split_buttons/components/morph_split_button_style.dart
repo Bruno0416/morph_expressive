@@ -104,14 +104,17 @@ extension _MorphSplitButtonStyle<T> on _MorphSplitButtonState<T> {
     required bool segmentEnabled,
     bool trailing = false,
   }) {
+    final MorphVariantPalette? palette = widget.variant?.resolve(_scheme);
     Color fgColor =
         widget.decorationForegroundColor?.resolve({}) ??
-        _buttonTheme.foreground(_scheme, widget.style);
+        (palette?.contentFor(widget.style) ??
+            _buttonTheme.foreground(_scheme, widget.style));
     Color bgColor =
         widget.decorationBackgroundColor?.resolve({}) ??
         (widget.style == MorphButtonStyle.outlined
             ? Colors.transparent
-            : _buttonTheme.container(_scheme, widget.style));
+            : (palette?.containerFor(_scheme, widget.style) ??
+                  _buttonTheme.container(_scheme, widget.style)));
 
     if (trailing) {
       fgColor = widget.decorationTrailingForegroundColor ?? fgColor;
@@ -122,7 +125,7 @@ extension _MorphSplitButtonStyle<T> on _MorphSplitButtonState<T> {
     if (widget.style == MorphButtonStyle.outlined) {
       outlineSide =
           widget.decorationBorderSide?.resolve({}) ??
-          BorderSide(color: _buttonTheme.outline(_scheme));
+          BorderSide(color: palette?.outline ?? _buttonTheme.outline(_scheme));
     }
 
     if (!segmentEnabled) {

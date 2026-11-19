@@ -149,7 +149,10 @@ void _disabledUsesOnSurfaceAlphas() {
     scheme: scheme,
     enabled: false,
   );
-  expect(disabled.background.a, closeTo(0.1, 0.001));
+  expect(
+    disabled.background.a,
+    closeTo(MorphStateOpacity.disabledContainer, 0.001),
+  );
   expect(disabled.foreground.a, closeTo(0.38, 0.001));
 }
 

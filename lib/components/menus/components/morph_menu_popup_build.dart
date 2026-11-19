@@ -6,20 +6,45 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
     MorphMenuTheme menuTheme,
     MorphColorScheme scheme,
   ) {
-    final placement = MorphMenuPlacer.compute(
-      screenSize: MediaQuery.sizeOf(context),
-      anchorRect: widget.anchor,
-      theme: menuTheme,
-      position: widget.position,
-      textDirection: Directionality.of(context),
-      approximateItemCount: MorphMenuPlacer.approximateItemCount(
-        widget.children,
-      ),
-      preferredWidth: widget.preferredWidth,
-    );
-    final scaleAlignment = placement.opensAbove
-        ? Alignment.bottomCenter
-        : Alignment.topCenter;
+    final MorphMenuPlacement placement;
+    final Alignment scaleAlignment;
+    if (_desktop) {
+      final MorphMenuDesktopLayout layout = MorphMenuDesktopLayout.compute(
+        children: widget.children,
+        theme: menuTheme,
+        type: MorphTheme.of(context).typeScale,
+        textScaler: MediaQuery.textScalerOf(context),
+        textDirection: Directionality.of(context),
+      );
+      _layout = layout;
+      placement = MorphMenuPlacer.computeDesktop(
+        screenSize: MediaQuery.sizeOf(context),
+        anchorRect: widget.anchor,
+        surfaceSize: layout.surfaceSize,
+        edge: menuTheme.screenEdgePadding,
+        shadowPad: menuTheme.elevation * 2,
+        textDirection: Directionality.of(context),
+        isSubmenu: widget.isSubmenu,
+        sideInset: menuTheme.stateLayerInset,
+        firstRowOffset: menuTheme.verticalPadding,
+      );
+      scaleAlignment = placement.scaleAlignment;
+    } else {
+      placement = MorphMenuPlacer.compute(
+        screenSize: MediaQuery.sizeOf(context),
+        anchorRect: widget.anchor,
+        theme: menuTheme,
+        position: widget.position,
+        textDirection: Directionality.of(context),
+        approximateItemCount: MorphMenuPlacer.approximateItemCount(
+          widget.children,
+        ),
+        preferredWidth: widget.preferredWidth,
+      );
+      scaleAlignment = placement.opensAbove
+          ? Alignment.bottomCenter
+          : Alignment.topCenter;
+    }
 
     return Actions(
       actions: _menuTraversalActions(),
@@ -128,6 +153,7 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
           );
         },
         child: ConstrainedBox(
+          key: _panelKey,
           constraints: BoxConstraints(
             minWidth: menuTheme.minWidth,
             maxWidth: placement.width,
@@ -136,6 +162,7 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
           // Pointer presence of this panel (mouse only) drives hover-opened
           // submenus: the parent keeps its submenu while the pointer crosses.
           child: MouseRegion(
+            onHover: _desktop ? _onPanelHover : null,
             onEnter: (PointerEnterEvent e) {
               _onSelfPointer(true);
               widget.onPointerInside?.call(true);
@@ -161,6 +188,14 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
     }
     final key = event.logicalKey;
     if (key == LogicalKeyboardKey.escape) {
+      if (_desktop && _submenuEntry != null) {
+        // Escape closes the innermost open menu first.
+        final MorphMenuKeyTarget? owner = _submenuOwner;
+        _removeSubmenu();
+        (owner != null && owner.enabled ? owner.node : _keyFocus)
+            .requestFocus();
+        return KeyEventResult.handled;
+      }
       _dismiss(restoreFocus: true);
       return KeyEventResult.handled;
     }
@@ -180,6 +215,14 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
       _move(-1);
       return KeyEventResult.handled;
     }
+    if (key == LogicalKeyboardKey.home) {
+      _focusEdge(first: true);
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.end) {
+      _focusEdge(first: false);
+      return KeyEventResult.handled;
+    }
     if (key == LogicalKeyboardKey.arrowRight ||
         key == LogicalKeyboardKey.arrowLeft) {
       final rtl = Directionality.of(context) == TextDirection.rtl;
@@ -190,6 +233,10 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
         _openFocusedSubmenu();
       } else if (widget.isSubmenu) {
         _dismiss();
+      } else if (_desktop && _submenuEntry != null) {
+        final MorphMenuKeyTarget? owner = _submenuOwner;
+        _removeSubmenu();
+        owner?.node.requestFocus();
       }
       return KeyEventResult.handled;
     }
@@ -220,6 +267,20 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
       final eased = _isDismissing
           ? 1.0 - MorphMotion.exit.transform(1.0 - t)
           : MorphMotion.enter.transform(t);
+      if (_desktop) {
+        // Desktop: a short fade + 96%-to-100% scale that grows from the
+        // pointer corner; no vertical reveal clip, rows stay at full size.
+        return Opacity(
+          key: const ValueKey('morph-popup-panel-opacity'),
+          opacity: eased.clamp(0.0, 1.0).toDouble(),
+          child: Transform.scale(
+            key: const ValueKey('morph-popup-centered-scale'),
+            alignment: scaleAlignment,
+            scale: 0.96 + 0.04 * eased,
+            child: child,
+          ),
+        );
+      }
       // Both entrance and exit are centered, regardless of placement or tap.
       // Keep the full child mounted from the first frame: opacity 0 is NOT
       // equivalent to SizedBox.shrink() for overlay geometry and animation.
@@ -279,9 +340,14 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
   }) {
     final palette = menuTheme.colors(scheme, widget.colorStyle);
     final shadowPad = menuTheme.elevation * 2;
+    final MorphMenuDesktopLayout? desktop = _desktop ? _layout : null;
     final surfaces = morphMenuPartitionSurfaces(widget.children);
-    final scrolling = _estimatedHeight(menuTheme, widget.children) > maxHeight;
-    final cards = scrolling
+    final scrolling = desktop != null
+        ? desktop.surfaceSize.height > maxHeight - shadowPad * 2
+        : _estimatedHeight(menuTheme, widget.children) > maxHeight;
+    final cards = desktop != null
+        ? <MorphMenuGroup>[MorphMenuGroup(children: desktop.nodes)]
+        : scrolling
         ? <MorphMenuGroup>[
             MorphMenuGroup(children: _flattenForScroll(surfaces)),
           ]
@@ -303,7 +369,7 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
 
     final Widget body = RawScrollbar(
       controller: _scroll,
-      thumbVisibility: true,
+      thumbVisibility: desktop == null || scrolling,
       child: ListView(
         controller: _scroll,
         padding: EdgeInsets.all(shadowPad),
@@ -314,10 +380,23 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
 
     return MorphMenuKeyScope(
       targets: _targets,
-      child: MorphMenuStyleScope(
-        colorStyle: widget.colorStyle,
-        colors: palette,
-        child: body,
+      child: MorphMenuPresentationScope(
+        presentation: widget.presentation,
+        reserveLeading: desktop?.reserveLeading ?? false,
+        reserveTrailing: desktop?.reserveTrailing ?? false,
+        expandedNode: desktop == null ? null : _expandedNode,
+        child: MorphMenuStyleScope(
+          colorStyle: widget.colorStyle,
+          colors: palette,
+          // The desktop panel (surface + shadow margin) carries a stable key
+          // so tests and tooling can measure the visible surface.
+          child: desktop == null
+              ? body
+              : KeyedSubtree(
+                  key: const ValueKey<String>('morph-menu-panel'),
+                  child: body,
+                ),
+        ),
       ),
     );
   }
@@ -365,13 +444,15 @@ extension _MorphMenuPopupLayout<T> on _MorphMenuPopupState<T> {
         onSelect: _handleSelect,
         onOpenSubmenu: _openSubmenu,
         onRowEnter: _onRowEnter,
+        onRowEnterAt: _desktop ? _onRowEnterAt : null,
         autofocusFirst: false,
         applyGroupShapes: false,
       ),
     );
     // Fade only the rows; the surface and shadow follow the slower outer
     // animation. This also preserves text size and glass treatment.
-    final Widget content = widget.motionStyle != MorphDropdownMotionStyle.legacy
+    final Widget content =
+        widget.motionStyle != MorphDropdownMotionStyle.legacy && !_desktop
         ? AnimatedBuilder(
             animation: _popupCtrl,
             child: rows,

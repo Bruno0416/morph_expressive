@@ -1,37 +1,28 @@
-import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart'
     show
-        Alignment,
-        AppBar,
-        BoxFit,
         BuildContext,
-        Builder,
         Color,
-        FittedBox,
-        Flexible,
-        Icon,
-        IconButton,
-        Navigator,
-        MainAxisSize,
+        EdgeInsets,
         MaterialApp,
-        MaterialPageRoute,
-        Row,
-        Scaffold,
+        Padding,
         ScrollConfiguration,
         SizedBox,
         State,
         StatefulWidget,
+        StatelessWidget,
         Text,
-        ThemeData,
         ThemeMode,
         Widget,
         runApp;
 import 'package:morph_expressive/morph_expressive.dart';
+import 'package:widgetbook/widgetbook.dart' show Widgetbook;
+import 'package:widgetbook_annotation/widgetbook_annotation.dart' as widgetbook;
 
-import 'component_gallery.dart';
+import 'main.directories.g.dart';
+import 'widgetbook/addons/morph_scope_addon.dart' show MorphRootScope;
+import 'widgetbook/app/morph_widgetbook_config.dart';
 import 'component_gif_capture.dart';
 import 'mobile_frosted_surfaces_lab.dart';
-import 'desktop_context_menu_lab.dart';
 import 'frosted_blur_benchmark_lab.dart';
 import 'aa_probe.dart';
 import 'edge_stress.dart';
@@ -71,18 +62,49 @@ void main() {
   }
   if (capture != null) {
     runApp(MorphGifCaptureApp(scene: capture));
-  } else {
-    runApp(
-      MorphPreviewApp(
-        shapeLab:
-            Uri.base.queryParameters['lab'] == 'shapes' ||
-            const String.fromEnvironment('MORPH_LAB') == 'shapes',
+    return;
+  }
+  final lab = Uri.base.queryParameters['lab'];
+  const envLab = String.fromEnvironment('MORPH_LAB');
+  if (lab == 'shapes' || envLab == 'shapes') {
+    runApp(const MorphPreviewApp(shapeLab: true));
+    return;
+  }
+  runApp(const MorphWidgetbookApp());
+}
+
+/// Widgetbook catalog of every Morph Expressive component family.
+///
+/// Use cases live in `lib/widgetbook/use_cases/<category>/` and are collected
+/// by `build_runner` into `main.directories.g.dart`.
+@widgetbook.App()
+class MorphWidgetbookApp extends StatelessWidget {
+  const MorphWidgetbookApp({super.key, this.initialRoute = '/'});
+
+  /// Deep link into the catalog, e.g. `/?path=actions/buttons`.
+  final String initialRoute;
+
+  @override
+  Widget build(BuildContext context) {
+    return MorphRootScope(
+      child: Widgetbook(
+        directories: directories,
+        initialRoute: initialRoute,
+        addons: morphWidgetbookAddons(),
+        appBuilder: morphWidgetbookAppBuilder,
+        header: const Padding(
+          padding: EdgeInsets.all(12),
+          child: Text('Morph Expressive'),
+        ),
       ),
     );
   }
 }
 
-/// Aplicacion de preview web para evaluar los widgets Morph.
+/// Standalone host for the lab screens (shapes, tabs, operations, mobile glass).
+///
+/// The component catalog itself is [MorphWidgetbookApp]; this app only hosts
+/// the labs that are launched directly with `?lab=...` or `MORPH_LAB=...`.
 class MorphPreviewApp extends StatefulWidget {
   const MorphPreviewApp({
     super.key,
@@ -95,7 +117,7 @@ class MorphPreviewApp extends StatefulWidget {
   final bool tabsLab;
   final bool operationLab;
 
-  /// Opens the touch-first preview without changing the existing web gallery.
+  /// Opens the touch-first glass preview.
   final bool mobileLab;
 
   @override
@@ -105,7 +127,6 @@ class MorphPreviewApp extends StatefulWidget {
 class _MorphPreviewAppState extends State<MorphPreviewApp> {
   bool _darkMode = true;
   Color _seed = const Color(0xFF6750A4);
-  bool _useSerif = false;
   bool _hapticsEnabled = true;
   MorphHapticFeedback _hapticFeedback = MorphHapticFeedback.light;
   bool _glassEnabled = true;
@@ -114,9 +135,6 @@ class _MorphPreviewAppState extends State<MorphPreviewApp> {
 
   @override
   Widget build(BuildContext context) {
-    final fontTheme = _useSerif
-        ? ThemeData().textTheme.apply(fontFamily: 'serif')
-        : null;
     final floatingGlass = widget.mobileLab
         ? MorphSurfaceGlass(
             enabled: _glassEnabled,
@@ -125,20 +143,17 @@ class _MorphPreviewAppState extends State<MorphPreviewApp> {
             tintOpacity: _glassTint,
           )
         : null;
-    final light = MorphThemeData.light(seedColor: _seed, textTheme: fontTheme)
-        .copyWith(
-          hapticsEnabled: _hapticsEnabled,
-          hapticFeedback: _hapticFeedback,
-          floatingSurfaceGlass: floatingGlass,
-        );
-    final dark = MorphThemeData.dark(seedColor: _seed, textTheme: fontTheme)
-        .copyWith(
-          hapticsEnabled: _hapticsEnabled,
-          hapticFeedback: _hapticFeedback,
-          floatingSurfaceGlass: floatingGlass,
-        );
+    final light = MorphThemeData.light(seedColor: _seed).copyWith(
+      hapticsEnabled: _hapticsEnabled,
+      hapticFeedback: _hapticFeedback,
+      floatingSurfaceGlass: floatingGlass,
+    );
+    final dark = MorphThemeData.dark(seedColor: _seed).copyWith(
+      hapticsEnabled: _hapticsEnabled,
+      hapticFeedback: _hapticFeedback,
+      floatingSurfaceGlass: floatingGlass,
+    );
     final current = _darkMode ? dark : light;
-    final scheme = current.colorScheme;
 
     return MaterialApp(
       title: 'Morph Expressive — Component Studio',
@@ -187,150 +202,9 @@ class _MorphPreviewAppState extends State<MorphPreviewApp> {
                 _hapticsEnabled = true;
               }),
             )
-          : Scaffold(
-              backgroundColor: scheme.surface,
-              appBar: AppBar(
-                backgroundColor: scheme.surfaceContainer,
-                foregroundColor: scheme.onSurface,
-                title: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(FluentIcons.filled.shapes, size: 24),
-                    Gap(12),
-                    Flexible(
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerLeft,
-                        child: Text('Morph Expressive'),
-                      ),
-                    ),
-                  ],
-                ),
-                actions: [
-                  Builder(
-                    builder: (buttonContext) => IconButton(
-                      tooltip: 'Tabs Lab',
-                      icon: Icon(FluentIcons.line.tab_desktop),
-                      onPressed: () => Navigator.of(buttonContext).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => TabsLab(
-                            onToggleTheme: () =>
-                                setState(() => _darkMode = !_darkMode),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Builder(
-                    builder: (buttonContext) => IconButton(
-                      tooltip: 'Operation & Skeleton Lab',
-                      icon: Icon(FluentIcons.line.arrow_sync),
-                      onPressed: () => Navigator.of(buttonContext).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => OperationLoadingLab(
-                            onToggleTheme: () =>
-                                setState(() => _darkMode = !_darkMode),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  MorphMenu(
-                    anchorBuilder: (buttonContext, open) => IconButton(
-                      tooltip: 'Haptic settings',
-                      icon: Icon(FluentIcons.line.settings, size: 22),
-                      onPressed: open,
-                    ),
-                    selectedValue: _hapticsEnabled
-                        ? _hapticFeedback
-                        : MorphHapticFeedback.none,
-                    onSelected: (value) {
-                      if (value is! MorphHapticFeedback) return;
-                      setState(() {
-                        if (value == MorphHapticFeedback.none) {
-                          _hapticsEnabled = false;
-                        } else {
-                          _hapticsEnabled = true;
-                          _hapticFeedback = value;
-                        }
-                      });
-                    },
-                    children: const <MorphMenuNode>[
-                      MorphMenuEntry(
-                        label: 'Haptics · try on a physical device',
-                        enabled: false,
-                      ),
-                      MorphMenuSelectable(
-                        label: 'Off',
-                        value: MorphHapticFeedback.none,
-                      ),
-                      MorphMenuSelectable(
-                        label: 'Light',
-                        value: MorphHapticFeedback.light,
-                      ),
-                      MorphMenuSelectable(
-                        label: 'Medium',
-                        value: MorphHapticFeedback.medium,
-                      ),
-                      MorphMenuSelectable(
-                        label: 'Heavy',
-                        value: MorphHapticFeedback.heavy,
-                      ),
-                    ],
-                  ),
-                  MorphTooltip(
-                    message: 'Toggle typography',
-                    child: IconButton(
-                      tooltip: 'Toggle typography',
-                      onPressed: () => setState(() => _useSerif = !_useSerif),
-                      icon: Icon(FluentIcons.line.text_font, size: 22),
-                    ),
-                  ),
-                  Builder(
-                    builder: (buttonContext) => IconButton(
-                      tooltip: 'Desktop context menu preview',
-                      onPressed: () => Navigator.of(buttonContext).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => const DesktopContextMenuLab(),
-                        ),
-                      ),
-                      icon: Icon(
-                        FluentIcons.line.panel_right_contract,
-                        size: 22,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: 'Switch theme',
-                    onPressed: () => setState(() => _darkMode = !_darkMode),
-                    icon: Icon(
-                      _darkMode
-                          ? FluentIcons.line.weather_sunny
-                          : FluentIcons.line.weather_moon,
-                    ),
-                  ),
-                  Builder(
-                    builder: (buttonContext) => IconButton(
-                      tooltip: 'Shape & Interaction Lab',
-                      icon: Icon(FluentIcons.line.shapes),
-                      onPressed: () => Navigator.of(buttonContext).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => ShapeMorphLab(
-                            onToggleTheme: () =>
-                                setState(() => _darkMode = !_darkMode),
-                            onSeedChanged: (c) => setState(() => _seed = c),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const Gap(12),
-                ],
-              ),
-              body: MorphComponentGallery(
-                seed: _seed,
-                onSeedChanged: (color) => setState(() => _seed = color),
-              ),
+          : ShapeMorphLab(
+              onToggleTheme: () => setState(() => _darkMode = !_darkMode),
+              onSeedChanged: (color) => setState(() => _seed = color),
             ),
     );
   }

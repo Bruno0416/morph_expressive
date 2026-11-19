@@ -17,7 +17,9 @@ class MorphListAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final MorphThemeData theme = MorphTheme.of(context);
-    final MorphListItemTheme item = theme.listTheme.item;
+    final MorphListItemTheme item = theme.listTheme.item.withDensity(
+      theme.density,
+    );
     final MorphColorScheme scheme = theme.colorScheme;
     final double size = item.avatarSize;
     return SizedBox.square(

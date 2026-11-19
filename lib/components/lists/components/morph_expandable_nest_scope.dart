@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import '../../cards/enums/morph_card_variant.dart';
+import '../../cards/enums/morph_card_type.dart';
 
 /// Nesting hints for a card list under an expanded expandable row.
 ///
@@ -28,7 +28,7 @@ class MorphExpandableNestScope extends InheritedWidget {
   final Color? surfaceColor;
 
   /// Parent list variant. A nested list uses this when it does not set one.
-  final MorphCardVariant? variant;
+  final MorphCardType? variant;
 
   /// Expandable row that owns this nested list, when keyboard focus should
   /// walk from that header into the sublist.

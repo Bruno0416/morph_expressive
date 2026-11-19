@@ -19,10 +19,11 @@ while (($#)); do
     -h|--help)
       cat <<'HELP'
 Uso: bash tool/generate_component_gifs.sh [--only ESCENA ...] [--skip-build]
-Escenas (14 GIFs del README): buttons chips dialogs dropdown lists loading
-  navigation segmented sliders textfields async_button skeleton tabs fab_menu
+Escenas: buttons chips dialogs dropdown lists loading navigation segmented
+  sliders textfields async_button skeleton tabs fab_menu density context_menu frosted
+  (el README usa un subconjunto: ver ALLOWED_GIFS en tool/check_gif_branding.py)
 Escena solo para su guía: navigation_rail_drawer (no forma parte del conjunto por defecto).
-Cada escena marca su inicio; la grabación empieza 1.2 s después (fuentes y shaders listos).
+Cada escena marca su inicio (MORPH_GIF_SCENE_START); la grabación empieza 1.2 s después (fuentes y shaders listos).
 Los frames salen del screencast del compositor (~60/s, con su marca de tiempo real) y se
 muestrean en una rejilla uniforme: sin duplicar ni interpolar. 50 FPS (20 ms, el máximo
 uniforme de un GIF) en las escenas de movimiento y 25 FPS en las restantes. La escena
@@ -54,7 +55,7 @@ fi
 if (( ! SKIP_BUILD )); then
   echo '[gif] Compilando la preview Flutter Web en release...'
   (cd "$ROOT_DIR" && flutter pub get)
-  (cd "$PREVIEW_DIR" && flutter clean && flutter pub get && flutter build web --release)
+  (cd "$PREVIEW_DIR" && flutter pub get && flutter build web --release)
 fi
 
 [[ -f "$PREVIEW_DIR/build/web/index.html" ]] || {
@@ -104,6 +105,6 @@ if (( ! UP )); then
   exit 1
 fi
 
-echo '[gif] Capturando los componentes sin cursor...'
+echo '[gif] Capturando las escenas (ninguna muestra cursor salvo context_menu, que dibuja el suyo)...'
 MORPH_GIF_URL="http://127.0.0.1:$PORT/" \
   node "$CAPTURE_DIR/capture.mjs" "${ONLY[@]}"

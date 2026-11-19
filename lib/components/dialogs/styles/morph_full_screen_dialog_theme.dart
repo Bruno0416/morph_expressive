@@ -182,6 +182,21 @@ class MorphFullScreenDialogTheme {
         color: contentTextColor ?? theme.colorScheme.onSurfaceVariant,
       );
 
+  /// This theme with the layout [density] applied once (content padding,
+  /// element gap and action bar padding; the 56dp action bar height is a
+  /// target and stays).
+  MorphFullScreenDialogTheme withDensity(MorphDensity density) {
+    if (density == MorphDensity.standard) {
+      return this;
+    }
+    final MorphDensityMetrics m = density.metrics;
+    return copyWith(
+      contentPadding: m.padding(contentPadding),
+      elementGap: MorphDensityMetrics.adjust(elementGap, m.gap),
+      actionBarPadding: m.padding(actionBarPadding),
+    );
+  }
+
   /// Copy with non-null fields replaced.
   MorphFullScreenDialogTheme copyWith({
     double? maxWidth,

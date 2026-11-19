@@ -212,7 +212,7 @@ class _MorphSliverAppBarState extends State<_MorphSliverAppBar>
     final theme = MorphTheme.of(context);
     final appBarTheme = theme.appBarTheme;
     final scheme = theme.colorScheme;
-    final metrics = appBarTheme.metrics(bar.density);
+    final metrics = appBarTheme.metrics(bar.density, global: theme.density);
     final hasSubtitle = bar.subtitle != null || bar.subtitleText != null;
     _collapsed = metrics.collapsedHeight;
     _expanded = metrics.expandedHeight(bar.variant, hasSubtitle: hasSubtitle);

@@ -55,9 +55,9 @@ class MorphRailBadge extends StatelessWidget {
     if (!dot && count == null) {
       return child ?? const SizedBox.shrink();
     }
-    final theme = MorphTheme.of(context).navigationRailTheme;
+    final theme = MorphNavigationRailTheme.resolve(context);
     final morph = MorphTheme.of(context);
-    final badgeTheme = morph.badgeTheme;
+    final badgeTheme = morph.badgeTheme.resolveDensity(morph.density);
     final scheme = morph.colorScheme;
     final bg = theme.badgeBackgroundResolved(scheme);
     final fg = theme.badgeLabelResolved(scheme);

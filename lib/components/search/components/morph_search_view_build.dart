@@ -358,7 +358,7 @@ extension _MorphSearchViewContentBuild on _MorphSearchViewContentState {
         leading:
             _route.viewLeading ??
             MorphIconButton(
-              variant: MorphIconButtonVariant.standard,
+              type: MorphIconButtonType.standard,
               icon: const Icon(MorphIcons.arrow_back),
               tooltip: MorphSearchConstants.backButtonTooltip,
               onPressed: _close,

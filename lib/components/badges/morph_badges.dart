@@ -76,7 +76,7 @@ class MorphBadge extends StatelessWidget {
 
     final theme = MorphTheme.of(context);
     final scheme = theme.colorScheme;
-    final badgeTheme = theme.badgeTheme;
+    final badgeTheme = theme.badgeTheme.resolveDensity(theme.density);
     final bool isDot = showDot;
     final effectiveOffset =
         offset ?? (isDot ? badgeTheme.smallOffset : badgeTheme.largeOffset);

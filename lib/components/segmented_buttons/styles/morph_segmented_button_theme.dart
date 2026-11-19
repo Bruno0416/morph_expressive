@@ -19,8 +19,8 @@ class MorphSegmentedButtonTheme
     this.borderWidth = 1,
     this.focusIndicatorWidth = 3,
     this.focusIndicatorGap = 2,
-    this.disabledOutlineOpacity = 0.12,
-    this.disabledContentOpacity = 0.38,
+    this.disabledOutlineOpacity = MorphStateOpacity.disabledContainer,
+    this.disabledContentOpacity = MorphStateOpacity.disabledContent,
     this.maxWidth,
     this.outlineColor,
     this.outlineGradient,
@@ -108,20 +108,60 @@ class MorphSegmentedButtonTheme
   /// Focus ring color. Defaults to secondary.
   final Color? focusIndicatorColor;
 
+  /// Height delta of the global [MorphDensity] when no explicit per-widget
+  /// density is given. Compact follows the spec compact level; comfortable is
+  /// taller than regular (the per-widget `comfortable` level is shorter).
+  static double globalHeightDelta(MorphDensity global) => switch (global) {
+    MorphDensity.compact =>
+      MorphSegmentedButtonDensity.compact.heightAdjustment,
+    MorphDensity.standard => 0,
+    MorphDensity.comfortable => 4,
+  };
+
+  /// This theme with the global [density] padding and gap applied once.
+  ///
+  /// Heights are resolved by [heightFor]; call this where segments are built.
+  MorphSegmentedButtonTheme withDensity(MorphDensity density) {
+    if (density == MorphDensity.standard) {
+      return this;
+    }
+    final MorphDensityMetrics m = density.metrics;
+    return copyWith(
+      segmentHorizontalPadding: MorphDensityMetrics.adjust(
+        segmentHorizontalPadding,
+        m.paddingHorizontal,
+      ),
+      iconLabelGap: MorphDensityMetrics.adjust(iconLabelGap, m.gap),
+    );
+  }
+
   /// Visual container height for [density] (−4dp per level from [height]).
-  double heightFor(MorphSegmentedButtonDensity density) {
-    return math.max(24, height + density.heightAdjustment);
+  ///
+  /// A null [density] follows the [global] density instead; an explicit
+  /// [density] always wins over it.
+  double heightFor(
+    MorphSegmentedButtonDensity? density, {
+    MorphDensity global = MorphDensity.standard,
+  }) {
+    final double delta = density?.heightAdjustment ?? globalHeightDelta(global);
+    return math.max(24, height + delta);
   }
 
   /// Layout height: at least [targetSize] for the touch target.
-  double layoutHeightFor(MorphSegmentedButtonDensity density) {
-    final double visual = heightFor(density);
+  double layoutHeightFor(
+    MorphSegmentedButtonDensity? density, {
+    MorphDensity global = MorphDensity.standard,
+  }) {
+    final double visual = heightFor(density, global: global);
     return math.max(visual, targetSize);
   }
 
   /// Pill radius from the visual container height.
-  BorderRadius borderRadiusFor(MorphSegmentedButtonDensity density) {
-    return MorphShapes.resolve(heightFor(density) / 2);
+  BorderRadius borderRadiusFor(
+    MorphSegmentedButtonDensity? density, {
+    MorphDensity global = MorphDensity.standard,
+  }) {
+    return MorphShapes.resolve(heightFor(density, global: global) / 2);
   }
 
   /// The borderRadius at density 0.

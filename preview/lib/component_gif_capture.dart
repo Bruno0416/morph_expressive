@@ -1,15 +1,26 @@
 import 'dart:async';
+import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/foundation.dart' show ValueNotifier, debugPrint;
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart'
     show
         Align,
+        AnimatedBuilder,
+        AnimationController,
         BorderRadius,
         BoxDecoration,
+        BoxFit,
+        Builder,
+        Canvas,
         Center,
+        ClipRRect,
         Container,
+        CustomPaint,
+        CustomPainter,
+        Curves,
         EdgeInsets,
+        Element,
         Expanded,
         GlobalKey,
         Offset,
@@ -18,18 +29,26 @@ import 'package:material_ui/material_ui.dart'
         Alignment,
         ValueChanged,
         MainAxisAlignment,
+        MainAxisSize,
         BuildContext,
         Color,
         Column,
         CrossAxisAlignment,
         FocusManager,
+        FittedBox,
         FocusNode,
         Icon,
+        IgnorePointer,
         MaterialApp,
         Navigator,
+        Paint,
+        PaintingStyle,
+        Path,
         Positioned,
         Row,
         Scaffold,
+        SingleTickerProviderStateMixin,
+        Size,
         SizedBox,
         Stack,
         State,
@@ -40,6 +59,7 @@ import 'package:material_ui/material_ui.dart'
         TextEditingController,
         TextStyle,
         ValueKey,
+        ValueListenableBuilder,
         VoidCallback,
         Widget,
         WidgetsBinding,
@@ -72,14 +92,161 @@ class MorphGifCaptureApp extends StatelessWidget {
       title: 'Morph Expressive — $scene',
       debugShowCheckedModeBanner: false,
       theme: theme.toThemeData(),
-      builder: (context, child) =>
-          MorphTheme(data: theme, child: child ?? const SizedBox.shrink()),
+      builder: (context, child) => MorphTheme(
+        data: theme,
+        // Only the context-menu scene draws a pointer, on purpose: the menu
+        // opens at the pointer, so the viewer needs to see where it is. The
+        // pointer sits above the navigator so it stays over the menu.
+        child: scene == 'context_menu'
+            ? Stack(
+                children: [
+                  Positioned.fill(child: child ?? const SizedBox.shrink()),
+                  const _CaptureCursor(),
+                ],
+              )
+            : (child ?? const SizedBox.shrink()),
+      ),
       home: Scaffold(
         backgroundColor: theme.colorScheme.surface,
         body: _CaptureScene(scene: scene),
       ),
     );
   }
+}
+
+/// Pointer position drawn by the `context_menu` scene (null = hidden).
+final ValueNotifier<Offset?> _captureCursor = ValueNotifier<Offset?>(null);
+
+/// A small arrow drawn above the app, used only by the `context_menu` scene.
+class _CaptureCursor extends StatelessWidget {
+  const _CaptureCursor();
+
+  @override
+  Widget build(BuildContext context) => IgnorePointer(
+    child: ValueListenableBuilder<Offset?>(
+      valueListenable: _captureCursor,
+      builder: (context, at, _) => at == null
+          ? const SizedBox.shrink()
+          : Stack(
+              children: [
+                Positioned(
+                  left: at.dx,
+                  top: at.dy,
+                  child: const CustomPaint(
+                    size: Size(16, 22),
+                    painter: _CursorPainter(),
+                  ),
+                ),
+              ],
+            ),
+    ),
+  );
+}
+
+class _CursorPainter extends CustomPainter {
+  const _CursorPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final arrow = Path()
+      ..moveTo(0, 0)
+      ..lineTo(0, 17)
+      ..lineTo(4.2, 13.2)
+      ..lineTo(7, 19.5)
+      ..lineTo(9.8, 18.3)
+      ..lineTo(7.1, 12)
+      ..lineTo(12.5, 12)
+      ..close();
+    canvas
+      ..drawPath(arrow, Paint()..color = const Color(0xFFFFFFFF))
+      ..drawPath(
+        arrow,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.3
+          ..color = const Color(0xFF14141A),
+      );
+  }
+
+  @override
+  bool shouldRepaint(_CursorPainter oldDelegate) => false;
+}
+
+/// Slowly drifting colour blobs behind the frosted scene. One full cycle lasts
+/// [period], so a clip whose length is a multiple of it loops seamlessly.
+class _DriftingBackdrop extends StatefulWidget {
+  const _DriftingBackdrop({required this.colors, required this.period});
+
+  final List<Color> colors;
+  final Duration period;
+
+  @override
+  State<_DriftingBackdrop> createState() => _DriftingBackdropState();
+}
+
+class _DriftingBackdropState extends State<_DriftingBackdrop>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: widget.period,
+  )..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _controller,
+    builder: (context, _) => CustomPaint(
+      painter: _BlobsPainter(widget.colors, _controller.value),
+      size: Size.infinite,
+    ),
+  );
+}
+
+class _BlobsPainter extends CustomPainter {
+  const _BlobsPainter(this.colors, this.t);
+
+  final List<Color> colors;
+  final double t;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawRect(
+      Offset.zero & size,
+      Paint()..color = colors.first.withValues(alpha: .22),
+    );
+    const tau = 2 * math.pi;
+    for (var i = 0; i < colors.length; i++) {
+      final phase = tau * (t + i / colors.length);
+      final cx =
+          size.width * (.15 + .7 * i / (colors.length - 1)) +
+          size.width * .09 * math.sin(phase + i);
+      final cy = size.height * (.5 + .26 * math.sin(phase * 1 + i * 2.1));
+      canvas.drawCircle(
+        Offset(cx, cy),
+        size.height * (.34 + .05 * (i % 2)),
+        Paint()..color = colors[i],
+      );
+    }
+    // Thin diagonal stripes give the blur something sharp to soften.
+    final stripe = Paint()
+      ..color = const Color(0x33FFFFFF)
+      ..strokeWidth = 12;
+    for (var x = -size.height; x < size.width; x += 48) {
+      canvas.drawLine(
+        Offset(x + 48 * t, size.height),
+        Offset(x + 48 * t + size.height, 0),
+        stripe,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_BlobsPainter oldDelegate) => oldDelegate.t != t;
 }
 
 class _CaptureScene extends StatefulWidget {
@@ -138,6 +305,108 @@ class _CaptureSceneState extends State<_CaptureScene> {
   int _connectedSelected = 0;
   int _reactiveSelected = 1;
   int _pointerId = 900;
+
+  // Density scene: the only thing that changes is the theme's density.
+  MorphDensity _density = MorphDensity.standard;
+
+  // Context-menu scene: a scripted mouse (real pointer events of kind
+  // `mouse`) and a deliberately drawn pointer arrow.
+  final List<GlobalKey> _fileKeys = List.generate(3, (_) => GlobalKey());
+  final List<GlobalKey> _variantKeys = List.generate(25, (_) => GlobalKey());
+  String _menuStatus = 'Right-click a file';
+  Offset _mouse = const Offset(430, 262);
+  bool _mouseAdded = false;
+  static const int _mouseDevice = 41;
+
+  void _mouseMove(Offset to) {
+    final binding = GestureBinding.instance;
+    if (!_mouseAdded) {
+      _mouseAdded = true;
+      binding.handlePointerEvent(
+        PointerAddedEvent(
+          device: _mouseDevice,
+          kind: PointerDeviceKind.mouse,
+          position: _mouse,
+          timeStamp: _stamp,
+        ),
+      );
+    }
+    binding.handlePointerEvent(
+      PointerHoverEvent(
+        device: _mouseDevice,
+        kind: PointerDeviceKind.mouse,
+        position: to,
+        delta: to - _mouse,
+        timeStamp: _stamp,
+      ),
+    );
+    _mouse = to;
+    _captureCursor.value = to;
+  }
+
+  /// Eases the scripted mouse from where it is to [target] (resolved when the
+  /// glide starts, so it can point at widgets that were just built).
+  void _glide(Offset? Function() target, {required int atMs, int ms = 600}) {
+    _at(atMs, () {
+      final to = target();
+      if (to == null) return;
+      final from = _mouse;
+      final steps = (ms / 16).ceil();
+      for (var i = 1; i <= steps; i++) {
+        _after(i * 16, () {
+          final t = Curves.easeInOutCubic.transform(i / steps);
+          _mouseMove(Offset.lerp(from, to, t)!);
+        });
+      }
+    });
+  }
+
+  void _mouseClick({bool secondary = false, int holdMs = 110}) {
+    final id = _pointerId++;
+    final binding = GestureBinding.instance;
+    final at = _mouse;
+    binding.handlePointerEvent(
+      PointerDownEvent(
+        pointer: id,
+        device: _mouseDevice,
+        kind: PointerDeviceKind.mouse,
+        position: at,
+        buttons: secondary ? kSecondaryButton : kPrimaryButton,
+        timeStamp: _stamp,
+      ),
+    );
+    _after(holdMs, () {
+      binding.handlePointerEvent(
+        PointerUpEvent(
+          pointer: id,
+          device: _mouseDevice,
+          kind: PointerDeviceKind.mouse,
+          position: at,
+          timeStamp: _stamp,
+        ),
+      );
+    });
+  }
+
+  /// Centre of the first on-screen [Text] whose data equals [text].
+  Offset? _textCenter(String text) {
+    Offset? found;
+    void visit(Element element) {
+      if (found != null) return;
+      final widget = element.widget;
+      if (widget is Text && widget.data == text) {
+        final box = element.renderObject;
+        if (box is RenderBox && box.hasSize && box.attached) {
+          found = box.localToGlobal(box.size.center(Offset.zero));
+          return;
+        }
+      }
+      element.visitChildren(visit);
+    }
+
+    WidgetsBinding.instance.rootElement?.visitChildren(visit);
+    return found;
+  }
 
   // Real pointer events, so press feedback and gestures drive the real widgets
   // (no cursor is rendered and nothing is simulated inside the components).
@@ -481,6 +750,12 @@ class _CaptureSceneState extends State<_CaptureScene> {
               0.94,
               0.96,
               0.98,
+              // Back to the resting value so the loop joins.
+              0.9,
+              0.7,
+              0.48,
+              0.34,
+              0.28,
             ],
             apply: (value) => _sliderValue = value,
             stepMs: 178,
@@ -563,9 +838,10 @@ class _CaptureSceneState extends State<_CaptureScene> {
               1.0,
               1.0,
               0.6,
-              0.35,
-              0.2,
-              0.12,
+              0.48,
+              0.4,
+              0.34,
+              0.32,
             ],
             apply: (value) => _progressValue = value,
             stepMs: 330,
@@ -615,6 +891,45 @@ class _CaptureSceneState extends State<_CaptureScene> {
           // Focus returns to the trigger after closing; release it so the
           // loop joins on the resting state.
           _at(6500, () => FocusManager.instance.primaryFocus?.unfocus());
+        case 'variants':
+          // One row at a time: the four styles of a variant are pressed in
+          // sequence (real touches, so the real press feedback shows).
+          for (var row = 0; row < 5; row++) {
+            for (var col = 0; col < 4; col++) {
+              _at(
+                300 + row * 1000 + col * 170,
+                () => _tapKey(_variantKeys[row * 5 + col], holdMs: 320),
+              );
+            }
+          }
+        case 'density':
+          // Standard -> Compact -> Standard -> Comfortable -> Standard: the
+          // clip starts and ends on the default, so the loop joins.
+          for (final (ms, density) in [
+            (1200, MorphDensity.compact),
+            (2700, MorphDensity.standard),
+            (4100, MorphDensity.comfortable),
+            (5500, MorphDensity.standard),
+          ]) {
+            _at(ms, () => setState(() => _density = density));
+          }
+        case 'context_menu':
+          // Real secondary click on the second file: the desktop menu opens at
+          // the pointer, hover moves the highlight, "Move to" opens its
+          // submenu, a left click on "Documents" chooses and closes.
+          _mouseMove(_mouse);
+          _glide(
+            () => _centerOf(_fileKeys[1], fx: .38, fy: .5),
+            atMs: 400,
+            ms: 800,
+          );
+          _at(1450, () => _mouseClick(secondary: true));
+          _glide(() => _textCenter('Copy'), atMs: 2200, ms: 520);
+          _glide(() => _textCenter('Move to'), atMs: 2950, ms: 420);
+          _glide(() => _textCenter('Documents'), atMs: 3800, ms: 560);
+          _at(4600, _mouseClick);
+          _glide(() => const Offset(430, 262), atMs: 5100, ms: 800);
+          _at(6500, () => setState(() => _menuStatus = 'Right-click a file'));
       }
     });
   }
@@ -650,6 +965,7 @@ class _CaptureSceneState extends State<_CaptureScene> {
     _underlineController.dispose();
     _pillController.dispose();
     _fab.dispose();
+    _captureCursor.value = null;
     _search.dispose();
     _email.dispose();
     _filled.dispose();
@@ -682,6 +998,13 @@ class _CaptureSceneState extends State<_CaptureScene> {
       'skeleton' => ('Skeleton', 'One tilted shimmer'),
       'tabs' => ('Tabs', 'The indicator follows the pages'),
       'fab_menu' => ('FABs', 'Sizes and the FAB menu'),
+      'variants' => (
+        'Variants',
+        'primary · secondary · tertiary · muted · danger',
+      ),
+      'density' => ('Density', 'One theme switch · nothing else changes'),
+      'context_menu' => ('Context menu', 'Desktop secondary click and submenu'),
+      'frosted' => ('Frosted surfaces', 'surface: solid vs surface: frosted'),
       _ => ('Morph Expressive', 'Component capture'),
     };
 
@@ -713,6 +1036,17 @@ class _CaptureSceneState extends State<_CaptureScene> {
             child: Align(alignment: Alignment.topLeft, child: _content()),
           ),
         ),
+        if (widget.scene == 'density')
+          Positioned(
+            top: 18,
+            right: 28,
+            child: Text(
+              'density: .${_density.name}',
+              style: (morph.textTheme.titleSmall ?? const TextStyle()).copyWith(
+                color: scheme.primary,
+              ),
+            ),
+          ),
         Positioned(
           bottom: 19,
           right: 30,
@@ -916,6 +1250,347 @@ class _CaptureSceneState extends State<_CaptureScene> {
             (i) => setState(() => _tabsPill = i),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _variantsScene() {
+    const variants = [
+      (MorphVariant.primary, 'primary'),
+      (MorphVariant.secondary, 'secondary'),
+      (MorphVariant.tertiary, 'tertiary'),
+      (MorphVariant.muted, 'muted'),
+      (MorphVariant.danger, 'danger'),
+    ];
+    return SizedBox(
+      width: 584,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final (row, (variant, name)) in variants.indexed)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 2),
+              // Scales down only when a wider fallback font would overflow.
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(width: 96, child: _captureLabel('.$name')),
+                    MorphButton.filled(
+                      key: _variantKeys[row * 5],
+                      variant: variant,
+                      label: const Text('Filled'),
+                      onPressed: () {},
+                    ),
+                    const SizedBox(width: 24),
+                    MorphButton.tonal(
+                      key: _variantKeys[row * 5 + 1],
+                      variant: variant,
+                      label: const Text('Tonal'),
+                      onPressed: () {},
+                    ),
+                    const SizedBox(width: 24),
+                    MorphButton.outlined(
+                      key: _variantKeys[row * 5 + 2],
+                      variant: variant,
+                      label: const Text('Outlined'),
+                      onPressed: () {},
+                    ),
+                    const SizedBox(width: 24),
+                    MorphButton.text(
+                      key: _variantKeys[row * 5 + 3],
+                      variant: variant,
+                      child: const Text('Text'),
+                      onPressed: () {},
+                    ),
+                    const SizedBox(width: 24),
+                    MorphIconButton.tonal(
+                      key: _variantKeys[row * 5 + 4],
+                      variant: variant,
+                      icon: Icon(FluentIcons.line.heart),
+                      semanticLabel: 'Favorite',
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// The same small set of real widgets under one theme whose only change is
+  /// `density`; texts, colours, variants and sizes stay as they are.
+  Widget _densityScene() {
+    final base = MorphTheme.of(context);
+    return MorphTheme(
+      data: base.copyWith(density: _density),
+      child: Builder(
+        builder: (context) => Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 292,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _captureLabel('Buttons'),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      MorphButton.filled(
+                        label: const Text('Save'),
+                        onPressed: () {},
+                      ),
+                      MorphButton.tonal(
+                        label: const Text('Share'),
+                        onPressed: () {},
+                      ),
+                      MorphButton.outlined(
+                        label: const Text('Cancel'),
+                        onPressed: () {},
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  _captureLabel('Chips'),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final (label, selected) in const [
+                        ('Daily', true),
+                        ('Weekly', false),
+                        ('Monthly', false),
+                      ])
+                        MorphChip(
+                          label: label,
+                          type: MorphChipType.filter,
+                          selected: selected,
+                          onPressed: () {},
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  _captureLabel('Text field'),
+                  const SizedBox(height: 8),
+                  MorphTextField(
+                    label: 'Email',
+                    placeholder: 'name@example.com',
+                    variant: MorphTextFieldVariant.outlined,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 24),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _captureLabel('List rows'),
+                  const SizedBox(height: 8),
+                  for (final (title, subtitle) in const [
+                    ('Quarterly report', 'Updated today'),
+                    ('Design tokens', 'Updated yesterday'),
+                    ('Release notes', 'Updated last week'),
+                  ])
+                    MorphListItem(
+                      headline: title,
+                      supportingText: subtitle,
+                      leading: const Icon(MorphIcons.star),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<MorphMenuNode> _fileMenu() => <MorphMenuNode>[
+    MorphMenuEntry(
+      label: 'Open',
+      leading: Icon(FluentIcons.line.folder_open),
+      trailingText: 'Enter',
+      value: 'open',
+    ),
+    MorphMenuEntry(
+      label: 'Rename',
+      leading: Icon(FluentIcons.line.edit),
+      trailingText: 'F2',
+      value: 'rename',
+    ),
+    MorphMenuEntry(
+      label: 'Copy',
+      leading: Icon(FluentIcons.line.copy),
+      trailingText: 'Ctrl+C',
+      value: 'copy',
+    ),
+    MorphMenuSubmenu(
+      label: 'Move to',
+      leading: Icon(FluentIcons.line.folder_arrow_right),
+      children: const <MorphMenuNode>[
+        MorphMenuEntry(label: 'Documents', value: 'Documents'),
+        MorphMenuEntry(label: 'Projects', value: 'Projects'),
+        MorphMenuEntry(label: 'Archive', value: 'Archive'),
+      ],
+    ),
+    const MorphMenuDivider(),
+    MorphMenuEntry(
+      label: 'Delete',
+      leading: Icon(FluentIcons.line.delete),
+      isDestructive: true,
+      value: 'delete',
+    ),
+  ];
+
+  Widget _contextMenuScene() {
+    const files = [
+      ('Quarterly report.pdf', 'PDF · 2.4 MB'),
+      ('Meeting notes.md', 'Markdown · 12 KB'),
+      ('Design tokens.json', 'JSON · 38 KB'),
+    ];
+    return SizedBox(
+      width: 584,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final (i, (name, detail)) in files.indexed)
+            MorphContextMenuRegion<String>(
+              onSelected: (value) => setState(
+                () => _menuStatus = switch (value) {
+                  'Documents' ||
+                  'Projects' ||
+                  'Archive' => 'Moved $name to $value',
+                  _ => '$value: $name',
+                },
+              ),
+              children: _fileMenu(),
+              child: MorphListItem(
+                key: _fileKeys[i],
+                headline: name,
+                supportingText: detail,
+                leading: Icon(FluentIcons.line.document),
+              ),
+            ),
+          const SizedBox(height: 12),
+          Text(
+            _menuStatus,
+            style:
+                (MorphTheme.of(context).textTheme.labelLarge ??
+                        const TextStyle())
+                    .copyWith(
+                      color: _menuStatus.startsWith('Moved')
+                          ? MorphTheme.of(context).colorScheme.primary
+                          : MorphTheme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _frostedScene() {
+    final scheme = MorphTheme.of(context).colorScheme;
+    Widget row(String caption, MorphSurface surface) => Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: scheme.surface.withValues(alpha: .86),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              caption,
+              style:
+                  (MorphTheme.of(context).textTheme.labelMedium ??
+                          const TextStyle())
+                      .copyWith(color: scheme.onSurface),
+            ),
+          ),
+          const SizedBox(height: 8),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                MorphButton.filled(
+                  surface: surface,
+                  label: const Text('Filled'),
+                  onPressed: () {},
+                ),
+                const SizedBox(width: 10),
+                MorphButton.tonal(
+                  surface: surface,
+                  label: const Text('Tonal'),
+                  onPressed: () {},
+                ),
+                const SizedBox(width: 10),
+                MorphButton.outlined(
+                  surface: surface,
+                  label: const Text('Outlined'),
+                  onPressed: () {},
+                ),
+                const SizedBox(width: 10),
+                MorphIconButton.tonal(
+                  surface: surface,
+                  icon: Icon(FluentIcons.line.heart),
+                  onPressed: () {},
+                ),
+                const SizedBox(width: 14),
+                MorphCard.filled(
+                  surface: surface,
+                  width: 124,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    child: Text('Card'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+    return SizedBox(
+      width: 584,
+      height: 262,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: _DriftingBackdrop(
+                period: const Duration(milliseconds: 6000),
+                colors: [
+                  scheme.primaryContainer,
+                  scheme.tertiaryContainer,
+                  scheme.secondaryContainer,
+                  scheme.primary.withValues(alpha: .55),
+                ],
+              ),
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                row('surface: .solid', MorphSurface.solid),
+                row('surface: .frosted', MorphSurface.frosted),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1661,6 +2336,10 @@ class _CaptureSceneState extends State<_CaptureScene> {
         ],
       ),
     ),
+    'variants' => _variantsScene(),
+    'density' => _densityScene(),
+    'context_menu' => _contextMenuScene(),
+    'frosted' => _frostedScene(),
     _ => const SizedBox.shrink(),
   };
 }

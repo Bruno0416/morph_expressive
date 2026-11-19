@@ -18,6 +18,7 @@ extension _MorphIconButtonBuild on _MorphIconButtonState {
     final ({Size visual, Size target}) sizes = _resolveLayoutSizes(
       iconButtonTheme,
       constraints,
+      theme.density,
     );
     final selected = widget.isSelected ?? false;
     // Toggle colors/shape only when [isSelected] is set (default vs toggle).
@@ -29,7 +30,10 @@ extension _MorphIconButtonBuild on _MorphIconButtonState {
       isToggle: isToggle,
       outlineWidth: outlineW,
     );
-    final iconSize = iconButtonTheme.iconSize(widget.size);
+    final iconSize = iconButtonTheme.iconSize(
+      widget.size,
+      density: theme.density,
+    );
     final iconTheme = IconThemeData(size: iconSize, color: colors.fg);
     final Widget themedIcon = IconTheme.merge(
       data: iconTheme,
@@ -82,9 +86,18 @@ extension _MorphIconButtonBuild on _MorphIconButtonState {
   ({Size visual, Size target}) _resolveLayoutSizes(
     MorphIconButtonTheme iconButtonTheme,
     BoxConstraints constraints,
+    MorphDensity density,
   ) {
-    final Size themeVisual = iconButtonTheme.visual(widget.size, widget.width);
-    final Size themeTarget = iconButtonTheme.target(widget.size, widget.width);
+    final Size themeVisual = iconButtonTheme.visual(
+      widget.size,
+      widget.width,
+      density: density,
+    );
+    final Size themeTarget = iconButtonTheme.target(
+      widget.size,
+      widget.width,
+      density: density,
+    );
     var visual = widget.visualSize ?? themeVisual;
     // Fill the allocated slot when the parent drives width (connected equal
     // flex or standard neighbor-squish). Do not use unbounded max sizes from
@@ -266,8 +279,8 @@ extension _MorphIconButtonBuild on _MorphIconButtonState {
     if (disabled) {
       final onSurface = scheme.onSurface;
       final isTransparent =
-          widget.variant == MorphIconButtonVariant.standard ||
-          (widget.variant == MorphIconButtonVariant.outlined &&
+          widget.type == MorphIconButtonType.standard ||
+          (widget.type == MorphIconButtonType.outlined &&
               !(isToggle && selected));
       bg = isTransparent
           ? Colors.transparent
@@ -298,24 +311,77 @@ extension _MorphIconButtonBuild on _MorphIconButtonState {
     required bool isToggle,
     required double outlineWidth,
   }) {
-    switch (widget.variant) {
-      case MorphIconButtonVariant.standard:
+    final MorphVariant? variant = widget.variant;
+    if (variant != null) {
+      return _roleColors(
+        scheme,
+        variant.resolve(scheme),
+        selected: selected,
+        isToggle: isToggle,
+        outlineWidth: outlineWidth,
+      );
+    }
+    switch (widget.type) {
+      case MorphIconButtonType.standard:
         return (
           bg: Colors.transparent,
           fg: (isToggle && selected) ? scheme.primary : scheme.onSurfaceVariant,
           side: null,
         );
-      case MorphIconButtonVariant.filled:
+      case MorphIconButtonType.filled:
         return _filledColors(scheme, isToggle: isToggle, selected: selected);
-      case MorphIconButtonVariant.tonal:
+      case MorphIconButtonType.tonal:
         return _tonalColors(scheme, isToggle: isToggle, selected: selected);
-      case MorphIconButtonVariant.outlined:
+      case MorphIconButtonType.outlined:
         return _outlinedColors(
           scheme,
           isToggle: isToggle,
           selected: selected,
           outlineWidth: outlineWidth,
         );
+    }
+  }
+
+  /// Colors for a chromatic role. Mirrors the per-type slots of
+  /// [MorphVariantPalette]; selected toggles use the filled pair.
+  ({Color bg, Color fg, BorderSide? side}) _roleColors(
+    MorphColorScheme scheme,
+    MorphVariantPalette palette, {
+    required bool selected,
+    required bool isToggle,
+    required double outlineWidth,
+  }) {
+    final bool on = isToggle && selected;
+    switch (widget.type) {
+      case MorphIconButtonType.standard:
+        return (
+          bg: Colors.transparent,
+          fg: isToggle && !selected ? scheme.onSurfaceVariant : palette.accent,
+          side: null,
+        );
+      case MorphIconButtonType.filled:
+        return isToggle && !selected
+            ? (bg: scheme.surfaceContainer, fg: palette.accent, side: null)
+            : (bg: palette.color, fg: palette.onColor, side: null);
+      case MorphIconButtonType.tonal:
+        return on
+            ? (bg: palette.color, fg: palette.onColor, side: null)
+            : (bg: palette.container, fg: palette.onContainer, side: null);
+      case MorphIconButtonType.outlined:
+        return on
+            ? (bg: palette.color, fg: palette.onColor, side: null)
+            : (
+                bg: Colors.transparent,
+                fg: palette.accent,
+                // Roles sharing the scheme outline keep the type's own
+                // outlineVariant border; danger/muted use their outline.
+                side: BorderSide(
+                  color: palette.outline == scheme.outline
+                      ? scheme.outlineVariant
+                      : palette.outline,
+                  width: outlineWidth,
+                ),
+              );
     }
   }
 
@@ -416,39 +482,66 @@ extension _MorphIconButtonBuild on _MorphIconButtonState {
             );
           }
         }
+        final MorphSurfaceGlass? glass = morphResolveSurfaceGlass(
+          context,
+          widget.surface,
+        );
+        Widget face = MorphInkSplashTheme(
+          color: colors.fg,
+          child: IconButton(
+            focusNode: _focusNode,
+            autofocus: widget.autofocus,
+            onPressed: widget.onPressed == null
+                ? null
+                : () {
+                    if (widget.enableFeedback != false) {
+                      MorphHaptics.triggerFor(context, widget.haptic);
+                    }
+                    widget.onPressed!();
+                  },
+            isSelected: widget.isSelected,
+            iconSize: iconSize,
+            selectedIcon: displaySelectedIcon,
+            icon: displayIcon,
+            enableFeedback: false,
+            statesController: _statesController,
+            style: _morphButtonStyle(
+              visual: visual,
+              colors: colors,
+              animatedRadius: animatedRadius,
+              iconSize: iconSize,
+              fill: fill,
+              useGradient: useGradient,
+              gradientOverlay: gradientOverlay,
+            ),
+          ),
+        );
+        if (glass != null) {
+          final Color baseColor = morphGlassBaseColor(
+            widget.onPressed == null
+                ? MorphTheme.of(context).colorScheme.surfaceContainerLow
+                : colors.bg,
+            MorphTheme.of(context).colorScheme.surfaceContainerLow,
+          );
+          face = MorphGlassSurface(
+            // Icons are graphical objects: WCAG 1.4.11 asks for 3:1.
+            glass: widget.onPressed == null
+                ? glass
+                : morphLegibleGlass(
+                    glass,
+                    base: baseColor,
+                    content: colors.fg,
+                    minContrast: 3,
+                  ),
+            baseColor: baseColor,
+            borderRadius: animatedRadius,
+            child: face,
+          );
+        }
         return MorphFocusRing(
           focused: showFocusRing,
           radius: animatedRadius,
-          child: MorphInkSplashTheme(
-            color: colors.fg,
-            child: IconButton(
-              focusNode: _focusNode,
-              autofocus: widget.autofocus,
-              onPressed: widget.onPressed == null
-                  ? null
-                  : () {
-                      if (widget.enableFeedback != false) {
-                        MorphHaptics.triggerFor(context, widget.haptic);
-                      }
-                      widget.onPressed!();
-                    },
-              isSelected: widget.isSelected,
-              iconSize: iconSize,
-              selectedIcon: displaySelectedIcon,
-              icon: displayIcon,
-              enableFeedback: false,
-              statesController: _statesController,
-              style: _morphButtonStyle(
-                visual: visual,
-                colors: colors,
-                animatedRadius: animatedRadius,
-                iconSize: iconSize,
-                fill: fill,
-                useGradient: useGradient,
-                gradientOverlay: gradientOverlay,
-              ),
-            ),
-          ),
+          child: face,
         );
       },
     );
@@ -473,8 +566,11 @@ extension _MorphIconButtonBuild on _MorphIconButtonState {
       shape: WidgetStateProperty.all(
         RoundedRectangleBorder(borderRadius: animatedRadius),
       ),
+      // Frosted containers paint their tint in MorphGlassSurface.
       backgroundColor: WidgetStateProperty.all(
-        useGradient ? Colors.transparent : colors.bg,
+        useGradient || widget.surface.isFrosted
+            ? Colors.transparent
+            : colors.bg,
       ),
       backgroundBuilder: morphGradientSurfaceBuilder(
         clipRadius: animatedRadius,
@@ -518,11 +614,10 @@ extension _MorphIconButtonBuild on _MorphIconButtonState {
   }
 
   Gradient? _themeGradientForVariant(MorphIconButtonTheme theme) {
-    return switch (widget.variant) {
-      MorphIconButtonVariant.filled => theme.filledBackgroundGradient,
-      MorphIconButtonVariant.tonal => theme.tonalBackgroundGradient,
-      MorphIconButtonVariant.standard ||
-      MorphIconButtonVariant.outlined => null,
+    return switch (widget.type) {
+      MorphIconButtonType.filled => theme.filledBackgroundGradient,
+      MorphIconButtonType.tonal => theme.tonalBackgroundGradient,
+      MorphIconButtonType.standard || MorphIconButtonType.outlined => null,
     };
   }
 

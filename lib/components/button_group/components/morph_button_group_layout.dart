@@ -217,7 +217,7 @@ extension _MorphButtonGroupLayout on _MorphButtonGroupState {
               Object.hash(
                 i,
                 widget.size.name,
-                widget.density.name,
+                _resolvedDensity.name,
                 widget.actions[i].minWidth,
                 widget.actions[i].width,
                 widget.type,
@@ -584,13 +584,14 @@ extension _MorphButtonGroupLayout on _MorphButtonGroupState {
         _naturalSizeForButton(context, index),
       );
     }
-    final buttonTheme = MorphTheme.of(context).buttonTheme;
-    final measurements = buttonTheme.measurements(
+    final morphTheme = MorphTheme.of(context);
+    final measurements = morphTheme.buttonTheme.measurements(
       _mapSize(
         widget.size,
         actionWidth: widget.actions[index].width,
         iconOnly: widget.actions[index].isIconOnly,
       ),
+      density: morphTheme.density,
     );
     return MorphButtonGroupOverflowController.roundConsumed(
       measurements.height,

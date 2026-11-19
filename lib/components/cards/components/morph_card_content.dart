@@ -160,14 +160,32 @@ extension _MorphCardContent on _MorphCardState {
       if (widget.headline != null)
         _sorted(
           1,
-          Text(widget.headline!, style: cardTheme.headlineStyle(theme)),
+          Text(
+            widget.headline!,
+            style: cardTheme
+                .headlineStyle(theme)
+                .copyWith(color: _variantHeadlineColor(theme.colorScheme)),
+          ),
         ),
       if (widget.subhead != null)
-        _sorted(3, Text(widget.subhead!, style: cardTheme.subheadStyle(theme))),
+        _sorted(
+          3,
+          Text(
+            widget.subhead!,
+            style: cardTheme
+                .subheadStyle(theme)
+                .copyWith(color: _variantBodyColor(theme.colorScheme)),
+          ),
+        ),
       if (widget.supportingText != null)
         _sorted(
           3.1,
-          Text(widget.supportingText!, style: cardTheme.supportingStyle(theme)),
+          Text(
+            widget.supportingText!,
+            style: cardTheme
+                .supportingStyle(theme)
+                .copyWith(color: _variantBodyColor(theme.colorScheme)),
+          ),
         ),
       if (widget.child != null) _sorted(3.2, widget.child!),
     ];

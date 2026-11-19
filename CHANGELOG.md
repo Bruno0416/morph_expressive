@@ -1,5 +1,109 @@
 # Changelog
 
+## 1.0.0 - 2026-11-19
+
+### Stable component API
+
+- Visual types are chosen with named constructors, chromatic roles with
+  `variant:` and finishes with `surface:`. See [Component API](doc/API_V1.md).
+- New shared types: `MorphVariant` (`primary`, `secondary`, `tertiary`,
+  `muted`, `danger`), `MorphSurface` (`solid`, `frosted`) and
+  `MorphVariantPalette`. `variant: null` keeps each type's canonical
+  Material 3 pairing, so existing code renders as before.
+- `variant` and `surface`: `MorphButton` (every constructor, including
+  `.icon`), `MorphAsyncButton`, `MorphIconButton` and `MorphCard`.
+  `variant` only: `MorphSplitButton`, `MorphButtonGroup` and `MorphShapeButton`.
+
+### Components
+
+- `MorphIconButton.standard/.filled/.tonal/.outlined` and the
+  `MorphIconButtonType` enum.
+- `MorphCard.elevated/.filled/.outlined` and the `MorphCardType` enum.
+- `MorphTextField.filled/.outlined` and
+  `MorphChip.assist/.filter/.input/.suggestion`.
+- Badge labels use `w600` with slightly more padding (standard minimum size
+  18 dp, previously 16 dp); compact density keeps the previous footprint.
+- Frosted in-flow controls raise their tint opacity only when needed, so
+  content keeps 4.5:1 contrast (3:1 for icons) over any backdrop.
+- Outlined cards and icon buttons with a primary, secondary or tertiary
+  variant keep their own `outlineVariant` border.
+- Disabled containers and outlines of buttons and FABs use
+  `MorphStateOpacity.disabledContainer` (0.12, the Material 3 value); every
+  component takes its disabled alphas from the shared `MorphStateOpacity`
+  tokens.
+
+### Theming
+
+- `MorphColorScheme.fromSeed` and `MorphThemeData.light` / `.dark` accept
+  `dynamicSchemeVariant` (default `DynamicSchemeVariant.tonalSpot`) and
+  `contrastLevel` (default `0`). `DynamicSchemeVariant` is re-exported.
+- Derived dark themes (`MorphMaterialApp`, adaptive `MorphThemeScope`) are
+  generated from the original seed, scheme variant and contrast, and now equal
+  `MorphThemeData.dark(seedColor:)`.
+- `MorphMaterialApp` caches its derived Material themes.
+
+### Density
+
+- `MorphDensity` (`compact`, `standard`, `comfortable`) and
+  `MorphDensityMetrics`: additive layout deltas, independent from component
+  sizes and from text scaling. `standard` keeps every previous dimension.
+- `MorphThemeData.density` (default `standard`), `copyWith(density:)` and a
+  `density` argument on `MorphThemeData.light`, `.dark` and `.fromMaterial`.
+- Buttons, icon buttons, button groups, split and segmented buttons, chips,
+  text fields, the dropdown field, lists, cards, navigation bar, rail and
+  drawer, tabs, app bars, toolbars, search bar, dialogs, snackbars, tooltips,
+  badges, selection bars and desktop menus follow the theme density. See
+  [Density and context menus](doc/DENSITY_AND_CONTEXT_MENUS.md).
+
+### Desktop context menus
+
+- `MorphContextMenuRegion` opens a desktop menu at the pointer on secondary
+  click and from the keyboard (Shift+F10, Menu key), and the touch
+  presentation on long press. `showMorphContextMenu` opens one imperatively.
+- `MorphMenuPresentation.desktop` and `MorphMenuDesktopMetrics`: 28 / 32 / 40 dp
+  rows by density, content-fit width (180–320 dp), aligned leading slot,
+  right-aligned shortcuts (`MorphMenuEntry.trailingText`), viewport-aware
+  flipping and scrolling, hover-delayed submenus with a safe triangle, and
+  faster open/close motion.
+- `showMorphMenu` gains `presentation`, `density` and `autofocusFirstItem`;
+  its default geometry is unchanged. Menus follow the caller's nested
+  `MorphTheme`. Home and End move the highlight in every menu.
+
+### Preview and documentation
+
+- The preview is a Widgetbook catalog (`preview/`) covering every exported
+  widget, with global theme, seed, density, background, viewport and text-scale
+  controls, and density, badge and desktop context menu labs.
+- New guides: [Component API](doc/API_V1.md),
+  [Density and context menus](doc/DENSITY_AND_CONTEXT_MENUS.md) and
+  [Upgrading to 1.0.0](doc/UPGRADE_1_0_0.md). README redesigned with a banner
+  and curated animated showcases.
+
+### Fixes
+
+- Derived dark themes no longer drift by a channel step from
+  `MorphThemeData.dark(seedColor:)`.
+- Context menus opened from a pointer now open with their top-left corner at
+  the pointer instead of ending at it.
+- Imports deprecated by Flutter 3.50 (`package:flutter/material.dart`) are
+  replaced by `package:material_ui/material_ui.dart`.
+
+### Breaking changes
+
+- `MorphIconButton`: the visual type parameter is `type:` (was `variant:`,
+  which now takes a `MorphVariant`). `MorphIconButtonVariant` remains a
+  deprecated typedef of `MorphIconButtonType`.
+- `MorphCard`: the visual type parameter is `type:` (was `variant:`).
+  `MorphCardVariant` remains a deprecated typedef of `MorphCardType`;
+  `frosted: true` is deprecated in favor of `surface: MorphSurface.frosted`.
+- `MorphSegmentedButton.density`, `MorphButtonGroup.density`,
+  `MorphNavigationBar.density`, `MorphAppBar.density` and
+  `MorphChipToggle.height` are nullable; `null` follows the theme density.
+- `MorphSplitButtonTheme.splitHeight(size)` no longer takes a density
+  argument; set `MorphSplitButtonTheme.density` instead.
+
+See [Upgrading to 1.0.0](doc/UPGRADE_1_0_0.md) for migration examples.
+
 ## 0.8.0 - 2026-11-12
 
 ### Added

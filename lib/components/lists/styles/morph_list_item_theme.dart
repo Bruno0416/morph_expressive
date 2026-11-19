@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../foundations/foundations.dart';
-import '../../cards/enums/morph_card_variant.dart';
+import '../../cards/enums/morph_card_type.dart';
 import '../enums/morph_list_enums.dart';
 
 part 'morph_list_item_theme_resolvers.dart';
@@ -50,7 +50,7 @@ class MorphListItemTheme extends _MorphListItemThemeFields
     this.draggedStateOpacity = MorphStateOpacity.dragged,
     this.disabledContentOpacity = MorphStateOpacity.disabledContent,
     this.draggedElevation = MorphElevation.level2,
-    this.variant = MorphCardVariant.filled,
+    this.variant = MorphCardType.filled,
     this.border,
     this.containerColor,
     this.selectedContainerColor,
@@ -191,7 +191,7 @@ class MorphListItemTheme extends _MorphListItemThemeFields
   final double draggedElevation;
 
   /// Card variant for outlined list rows.
-  final MorphCardVariant variant;
+  final MorphCardType variant;
 
   /// Optional outline; null keeps the variant default.
   final BorderSide? border;
@@ -322,6 +322,48 @@ class MorphListItemTheme extends _MorphListItemThemeFields
   double leadingIconTopFor({required bool tall}) =>
       tall ? leadingIconTopPaddingTall : leadingIconTopPadding;
 
+  /// This theme with the layout [density] applied once.
+  ///
+  /// Row heights follow [MorphDensityMetrics.rowHeight]; paddings, gaps, icon
+  /// and avatar sizes follow the matching deltas. Media (images, video), the
+  /// hit target [minTarget], colors and typography never change. Call this
+  /// where the row is painted, never on an already resolved theme.
+  MorphListItemTheme withDensity(MorphDensity density) {
+    if (density == MorphDensity.standard) {
+      return this;
+    }
+    final MorphDensityMetrics m = density.metrics;
+    double h(double v) => MorphDensityMetrics.adjust(v, m.paddingHorizontal);
+    double v(double v) => MorphDensityMetrics.adjust(v, m.paddingVertical);
+    double row(double v) => MorphDensityMetrics.adjust(v, m.rowHeight, min: 40);
+    return copyWith(
+      horizontalPadding: h(horizontalPadding),
+      verticalPadding: v(verticalPadding),
+      baselineVerticalPadding: v(baselineVerticalPadding),
+      threeLineVerticalPadding: v(threeLineVerticalPadding),
+      minHeight: row(minHeight),
+      twoLineHeight: row(twoLineHeight),
+      threeLineHeight: row(threeLineHeight),
+      iconSize: MorphDensityMetrics.adjust(iconSize, m.iconSize, min: 16),
+      baselineIconSize: MorphDensityMetrics.adjust(
+        baselineIconSize,
+        m.iconSize,
+        min: 16,
+      ),
+      gap: MorphDensityMetrics.adjust(gap, m.gap),
+      baselineGap: MorphDensityMetrics.adjust(baselineGap, m.gap),
+      avatarSize: MorphDensityMetrics.adjust(
+        avatarSize,
+        m.rowHeight / 2,
+        min: 32,
+      ),
+      dividerLeadingInset: h(dividerLeadingInset),
+      dividerTrailingInset: h(dividerTrailingInset),
+      leadingIconTopPadding: v(leadingIconTopPadding),
+      leadingIconTopPaddingTall: v(leadingIconTopPaddingTall),
+    );
+  }
+
   /// copyWith.
   MorphListItemTheme copyWith({
     MorphListAppearance? appearance,
@@ -362,7 +404,7 @@ class MorphListItemTheme extends _MorphListItemThemeFields
     double? draggedStateOpacity,
     double? disabledContentOpacity,
     double? draggedElevation,
-    MorphCardVariant? variant,
+    MorphCardType? variant,
     BorderSide? border,
     Color? containerColor,
     Color? selectedContainerColor,
