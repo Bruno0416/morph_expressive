@@ -5,14 +5,17 @@
 ### Stable component API
 
 - Visual types are chosen with named constructors, chromatic roles with
-  `variant:` and finishes with `surface:`. See [Component API](doc/API_V1.md).
+  `variant:` and, on `MorphCard`, finishes with `surface:`. See
+  [Component API](doc/API_V1.md).
 - New shared types: `MorphVariant` (`primary`, `secondary`, `tertiary`,
   `muted`, `danger`), `MorphSurface` (`solid`, `frosted`) and
   `MorphVariantPalette`. `variant: null` keeps each type's canonical
   Material 3 pairing, so existing code renders as before.
-- `variant` and `surface`: `MorphButton` (every constructor, including
-  `.icon`), `MorphAsyncButton`, `MorphIconButton` and `MorphCard`.
-  `variant` only: `MorphSplitButton`, `MorphButtonGroup` and `MorphShapeButton`.
+- `variant`: `MorphButton` (every constructor, including `.icon`),
+  `MorphAsyncButton`, `MorphIconButton`, `MorphCard`, `MorphSplitButton`,
+  `MorphButtonGroup` and `MorphShapeButton`.
+- `surface`: `MorphCard` only. A frosted finish for buttons, icon buttons and
+  the async button is not part of 1.0.0.
 
 ### Components
 
@@ -23,8 +26,8 @@
   `MorphChip.assist/.filter/.input/.suggestion`.
 - Badge labels use `w600` with slightly more padding (standard minimum size
   18 dp, previously 16 dp); compact density keeps the previous footprint.
-- Frosted in-flow controls raise their tint opacity only when needed, so
-  content keeps 4.5:1 contrast (3:1 for icons) over any backdrop.
+- Frosted cards raise their tint opacity only when needed, so supporting text
+  keeps 4.5:1 contrast over any backdrop.
 - Outlined cards and icon buttons with a primary, secondary or tertiary
   variant keep their own `outlineVariant` border.
 - Disabled containers and outlines of buttons and FABs use

@@ -68,6 +68,7 @@ import 'package:material_ui/material_ui.dart'
 import 'package:morph_expressive/components/chips/morph_chip_organic_surface.dart'
     show MorphChipOrganicSurface;
 import 'package:morph_expressive/morph_expressive.dart';
+import 'package:morph_expressive_preview/gif_scenes/frosted_scene.dart';
 
 /// Escenas aisladas para generar los GIFs del README con Playwright.
 ///
@@ -1083,6 +1084,36 @@ class _CaptureSceneState extends State<_CaptureScene>
     });
   }
 
+  /// Column header with one fixed line height, so both columns start their
+  /// fields at the same y even when a font is wider than expected.
+  Widget _columnHeader(String text) => SizedBox(
+    height: 16,
+    child: FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerLeft,
+      child: _captureLabel(text),
+    ),
+  );
+
+  /// Extra top space the outlined field needs so its container starts where
+  /// the filled one does (see [_textfieldsScene]).
+  double get _outlinedTopAlignment {
+    final theme = MorphTheme.of(context);
+    final fieldTheme = theme.textFieldTheme;
+    final filledLabel = theme.typeScale.bodyMedium.copyWith(
+      fontSize: (theme.typeScale.bodyMedium.fontSize ?? 14) + 1,
+    );
+    final filledInset =
+        MorphTextFieldTheme.lineHeightOf(filledLabel) +
+        fieldTheme.supportingTopPadding;
+    final outlinedInset =
+        MorphTextFieldTheme.lineHeightOf(
+          fieldTheme.resolveFloatingLabelStyle(theme.typeScale),
+        ) /
+        2;
+    return filledInset - outlinedInset;
+  }
+
   Widget _textfieldsScene() {
     final showError = _emailTouched && !_emailValid;
     return SizedBox(
@@ -1097,7 +1128,7 @@ class _CaptureSceneState extends State<_CaptureScene>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _captureLabel('Filled · floating label and error'),
+                    _columnHeader('Filled · floating label and error'),
                     const SizedBox(height: 8),
                     MorphTextField(
                       key: const ValueKey('gif_textfield_filled'),
@@ -1121,8 +1152,13 @@ class _CaptureSceneState extends State<_CaptureScene>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _captureLabel('Outlined · counter'),
+                    _columnHeader('Outlined · counter'),
                     const SizedBox(height: 8),
+                    // The filled field reserves its floating-label region above
+                    // the container, the outlined one only half a label line
+                    // (the label floats on its border). Reserve the difference
+                    // so both containers share the same top edge.
+                    SizedBox(height: _outlinedTopAlignment),
                     MorphTextField(
                       key: const ValueKey('gif_textfield_outlined'),
                       controller: _email,
@@ -1604,6 +1640,13 @@ class _CaptureSceneState extends State<_CaptureScene>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.scene == 'frosted') {
+      // Full-bleed backdrop: the scene lays out its own title and watermark.
+      return FrostedGifScene(
+        key: const ValueKey('morph_gif_frosted'),
+        delayMs: _delayMs,
+      );
+    }
     final morph = MorphTheme.of(context);
     final scheme = morph.colorScheme;
     final (title, subtitle) = switch (widget.scene) {

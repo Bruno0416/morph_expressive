@@ -10,6 +10,7 @@ python3 tool/check_gif_branding.py
 python3 tool/check_icons.py
 python3 tool/check_motion.py
 python3 tool/check_morph_names.py
+python3 tool/check_button_surface_docs.py
 python3 tool/check_preview_coverage.py
 python3 tool/check_secure_links.py
 python3 tool/check_third_party_notices.py

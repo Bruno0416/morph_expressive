@@ -96,8 +96,8 @@ addon (0.8x to 2.0x) for this.
 
 - Seed schemes follow Material 3 tone rules. Request more contrast with
   `contrastLevel` (-1 to 1) on `MorphThemeData.light` / `.dark`.
-- Frosted surfaces raise their tint until content reaches 4.5:1 (3:1 for icon
-  buttons) over both a white and a black backdrop, and become opaque under the
+- Frosted cards raise their tint until supporting text reaches 4.5:1 over both
+  a white and a black backdrop, and frosted surfaces become opaque under the
   system high-contrast setting. See [Frosted surfaces](FROSTED_SURFACES.md).
 - Badge colors (`error` / `onError`) measure 6.5:1 in light and 7.7:1 in dark.
 - `MorphMaterialApp` forwards `highContrastTheme` and `highContrastDarkTheme`

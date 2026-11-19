@@ -102,16 +102,22 @@ Widget frostedSurfacePlaygroundUseCase(BuildContext context) {
                   MorphVariant.primary,
                   MorphVariant.tertiary,
                 ])
-                  MorphButton.tonal(
+                  MorphCard.filled(
                     surface: MorphSurface.frosted,
                     variant: variant,
-                    onPressed: () {},
-                    label: Text('Frosted ${variant?.name ?? 'default'}'),
+                    width: 200,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text('Frosted ${variant?.name ?? 'default'}'),
+                    ),
                   ),
-                MorphButton.outlined(
+                MorphCard.outlined(
                   surface: MorphSurface.frosted,
-                  onPressed: () {},
-                  label: const Text('Frosted outlined'),
+                  width: 200,
+                  child: const Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Text('Frosted outlined'),
+                  ),
                 ),
                 MorphCard.filled(
                   surface: MorphSurface.frosted,

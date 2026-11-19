@@ -71,7 +71,7 @@ ALLOWED_REFS = {"main"} | ({BRANCH} if BRANCH else set())
 ALLOWED_GIFS = [
     "buttons", "variants", "async_button", "density", "context_menu",
     "tabs", "navigation", "chips", "dropdown", "lists", "dialogs", "textfields",
-    "sliders", "segmented", "loading", "skeleton", "fab_menu",
+    "sliders", "segmented", "loading", "skeleton", "fab_menu", "frosted",
 ]
 # Kept for a guide that still explains it; not part of the README set.
 GUIDE_GIFS = ["navigation_rail_drawer"]

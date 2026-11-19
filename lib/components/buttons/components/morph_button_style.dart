@@ -80,10 +80,6 @@ extension _MorphButtonStyle on _MorphButtonState {
 
   Color? _resolveBackgroundColor(Set<WidgetState> states) {
     final dec = _decoration;
-    // Frosted buttons paint their (tinted) background in MorphGlassSurface.
-    if (widget.surface.isFrosted) {
-      return Colors.transparent;
-    }
     final activeStates = _selectionStates(states);
     if (dec?.backgroundColor != null) {
       final color = dec!.backgroundColor!.resolve(activeStates);
@@ -112,10 +108,6 @@ extension _MorphButtonStyle on _MorphButtonState {
 
   double? _resolveElevation(Set<WidgetState> states) {
     final dec = _decoration;
-    // Frosted surfaces never draw an elevation shadow over the backdrop.
-    if (widget.surface.isFrosted) {
-      return 0;
-    }
     if (dec?.elevation != null) {
       final e = dec!.elevation!.resolve(states);
       if (e != null) {
@@ -281,22 +273,6 @@ extension _MorphButtonStyle on _MorphButtonState {
       MorphButtonStyle.outlined => selected ? palette.onColor : palette.accent,
       MorphButtonStyle.text => palette.accent,
     };
-  }
-
-  /// Semantic base color the frosted tint derives from. Transparent types
-  /// (outlined, text) borrow `surfaceContainerLow` so the glass stays visible.
-  Color _frostedBaseColor({required bool disabled}) {
-    final Color fallback = _scheme.surfaceContainerLow;
-    final Color? explicit = _decoration?.backgroundColor?.resolve(
-      _selectionStates(<WidgetState>{if (disabled) WidgetState.disabled}),
-    );
-    if (explicit != null) {
-      return morphGlassBaseColor(explicit, fallback);
-    }
-    if (disabled) {
-      return fallback;
-    }
-    return morphGlassBaseColor(_selectionBackgroundColor(), fallback);
   }
 
   Color _variantBackgroundColor(MorphVariantPalette palette) {

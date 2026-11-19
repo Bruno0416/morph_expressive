@@ -1,12 +1,13 @@
 # Component API: type, variant and surface
 
-Morph Expressive components are configured along three independent axes:
+Morph Expressive components are configured along two shared axes, plus a
+surface finish that only `MorphCard` takes:
 
 | Axis | How you choose it | What it controls |
 | --- | --- | --- |
 | **Visual type** | Named constructor (`MorphButton.outlined`, `MorphCard.filled`, ...) | Structure and presentation: fill, border, elevation |
 | **Chromatic variant** | `variant: MorphVariant?` | Which color role the type uses |
-| **Surface finish** | `surface: MorphSurface` | Opaque (`solid`) or frosted glass (`frosted`) |
+| **Surface finish** (`MorphCard` only) | `surface: MorphSurface` | Opaque (`solid`) or frosted glass (`frosted`) |
 
 Everything is available from the single public entry point,
 `package:morph_expressive/morph_expressive.dart`:
@@ -15,14 +16,13 @@ Everything is available from the single public entry point,
 Widget deleteButton(VoidCallback onDelete) {
   return MorphButton.outlined(
     variant: .danger,
-    surface: .frosted,
     onPressed: onDelete,
     child: const Text('Delete'),
   );
 }
 ```
 
-Dart's enum shorthand (`.danger`, `.frosted`) works because the parameter types
+Dart's enum shorthand (`.danger`, `.tertiary`) works because the parameter types
 are known (Dart 3.10 or newer, which the package requires). The fully
 qualified form (`MorphVariant.danger`) is also valid. The snippets in this
 page are compiled by `test/doc_examples_test.dart`.
@@ -92,23 +92,22 @@ Disabled components ignore the variant and use the shared tokens
 
 ## Surface finish
 
-`MorphSurface.frosted` reuses the Morph frosted renderer (`MorphGlassSurface`):
-a backdrop blur clipped to the component's animated shape, a tint derived from
-the resolved container color, and an optional hairline. Content, ink, the state
-layer, the focus ring and the motion are never blurred or changed. The
-configuration comes from, in order:
+`MorphSurface.frosted` on a `MorphCard` reuses the Morph frosted renderer
+(`MorphGlassSurface`): a backdrop blur clipped to the card's shape, a tint
+derived from the resolved container color, and an optional hairline. Content,
+ink and the focus ring are never blurred or changed. The configuration comes
+from, in order:
 
-1. the widget's explicit `glass:` parameter, where one exists (`MorphCard`);
+1. the card's explicit `glass:` parameter;
 2. `MorphThemeData.floatingSurfaceGlass`, when set and enabled;
 3. the default `const MorphSurfaceGlass()` (blur 12, tint opacity 0.65).
 
-Transparent types (outlined, text, standard icon buttons) use
-`surfaceContainerLow` as the tint base so the glass stays visible. Legibility,
-high contrast, performance and platform notes are in
+Legibility, high contrast, performance and platform notes are in
 [Frosted surfaces](FROSTED_SURFACES.md).
 
-Only `MorphButton`, `MorphAsyncButton`, `MorphIconButton` and `MorphCard` take
-`surface:`. Floating surfaces (menus, dropdown panels, dialogs, sheets,
+Only `MorphCard` takes `surface:`. Buttons, icon buttons and the async button
+have no frosted finish: they take `variant` and the visual type. Floating
+surfaces (menus, dropdown panels, dialogs, sheets,
 tooltips, snackbars, toolbars and app bars) keep their `glass:` parameter,
 which distinguishes inherited, explicit and disabled configurations
 (`MorphSurfaceGlass.disabled()`).
@@ -127,9 +126,9 @@ defaults such as `MorphCardTheme.filledContainerColor`.
 
 | Family | Named constructors | `variant` | `surface` | Default |
 | --- | --- | --- | --- | --- |
-| `MorphButton` | `.filled`, `.tonal`, `.elevated`, `.outlined`, `.text`, `.icon` | yes | yes | `MorphButton()` is filled |
-| `MorphAsyncButton` | none (takes `style`) | yes | yes | filled |
-| `MorphIconButton` | `.standard`, `.filled`, `.tonal`, `.outlined` | yes | yes | `type: .filled` |
+| `MorphButton` | `.filled`, `.tonal`, `.elevated`, `.outlined`, `.text`, `.icon` | yes | no | `MorphButton()` is filled |
+| `MorphAsyncButton` | none (takes `style`) | yes | no | filled |
+| `MorphIconButton` | `.standard`, `.filled`, `.tonal`, `.outlined` | yes | no | `type: .filled` |
 | `MorphCard` | `.elevated`, `.filled`, `.outlined` | yes | yes | `type: .elevated` |
 | `MorphSplitButton` | existing named constructors | yes | no | unchanged |
 | `MorphButtonGroup` | none | yes (forwarded to every button) | no | unchanged |
@@ -146,8 +145,10 @@ Families without these axes keep their APIs. In particular:
   `MorphToolbar`, `MorphLoadingIndicator`, `MorphTextField` and the list
   widgets, the historical `variant` parameter still names a **structural
   type**, not a color role.
-- `MorphSplitButton` and `MorphButtonGroup` do not take `surface:`: a blur per
-  segment would multiply backdrop filters and break the connected silhouette.
+- Only `MorphCard` takes `surface:`. Buttons (including `MorphSplitButton`,
+  `MorphButtonGroup`, `MorphAsyncButton` and `MorphIconButton`) have no frosted
+  finish; a blur per button segment would multiply backdrop filters and break
+  the connected silhouette.
 - Text fields and chips have no color roles. Their state colors (error,
   selection) are semantic.
 
@@ -161,7 +162,6 @@ Widget apiExamples({
   required VoidCallback skip,
   required VoidCallback explore,
   required VoidCallback remove,
-  required VoidCallback open,
   required VoidCallback add,
   required VoidCallback edit,
   required TextEditingController controller,
@@ -191,14 +191,6 @@ Widget apiExamples({
         variant: .muted,
         onPressed: skip,
         child: const Text('Not now'),
-      ),
-
-      // Finish
-      MorphButton.tonal(
-        variant: .secondary,
-        surface: .frosted,
-        onPressed: open,
-        child: const Text('Open'),
       ),
 
       // Other families

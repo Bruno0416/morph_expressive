@@ -25,7 +25,6 @@ Widget _iconButtonOfType(
   required IconData icon,
   required VoidCallback? onPressed,
   MorphVariant? variant,
-  MorphSurface surface = MorphSurface.solid,
   MorphIconButtonSize size = MorphIconButtonSize.sm,
   MorphIconButtonShapeVariant shape = MorphIconButtonShapeVariant.round,
   MorphIconButtonWidth width = MorphIconButtonWidth.defaultWidth,
@@ -42,7 +41,6 @@ Widget _iconButtonOfType(
       onPressed: onPressed,
       tooltip: tooltip,
       variant: variant,
-      surface: surface,
       size: size,
       shape: shape,
       width: width,
@@ -54,7 +52,6 @@ Widget _iconButtonOfType(
       onPressed: onPressed,
       tooltip: tooltip,
       variant: variant,
-      surface: surface,
       size: size,
       shape: shape,
       width: width,
@@ -66,7 +63,6 @@ Widget _iconButtonOfType(
       onPressed: onPressed,
       tooltip: tooltip,
       variant: variant,
-      surface: surface,
       size: size,
       shape: shape,
       width: width,
@@ -78,7 +74,6 @@ Widget _iconButtonOfType(
       onPressed: onPressed,
       tooltip: tooltip,
       variant: variant,
-      surface: surface,
       size: size,
       shape: shape,
       width: width,
@@ -88,7 +83,6 @@ Widget _iconButtonOfType(
 
 @widgetbook.UseCase(name: 'Matrix', type: MorphIconButton, path: _path)
 Widget iconButtonMatrixUseCase(BuildContext context) {
-  final surface = surfaceKnob(context);
   final size = enumKnob<MorphIconButtonSize>(
     context,
     label: 'size',
@@ -121,7 +115,6 @@ Widget iconButtonMatrixUseCase(BuildContext context) {
                     icon: icon,
                     onPressed: enabled ? () {} : null,
                     variant: variant,
-                    surface: surface,
                     size: size,
                     shape: shape,
                   ),
@@ -141,7 +134,6 @@ Widget iconButtonPlaygroundUseCase(BuildContext context) {
     values: MorphIconButtonType.values,
   );
   final variant = variantKnob(context);
-  final surface = surfaceKnob(context);
   final size = enumKnob<MorphIconButtonSize>(
     context,
     label: 'size',
@@ -162,10 +154,9 @@ Widget iconButtonPlaygroundUseCase(BuildContext context) {
   final toggle = context.knobs.boolean(label: 'toggle (selectable)');
   final icon = iconKnob(context, initial: 'heart');
   return _IconButtonPlayground(
-    key: resetKey([type, variant, surface, size, shape, width, toggle]),
+    key: resetKey([type, variant, size, shape, width, toggle]),
     type: type,
     variant: variant,
-    surface: surface,
     size: size,
     shape: shape,
     width: width,
@@ -180,7 +171,6 @@ class _IconButtonPlayground extends StatefulWidget {
     super.key,
     required this.type,
     required this.variant,
-    required this.surface,
     required this.size,
     required this.shape,
     required this.width,
@@ -191,7 +181,6 @@ class _IconButtonPlayground extends StatefulWidget {
 
   final MorphIconButtonType type;
   final MorphVariant? variant;
-  final MorphSurface surface;
   final MorphIconButtonSize size;
   final MorphIconButtonShapeVariant shape;
   final MorphIconButtonWidth width;
@@ -223,7 +212,6 @@ class _IconButtonPlaygroundState extends State<_IconButtonPlayground> {
                   })
                 : null,
             variant: widget.variant,
-            surface: widget.surface,
             size: widget.size,
             shape: widget.shape,
             width: widget.width,

@@ -56,11 +56,9 @@ import 'package:material_ui/material_ui.dart'
         WidgetStatesController;
 
 import '../../foundations/foundations.dart';
-import '../../foundations/surface/morph_glass_surface.dart';
 import '../buttons/components/morph_radius_and_padding_motion.dart';
 import '../buttons/enums/morph_button_enums.dart';
 import '../buttons/utils/morph_button_gradient_layer.dart';
-import '../shared/morph_surface_glass_resolution.dart';
 import '../tooltips/morph_tooltips.dart';
 import 'enums/morph_icon_button_enums.dart';
 import 'styles/morph_icon_button_decoration.dart';
@@ -94,7 +92,6 @@ class MorphIconButton extends StatefulWidget {
     this.semanticLabel,
     this.type = MorphIconButtonType.filled,
     this.variant,
-    this.surface = MorphSurface.solid,
     this.size = MorphIconButtonSize.sm,
     this.shape = MorphIconButtonShapeVariant.round,
     this.width = MorphIconButtonWidth.defaultWidth,
@@ -125,7 +122,6 @@ class MorphIconButton extends StatefulWidget {
     this.tooltip,
     this.semanticLabel,
     this.variant,
-    this.surface = MorphSurface.solid,
     this.size = MorphIconButtonSize.sm,
     this.shape = MorphIconButtonShapeVariant.round,
     this.width = MorphIconButtonWidth.defaultWidth,
@@ -156,7 +152,6 @@ class MorphIconButton extends StatefulWidget {
     this.tooltip,
     this.semanticLabel,
     this.variant,
-    this.surface = MorphSurface.solid,
     this.size = MorphIconButtonSize.sm,
     this.shape = MorphIconButtonShapeVariant.round,
     this.width = MorphIconButtonWidth.defaultWidth,
@@ -187,7 +182,6 @@ class MorphIconButton extends StatefulWidget {
     this.tooltip,
     this.semanticLabel,
     this.variant,
-    this.surface = MorphSurface.solid,
     this.size = MorphIconButtonSize.sm,
     this.shape = MorphIconButtonShapeVariant.round,
     this.width = MorphIconButtonWidth.defaultWidth,
@@ -218,7 +212,6 @@ class MorphIconButton extends StatefulWidget {
     this.tooltip,
     this.semanticLabel,
     this.variant,
-    this.surface = MorphSurface.solid,
     this.size = MorphIconButtonSize.sm,
     this.shape = MorphIconButtonShapeVariant.round,
     this.width = MorphIconButtonWidth.defaultWidth,
@@ -271,11 +264,6 @@ class MorphIconButton extends StatefulWidget {
   /// their neutral surface with accent content (tonal keeps its container
   /// pair). An explicit [decoration] color always wins.
   final MorphVariant? variant;
-
-  /// Finish of the container. [MorphSurface.frosted] paints the Morph
-  /// frosted-glass treatment (theme `floatingSurfaceGlass` when enabled,
-  /// otherwise the default `MorphSurfaceGlass`) clipped to the animated shape.
-  final MorphSurface surface;
 
   /// size.
   final MorphIconButtonSize size;

@@ -27,7 +27,6 @@ class MorphAsyncButton extends StatelessWidget {
     this.presentation = MorphOperationPresentation.preserveWidth,
     this.style = MorphButtonStyle.filled,
     this.variant,
-    this.surface = MorphSurface.solid,
     this.size = MorphButtonSize.sm,
     this.shape = MorphButtonShape.round,
     this.enabled = true,
@@ -60,8 +59,6 @@ class MorphAsyncButton extends StatelessWidget {
   /// canonical colors of [style]. Error-state decorations still win.
   final MorphVariant? variant;
 
-  /// Finish forwarded to the inner [MorphButton].
-  final MorphSurface surface;
   final MorphButtonSize size;
   final MorphButtonShape shape;
   final bool enabled, blockWhileLoading, showLoadingLabel;
@@ -306,7 +303,6 @@ class MorphAsyncButton extends StatelessWidget {
                       enableFeedback: !blocked,
                       style: style,
                       variant: variant,
-                      surface: surface,
                       size: size,
                       shape: shape,
                       focusNode: focusNode,

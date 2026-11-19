@@ -19,12 +19,14 @@ Two APIs exist, depending on where the widget lives:
 
 | Kind of widget | API | Widgets |
 | --- | --- | --- |
-| In-flow controls and content | `surface: MorphSurface.frosted` | `MorphButton`, `MorphAsyncButton`, `MorphIconButton`, `MorphCard` |
+| In-flow content | `surface: MorphSurface.frosted` | `MorphCard` |
 | Floating surfaces | `glass: MorphSurfaceGlass?` or the theme default | menus, dropdown panels, dialogs, bottom and side sheets, tooltips, snackbars, toolbars, FAB menu, search view, date and time pickers |
 | Navigation chrome | `MorphAppBarGlass`, `MorphNavigationGlass` (separate APIs, see [NAVIGATION_MORPH.md](NAVIGATION_MORPH.md)) | `MorphAppBar`, `MorphNavigationBar` |
 
-`MorphSplitButton`, `MorphButtonGroup` and `MorphShapeButton` do not take
-`surface:`: a blur per segment would multiply backdrop filters.
+Buttons (`MorphButton`, `MorphAsyncButton`, `MorphIconButton`,
+`MorphSplitButton`, `MorphButtonGroup` and `MorphShapeButton`) have no frosted
+finish: they are not part of this API, and a blur per button or segment would
+multiply backdrop filters.
 
 ## Configuring the glass
 
@@ -57,24 +59,13 @@ const MorphSurfaceGlass glass = MorphSurfaceGlass(
 - `const MorphSurfaceGlass.disabled()`: explicitly opaque, even when a parent
   theme enables glass.
 
-## In-flow controls and cards
+## Cards
 
 ```dart
-Widget frostedInFlow(VoidCallback onPressed) {
+Widget frostedInFlow() {
   return Column(
     spacing: 12,
     children: [
-      MorphButton.tonal(
-        surface: .frosted,
-        onPressed: onPressed,
-        child: const Text('Frosted button'),
-      ),
-      MorphIconButton.filled(
-        surface: .frosted,
-        onPressed: onPressed,
-        tooltip: 'Add',
-        icon: Icon(FluentIcons.line.add),
-      ),
       const MorphCard(surface: .frosted, headline: 'Frosted card'),
       // Explicit glass on a card: no `surface:` needed.
       const MorphCard(
@@ -92,9 +83,9 @@ Widget frostedInFlow(VoidCallback onPressed) {
 }
 ```
 
-Resolution for these widgets:
+Resolution for cards:
 
-1. an explicit `glass:` (only `MorphCard` has one); a disabled value means opaque;
+1. an explicit `glass:`; a disabled value means opaque;
 2. otherwise `surface: .solid` means opaque;
 3. `surface: .frosted` uses `MorphThemeData.floatingSurfaceGlass` when it is set
    and enabled, and falls back to the default `const MorphSurfaceGlass()`.
@@ -174,14 +165,14 @@ Frosted surfaces look right only over something to blur. Over a flat color the
 result is a slightly tinted solid surface that still costs a blur; prefer
 `solid` there.
 
-Legibility is guaranteed independently of the backdrop. When an in-flow control
-asks for `surface: .frosted` without an explicit `tint`, the tint opacity is
-raised (never lowered) in 0.02 steps until its content reaches **4.5:1** against
-the tint blended over both a white and a black backdrop (**3:1** for icon
-buttons, which are graphical objects). Neutral content such as `onSurface` keeps
-the configured translucency; colored content on colored fills, such as
-`onPrimary` on a filled button, gets a denser tint. Disabled controls keep the
-configured value. An explicit `tint` is used as given, so you own its contrast.
+Legibility is guaranteed independently of the backdrop. When a card
+asks for `surface: .frosted` without an explicit `glass:`, the tint opacity is
+raised (never lowered) in 0.02 steps until its supporting text reaches
+**4.5:1** against the tint blended over both a white and a black backdrop.
+Neutral content such as `onSurfaceVariant` keeps the configured translucency;
+colored content on colored fills gets a denser tint. Disabled cards keep the
+configured value. An explicit `glass:` is used as given, so you own its
+contrast.
 
 For the system **high-contrast** setting, `opaqueInHighContrast: true` paints
 the opaque container color and drops the hairline. Turn it off only if you

@@ -21,7 +21,6 @@ MorphIconButton _byType(
   MorphIconButtonType type, {
   VoidCallback? onPressed,
   MorphVariant? variant,
-  MorphSurface surface = MorphSurface.solid,
   bool? isSelected,
   MorphIconButtonDecoration? decoration,
   Key? key,
@@ -32,7 +31,6 @@ MorphIconButton _byType(
       icon: _icon,
       onPressed: onPressed,
       variant: variant,
-      surface: surface,
       isSelected: isSelected,
       decoration: decoration,
       semanticLabel: 'Add',
@@ -42,7 +40,6 @@ MorphIconButton _byType(
       icon: _icon,
       onPressed: onPressed,
       variant: variant,
-      surface: surface,
       isSelected: isSelected,
       decoration: decoration,
       semanticLabel: 'Add',
@@ -52,7 +49,6 @@ MorphIconButton _byType(
       icon: _icon,
       onPressed: onPressed,
       variant: variant,
-      surface: surface,
       isSelected: isSelected,
       decoration: decoration,
       semanticLabel: 'Add',
@@ -62,7 +58,6 @@ MorphIconButton _byType(
       icon: _icon,
       onPressed: onPressed,
       variant: variant,
-      surface: surface,
       isSelected: isSelected,
       decoration: decoration,
       semanticLabel: 'Add',
@@ -83,7 +78,6 @@ void main() {
         final ButtonStyle namedStyle = apiMaterialStyle(tester);
         expect(named.type, type);
         expect(named.variant, isNull);
-        expect(named.surface, MorphSurface.solid);
 
         await tester.pumpWidget(
           apiHost(MorphIconButton(icon: _icon, type: type, onPressed: () {})),
@@ -322,64 +316,20 @@ void main() {
     }
   });
 
-  group('frosted surface', () {
-    testWidgets('solid mounts no glass', (tester) async {
-      await tester.pumpWidget(
-        apiHost(_byType(MorphIconButtonType.tonal, onPressed: () {})),
-      );
-      expect(find.byType(MorphGlassSurface), findsNothing);
-      expect(find.byType(BackdropFilter), findsNothing);
-    });
-
+  group('no frosted finish', () {
+    // Frosted finish is not part of the icon button API: no type mounts the
+    // glass surface or a backdrop filter.
     for (final MorphIconButtonType type in MorphIconButtonType.values) {
-      testWidgets('frosted ${type.name} mounts one glass surface', (
-        tester,
-      ) async {
+      testWidgets('${type.name} mounts no glass', (tester) async {
         await tester.pumpWidget(
           apiHost(
-            _byType(
-              type,
-              onPressed: () {},
-              variant: MorphVariant.primary,
-              surface: MorphSurface.frosted,
-            ),
+            _byType(type, onPressed: () {}, variant: MorphVariant.primary),
           ),
         );
-        expect(find.byType(MorphGlassSurface), findsOneWidget);
-        expect(find.byType(BackdropFilter), findsOneWidget);
-        expect(
-          apiMaterialStyle(tester).backgroundColor!.resolve(_rest),
-          Colors.transparent,
-        );
-        final MorphGlassSurface glass = tester.widget(
-          find.byType(MorphGlassSurface),
-        );
-        // Transparent types borrow the neutral surface for the tint.
-        if (type == MorphIconButtonType.standard ||
-            type == MorphIconButtonType.outlined) {
-          expect(glass.baseColor, apiScheme(tester).surfaceContainerLow);
-        }
+        expect(find.byType(MorphGlassSurface), findsNothing);
+        expect(find.byType(BackdropFilter), findsNothing);
       });
     }
-
-    testWidgets('frosted filled tints from the resolved color', (tester) async {
-      await tester.pumpWidget(
-        apiHost(
-          _byType(
-            MorphIconButtonType.filled,
-            onPressed: () {},
-            variant: MorphVariant.danger,
-            surface: MorphSurface.frosted,
-          ),
-        ),
-      );
-      expect(
-        tester
-            .widget<MorphGlassSurface>(find.byType(MorphGlassSurface))
-            .baseColor,
-        apiScheme(tester).error,
-      );
-    });
   });
 
   group('interaction, semantics and lifecycle', () {
@@ -393,7 +343,6 @@ void main() {
             key: key,
             onPressed: () => taps++,
             variant: MorphVariant.muted,
-            surface: MorphSurface.frosted,
           ),
         ),
       );
@@ -408,11 +357,7 @@ void main() {
       final SemanticsHandle handle = tester.ensureSemantics();
       await tester.pumpWidget(
         apiHost(
-          _byType(
-            MorphIconButtonType.filled,
-            variant: MorphVariant.danger,
-            surface: MorphSurface.frosted,
-          ),
+          _byType(MorphIconButtonType.filled, variant: MorphVariant.danger),
         ),
       );
       await tester.tap(find.byType(MorphIconButton), warnIfMissed: false);
@@ -452,44 +397,25 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('rebuilding with new type, variant and surface is stable', (
+    testWidgets('rebuilding with new type and variant is stable', (
       tester,
     ) async {
       int taps = 0;
-      final List<(MorphIconButtonType, MorphVariant?, MorphSurface)>
-      steps = <(MorphIconButtonType, MorphVariant?, MorphSurface)>[
-        (MorphIconButtonType.filled, null, MorphSurface.solid),
-        (MorphIconButtonType.filled, MorphVariant.danger, MorphSurface.solid),
-        (MorphIconButtonType.tonal, MorphVariant.danger, MorphSurface.frosted),
-        (
-          MorphIconButtonType.outlined,
-          MorphVariant.muted,
-          MorphSurface.frosted,
-        ),
-        (MorphIconButtonType.standard, null, MorphSurface.solid),
-      ];
-      for (final (
-            MorphIconButtonType type,
-            MorphVariant? variant,
-            MorphSurface surface,
-          )
-          in steps) {
+      final List<(MorphIconButtonType, MorphVariant?)> steps =
+          <(MorphIconButtonType, MorphVariant?)>[
+            (MorphIconButtonType.filled, null),
+            (MorphIconButtonType.filled, MorphVariant.danger),
+            (MorphIconButtonType.tonal, MorphVariant.danger),
+            (MorphIconButtonType.outlined, MorphVariant.muted),
+            (MorphIconButtonType.standard, null),
+          ];
+      for (final (MorphIconButtonType type, MorphVariant? variant) in steps) {
         await tester.pumpWidget(
-          apiHost(
-            _byType(
-              type,
-              onPressed: () => taps++,
-              variant: variant,
-              surface: surface,
-            ),
-          ),
+          apiHost(_byType(type, onPressed: () => taps++, variant: variant)),
         );
         await tester.pump(const Duration(milliseconds: 50));
         expect(tester.takeException(), isNull);
-        expect(
-          find.byType(MorphGlassSurface),
-          surface.isFrosted ? findsOneWidget : findsNothing,
-        );
+        expect(find.byType(MorphGlassSurface), findsNothing);
       }
       await tester.tap(find.byType(MorphIconButton));
       await tester.pumpAndSettle();

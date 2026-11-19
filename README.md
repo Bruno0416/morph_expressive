@@ -18,8 +18,8 @@ reference.
 
 ## Why Morph Expressive
 
-- **One API, three axes.** Pick a visual type with a named constructor, a color
-  role with `variant`, and an opaque or frosted finish with `surface`.
+- **One API, two axes.** Pick a visual type with a named constructor and a color
+  role with `variant`; cards also take an opaque or frosted finish with `surface`.
 - **Expressive by default.** An own shape engine, springy press feedback, morphing
   FAB menus, tabs whose indicator follows the page swipe and coordinated
   shimmer placeholders.
@@ -28,7 +28,7 @@ reference.
 - **Desktop aware.** Compact, standard and comfortable density, plus context
   menus with submenus and keyboard support.
 - **Respects the user.** Reduced-motion handling and a frosted legibility floor
-  (4.5:1 text contrast) are built in.
+  (4.5:1 text contrast on `surface: .frosted` cards) are built in.
 - **A single import.** Everything is exported from
   `package:morph_expressive/morph_expressive.dart`.
 
@@ -116,7 +116,7 @@ Captured from Morph Expressive running in Flutter Web (dark theme).
   </tr>
 </table>
 
-### Desktop and density
+### Desktop, density and frosted surfaces
 
 <table>
   <tr>
@@ -129,9 +129,15 @@ Captured from Morph Expressive running in Flutter Web (dark theme).
       <sub>Desktop context menu: secondary click opens it at the pointer, rows highlight on hover, a submenu opens and an action closes it.</sub>
     </td>
   </tr>
+  <tr>
+    <td align="center" valign="top" colspan="2">
+      <img src="https://raw.githubusercontent.com/Bruno0416/morph_expressive/review/v1.0.0-visual/doc/assets/gifs/frosted.gif" alt="A frosted card, an opened dropdown panel and a floating navigation bar blurring colorful shapes that drift behind them" width="420"><br>
+      <sub>Frosted surfaces on components that support them: a card, an opened dropdown panel and a floating navigation bar blur the shapes drifting behind them.</sub>
+    </td>
+  </tr>
 </table>
 
-See [Density and context menus](doc/DENSITY_AND_CONTEXT_MENUS.md).
+See [Density and context menus](doc/DENSITY_AND_CONTEXT_MENUS.md) and [Frosted surfaces](doc/FROSTED_SURFACES.md).
 
 ## Features
 
@@ -217,13 +223,15 @@ and `MorphThemeData.fromMaterial` cover dark mode and existing Material themes.
 
 Visual types are named constructors, `variant` picks a color role
 (`primary`, `secondary`, `tertiary`, `muted`, `danger`; omitted keeps the
-canonical Material 3 pairing) and `surface` picks `solid` or `frosted`.
+canonical Material 3 pairing). `MorphCard` also takes `surface` to pick `solid`
+or `frosted`; floating surfaces (menus, dialogs, sheets) use `glass:`. Buttons
+have no frosted finish.
 
 | Component | Types | `variant` | `surface` |
 | --- | --- | :---: | :---: |
-| `MorphButton` | `.filled` `.tonal` `.elevated` `.outlined` `.text` | yes | yes |
-| `MorphAsyncButton` | loading, success and error states | yes | yes |
-| `MorphIconButton` | `.standard` `.filled` `.tonal` `.outlined` | yes | yes |
+| `MorphButton` | `.filled` `.tonal` `.elevated` `.outlined` `.text` | yes | no |
+| `MorphAsyncButton` | loading, success and error states | yes | no |
+| `MorphIconButton` | `.standard` `.filled` `.tonal` `.outlined` | yes | no |
 | `MorphCard` | `.elevated` `.filled` `.outlined` | yes | yes |
 | `MorphSplitButton`, `MorphButtonGroup`, `MorphShapeButton` | one per widget | yes | no |
 | `MorphTextField` | `.filled` `.outlined` | no | no |
@@ -232,7 +240,6 @@ canonical Material 3 pairing) and `surface` picks `solid` or `frosted`.
 ```dart
 MorphButton.outlined(
   variant: .danger,
-  surface: .frosted,
   onPressed: onDelete,
   child: const Text('Delete'),
 );

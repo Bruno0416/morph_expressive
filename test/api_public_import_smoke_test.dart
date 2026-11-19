@@ -21,7 +21,6 @@ void main() {
           children: <Widget>[
             MorphButton.outlined(
               variant: .primary,
-              surface: .frosted,
               onPressed: () => taps++,
               child: const Text('Outlined'),
             ),
@@ -32,6 +31,7 @@ void main() {
             ),
             const MorphCard.filled(
               variant: .muted,
+              surface: .frosted,
               headline: 'Card',
               supportingText: 'Muted filled card',
             ),

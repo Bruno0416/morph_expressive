@@ -122,10 +122,7 @@ class _TourPage extends StatelessWidget {
           ),
           Text('Types x roles', style: text.titleLarge),
           const _TypeRoleMatrix(),
-          Text(
-            'Frosted finish over a colorful backdrop',
-            style: text.titleLarge,
-          ),
+          Text('Frosted card over a colorful backdrop', style: text.titleLarge),
           const _FrostedBackdrop(),
           Text('Controlled operation', style: text.titleLarge),
           const _SaveButton(),
@@ -225,23 +222,6 @@ class _FrostedBackdrop extends StatelessWidget {
         runSpacing: 12,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          MorphButton.tonal(
-            surface: MorphSurface.frosted,
-            onPressed: () {},
-            child: const Text('Frosted tonal'),
-          ),
-          MorphButton.outlined(
-            variant: MorphVariant.secondary,
-            surface: MorphSurface.frosted,
-            onPressed: () {},
-            child: const Text('Frosted outlined'),
-          ),
-          MorphIconButton.filled(
-            surface: MorphSurface.frosted,
-            onPressed: () {},
-            tooltip: 'Favorite',
-            icon: Icon(FluentIcons.line.heart),
-          ),
           const SizedBox(
             width: 260,
             child: MorphCard(

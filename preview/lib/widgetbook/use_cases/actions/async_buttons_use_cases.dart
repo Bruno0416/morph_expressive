@@ -42,7 +42,6 @@ Widget asyncButtonControlledUseCase(BuildContext context) {
     values: MorphButtonStyle.values,
   );
   final variant = variantKnob(context);
-  final surface = surfaceKnob(context);
   final size = buttonSizeKnob(context);
   final enabled = context.knobs.boolean(label: 'enabled', initialValue: true);
   final showLoadingLabel = context.knobs.boolean(
@@ -57,7 +56,6 @@ Widget asyncButtonControlledUseCase(BuildContext context) {
       presentation: presentation,
       style: style,
       variant: variant,
-      surface: surface,
       size: size,
       enabled: enabled,
       showLoadingLabel: showLoadingLabel,

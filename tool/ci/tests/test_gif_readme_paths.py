@@ -34,8 +34,6 @@ class ReadmeGifPathsTest(unittest.TestCase):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(ROOT / relative, target)
             shutil.copytree(ROOT / 'doc/assets/gifs', root / 'doc/assets/gifs')
-            # The retired frosted showcase must not be needed (or be required) here.
-            (root / 'doc/assets/gifs/frosted.gif').unlink(missing_ok=True)
             (root / 'doc/assets/banner.png').write_bytes(b'\x89PNG\r\n')
             (root / 'README.md').write_text(readme if readme is not None else readme_with(SHOWN))
             if pubspec is not None:
@@ -129,8 +127,14 @@ class ReadmeGifPathsTest(unittest.TestCase):
                 self.assertNotEqual(0, result.returncode)
                 self.assertIn('mix refs', result.stderr)
 
-    def test_frosted_scene_is_no_longer_allowed(self):
+    def test_frosted_scene_is_an_allowed_readme_scene(self):
         result = self.check(readme_with(SHOWN + ['frosted']))
+        self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_missing_frosted_gif_is_rejected(self):
+        result = self.check(
+            readme_with(SHOWN + ['frosted']),
+            mutate_files=lambda root: (root / 'doc/assets/gifs/frosted.gif').unlink())
         self.assertNotEqual(0, result.returncode)
         self.assertIn('frosted', result.stderr)
 

@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart'
-    show Icon, Size, SizedBox, ValueKey;
+    show BackdropFilter, CustomPaint, Icon, Size, SizedBox, ValueKey;
+import 'package:morph_expressive/foundations/surface/morph_glass_surface.dart'
+    show MorphGlassSurface;
 import 'package:morph_expressive/morph_expressive.dart';
 import 'package:morph_expressive_preview/component_gif_capture.dart';
 
@@ -193,6 +195,62 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  testWidgets('text-field capture keeps both first-row containers aligned', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(640, 360);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(const MorphGifCaptureApp(scene: 'textfields'));
+    await tester.pump();
+    // The painted container (not the field bounds, which include the reserved
+    // label region) is what the viewer compares.
+    double containerTop(String key) {
+      final container = find.descendant(
+        of: find.byKey(ValueKey('gif_textfield_$key')),
+        matching: find.byWidgetPredicate(
+          (w) =>
+              w is CustomPaint &&
+              '${w.painter.runtimeType}' == 'MorphTextFieldContainerPainter',
+        ),
+      );
+      expect(container, findsOneWidget);
+      return tester.getTopLeft(container).dy;
+    }
+
+    void expectAligned(String reason) {
+      expect(
+        containerTop('outlined'),
+        closeTo(containerTop('filled'), 0.01),
+        reason: reason,
+      );
+    }
+
+    expectAligned('initial');
+    var sawError = false;
+    var sawFloating = false;
+    for (var ms = 0; ms < 7000; ms += 50) {
+      await tester.pump(const Duration(milliseconds: 50));
+      sawError =
+          sawError ||
+          tester
+                  .widget<MorphTextField>(
+                    find.byKey(const ValueKey('gif_textfield_filled')),
+                  )
+                  .errorText !=
+              null;
+      sawFloating =
+          sawFloating || find.text('hello@morph').evaluate().isNotEmpty;
+      expectAligned('at ${ms}ms');
+    }
+    // The aligned states include the error and the floating label.
+    expect(sawError, isTrue);
+    expect(sawFloating, isTrue);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   // The new scenes run their whole scripted timeline (real pointer events,
   // controlled states) inside the capture viewport without layout errors.
   for (final (scene, height, seconds) in const [
@@ -212,6 +270,7 @@ void main() {
     ('variants', 360, 7),
     ('density', 360, 8),
     ('context_menu', 360, 9),
+    ('frosted', 360, 8),
   ]) {
     testWidgets('GIF scene $scene runs its full timeline', (tester) async {
       tester.view.physicalSize = Size(640, height.toDouble());
@@ -543,6 +602,107 @@ void main() {
     expect(sawSubmenu, isTrue, reason: 'hovering Move to opened its submenu');
     expect(sawResult, isTrue, reason: 'choosing Documents reported the move');
     expect(find.text('Rename'), findsNothing, reason: 'the menu closed');
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('frosted scene blurs a card, a dropdown panel and a bar', (
+    tester,
+  ) async {
+    await open(tester, 'frosted', 360);
+    expect(find.byKey(const ValueKey('morph_gif_frosted')), findsOneWidget);
+    // English copy only.
+    for (final text in const [
+      'Frosted surfaces',
+      'Blur over moving shapes',
+      'Card',
+      'Dropdown',
+      'Home',
+      'Explore',
+      'Settings',
+      'MORPH EXPRESSIVE',
+    ]) {
+      expect(find.text(text), findsWidgets, reason: text);
+    }
+    // Card: explicit glass through the public API, one real backdrop blur.
+    final card = tester.widget<MorphCard>(
+      find.byKey(const ValueKey('gif_frosted_card')),
+    );
+    expect(card.glass, isNotNull);
+    expect(card.glass!.blurX, greaterThan(0));
+    expect(
+      find.descendant(
+        of: find.byType(MorphCard),
+        matching: find.byType(MorphGlassSurface),
+      ),
+      findsOneWidget,
+    );
+    // Navigation bar: its own glass type.
+    final bar = tester.widget<MorphNavigationBar>(
+      find.byKey(const ValueKey('gif_frosted_navigation')),
+    );
+    expect(bar.glass, isNotNull);
+    expect(bar.floating, isTrue);
+    expect(
+      find.descendant(
+        of: find.byType(MorphNavigationBar),
+        matching: find.byType(BackdropFilter),
+      ),
+      findsOneWidget,
+    );
+    // Dropdown: the glass is for the opened panel, which is not mounted yet.
+    final dropdown = tester.widget<MorphDropdownMenu<String>>(
+      find.byKey(const ValueKey('gif_frosted_dropdown')),
+    );
+    expect(dropdown.glass, isNotNull);
+    expect(find.byType(MorphGlassSurface), findsOneWidget);
+
+    var panelBlurred = false;
+    var sawSunset = false;
+    final destinations = <int>{};
+    for (var ms = 0; ms < 8000; ms += 50) {
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(tester.takeException(), isNull, reason: 'at ${ms}ms');
+      // The open panel adds a second MorphGlassSurface.
+      panelBlurred =
+          panelBlurred || find.byType(MorphGlassSurface).evaluate().length > 1;
+      sawSunset =
+          sawSunset ||
+          tester
+              .widget<MorphDropdownMenu<String>>(
+                find.byKey(const ValueKey('gif_frosted_dropdown')),
+              )
+              .controller!
+              .selectedValues
+              .contains('sunset');
+      destinations.add(
+        tester
+            .widget<MorphNavigationBar>(
+              find.byKey(const ValueKey('gif_frosted_navigation')),
+            )
+            .selectedIndex,
+      );
+    }
+    expect(panelBlurred, isTrue, reason: 'the opened panel is a glass surface');
+    expect(sawSunset, isTrue, reason: 'a real tap chose Sunset');
+    expect(destinations, {0, 1, 2}, reason: 'real taps walked the bar');
+    // Back to the start state, so the clip loops.
+    expect(
+      tester
+          .widget<MorphDropdownMenu<String>>(
+            find.byKey(const ValueKey('gif_frosted_dropdown')),
+          )
+          .controller!
+          .selectedValues,
+      ['aurora'],
+    );
+    expect(
+      tester
+          .widget<MorphNavigationBar>(
+            find.byKey(const ValueKey('gif_frosted_navigation')),
+          )
+          .selectedIndex,
+      0,
+    );
     await tester.pumpWidget(const SizedBox());
   });
 }

@@ -40,7 +40,6 @@ class MyApp extends StatelessWidget {
               ),
               MorphButton.outlined(
                 variant: .danger,
-                surface: .frosted,
                 onPressed: () {},
                 child: const Text('Delete'),
               ),

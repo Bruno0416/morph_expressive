@@ -198,13 +198,7 @@ extension _MorphButtonContent on _MorphButtonState {
       child = ExcludeSemantics(child: child);
     }
 
-    final MorphSurfaceGlass? glass = morphResolveSurfaceGlass(
-      context,
-      widget.surface,
-    );
-    // Frosted glass replaces the operation surface and any painted fill.
-    final operationSurface =
-        (_decoration?.backgroundBuilder != null || glass != null)
+    final operationSurface = _decoration?.backgroundBuilder != null
         ? null
         : context.dependOnInheritedWidgetOfExactType<MorphOperationSurface>();
     final materialStyle = operationSurface == null
@@ -277,7 +271,7 @@ extension _MorphButtonContent on _MorphButtonState {
       child: child,
     );
 
-    return _wrapButtonChrome(button, glass: glass, radius: animatedRadius);
+    return _wrapButtonChrome(button);
   }
 
   VoidCallback? get _effectiveOnPressed {
@@ -368,11 +362,7 @@ extension _MorphButtonContent on _MorphButtonState {
     }
   }
 
-  Widget _wrapButtonChrome(
-    Widget button, {
-    required MorphSurfaceGlass? glass,
-    required BorderRadius radius,
-  }) {
+  Widget _wrapButtonChrome(Widget button) {
     final dec = _decoration;
     Color inkSplashColor = _selectionForegroundColor();
     if (dec?.foregroundColor != null) {
@@ -389,28 +379,6 @@ extension _MorphButtonContent on _MorphButtonState {
       color: inkSplashColor,
       child: MorphSmoothEdges(bleed: 12, child: button),
     );
-    if (glass != null) {
-      // The backdrop must sit outside MorphSmoothEdges, which may rasterize
-      // its subtree and would hide the content behind the button.
-      final bool disabled =
-          !(widget.enabled &&
-              (widget.onPressed != null || widget.onLongPress != null));
-      final Color baseColor = _frostedBaseColor(disabled: disabled);
-      result = MorphGlassSurface(
-        // Disabled content is intentionally low contrast; only enabled
-        // content raises the tint for legibility.
-        glass: disabled
-            ? glass
-            : morphLegibleGlass(
-                glass,
-                base: baseColor,
-                content: inkSplashColor,
-              ),
-        baseColor: baseColor,
-        borderRadius: radius,
-        child: result,
-      );
-    }
     if (widget.tooltip != null) {
       result = MorphTooltip(message: widget.tooltip, child: result);
     }

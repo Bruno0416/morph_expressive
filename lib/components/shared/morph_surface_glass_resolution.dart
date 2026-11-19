@@ -27,14 +27,6 @@ MorphSurfaceGlass? morphResolveSurfaceGlass(
   return themed != null && themed.enabled ? themed : const MorphSurfaceGlass();
 }
 
-/// Returns [color], or [fallback] when [color] is fully transparent.
-///
-/// Frosted surfaces derive their tint from a semantic color; transparent
-/// component types (outlined, text) borrow a neutral surface so the glass is
-/// visible.
-Color morphGlassBaseColor(Color color, Color fallback) =>
-    color.a == 0 ? fallback : color;
-
 /// Raises [glass]'s tint opacity until [content] stays legible on the tint.
 ///
 /// A frosted tint is composited over an unknown, blurred backdrop. The worst

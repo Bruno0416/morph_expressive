@@ -20,7 +20,7 @@ while (($#)); do
       cat <<'HELP'
 Usage: bash tool/generate_component_gifs.sh [--only SCENE ...] [--skip-build]
 Scenes: buttons chips dialogs dropdown lists loading navigation segmented
-  sliders textfields async_button skeleton tabs fab_menu variants density context_menu
+  sliders textfields async_button skeleton tabs fab_menu variants density context_menu frosted
   (the README uses a subset: see ALLOWED_GIFS in tool/check_gif_branding.py)
 Guide-only scene: navigation_rail_drawer (not part of the default set).
 Each scene marks its start (MORPH_GIF_SCENE_START); recording starts 1.2 s later (fonts and shaders ready).

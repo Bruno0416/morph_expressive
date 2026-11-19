@@ -28,7 +28,6 @@ Widget _buttonOfType(
   required String label,
   IconData? icon,
   MorphVariant? variant,
-  MorphSurface surface = MorphSurface.solid,
   MorphButtonSize size = MorphButtonSize.sm,
   MorphButtonShape shape = MorphButtonShape.round,
   bool enabled = true,
@@ -48,7 +47,6 @@ Widget _buttonOfType(
       isSelected: isSelected,
       style: style,
       variant: variant,
-      surface: surface,
       size: size,
       shape: shape,
       enabled: enabled,
@@ -69,7 +67,6 @@ Widget _buttonOfType(
       selectedLabel: selectedLabelWidget,
       isSelected: isSelected,
       variant: variant,
-      surface: surface,
       size: size,
       shape: shape,
       enabled: enabled,
@@ -82,7 +79,6 @@ Widget _buttonOfType(
       selectedLabel: selectedLabelWidget,
       isSelected: isSelected,
       variant: variant,
-      surface: surface,
       size: size,
       shape: shape,
       enabled: enabled,
@@ -95,7 +91,6 @@ Widget _buttonOfType(
       selectedLabel: selectedLabelWidget,
       isSelected: isSelected,
       variant: variant,
-      surface: surface,
       size: size,
       shape: shape,
       enabled: enabled,
@@ -108,7 +103,6 @@ Widget _buttonOfType(
       selectedLabel: selectedLabelWidget,
       isSelected: isSelected,
       variant: variant,
-      surface: surface,
       size: size,
       shape: shape,
       enabled: enabled,
@@ -116,7 +110,6 @@ Widget _buttonOfType(
     MorphButtonStyle.text => MorphButton.text(
       onPressed: onPressed,
       variant: variant,
-      surface: surface,
       size: size,
       shape: shape,
       enabled: enabled,
@@ -127,7 +120,6 @@ Widget _buttonOfType(
 
 @widgetbook.UseCase(name: 'Matrix', type: MorphButton, path: _path)
 Widget buttonMatrixUseCase(BuildContext context) {
-  final surface = surfaceKnob(context);
   final size = buttonSizeKnob(context, initial: MorphButtonSize.sm);
   final shape = enumKnob<MorphButtonShape>(
     context,
@@ -162,7 +154,6 @@ Widget buttonMatrixUseCase(BuildContext context) {
                     icon: withIcon ? icon : null,
                     iconFactory: iconFactory,
                     variant: variant,
-                    surface: surface,
                     size: size,
                     shape: shape,
                     enabled: enabled,
@@ -183,7 +174,6 @@ Widget buttonPlaygroundUseCase(BuildContext context) {
     values: MorphButtonStyle.values,
   );
   final variant = variantKnob(context);
-  final surface = surfaceKnob(context);
   final size = buttonSizeKnob(context, initial: MorphButtonSize.md);
   final shape = enumKnob<MorphButtonShape>(
     context,
@@ -202,11 +192,10 @@ Widget buttonPlaygroundUseCase(BuildContext context) {
   final label = context.knobs.string(label: 'label', initialValue: 'Button');
   final icon = iconKnob(context);
   return _ButtonPlayground(
-    key: resetKey([style, variant, surface, size, shape, toggle]),
+    key: resetKey([style, variant, size, shape, toggle]),
     iconFactory: iconFactory,
     style: style,
     variant: variant,
-    surface: surface,
     size: size,
     shape: shape,
     enabled: enabled,
@@ -221,7 +210,6 @@ class _ButtonPlayground extends StatefulWidget {
     super.key,
     required this.style,
     required this.variant,
-    required this.surface,
     required this.size,
     required this.shape,
     required this.enabled,
@@ -234,7 +222,6 @@ class _ButtonPlayground extends StatefulWidget {
   final bool iconFactory;
   final MorphButtonStyle style;
   final MorphVariant? variant;
-  final MorphSurface surface;
   final MorphButtonSize size;
   final MorphButtonShape shape;
   final bool enabled;
@@ -269,7 +256,6 @@ class _ButtonPlaygroundState extends State<_ButtonPlayground> {
             icon: widget.icon,
             iconFactory: widget.iconFactory,
             variant: widget.variant,
-            surface: widget.surface,
             size: widget.size,
             shape: widget.shape,
             enabled: widget.enabled,

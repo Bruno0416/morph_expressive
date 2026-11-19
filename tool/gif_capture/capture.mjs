@@ -20,7 +20,7 @@ import { fileURLToPath } from 'node:url';
 // The default set (every scene the documentation may use). The README picks a
 // subset; tool/check_gif_branding.py holds the curated list.
 // `navigation_rail_drawer` is kept for its own guide only (doc/NAVIGATION_MORPH.md).
-const scenarios = ['buttons', 'chips', 'dialogs', 'dropdown', 'lists', 'loading', 'navigation', 'segmented', 'sliders', 'textfields', 'async_button', 'skeleton', 'tabs', 'fab_menu', 'variants', 'density', 'context_menu'];
+const scenarios = ['buttons', 'chips', 'dialogs', 'dropdown', 'lists', 'loading', 'navigation', 'segmented', 'sliders', 'textfields', 'async_button', 'skeleton', 'tabs', 'fab_menu', 'variants', 'density', 'context_menu', 'frosted'];
 const guideScenarios = ['navigation_rail_drawer'];
 const themes = ['purple', 'teal', 'blue'];
 const here = fileURLToPath(new URL('.', import.meta.url));
@@ -44,6 +44,9 @@ const sceneSettings = {
   sliders: { width: 640, height: 360, seconds: 7, theme: 'purple', fps: 25 },
   loading: { width: 640, height: 360, seconds: 7, theme: 'teal', fps: 25, colors: 128, dither: 'none' },
   navigation: { width: 640, height: 360, seconds: 7, theme: 'purple', fps: 25 },
+  // The background loops every 7 s (FrostedGifScene.periodMs): keep them equal. 10 fps
+  // and 96 colors keep the moving blur under the README size limit.
+  frosted: { width: 640, height: 360, seconds: 7, theme: 'purple', fps: 10, colors: 96 },
   // Existing scenes kept as they were.
   lists: { width: 640, height: 340, seconds: 5.8, theme: 'purple', fps: 50 },
   dialogs: { width: 640, height: 360, seconds: 6.5, theme: 'blue', fps: 25 },

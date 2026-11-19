@@ -13,7 +13,8 @@ How to read the tables:
 - **`variant`**: `MorphVariant? variant` is the shared color role (`primary`,
   `secondary`, `tertiary`, `muted`, `danger`; `null` keeps the canonical
   Material 3 pairing). **`surface`**: `MorphSurface.solid` (default) or
-  `.frosted`. Both are described in [Component API](API_V1.md).
+  `.frosted`, available only on `MorphCard`. Both are described in
+  [Component API](API_V1.md).
 - In families without the shared `variant`, a parameter that is also called
   `variant` (tabs, app bars, menus, dialogs, sheets, toolbars, lists, loading
   indicator, text field) selects a *structural* type, not a color role.
@@ -23,9 +24,9 @@ How to read the tables:
 
 | Family | Widgets | Types / constructors | `variant` | `surface` |
 | --- | --- | --- | :---: | :---: |
-| Buttons | `MorphButton` | `.filled` `.tonal` `.elevated` `.outlined` `.text` `.icon`; default is filled | yes | yes |
-| Async button | `MorphAsyncButton` | `style: MorphButtonStyle`; states `MorphOperationState` | yes | yes |
-| Icon buttons | `MorphIconButton` | `.standard` `.filled` `.tonal` `.outlined`; `type: MorphIconButtonType` | yes | yes |
+| Buttons | `MorphButton` | `.filled` `.tonal` `.elevated` `.outlined` `.text` `.icon`; default is filled | yes | no |
+| Async button | `MorphAsyncButton` | `style: MorphButtonStyle`; states `MorphOperationState` | yes | no |
+| Icon buttons | `MorphIconButton` | `.standard` `.filled` `.tonal` `.outlined`; `type: MorphIconButtonType` | yes | no |
 | Button groups | `MorphButtonGroup`, `MorphButtonGroupAction`, `MorphReactiveButtonGroup` | `type: MorphButtonGroupType.standard / .connected`, `style`, multi-select | yes (forwarded) | no |
 | Split buttons | `MorphSplitButton<T>`, `MorphSplitButtonItem<T>` | menu or bottom-sheet overflow | yes | no |
 | Shape buttons | `MorphShapeButton`, `MorphShapeView` | shape-engine geometry ([SHAPE_ENGINE.md](SHAPE_ENGINE.md)) | yes | no |
@@ -601,8 +602,8 @@ Future<String?> openMenuAt(BuildContext context, Offset position) {
 ## Floating surfaces, frosted glass and scrolling
 
 Menus, dropdown panels, dialogs, sheets, tooltips and snackbars take a `glass:`
-configuration or inherit `MorphThemeData.floatingSurfaceGlass`. Cards, buttons
-and icon buttons opt in with `surface: .frosted`. When frosted widgets scroll,
+configuration or inherit `MorphThemeData.floatingSurfaceGlass`. Cards opt in with
+`surface: .frosted`; buttons have no frosted finish. When frosted widgets scroll,
 use `MorphScrollBehavior`. See [Frosted surfaces](FROSTED_SURFACES.md) and
 [MorphScrollBehavior](MORPH_SCROLL.md).
 

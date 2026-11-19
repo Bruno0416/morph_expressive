@@ -80,8 +80,6 @@ import 'package:material_ui/material_ui.dart'
         WidgetStatesController;
 import 'package:motor/motor.dart';
 
-import '../../foundations/surface/morph_glass_surface.dart';
-import '../shared/morph_surface_glass_resolution.dart';
 import '../tooltips/morph_tooltips.dart';
 import 'components/morph_base_button_state.dart';
 import 'components/morph_operation_surface.dart';
@@ -137,7 +135,6 @@ class MorphButton extends StatefulWidget {
     this.statesController,
     this.decoration,
     this.variant,
-    this.surface = MorphSurface.solid,
     this.focusNode,
     this.autofocus = false,
     this.onFocusChange,
@@ -169,7 +166,6 @@ class MorphButton extends StatefulWidget {
     WidgetStatesController? statesController,
     MorphButtonDecoration? decoration,
     MorphVariant? variant,
-    MorphSurface surface = MorphSurface.solid,
     FocusNode? focusNode,
     bool autofocus = false,
     ValueChanged<bool>? onFocusChange,
@@ -194,7 +190,6 @@ class MorphButton extends StatefulWidget {
       statesController: statesController,
       decoration: decoration,
       variant: variant,
-      surface: surface,
       focusNode: focusNode,
       autofocus: autofocus,
       onFocusChange: onFocusChange,
@@ -232,7 +227,6 @@ class MorphButton extends StatefulWidget {
     this.statesController,
     this.decoration,
     this.variant,
-    this.surface = MorphSurface.solid,
     this.focusNode,
     this.autofocus = false,
     this.onFocusChange,
@@ -264,7 +258,6 @@ class MorphButton extends StatefulWidget {
     this.statesController,
     this.decoration,
     this.variant,
-    this.surface = MorphSurface.solid,
     this.focusNode,
     this.autofocus = false,
     this.onFocusChange,
@@ -296,7 +289,6 @@ class MorphButton extends StatefulWidget {
     this.statesController,
     this.decoration,
     this.variant,
-    this.surface = MorphSurface.solid,
     this.focusNode,
     this.autofocus = false,
     this.onFocusChange,
@@ -328,7 +320,6 @@ class MorphButton extends StatefulWidget {
     this.statesController,
     this.decoration,
     this.variant,
-    this.surface = MorphSurface.solid,
     this.focusNode,
     this.autofocus = false,
     this.onFocusChange,
@@ -352,7 +343,6 @@ class MorphButton extends StatefulWidget {
     this.statesController,
     this.decoration,
     this.variant,
-    this.surface = MorphSurface.solid,
     this.focusNode,
     this.autofocus = false,
     this.onFocusChange,
@@ -452,15 +442,6 @@ class MorphButton extends StatefulWidget {
   ///
   /// An explicit [decoration] color always wins over the variant.
   final MorphVariant? variant;
-
-  /// Finish of the button background. Defaults to [MorphSurface.solid].
-  ///
-  /// [MorphSurface.frosted] paints the Morph frosted-glass treatment behind
-  /// the content, clipped to the animated button shape. The configuration comes
-  /// from [MorphThemeData.floatingSurfaceGlass] when enabled and from a default
-  /// [MorphSurfaceGlass] otherwise. Frosted buttons draw no elevation shadow;
-  /// state layer, ink, focus ring and motion are unchanged.
-  final MorphSurface surface;
 
   /// External focus node for keyboard navigation.
   final FocusNode? focusNode;

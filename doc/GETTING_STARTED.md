@@ -91,7 +91,6 @@ class MyApp extends StatelessWidget {
               ),
               MorphButton.outlined(
                 variant: .danger,
-                surface: .frosted,
                 onPressed: () {},
                 child: const Text('Delete'),
               ),
@@ -166,15 +165,15 @@ class ExistingApp extends StatelessWidget {
 `MorphTheme` with `autoTheming`, `dynamicColoring` or a controller, when Morph
 itself should react to brightness changes (see [Theming](THEMING.md)).
 
-## The three axes of the API
+## The axes of the API
 
 | Axis | Chosen with | Examples |
 | --- | --- | --- |
 | Visual type | Named constructor | `MorphButton.outlined`, `MorphCard.filled`, `MorphIconButton.tonal` |
 | Color role | `variant:` | `.primary`, `.secondary`, `.tertiary`, `.muted`, `.danger` |
-| Surface finish | `surface:` | `.solid` (default), `.frosted` |
+| Surface finish (`MorphCard` only) | `surface:` | `.solid` (default), `.frosted` |
 
-`variant` and `surface` use Dart's enum shorthand (`.danger`); the long form
+`variant` (every button family and `MorphCard`) and `surface` (`MorphCard`) use Dart's enum shorthand (`.danger`); the long form
 `MorphVariant.danger` is equivalent. Omitting `variant` keeps each type's
 canonical Material 3 colors. See [Component API](API_V1.md).
 

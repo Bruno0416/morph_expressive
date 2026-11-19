@@ -73,7 +73,6 @@ void readmeDensity() {
 Widget readmeComponentApi(VoidCallback onDelete) {
   return MorphButton.outlined(
     variant: .danger,
-    surface: .frosted,
     onPressed: onDelete,
     child: const Text('Delete'),
   );
@@ -118,7 +117,6 @@ MorphThemeData compactTheme(Color seed) {
 Widget deleteButton(VoidCallback onDelete) {
   return MorphButton.outlined(
     variant: .danger,
-    surface: .frosted,
     onPressed: onDelete,
     child: const Text('Delete'),
   );
@@ -131,7 +129,6 @@ Widget apiExamples({
   required VoidCallback skip,
   required VoidCallback explore,
   required VoidCallback remove,
-  required VoidCallback open,
   required VoidCallback add,
   required VoidCallback edit,
   required TextEditingController controller,
@@ -161,14 +158,6 @@ Widget apiExamples({
         variant: .muted,
         onPressed: skip,
         child: const Text('Not now'),
-      ),
-
-      // Finish
-      MorphButton.tonal(
-        variant: .secondary,
-        surface: .frosted,
-        onPressed: open,
-        child: const Text('Open'),
       ),
 
       // Other families
@@ -832,21 +821,10 @@ const MorphSurfaceGlass glass = MorphSurfaceGlass(
 // #enddocregion frosted-glass-config
 
 // #docregion frosted-inflow
-Widget frostedInFlow(VoidCallback onPressed) {
+Widget frostedInFlow() {
   return Column(
     spacing: 12,
     children: [
-      MorphButton.tonal(
-        surface: .frosted,
-        onPressed: onPressed,
-        child: const Text('Frosted button'),
-      ),
-      MorphIconButton.filled(
-        surface: .frosted,
-        onPressed: onPressed,
-        tooltip: 'Add',
-        icon: Icon(FluentIcons.line.add),
-      ),
       const MorphCard(surface: .frosted, headline: 'Frosted card'),
       // Explicit glass on a card: no `surface:` needed.
       const MorphCard(
@@ -1108,7 +1086,6 @@ void main() {
               skip: () {},
               explore: () {},
               remove: () {},
-              open: () {},
               add: () {},
               edit: () {},
               controller: controller,
@@ -1463,7 +1440,7 @@ void main() {
         tester,
         Column(
           children: [
-            frostedInFlow(() {}),
+            frostedInFlow(),
             SizedBox(
               width: 300,
               height: 120,

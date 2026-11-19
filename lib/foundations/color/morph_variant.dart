@@ -7,12 +7,11 @@ import 'morph_color_scheme.dart';
 ///
 /// A variant selects *which* color role a component uses; it never selects
 /// the visual type (filled, tonal, outlined…), which is chosen with a named
-/// constructor, nor the finish, which is chosen with [MorphSurface].
+/// constructor, nor the finish, which `MorphCard` chooses with [MorphSurface].
 ///
 /// ```dart
 /// MorphButton.outlined(
 ///   variant: .danger,
-///   surface: .frosted,
 ///   onPressed: onDelete,
 ///   child: const Text('Delete'),
 /// );
@@ -42,7 +41,7 @@ enum MorphVariant {
   danger,
 }
 
-/// Visual finish of an in-flow component, independent of its type and role.
+/// Visual finish of a `MorphCard`, independent of its type and role.
 ///
 /// [solid] paints opaque theme-dependent surfaces. [frosted] paints the
 /// existing Morph frosted-glass treatment (`MorphGlassSurface`): a clipped

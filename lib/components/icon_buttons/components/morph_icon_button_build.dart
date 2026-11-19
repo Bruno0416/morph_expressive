@@ -482,11 +482,7 @@ extension _MorphIconButtonBuild on _MorphIconButtonState {
             );
           }
         }
-        final MorphSurfaceGlass? glass = morphResolveSurfaceGlass(
-          context,
-          widget.surface,
-        );
-        Widget face = MorphInkSplashTheme(
+        final Widget face = MorphInkSplashTheme(
           color: colors.fg,
           child: IconButton(
             focusNode: _focusNode,
@@ -516,28 +512,6 @@ extension _MorphIconButtonBuild on _MorphIconButtonState {
             ),
           ),
         );
-        if (glass != null) {
-          final Color baseColor = morphGlassBaseColor(
-            widget.onPressed == null
-                ? MorphTheme.of(context).colorScheme.surfaceContainerLow
-                : colors.bg,
-            MorphTheme.of(context).colorScheme.surfaceContainerLow,
-          );
-          face = MorphGlassSurface(
-            // Icons are graphical objects: WCAG 1.4.11 asks for 3:1.
-            glass: widget.onPressed == null
-                ? glass
-                : morphLegibleGlass(
-                    glass,
-                    base: baseColor,
-                    content: colors.fg,
-                    minContrast: 3,
-                  ),
-            baseColor: baseColor,
-            borderRadius: animatedRadius,
-            child: face,
-          );
-        }
         return MorphFocusRing(
           focused: showFocusRing,
           radius: animatedRadius,
@@ -566,11 +540,8 @@ extension _MorphIconButtonBuild on _MorphIconButtonState {
       shape: WidgetStateProperty.all(
         RoundedRectangleBorder(borderRadius: animatedRadius),
       ),
-      // Frosted containers paint their tint in MorphGlassSurface.
       backgroundColor: WidgetStateProperty.all(
-        useGradient || widget.surface.isFrosted
-            ? Colors.transparent
-            : colors.bg,
+        useGradient ? Colors.transparent : colors.bg,
       ),
       backgroundBuilder: morphGradientSurfaceBuilder(
         clipRadius: animatedRadius,

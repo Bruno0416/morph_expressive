@@ -60,9 +60,9 @@ toolbars), **Surfaces & Content** (cards, lists, badges, dividers, carousels),
 snackbar) and **Overlays** (dialogs, bottom and side sheets, menus, tooltips).
 
 Buttons, icon buttons and cards have a **Matrix** use case (visual type ×
-`MorphVariant`, plus a frosted row over a decorative backdrop) and a
-**Playground** whose knobs select the named constructor, variant, surface,
-size, shape, enabled, selected, label and icon. See
+`MorphVariant`; cards add a frosted row over a decorative backdrop) and a
+**Playground** whose knobs select the named constructor, variant, size, shape,
+enabled, selected, label and icon (cards also have a `surface` knob). See
 [Component API](API_V1.md).
 
 ## Global controls
