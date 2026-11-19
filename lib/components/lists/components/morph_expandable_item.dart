@@ -5,7 +5,7 @@ import 'package:motor/motor.dart';
 
 import '../../../foundations/interaction/morph_motion_controller.dart';
 import '../../../foundations/foundations.dart';
-import '../../cards/enums/morph_card_variant.dart';
+import '../../cards/enums/morph_card_type.dart';
 import '../../tooltips/morph_tooltips.dart';
 import '../enums/morph_expandable_enums.dart';
 import '../enums/morph_list_selection_enums.dart';
@@ -120,7 +120,7 @@ class MorphExpandableItem extends StatefulWidget {
   final ValueChanged<BuildContext>? onTransformAnchor;
 
   /// Variant a nested sublist inherits when it does not set its own.
-  final MorphCardVariant? nestVariant;
+  final MorphCardType? nestVariant;
 
   /// Overrides the gap trailing this row, independent of [decoration].
   ///

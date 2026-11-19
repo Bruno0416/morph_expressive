@@ -310,7 +310,7 @@ class _MorphDockedAppBarState extends State<_MorphDockedAppBar>
     final theme = MorphTheme.of(context);
     final appBarTheme = theme.appBarTheme;
     final scheme = theme.colorScheme;
-    final metrics = appBarTheme.metrics(bar.density);
+    final metrics = appBarTheme.metrics(bar.density, global: theme.density);
     final hasSubtitle = bar.subtitle != null || bar.subtitleText != null;
     _collapsed = metrics.collapsedHeight;
     _expanded = bar.toolbarHeight != null

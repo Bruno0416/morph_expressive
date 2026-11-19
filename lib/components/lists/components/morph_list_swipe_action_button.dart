@@ -49,9 +49,9 @@ class MorphListSwipeActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final double resolvedHeight = action.height ?? height;
     final double visualWidth = math.max(width, minWidth);
-    final MorphIconButtonVariant variant = action.isPrimary
-        ? MorphIconButtonVariant.filled
-        : MorphIconButtonVariant.tonal;
+    final MorphIconButtonType type = action.isPrimary
+        ? MorphIconButtonType.filled
+        : MorphIconButtonType.tonal;
 
     void handlePress() {
       MorphHaptics.triggerFor(context, action.haptic);
@@ -91,7 +91,7 @@ class MorphListSwipeActionButton extends StatelessWidget {
               tooltip: action.tooltip,
               semanticLabel: action.semanticLabel,
               haptic: MorphHapticFeedback.none,
-              variant: variant,
+              type: type,
               enableFeedback: false,
               visualSize: Size(visualWidth, resolvedHeight),
               decoration: decoration,

@@ -23,6 +23,12 @@ class MorphMenuSubmenuBehavior {
     this.closeDelay = const Duration(milliseconds: 250),
   });
 
+  /// Desktop context-menu policy: 120 ms hover open, 300 ms grace close.
+  static const MorphMenuSubmenuBehavior desktop = MorphMenuSubmenuBehavior(
+    hoverDelay: Duration(milliseconds: 120),
+    closeDelay: Duration(milliseconds: 300),
+  );
+
   /// Hover or click.
   final MorphMenuSubmenuOpenMode mode;
 

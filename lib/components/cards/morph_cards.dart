@@ -8,13 +8,14 @@ import '../../foundations/interaction/morph_motion_controller.dart';
 import '../../foundations/foundations.dart';
 import '../../foundations/surface/morph_glass_surface.dart';
 import '../divider/morph_divider.dart';
+import '../shared/morph_surface_glass_resolution.dart';
 import 'components/morph_card_container_transform.dart';
 import 'components/morph_card_group_scope.dart';
 import 'controllers/morph_card_controller.dart';
 import 'enums/morph_card_divider_span.dart';
 import 'enums/morph_card_overflow_alignment.dart';
 import 'enums/morph_card_swipe_mode.dart';
-import 'enums/morph_card_variant.dart';
+import 'enums/morph_card_type.dart';
 import 'styles/morph_card_theme.dart';
 
 export 'components/morph_card_container_transform.dart'
@@ -28,7 +29,7 @@ export 'enums/morph_card_divider_span.dart';
 export 'enums/morph_card_group_layout.dart';
 export 'enums/morph_card_overflow_alignment.dart';
 export 'enums/morph_card_swipe_mode.dart';
-export 'enums/morph_card_variant.dart';
+export 'enums/morph_card_type.dart';
 export 'styles/morph_card_theme.dart';
 
 part 'components/morph_card_content.dart';
@@ -45,10 +46,12 @@ SpringMotion _swipeSpring(MorphSpring spring) {
 /// The container is the only required piece. Pass [child] for custom content,
 /// or the structured slots for media, text, actions, and overflow.
 class MorphCard extends StatefulWidget {
-  /// Creates a card.
+  /// Creates a card of the given [type] (elevated by default).
   const MorphCard({
     this.child,
-    this.variant = MorphCardVariant.elevated,
+    this.type = MorphCardType.elevated,
+    this.variant,
+    this.surface = MorphSurface.solid,
     this.onPressed,
     this.onLongPress,
     this.onSwipe,
@@ -101,16 +104,227 @@ class MorphCard extends StatefulWidget {
     this.textDividerSpan = MorphCardDividerSpan.padding,
     this.contentOnMedia = false,
     this.contentOverlayPlate,
-    this.frosted = false,
+    @Deprecated('Use surface: MorphSurface.frosted') this.frosted = false,
     this.glass,
     super.key,
   });
 
+  /// An elevated card (shadow separates it from the surface).
+  const MorphCard.elevated({
+    this.child,
+    this.variant,
+    this.surface = MorphSurface.solid,
+    this.onPressed,
+    this.onLongPress,
+    this.onSwipe,
+    this.swipeMode = MorphCardSwipeMode.both,
+    this.swipeAction,
+    this.leadingSwipeAction,
+    this.trailingSwipeAction,
+    this.leadingSwipeColor,
+    this.trailingSwipeColor,
+    this.alternativeActions,
+    this.openBuilder,
+    this.controller,
+    this.enabled = true,
+    this.expanded = false,
+    this.dragged = false,
+    this.padding,
+    this.clipBehavior = Clip.antiAlias,
+    this.borderRadius,
+    this.color,
+    this.elevation,
+    this.border,
+    this.animationDuration,
+    this.animationCurve,
+    this.width,
+    this.maxHeight,
+    this.surfaceKey,
+    this.mouseCursor,
+    this.focusNode,
+    this.focusable = true,
+    this.skipTraversal,
+    this.showFocusRing = true,
+    this.showFocusFill = true,
+    this.trackHover = true,
+    this.semanticLabel,
+    this.semanticLink = false,
+    this.haptic = MorphHapticFeedback.inherit,
+    this.onStateChanged,
+    this.media,
+    this.vertical,
+    this.mediaDecorative = false,
+    this.headline,
+    this.subhead,
+    this.supportingText,
+    this.actions,
+    this.overflow,
+    this.overflowAlignment = MorphCardOverflowAlignment.topEnd,
+    this.dividerAfterMedia = false,
+    this.dividerAfterText = false,
+    this.mediaDividerSpan = MorphCardDividerSpan.edge,
+    this.textDividerSpan = MorphCardDividerSpan.padding,
+    this.contentOnMedia = false,
+    this.contentOverlayPlate,
+    @Deprecated('Use surface: MorphSurface.frosted') this.frosted = false,
+    this.glass,
+    super.key,
+  }) : type = MorphCardType.elevated;
+
+  /// A filled card (tonal container, no shadow).
+  const MorphCard.filled({
+    this.child,
+    this.variant,
+    this.surface = MorphSurface.solid,
+    this.onPressed,
+    this.onLongPress,
+    this.onSwipe,
+    this.swipeMode = MorphCardSwipeMode.both,
+    this.swipeAction,
+    this.leadingSwipeAction,
+    this.trailingSwipeAction,
+    this.leadingSwipeColor,
+    this.trailingSwipeColor,
+    this.alternativeActions,
+    this.openBuilder,
+    this.controller,
+    this.enabled = true,
+    this.expanded = false,
+    this.dragged = false,
+    this.padding,
+    this.clipBehavior = Clip.antiAlias,
+    this.borderRadius,
+    this.color,
+    this.elevation,
+    this.border,
+    this.animationDuration,
+    this.animationCurve,
+    this.width,
+    this.maxHeight,
+    this.surfaceKey,
+    this.mouseCursor,
+    this.focusNode,
+    this.focusable = true,
+    this.skipTraversal,
+    this.showFocusRing = true,
+    this.showFocusFill = true,
+    this.trackHover = true,
+    this.semanticLabel,
+    this.semanticLink = false,
+    this.haptic = MorphHapticFeedback.inherit,
+    this.onStateChanged,
+    this.media,
+    this.vertical,
+    this.mediaDecorative = false,
+    this.headline,
+    this.subhead,
+    this.supportingText,
+    this.actions,
+    this.overflow,
+    this.overflowAlignment = MorphCardOverflowAlignment.topEnd,
+    this.dividerAfterMedia = false,
+    this.dividerAfterText = false,
+    this.mediaDividerSpan = MorphCardDividerSpan.edge,
+    this.textDividerSpan = MorphCardDividerSpan.padding,
+    this.contentOnMedia = false,
+    this.contentOverlayPlate,
+    @Deprecated('Use surface: MorphSurface.frosted') this.frosted = false,
+    this.glass,
+    super.key,
+  }) : type = MorphCardType.filled;
+
+  /// An outlined card (border, no shadow).
+  const MorphCard.outlined({
+    this.child,
+    this.variant,
+    this.surface = MorphSurface.solid,
+    this.onPressed,
+    this.onLongPress,
+    this.onSwipe,
+    this.swipeMode = MorphCardSwipeMode.both,
+    this.swipeAction,
+    this.leadingSwipeAction,
+    this.trailingSwipeAction,
+    this.leadingSwipeColor,
+    this.trailingSwipeColor,
+    this.alternativeActions,
+    this.openBuilder,
+    this.controller,
+    this.enabled = true,
+    this.expanded = false,
+    this.dragged = false,
+    this.padding,
+    this.clipBehavior = Clip.antiAlias,
+    this.borderRadius,
+    this.color,
+    this.elevation,
+    this.border,
+    this.animationDuration,
+    this.animationCurve,
+    this.width,
+    this.maxHeight,
+    this.surfaceKey,
+    this.mouseCursor,
+    this.focusNode,
+    this.focusable = true,
+    this.skipTraversal,
+    this.showFocusRing = true,
+    this.showFocusFill = true,
+    this.trackHover = true,
+    this.semanticLabel,
+    this.semanticLink = false,
+    this.haptic = MorphHapticFeedback.inherit,
+    this.onStateChanged,
+    this.media,
+    this.vertical,
+    this.mediaDecorative = false,
+    this.headline,
+    this.subhead,
+    this.supportingText,
+    this.actions,
+    this.overflow,
+    this.overflowAlignment = MorphCardOverflowAlignment.topEnd,
+    this.dividerAfterMedia = false,
+    this.dividerAfterText = false,
+    this.mediaDividerSpan = MorphCardDividerSpan.edge,
+    this.textDividerSpan = MorphCardDividerSpan.padding,
+    this.contentOnMedia = false,
+    this.contentOverlayPlate,
+    @Deprecated('Use surface: MorphSurface.frosted') this.frosted = false,
+    this.glass,
+    super.key,
+  }) : type = MorphCardType.outlined;
+
   /// Custom content. Omitted from the structured column when null.
   final Widget? child;
 
-  /// Elevated, filled, or outlined.
-  final MorphCardVariant variant;
+  /// Elevated, filled, or outlined. Defaults to elevated.
+  ///
+  /// Prefer the named constructors ([MorphCard.elevated], [MorphCard.filled],
+  /// [MorphCard.outlined]).
+  final MorphCardType type;
+
+  /// Chromatic role, independent of [type]. Null keeps the canonical colors
+  /// of the type (the historical look).
+  ///
+  /// - filled: [MorphVariantPalette.container] fill with
+  ///   [MorphVariantPalette.onContainer] content.
+  /// - outlined: the neutral surface with a [MorphVariantPalette.outline]
+  ///   border.
+  /// - elevated: the neutral raised surface with an
+  ///   [MorphVariantPalette.accent] headline.
+  ///
+  /// A widget [color], [border] or [elevation] wins over the variant, which
+  /// in turn wins over the per-type colors of [MorphCardTheme]. Disabled cards
+  /// keep the disabled tokens.
+  final MorphVariant? variant;
+
+  /// Finish of the container. Defaults to [MorphSurface.solid].
+  ///
+  /// [MorphSurface.frosted] paints the frosted-glass treatment using the
+  /// enabled [MorphThemeData.floatingSurfaceGlass] or a default
+  /// [MorphSurfaceGlass]. An explicit [glass] has priority.
+  final MorphSurface surface;
 
   /// Primary action. Also runs before a container transform opens.
   final VoidCallback? onPressed;
@@ -275,11 +489,15 @@ class MorphCard extends StatefulWidget {
 
   /// Whether to use the glass configuration inherited from the theme.
   ///
+  /// Deprecated: use `surface: MorphSurface.frosted`, which also frosts cards
+  /// when the theme has no glass configuration.
+  ///
   /// Unlike floating surfaces, cards are opaque by default even when the
   /// theme has [MorphThemeData.floatingSurfaceGlass]. Set this to true only
   /// when the card is positioned over content that benefits from backdrop blur.
   /// If the theme has no enabled glass configuration, this does nothing.
   /// An explicit [glass] always has priority over this flag.
+  @Deprecated('Use surface: MorphSurface.frosted')
   final bool frosted;
 
   /// Explicit glass override; enables glass without requiring [frosted].
@@ -378,13 +596,7 @@ class _MorphCardState extends State<MorphCard>
     final BorderRadius radius = widget.borderRadius ?? cardTheme.borderRadius;
     final Rect origin =
         renderObject.localToGlobal(Offset.zero) & renderObject.size;
-    final Color originColor =
-        widget.color ??
-        cardTheme.containerColorFor(
-          theme.colorScheme,
-          widget.variant,
-          enabled: widget.enabled,
-        );
+    final Color originColor = _fillColor(theme.colorScheme, cardTheme);
     final MorphCardContainerTransformHandle<T> handle =
         MorphCardContainerTransform.show<T>(
           context: context,
@@ -451,7 +663,7 @@ class _MorphCardState extends State<MorphCard>
 
   Widget _buildCard(BuildContext context) {
     final theme = MorphTheme.of(context);
-    final MorphCardTheme cardTheme = theme.cardTheme;
+    final MorphCardTheme cardTheme = theme.cardTheme.withDensity(theme.density);
     final MorphCardGroupScope? group = MorphCardGroupScope.maybeOf(context);
     final BorderRadius radius = widget.borderRadius ?? cardTheme.borderRadius;
     final dragged = widget.dragged || (group?.dragged ?? false);
@@ -568,6 +780,98 @@ class _MorphCardState extends State<MorphCard>
     return parts.join(', ');
   }
 
+  /// Resolved palette of [MorphCard.variant]; null when no variant is set or
+  /// the card is disabled (disabled tokens win).
+  MorphVariantPalette? _palette(MorphColorScheme scheme) =>
+      widget.enabled ? widget.variant?.resolve(scheme) : null;
+
+  /// Container fill: widget color, then variant, then theme and type.
+  Color _fillColor(MorphColorScheme scheme, MorphCardTheme cardTheme) {
+    final Color? explicit = widget.color;
+    if (explicit != null) {
+      return explicit;
+    }
+    final MorphVariantPalette? palette = _palette(scheme);
+    if (palette != null && widget.type == MorphCardType.filled) {
+      return palette.container;
+    }
+    return cardTheme.containerColorFor(
+      scheme,
+      widget.type,
+      enabled: widget.enabled,
+    );
+  }
+
+  Color _outlineColor(
+    MorphColorScheme scheme,
+    MorphCardTheme cardTheme,
+    MorphInteractionState state,
+  ) {
+    final MorphVariantPalette? palette = _palette(scheme);
+    // Role-specific borders (danger, muted) replace the card outline; the
+    // primary/secondary/tertiary roles share the scheme outline, so the card
+    // keeps its own lighter border and shows the role in the headline.
+    if (palette != null &&
+        !state.focused &&
+        palette.outline != scheme.outline) {
+      return palette.outline;
+    }
+    return cardTheme.outlineColorFor(
+      scheme,
+      enabled: widget.enabled,
+      focused: state.focused,
+    );
+  }
+
+  /// Headline color for the variant, null keeps the theme style.
+  Color? _variantHeadlineColor(MorphColorScheme scheme) {
+    final MorphVariantPalette? palette = _palette(scheme);
+    return switch (widget.type) {
+      MorphCardType.filled => palette?.onContainer,
+      MorphCardType.elevated || MorphCardType.outlined => palette?.accent,
+    };
+  }
+
+  /// Subhead and supporting-text color for the variant.
+  Color? _variantBodyColor(MorphColorScheme scheme) =>
+      widget.type == MorphCardType.filled
+      ? _palette(scheme)?.onContainer
+      : null;
+
+  /// Makes custom children of a filled variant card default to on-container
+  /// text and icons.
+  Widget _withVariantContent(MorphColorScheme scheme, Widget content) {
+    final Color? color = _variantBodyColor(scheme);
+    if (color == null) {
+      return content;
+    }
+    return IconTheme.merge(
+      data: IconThemeData(color: color),
+      child: DefaultTextStyle.merge(
+        style: TextStyle(color: color),
+        child: content,
+      ),
+    );
+  }
+
+  /// Frosted configuration: explicit [MorphCard.glass], then
+  /// [MorphCard.surface], then the deprecated [MorphCard.frosted] flag.
+  ///
+  /// Ordinary cards never sample the theme backdrop configuration.
+  MorphSurfaceGlass? _resolveGlass() {
+    if (widget.glass != null) {
+      return MorphGlassSurface.resolve(context, widget.glass);
+    }
+    if (widget.surface.isFrosted) {
+      return morphResolveSurfaceGlass(context, widget.surface);
+    }
+    // ignore: deprecated_member_use_from_same_package
+    if (widget.frosted) {
+      return MorphGlassSurface.resolve(context, null);
+    }
+    return null;
+  }
+
   Widget _buildSurface(
     BuildContext context,
     MorphThemeData theme,
@@ -579,28 +883,18 @@ class _MorphCardState extends State<MorphCard>
     final scheme = theme.colorScheme;
     final double resolvedElevation =
         widget.elevation ?? _elevation(cardTheme, group, state);
-    final outlined = widget.variant == MorphCardVariant.outlined;
+    final outlined = widget.type == MorphCardType.outlined;
     final BoxBorder? resolvedBorder = widget.border != null
         ? Border.all(color: widget.border!.color, width: widget.border!.width)
         : (outlined
               ? Border.all(
-                  color: cardTheme.outlineColorFor(
-                    scheme,
-                    enabled: widget.enabled,
-                    focused: state.focused,
-                  ),
+                  color: _outlineColor(scheme, cardTheme, state),
                   width: cardTheme.outlineWidth,
                 )
               : null);
-    final Color fill =
-        widget.color ??
-        cardTheme.containerColorFor(
-          scheme,
-          widget.variant,
-          enabled: widget.enabled,
-        );
+    final Color fill = _fillColor(scheme, cardTheme);
     final bool fadeContent =
-        !widget.enabled && widget.variant != MorphCardVariant.outlined;
+        !widget.enabled && widget.type != MorphCardType.outlined;
 
     Widget content = _buildContent(context, theme, cardTheme, group);
     if (!_hasStructuredContent) {
@@ -609,15 +903,13 @@ class _MorphCardState extends State<MorphCard>
         child: content,
       );
     }
+    content = _withVariantContent(scheme, content);
     content = _limitHeight(content, cardTheme);
     content = _withInteractionFill(scheme, cardTheme, state, content);
 
     // Avoid sampling the theme's backdrop configuration for ordinary cards.
     // Explicit glass overrides the opt-in flag (including disabled()).
-    final MorphSurfaceGlass? resolvedGlass =
-        widget.frosted || widget.glass != null
-        ? MorphGlassSurface.resolve(context, widget.glass)
-        : null;
+    final MorphSurfaceGlass? resolvedGlass = _resolveGlass();
 
     Widget innerContent = _actionable
         ? MorphStateLayerOverlay(
@@ -635,8 +927,18 @@ class _MorphCardState extends State<MorphCard>
     if (resolvedGlass != null) {
       // Use frosted glass surface - shadows are handled by MorphGlassSurface
       // and disabled when frosted is active
+      // A card requested with `surface: frosted` keeps its supporting text
+      // legible over any backdrop; explicit `glass` stays as configured.
+      final MorphSurfaceGlass glass =
+          widget.glass == null && widget.surface.isFrosted && widget.enabled
+          ? morphLegibleGlass(
+              resolvedGlass,
+              base: fill,
+              content: _variantBodyColor(scheme) ?? scheme.onSurfaceVariant,
+            )
+          : resolvedGlass;
       surface = MorphGlassSurface(
-        glass: resolvedGlass,
+        glass: glass,
         baseColor: fill,
         borderRadius: radius,
         elevation: resolvedElevation,
@@ -723,7 +1025,7 @@ class _MorphCardState extends State<MorphCard>
     MorphInteractionState state,
   ) {
     final double themed = cardTheme.elevation(
-      widget.variant,
+      widget.type,
       hovered: state.hovered,
       focused: state.focused,
       pressed: state.pressed,

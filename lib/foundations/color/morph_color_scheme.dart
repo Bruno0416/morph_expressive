@@ -1,11 +1,14 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/widgets.dart';
-import 'package:material_ui/material_ui.dart' show ColorScheme;
+import 'package:material_ui/material_ui.dart'
+    show ColorScheme, DynamicSchemeVariant;
 
 // Re-export so ColorScheme.harmonized / Color.harmonizeWith stay available via
 // foundations without a duplicate extension (dynamic_color 2.x uses material_ui).
 export 'package:dynamic_color/dynamic_color.dart'
     show ColorHarmonization, ColorSchemeHarmonization;
+// Lets callers choose a scheme variant without importing material_ui.
+export 'package:material_ui/material_ui.dart' show DynamicSchemeVariant;
 
 /// The full set of Material 3 color roles used across expressive components.
 ///
@@ -60,15 +63,39 @@ class MorphColorScheme {
     required this.surfaceStrong,
     required this.onSurfaceStrong,
     required this.outlineStrong,
+    this.seedColor,
+    this.dynamicSchemeVariant = DynamicSchemeVariant.tonalSpot,
+    this.contrastLevel = 0.0,
   });
 
   /// Builds a scheme from a single [seed] color.
+  ///
+  /// Tonal palette generation is delegated to Material Color Utilities through
+  /// [ColorScheme.fromSeed]. The defaults ([DynamicSchemeVariant.tonalSpot] and
+  /// a [contrastLevel] of 0) produce the standard Material 3 scheme, so
+  /// existing seeds keep their identity. [contrastLevel] ranges from -1 (reduced
+  /// contrast) to 1 (high contrast).
+  ///
+  /// The [seed], [dynamicSchemeVariant] and [contrastLevel] are remembered on
+  /// the result so a matching scheme of the opposite brightness can be derived
+  /// faithfully (see `MorphThemeData.deriveDarkTemplate`).
   factory MorphColorScheme.fromSeed(
     Color seed, {
     Brightness brightness = Brightness.light,
+    DynamicSchemeVariant dynamicSchemeVariant = DynamicSchemeVariant.tonalSpot,
+    double contrastLevel = 0.0,
   }) {
     return MorphColorScheme.fromColorScheme(
-      ColorScheme.fromSeed(seedColor: seed, brightness: brightness),
+      ColorScheme.fromSeed(
+        seedColor: seed,
+        brightness: brightness,
+        dynamicSchemeVariant: dynamicSchemeVariant,
+        contrastLevel: contrastLevel,
+      ),
+    ).copyWith(
+      seedColor: seed,
+      dynamicSchemeVariant: dynamicSchemeVariant,
+      contrastLevel: contrastLevel,
     );
   }
 
@@ -284,6 +311,20 @@ class MorphColorScheme {
   /// A stronger outline for high-contrast separators.
   final Color outlineStrong;
 
+  /// The seed this scheme was generated from, or null when it was adapted from
+  /// an existing [ColorScheme] or assembled from explicit roles.
+  ///
+  /// Informational metadata: it does not take part in role resolution. It lets
+  /// `MorphThemeData.deriveDarkTemplate` regenerate the dark counterpart from
+  /// the real seed instead of an already-tonal role color.
+  final Color? seedColor;
+
+  /// The Material Color Utilities variant used when [seedColor] was expanded.
+  final DynamicSchemeVariant dynamicSchemeVariant;
+
+  /// The contrast level (-1 to 1) used when [seedColor] was expanded.
+  final double contrastLevel;
+
   /// Returns a copy with the given fields replaced.
   MorphColorScheme copyWith({
     Brightness? brightness,
@@ -330,6 +371,9 @@ class MorphColorScheme {
     Color? surfaceStrong,
     Color? onSurfaceStrong,
     Color? outlineStrong,
+    Color? seedColor,
+    DynamicSchemeVariant? dynamicSchemeVariant,
+    double? contrastLevel,
   }) {
     return MorphColorScheme(
       brightness: brightness ?? this.brightness,
@@ -378,6 +422,9 @@ class MorphColorScheme {
       surfaceStrong: surfaceStrong ?? this.surfaceStrong,
       onSurfaceStrong: onSurfaceStrong ?? this.onSurfaceStrong,
       outlineStrong: outlineStrong ?? this.outlineStrong,
+      seedColor: seedColor ?? this.seedColor,
+      dynamicSchemeVariant: dynamicSchemeVariant ?? this.dynamicSchemeVariant,
+      contrastLevel: contrastLevel ?? this.contrastLevel,
     );
   }
 

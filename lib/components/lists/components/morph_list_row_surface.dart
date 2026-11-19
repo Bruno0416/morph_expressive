@@ -30,7 +30,7 @@ class MorphListRowSurface extends StatefulWidget {
     this.dragged = false,
     this.color,
     this.border,
-    this.variant = MorphCardVariant.filled,
+    this.variant = MorphCardType.filled,
     this.elevation,
     this.padding = EdgeInsets.zero,
     this.onStateChanged,
@@ -83,7 +83,7 @@ class MorphListRowSurface extends StatefulWidget {
   final BorderSide? border;
 
   /// Card variant. Elevation comes from the card theme when [elevation] is null.
-  final MorphCardVariant variant;
+  final MorphCardType variant;
 
   /// Resting elevation. Null uses the card variant. Drag proxies pass 0.
   final double? elevation;
@@ -426,7 +426,7 @@ class _MorphListRowSurfaceState extends State<MorphListRowSurface> {
       );
     }
     return MorphCard(
-      variant: paintContainer ? widget.variant : MorphCardVariant.filled,
+      type: paintContainer ? widget.variant : MorphCardType.filled,
       borderRadius: radius,
       color: fill,
       border: paintContainer ? widget.border : null,

@@ -341,6 +341,23 @@ class MorphSearchBarTheme extends MorphThemeExtension<MorphSearchBarTheme> {
         hintStyle(theme.typeScale, theme.colorScheme);
   }
 
+  /// This theme with the layout [density] applied once (bar height and the
+  /// icon/label gap; padding anchors and typography are unchanged).
+  MorphSearchBarTheme withDensity(MorphDensity density) {
+    if (density == MorphDensity.standard) {
+      return this;
+    }
+    final MorphDensityMetrics m = density.metrics;
+    return copyWith(
+      minHeight: MorphDensityMetrics.adjust(
+        minHeight,
+        m.controlHeightFor(2),
+        min: 40,
+      ),
+      iconLabelGap: MorphDensityMetrics.adjust(iconLabelGap, m.gap),
+    );
+  }
+
   @override
   MorphSearchBarTheme copyWith({
     double? elevation,

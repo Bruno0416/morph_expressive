@@ -27,8 +27,8 @@ class MorphTextFieldColorTheme {
     this.affixColor,
     this.focusRingColor,
     this.disabledContainerOpacity = 0.04,
-    this.disabledContentOpacity = 0.38,
-    this.disabledOutlineOpacity = 0.12,
+    this.disabledContentOpacity = MorphStateOpacity.disabledContent,
+    this.disabledOutlineOpacity = MorphStateOpacity.disabledContainer,
     this.hoverStateLayerOpacity = 0.08,
     this.outlinedHoverStateLayerOpacity = 0,
   });

@@ -242,18 +242,31 @@ class MorphButtonTheme extends MorphThemeExtension<MorphButtonTheme> {
 
   /// measurements.
 
+  ///
+  /// [density] adjusts the token values once; explicit overrides carried by a
+  /// custom [size] (or [override]) stay exact and are never adjusted.
   MorphButtonMeasurements measurements(
     MorphButtonSize size, {
     MorphButtonSize? override,
+    MorphDensity density = MorphDensity.standard,
   }) {
-    final base = _tokenMeasurements(size);
-    if (override == null) {
-      // Apply field overrides from [size] (custom name or copyWith height/density).
-      return base.applyCustomSize(size);
-    }
-    final overrideBase = _tokenMeasurements(override);
-    return overrideBase.applyCustomSize(override);
+    final MorphButtonSize resolved = override ?? size;
+    final MorphButtonMeasurements base = _tokenMeasurements(resolved);
+    final MorphButtonMeasurements dense = density == MorphDensity.standard
+        ? base
+        : base.withDensity(density.metrics, sizeStep(resolved));
+    return dense.applyCustomSize(resolved);
   }
+
+  /// Size step of [size] for density tables (xs = 0 ... xl = 4); unknown
+  /// custom names resolve like [MorphButtonSize.md].
+  static int sizeStep(MorphButtonSize size) => switch (size.name) {
+    'xs' => 0,
+    'sm' => 1,
+    'lg' => 3,
+    'xl' => 4,
+    _ => 2,
+  };
 
   MorphButtonMeasurements _tokenMeasurements(MorphButtonSize size) {
     for (final variant in _measurementsTable.keys) {

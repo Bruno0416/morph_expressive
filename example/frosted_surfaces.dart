@@ -125,7 +125,7 @@ class FrostedSurfacesExamplePage extends ui.StatelessWidget {
                     ),
                     const ui.SizedBox(height: 12),
                     const MorphCard(
-                      frosted: true,
+                      surface: MorphSurface.frosted,
                       headline: 'Theme frosted',
                       supportingText:
                           'Uses floatingSurfaceGlass from MorphTheme.',

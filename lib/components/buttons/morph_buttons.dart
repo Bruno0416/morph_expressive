@@ -134,6 +134,7 @@ class MorphButton extends StatefulWidget {
     this.isLastInGroup = true,
     this.statesController,
     this.decoration,
+    this.variant,
     this.focusNode,
     this.autofocus = false,
     this.onFocusChange,
@@ -164,6 +165,7 @@ class MorphButton extends StatefulWidget {
     bool isLastInGroup = true,
     WidgetStatesController? statesController,
     MorphButtonDecoration? decoration,
+    MorphVariant? variant,
     FocusNode? focusNode,
     bool autofocus = false,
     ValueChanged<bool>? onFocusChange,
@@ -187,6 +189,7 @@ class MorphButton extends StatefulWidget {
       isLastInGroup: isLastInGroup,
       statesController: statesController,
       decoration: decoration,
+      variant: variant,
       focusNode: focusNode,
       autofocus: autofocus,
       onFocusChange: onFocusChange,
@@ -223,6 +226,7 @@ class MorphButton extends StatefulWidget {
     this.isLastInGroup = true,
     this.statesController,
     this.decoration,
+    this.variant,
     this.focusNode,
     this.autofocus = false,
     this.onFocusChange,
@@ -253,6 +257,7 @@ class MorphButton extends StatefulWidget {
     this.isLastInGroup = true,
     this.statesController,
     this.decoration,
+    this.variant,
     this.focusNode,
     this.autofocus = false,
     this.onFocusChange,
@@ -283,6 +288,7 @@ class MorphButton extends StatefulWidget {
     this.isLastInGroup = true,
     this.statesController,
     this.decoration,
+    this.variant,
     this.focusNode,
     this.autofocus = false,
     this.onFocusChange,
@@ -313,6 +319,7 @@ class MorphButton extends StatefulWidget {
     this.isLastInGroup = true,
     this.statesController,
     this.decoration,
+    this.variant,
     this.focusNode,
     this.autofocus = false,
     this.onFocusChange,
@@ -335,6 +342,7 @@ class MorphButton extends StatefulWidget {
     this.enabled = true,
     this.statesController,
     this.decoration,
+    this.variant,
     this.focusNode,
     this.autofocus = false,
     this.onFocusChange,
@@ -413,6 +421,27 @@ class MorphButton extends StatefulWidget {
   /// When provided, decoration values take precedence over individual flat
   /// parameters (e.g. `backgroundColor`, `foregroundColor`, etc.).
   final MorphButtonDecoration? decoration;
+
+  /// Chromatic role of the button, independent of its [style].
+  ///
+  /// Null keeps the canonical Material 3 pairing of the [style] (the historical
+  /// look). A non-null variant resolves its colors from the active scheme
+  /// through [MorphVariantPalette]:
+  ///
+  /// - filled: [MorphVariantPalette.color] / [MorphVariantPalette.onColor].
+  /// - tonal: [MorphVariantPalette.container] / [MorphVariantPalette.onContainer].
+  /// - elevated: neutral raised surface with [MorphVariantPalette.accent] content.
+  /// - outlined: transparent with [MorphVariantPalette.accent] content and a
+  ///   [MorphVariantPalette.outline] border.
+  /// - text: transparent with [MorphVariantPalette.accent] content.
+  ///
+  /// For toggle buttons ([isSelected] != null) the selected state uses the
+  /// filled pair of the variant for every style except text, and the unselected
+  /// state keeps the neutral surface of the [style] with [MorphVariantPalette.accent]
+  /// content (tonal keeps its container pair).
+  ///
+  /// An explicit [decoration] color always wins over the variant.
+  final MorphVariant? variant;
 
   /// External focus node for keyboard navigation.
   final FocusNode? focusNode;

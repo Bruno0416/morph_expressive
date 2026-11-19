@@ -3,9 +3,9 @@ part of '../morph_side_sheets.dart';
 /// Places a side sheet next to (standard) or over (modal) [body].
 ///
 /// When a standard sheet opens, [body] shrinks to make room for it and
-/// keeps a 24 margin on its trailing edge. In [MorphSideSheetLayoutMode
-/// .adaptive] the sheet is modal on compact windows (below 600) and
-/// standard on medium and wider ones; crossing the breakpoint while open
+/// keeps a 24 margin on its trailing edge. In
+/// [MorphSideSheetLayoutMode.adaptive] the sheet is modal on compact windows
+/// (below 600) and standard on medium and wider ones; crossing the breakpoint while open
 /// morphs between the two with a spatial spring.
 class MorphSideSheetLayout extends StatefulWidget {
   /// MorphSideSheetLayout.

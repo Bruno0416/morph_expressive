@@ -77,7 +77,7 @@ extension _MorphNavigationRailOverlays on _MorphNavigationRailState {
   }
 
   Widget _buildModalOverlay(BuildContext context) {
-    final theme = MorphTheme.of(context).navigationRailTheme;
+    final theme = MorphNavigationRailTheme.resolve(context);
     final double span = _expandedTarget(context);
     final double reveal = span <= 0 ? 0 : (_width.value / span).clamp(0, 1);
     final rtl = Directionality.of(context) == TextDirection.rtl;
@@ -132,10 +132,11 @@ extension _MorphNavigationRailOverlays on _MorphNavigationRailState {
   }
 
   Widget _buildCollapsedPeekOverlay(BuildContext context) {
-    final MorphNavigationRailTheme theme = MorphTheme.of(context)
-        .navigationRailTheme;
+    final MorphNavigationRailTheme theme = MorphNavigationRailTheme.resolve(
+      context,
+    );
     final Widget button = MorphIconButton(
-      variant: MorphIconButtonVariant.standard,
+      type: MorphIconButtonType.standard,
       icon: const Icon(MorphIcons.menu),
       tooltip: widget.expandTooltip,
       onPressed: _canToggle ? () => _setExpanded(true) : null,

@@ -63,6 +63,7 @@ class MorphShapeButton extends StatefulWidget {
     this.releaseDuration,
     this.backgroundColor,
     this.foregroundColor,
+    this.variant,
   });
   final MorphShape shape;
   final MorphShape? pressedShape, selectedShape;
@@ -78,6 +79,10 @@ class MorphShapeButton extends StatefulWidget {
   final WidgetStatesController? statesController;
   final Duration? pressDuration, releaseDuration;
   final Color? backgroundColor, foregroundColor;
+
+  /// Chromatic role (filled pair: color / onColor). Null keeps the primary
+  /// pair. Explicit [backgroundColor] / [foregroundColor] win.
+  final MorphVariant? variant;
   @override
   State<MorphShapeButton> createState() => _MorphShapeButtonState();
 }
@@ -262,12 +267,15 @@ class _MorphShapeButtonState extends State<MorphShapeButton>
       );
     }
     final scheme = MorphTheme.of(context).colorScheme;
+    final palette = widget.variant?.resolve(scheme);
     final bg = _enabled
-        ? widget.backgroundColor ?? scheme.primary
-        : scheme.onSurface.withValues(alpha: .12);
+        ? widget.backgroundColor ?? palette?.color ?? scheme.primary
+        : scheme.onSurface.withValues(
+            alpha: MorphStateOpacity.disabledContainer,
+          );
     final fg = _enabled
-        ? widget.foregroundColor ?? scheme.onPrimary
-        : scheme.onSurface.withValues(alpha: .38);
+        ? widget.foregroundColor ?? palette?.onColor ?? scheme.onPrimary
+        : scheme.onSurface.withValues(alpha: MorphStateOpacity.disabledContent);
     final repaint = Listenable.merge([_controller, _phase, isFocusedNotifier]);
     final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1;
     final border = _LiveBorder(_livePath);

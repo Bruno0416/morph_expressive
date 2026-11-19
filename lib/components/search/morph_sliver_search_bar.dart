@@ -46,7 +46,10 @@ class _MorphSliverSearchBarState extends State<MorphSliverSearchBar>
   @override
   Widget build(BuildContext context) {
     final double extent =
-        (widget.height ?? MorphTheme.of(context).searchBarTheme.minHeight) +
+        (widget.height ??
+            MorphTheme.of(context).searchBarTheme
+                .withDensity(MorphTheme.of(context).density)
+                .minHeight) +
         widget.padding.vertical;
     final floating =
         widget.scrollBehavior == MorphSearchBarScrollBehavior.scrollAway;

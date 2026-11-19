@@ -8,7 +8,7 @@ import 'package:flutter/widgets.dart';
 /// tooltips and any other floating surface that exposes a `glass` parameter.
 ///
 /// Resolution rules:
-/// - A widget with an explicit [glass] uses its own configuration.
+/// - A widget with an explicit `glass` parameter uses its own configuration.
 /// - When the widget parameter is null, the surface inherits
 ///   [MorphThemeData.floatingSurfaceGlass].
 /// - When both are null the surface keeps its original opaque appearance.

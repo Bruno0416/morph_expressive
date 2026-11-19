@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart'
+    show Color, Material, SingleChildScrollView, Slider, ValueKey;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_expressive.dart';
 import 'package:morph_expressive_preview/chip_organic_lab.dart';

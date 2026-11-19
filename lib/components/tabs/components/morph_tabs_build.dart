@@ -5,7 +5,8 @@ part of '../morph_tabs.dart';
 extension _MorphTabsBuild on _MorphTabsState {
   Widget _build(BuildContext context) {
     final theme = MorphTheme.of(context);
-    final tabTheme = widget.tabTheme ?? theme.tabTheme;
+    final tabTheme =
+        widget.tabTheme ?? theme.tabTheme.withDensity(theme.density);
     final scheme = theme.colorScheme;
     final bar = _bar(theme, tabTheme, scheme);
     if (!widget._sliver) {

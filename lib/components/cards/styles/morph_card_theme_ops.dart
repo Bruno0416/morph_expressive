@@ -326,7 +326,7 @@ _CardTransformLerp _cardLerpTransform(
   );
 }
 
-/// Per-state elevation for every [MorphCardVariant], lerped as one group.
+/// Per-state elevation for every [MorphCardType], lerped as one group.
 typedef _CardElevationLerp = ({
   double elevatedElevation,
   double elevatedHoverElevation,

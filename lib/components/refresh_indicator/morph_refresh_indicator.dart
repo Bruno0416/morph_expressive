@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flutter/cupertino.dart';
+// cupertino_ui is not a direct dependency and material_ui does not re-export
+// the iOS activity indicator, so the framework library is the only source.
+// ignore: deprecated_member_use
+import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator;
 import 'package:flutter/foundation.dart' show clampDouble, kIsWeb;
 import 'package:flutter/gestures.dart'
     show DragUpdateDetails, PointerDeviceKind;

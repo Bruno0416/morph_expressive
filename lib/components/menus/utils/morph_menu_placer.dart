@@ -128,6 +128,116 @@ abstract final class MorphMenuPlacer {
     );
   }
 
+  /// Desktop context-menu placement for a surface of exactly [surfaceSize].
+  ///
+  /// Root menus ([isSubmenu] false) open with the surface's top-left corner at
+  /// [anchorRect]'s top-left (the pointer) and flip to the left / above only
+  /// when the surface would leave the viewport; if it fits neither way it is
+  /// shifted inside the viewport and scrolls. RTL mirrors the horizontal
+  /// preference. Submenus open beside the parent row ([anchorRect]) with their
+  /// first row aligned to it, flip to the other side when there is no room and
+  /// shift vertically to stay in view.
+  ///
+  /// The returned [MorphMenuPlacement] is in positioned-box coordinates: it is
+  /// already outset by [shadowPad] on every side, and [MorphMenuPlacement.width]
+  /// / [MorphMenuPlacement.maxHeight] include that margin.
+  static MorphMenuPlacement computeDesktop({
+    required Size screenSize,
+    required Rect anchorRect,
+    required Size surfaceSize,
+    required double edge,
+    required double shadowPad,
+    required TextDirection textDirection,
+    bool isSubmenu = false,
+    double sideInset = 4,
+    double sideOverlap = 2,
+    double firstRowOffset = 4,
+  }) {
+    final bool isRtl = textDirection == TextDirection.rtl;
+    final double maxSurfaceWidth = (screenSize.width - 2 * edge).clamp(
+      0.0,
+      double.infinity,
+    );
+    final double width = surfaceSize.width.clamp(0.0, maxSurfaceWidth);
+    final double maxSurfaceHeight = (screenSize.height - 2 * edge).clamp(
+      0.0,
+      double.infinity,
+    );
+    final double height = surfaceSize.height.clamp(0.0, maxSurfaceHeight);
+
+    // Horizontal.
+    double left;
+    var opensTowardStart = isRtl;
+    if (isSubmenu) {
+      final double rightSide = anchorRect.right + sideInset - sideOverlap;
+      final double leftSide = anchorRect.left - sideInset + sideOverlap - width;
+      final bool preferRight = !isRtl;
+      final double first = preferRight ? rightSide : leftSide;
+      final double second = preferRight ? leftSide : rightSide;
+      bool fits(double l) => l >= edge && l + width <= screenSize.width - edge;
+      if (fits(first)) {
+        left = first;
+        opensTowardStart = !preferRight;
+      } else if (fits(second)) {
+        left = second;
+        opensTowardStart = preferRight;
+      } else {
+        left = first;
+        opensTowardStart = !preferRight;
+      }
+    } else {
+      final double x = anchorRect.left;
+      final double first = isRtl ? x - width : x;
+      final double second = isRtl ? x : x - width;
+      bool fits(double l) => l >= edge && l + width <= screenSize.width - edge;
+      if (fits(first)) {
+        left = first;
+        opensTowardStart = isRtl;
+      } else if (fits(second)) {
+        left = second;
+        opensTowardStart = !isRtl;
+      } else {
+        left = first;
+        opensTowardStart = isRtl;
+      }
+    }
+    left = left.clamp(edge, screenSize.width - width - edge).toDouble();
+
+    // Vertical.
+    final double y = isSubmenu
+        ? anchorRect.top - firstRowOffset
+        : anchorRect.top;
+    final double minTop = edge;
+    final double maxBottom = screenSize.height - edge;
+    double? top;
+    double? bottom;
+    var opensAbove = false;
+    if (y + height <= maxBottom) {
+      top = y < minTop ? minTop : y;
+    } else if (!isSubmenu && y - height >= minTop) {
+      // Flip above the pointer: pin the bottom edge to it.
+      opensAbove = true;
+      bottom = screenSize.height - y;
+    } else {
+      // Neither side fits: shift inside the viewport (submenus, tall menus).
+      top = (maxBottom - height).clamp(minTop, maxBottom).toDouble();
+    }
+
+    final Alignment scale = Alignment(
+      opensTowardStart ? 1.0 : -1.0,
+      opensAbove ? 1.0 : -1.0,
+    );
+    return MorphMenuPlacement(
+      left: left - shadowPad,
+      top: top == null ? null : top - shadowPad,
+      bottom: bottom == null ? null : bottom - shadowPad,
+      width: width + shadowPad * 2,
+      maxHeight: maxSurfaceHeight + shadowPad * 2,
+      scaleAlignment: scale,
+      opensAbove: opensAbove,
+    );
+  }
+
   static double _resolveWidth({
     required double? preferredWidth,
     required Rect anchorRect,

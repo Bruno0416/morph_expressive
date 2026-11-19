@@ -7,8 +7,8 @@ geometry; each one has a way back. All new symbols are exported from
 APIs is [`example/whats_new_0_8_0.dart`](../example/whats_new_0_8_0.dart); the
 snippets below are excerpts of it.
 
-Publication of 0.8.0 is pending: until it is published, depend on a Git or path
-checkout (see [Getting started](GETTING_STARTED.md)).
+Version 0.8.0 is published on pub.dev. For the 1.0.0 changes see
+[Upgrading to 1.0.0](UPGRADE_1_0_0.md).
 
 ## Changed defaults and behavior
 

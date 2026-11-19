@@ -261,7 +261,7 @@ class _MorphTooltipState extends State<MorphTooltip>
 
   Widget _buildOverlay(BuildContext context) {
     final theme = MorphTheme.of(context);
-    final tooltipTheme = theme.tooltipTheme;
+    final tooltipTheme = theme.tooltipTheme.withDensity(theme.density);
     final targetBox =
         _targetKey.currentContext?.findRenderObject() as RenderBox?;
     final OverlayState? overlay = Overlay.maybeOf(context);

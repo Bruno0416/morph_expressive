@@ -16,7 +16,7 @@ class MorphCheckboxTheme extends MorphThemeExtension<MorphCheckboxTheme> {
     this.borderWidth = 2,
     this.selectedOutlineWidth = 0,
     BorderRadius? borderRadius,
-    this.disabledOpacity = 0.38,
+    this.disabledOpacity = MorphStateOpacity.disabledContent,
     this.labelGap = 8,
     this.hoverStateLayerOpacity = 0.08,
     this.focusStateLayerOpacity = 0.1,

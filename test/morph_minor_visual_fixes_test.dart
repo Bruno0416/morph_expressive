@@ -1,4 +1,26 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BorderRadius,
+        BoxDecoration,
+        Builder,
+        Center,
+        CustomPaint,
+        DecoratedBox,
+        Directionality,
+        FocusNode,
+        MaterialApp,
+        MaterialScrollBehavior,
+        Radius,
+        Rect,
+        Scaffold,
+        ScrollController,
+        ScrollableDetails,
+        Scrollbar,
+        SizedBox,
+        TargetPlatform,
+        TextDirection,
+        ThemeData,
+        ValueKey;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart' as mui show MaterialApp;
 import 'package:morph_expressive/morph_expressive.dart';

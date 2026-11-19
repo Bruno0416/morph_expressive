@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
 import 'package:material_ui/material_ui.dart'
     show Curve, Gradient, Size, immutable;
@@ -146,19 +148,70 @@ class MorphIconButtonTheme extends MorphThemeExtension<MorphIconButtonTheme> {
     MorphIconButtonSize.xl: 3,
   };
 
-  /// iconSize.
+  /// Size step of [size] for density tables (xs = 0 ... xl = 4).
+  static int sizeStep(MorphIconButtonSize size) => switch (size) {
+    MorphIconButtonSize.xs => 0,
+    MorphIconButtonSize.sm => 1,
+    MorphIconButtonSize.md => 2,
+    MorphIconButtonSize.lg => 3,
+    MorphIconButtonSize.xl => 4,
+  };
 
-  double iconSize(MorphIconButtonSize size) => _icon[size]!;
+  /// Icon glyph size for [size], adjusted once by [density].
+  double iconSize(
+    MorphIconButtonSize size, {
+    MorphDensity density = MorphDensity.standard,
+  }) => MorphDensityMetrics.adjust(
+    _icon[size]!,
+    density.metrics.iconSize,
+    min: 16,
+  );
 
-  /// visual.
+  /// Visual (painted) size for [size] and [width], adjusted once by
+  /// [density]. Both axes move by the size-step control height delta so the
+  /// button stays square (or keeps its width offset).
+  Size visual(
+    MorphIconButtonSize size,
+    MorphIconButtonWidth width, {
+    MorphDensity density = MorphDensity.standard,
+  }) {
+    final Size base = _visual[size]![width]!;
+    if (density == MorphDensity.standard) {
+      return base;
+    }
+    final double delta = density.metrics.controlHeightFor(sizeStep(size));
+    return Size(
+      MorphDensityMetrics.adjust(base.width, delta, min: 24),
+      MorphDensityMetrics.adjust(base.height, delta, min: 24),
+    );
+  }
 
-  Size visual(MorphIconButtonSize size, MorphIconButtonWidth width) =>
-      _visual[size]![width]!;
+  /// Interactive target size for [size] and [width].
+  ///
+  /// Density shrinks the painted button, never the accessible target: the
+  /// target keeps the standard 48dp floor (or the standard target when it is
+  /// larger than the visual) and grows with a comfortable visual.
+  Size target(
+    MorphIconButtonSize size,
+    MorphIconButtonWidth width, {
+    MorphDensity density = MorphDensity.standard,
+  }) {
+    final Size base = _target[size]![width]!;
+    if (density == MorphDensity.standard) {
+      return base;
+    }
+    final Size standardVisual = _visual[size]![width]!;
+    final Size visual = this.visual(size, width, density: density);
+    double axis(double target, double standard, double dense) {
+      final double floor = target > standard ? target : math.min(target, 48.0);
+      return math.max(floor, dense);
+    }
 
-  /// target.
-
-  Size target(MorphIconButtonSize size, MorphIconButtonWidth width) =>
-      _target[size]![width]!;
+    return Size(
+      axis(base.width, standardVisual.width, visual.width),
+      axis(base.height, standardVisual.height, visual.height),
+    );
+  }
 
   /// radiusRestRound.
 

@@ -1,6 +1,17 @@
 import 'dart:ui' show ImageFilter;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BackdropFilter,
+        Center,
+        ClipRRect,
+        ImageFiltered,
+        ListView,
+        MaterialApp,
+        Scaffold,
+        ScrollConfiguration,
+        SizedBox,
+        Transform;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_expressive.dart';
 

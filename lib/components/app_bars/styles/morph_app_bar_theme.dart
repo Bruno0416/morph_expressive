@@ -242,7 +242,14 @@ class MorphAppBarTheme extends MorphThemeExtension<MorphAppBarTheme> {
 
   /// metrics.
 
-  MorphAppBarMetrics metrics(MorphAppBarDensity density) {
+  ///
+  /// A null [density] follows the [global] density (compact reduces the bands
+  /// by [compactHeightReduction], comfortable adds half of it back); an
+  /// explicit [density] always wins.
+  MorphAppBarMetrics metrics(
+    MorphAppBarDensity? density, {
+    MorphDensity global = MorphDensity.standard,
+  }) {
     var small = smallHeight;
     var collapsed = collapsedHeight;
     var medium = mediumExpanded;
@@ -250,14 +257,21 @@ class MorphAppBarTheme extends MorphThemeExtension<MorphAppBarTheme> {
     var large = largeExpanded;
     var largeFlexible = largeFlexibleExpanded;
 
-    if (density == MorphAppBarDensity.compact) {
-      small -= compactHeightReduction;
-      collapsed -= compactHeightReduction;
-      medium -= compactHeightReduction;
-      mediumFlexible -= compactHeightReduction;
-      large -= compactHeightReduction;
-      largeFlexible -= compactHeightReduction;
-    }
+    final double delta = switch (density) {
+      MorphAppBarDensity.compact => -compactHeightReduction,
+      MorphAppBarDensity.regular => 0,
+      null => switch (global) {
+        MorphDensity.compact => -compactHeightReduction,
+        MorphDensity.standard => 0,
+        MorphDensity.comfortable => compactHeightReduction / 2,
+      },
+    };
+    small += delta;
+    collapsed += delta;
+    medium += delta;
+    mediumFlexible += delta;
+    large += delta;
+    largeFlexible += delta;
 
     return MorphAppBarMetrics(
       smallHeight: small,

@@ -1,4 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BackdropFilter,
+        ListView,
+        ScrollConfiguration,
+        SingleChildScrollView,
+        Size;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_expressive.dart';
 import 'package:morph_expressive_preview/main.dart';

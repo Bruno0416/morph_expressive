@@ -1,4 +1,20 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        AxisDirection,
+        DragUpdateDetails,
+        FixedScrollMetrics,
+        ImageFiltered,
+        ListView,
+        MaterialApp,
+        OverscrollNotification,
+        Scaffold,
+        ScrollConfiguration,
+        ScrollEndNotification,
+        ScrollStartNotification,
+        Scrollable,
+        ScrollableState,
+        SizedBox,
+        Text;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_expressive.dart';
 

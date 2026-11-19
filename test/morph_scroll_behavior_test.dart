@@ -1,6 +1,40 @@
 import 'dart:ui' show ImageFilter;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Axis,
+        BackdropFilter,
+        BorderRadius,
+        BouncingScrollPhysics,
+        BuildContext,
+        Builder,
+        Center,
+        ClampingScrollPhysics,
+        ClipRRect,
+        ColoredBox,
+        Colors,
+        Column,
+        CustomScrollView,
+        Expanded,
+        GridView,
+        ImageFiltered,
+        ListView,
+        MaterialApp,
+        MaterialScrollBehavior,
+        Scaffold,
+        ScrollBehavior,
+        ScrollConfiguration,
+        ScrollableDetails,
+        Semantics,
+        SingleChildScrollView,
+        SizedBox,
+        SliverToBoxAdapter,
+        Stack,
+        StackFit,
+        TargetPlatform,
+        Text,
+        Transform,
+        Widget;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:morph_expressive/morph_expressive.dart';
 

@@ -346,7 +346,7 @@ class _MonthNavRow extends StatelessWidget {
                             ? null
                             : MorphColorUtils.withOpacity(
                                 theme.colorScheme.onSurface,
-                                0.38,
+                                MorphStateOpacity.disabledContent,
                               ),
                       ),
                     );
@@ -366,7 +366,7 @@ class _MonthNavRow extends StatelessWidget {
                             ? null
                             : MorphColorUtils.withOpacity(
                                 theme.colorScheme.onSurface,
-                                0.38,
+                                MorphStateOpacity.disabledContent,
                               ),
                       ),
                     );

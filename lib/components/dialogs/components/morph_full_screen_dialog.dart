@@ -153,7 +153,8 @@ class _MorphFullScreenDialogState extends State<MorphFullScreenDialog>
   @override
   Widget build(BuildContext context) {
     final MorphThemeData theme = MorphTheme.of(context);
-    final MorphFullScreenDialogTheme fs = theme.dialogTheme.fullScreen;
+    final MorphFullScreenDialogTheme fs = theme.dialogTheme.fullScreen
+        .withDensity(theme.density);
     final Widget column = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[

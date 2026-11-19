@@ -168,7 +168,7 @@ Future<void> _autothemingUpdatesCardPaintedColorWhenPlatformBrightn(
   );
   final Color lightColor = lightTheme.cardTheme.backgroundColor(
     lightTheme.colorScheme,
-    MorphCardVariant.elevated,
+    MorphCardType.elevated,
   );
   expect(
     (tester.widget<AnimatedContainer>(containerFinder).decoration!
@@ -185,7 +185,7 @@ Future<void> _autothemingUpdatesCardPaintedColorWhenPlatformBrightn(
   );
   final Color darkColor = darkTheme.cardTheme.backgroundColor(
     darkTheme.colorScheme,
-    MorphCardVariant.elevated,
+    MorphCardType.elevated,
   );
   expect(
     (tester.widget<AnimatedContainer>(containerFinder).decoration!

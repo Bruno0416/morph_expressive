@@ -29,7 +29,7 @@ class MorphDialogActions extends StatelessWidget {
       color: appearance.resolveAction(theme.colorScheme),
       textStyle: appearance.resolveActionText(theme),
       overlay: appearance.actionOverlay,
-      child: _buildRow(theme.dialogTheme),
+      child: _buildRow(theme.dialogTheme.withDensity(theme.density)),
     );
   }
 

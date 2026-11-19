@@ -420,6 +420,30 @@ class MorphTabTheme extends MorphThemeExtension<MorphTabTheme> {
     );
   }
 
+  /// This theme with the layout [density] applied once.
+  ///
+  /// Bar heights move by the small-control delta, the scrollable tab padding
+  /// by the horizontal padding delta. Indicator thicknesses never change.
+  MorphTabTheme withDensity(MorphDensity density) {
+    if (density == MorphDensity.standard) {
+      return this;
+    }
+    final MorphDensityMetrics m = density.metrics;
+    final double delta = m.controlHeightFor(1);
+    return copyWith(
+      height: MorphDensityMetrics.adjust(height, delta, min: 40),
+      iconAndLabelHeight: MorphDensityMetrics.adjust(
+        iconAndLabelHeight,
+        delta,
+        min: 56,
+      ),
+      scrollableTabPadding: MorphDensityMetrics.adjust(
+        scrollableTabPadding,
+        m.paddingHorizontal,
+      ),
+    );
+  }
+
   @override
   MorphTabTheme copyWith({
     double? height,

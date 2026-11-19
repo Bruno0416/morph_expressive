@@ -5,13 +5,23 @@ part of 'morph_expandable_item.dart';
 
 /// Body measurement / viewport helpers for [_MorphExpandableItemState].
 extension _MorphExpandableItemBody on _MorphExpandableItemState {
+  /// Theme padding with the global density applied once (explicit style
+  /// paddings are never adjusted).
+  EdgeInsetsGeometry _densityPadding(EdgeInsetsGeometry padding) {
+    if (padding is! EdgeInsets) {
+      return padding;
+    }
+    return MorphTheme.of(context).densityMetrics.padding(padding);
+  }
+
   Widget _buildExpandableBody(
     MorphExpandableStyle d,
     double progress, {
     required bool isEntirelyTappable,
   }) {
     final expandableTheme = MorphTheme.of(context).listTheme.expandable;
-    final effectivePadding = d.bodyPadding ?? expandableTheme.bodyPadding;
+    final effectivePadding =
+        d.bodyPadding ?? _densityPadding(expandableTheme.bodyPadding);
     final resolvedPadding = effectivePadding.resolve(
       Directionality.of(context),
     );
@@ -525,8 +535,11 @@ extension _MorphExpandableItemHeader on _MorphExpandableItemState {
   }) {
     final expandableTheme = MorphTheme.of(context).listTheme.expandable;
     final EdgeInsetsGeometry headerPadding =
-        d.headerPadding ?? expandableTheme.headerPadding;
-    final double iconGap = MorphTheme.of(context).listTheme.item.gap;
+        d.headerPadding ?? _densityPadding(expandableTheme.headerPadding);
+    final MorphThemeData morphTheme = MorphTheme.of(context);
+    final double iconGap = morphTheme.listTheme.item
+        .withDensity(morphTheme.density)
+        .gap;
 
     final Widget icon = _buildIcon(d, progress, _primaryToggle);
     final iconOnTrailing = d.iconPlacement != MorphExpandableIconPlacement.left;

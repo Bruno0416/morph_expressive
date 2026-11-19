@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../foundations/foundations.dart';
-import '../../cards/enums/morph_card_variant.dart';
+import '../../cards/enums/morph_card_type.dart';
 import '../enums/morph_list_enums.dart';
 import 'morph_card_radius_motion.dart';
 import 'morph_expandable_nest_scope.dart';
@@ -79,7 +79,7 @@ class MorphCardListItem extends StatelessWidget {
     this.semanticLabel,
     this.mouseCursor,
     this.haptic = MorphHapticFeedback.inherit,
-    this.variant = MorphCardVariant.filled,
+    this.variant = MorphCardType.filled,
     this.border,
     this.resolvedColor,
     this.resolvedBorderRadius,
@@ -131,7 +131,7 @@ class MorphCardListItem extends StatelessWidget {
   final MorphHapticFeedback haptic;
 
   /// Card variant for this item.
-  final MorphCardVariant variant;
+  final MorphCardType variant;
 
   /// Optional card outline.
   final BorderSide? border;
@@ -168,8 +168,8 @@ class MorphCardListItem extends StatelessWidget {
                 closeBottom: closeBottom,
               ));
 
-    final MorphCardVariant effectiveVariant = dragProxy != null
-        ? MorphCardVariant.filled
+    final MorphCardType effectiveVariant = dragProxy != null
+        ? MorphCardType.filled
         : variant;
     final BorderSide? effectiveBorder = dragProxy != null ? null : border;
     final Color? inheritedSurface = color == null && resolvedColor == null
@@ -180,7 +180,7 @@ class MorphCardListItem extends StatelessWidget {
         : (resolvedColor ??
               color ??
               inheritedSurface ??
-              (variant == MorphCardVariant.outlined
+              (variant == MorphCardType.outlined
                   ? null
                   : cardListTheme.backgroundColor(scheme, variant: variant)));
 

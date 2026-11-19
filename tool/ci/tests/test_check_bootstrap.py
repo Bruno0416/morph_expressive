@@ -14,10 +14,11 @@ ROOT = Path(__file__).resolve().parents[3]
 
 
 class CheckBootstrapTest(unittest.TestCase):
-    def execute(self, *, legacy=False, fail_preview=False, missing_config=False):
+    def execute(self, *, legacy=False, fail_preview=False, missing_config=False, stale=False):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
-            (root / 'preview').mkdir()
+            (root / 'preview' / 'lib').mkdir(parents=True)
+            (root / 'preview' / 'lib' / 'main.directories.g.dart').write_text('// generated\n')
             bin_dir = root / 'bin'
             bin_dir.mkdir()
             # Unrelated Python guards are covered by their own suites.
@@ -43,6 +44,19 @@ elif args and args[0] in ['analyze', 'test']:
         sys.exit(1)
 ''')
             fake.chmod(0o755)
+            dart = bin_dir / 'dart'
+            dart.write_text('#!' + sys.executable + '\n' + '''
+import json, os, pathlib, sys
+root = pathlib.Path(os.environ['FIXTURE_ROOT'])
+package = 'preview' if pathlib.Path.cwd() == root / 'preview' else 'root'
+args = sys.argv[1:]
+if args[:1] != ['format']:
+    with (root / 'calls').open('a') as log:
+        log.write(json.dumps([package, 'dart', *args]) + '\\n')
+if args[:3] == ['run', 'build_runner', 'build'] and os.environ['STALE'] == '1':
+    (root / 'preview/lib/main.directories.g.dart').write_text('// regenerated\\n')
+''')
+            dart.chmod(0o755)
             script = (ROOT / 'tool/check.sh').read_text()
             if legacy:
                 # Recreate the logged commit: root get -> root analyze, no preview get.
@@ -50,7 +64,8 @@ elif args and args[0] in ['analyze', 'test']:
             (root / 'check.sh').write_text(script.replace(
                 'ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"', 'ROOT="$FIXTURE_ROOT"'))
             env = dict(os.environ, PATH=f'{bin_dir}:{os.environ["PATH"]}', FIXTURE_ROOT=str(root),
-                       FAIL_PREVIEW=str(int(fail_preview)), MISSING_CONFIG=str(int(missing_config)))
+                       FAIL_PREVIEW=str(int(fail_preview)), MISSING_CONFIG=str(int(missing_config)),
+                       STALE=str(int(stale)))
             result = subprocess.run(['bash', str(root / 'check.sh')], cwd=root,
                                     env=env, capture_output=True, text=True)
             calls = [json.loads(line) for line in (root / 'calls').read_text().splitlines()]
@@ -66,8 +81,17 @@ elif args and args[0] in ['analyze', 'test']:
         result, calls = self.execute()
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertEqual([['root', 'pub', 'get'], ['preview', 'pub', 'get'],
+                          ['preview', 'dart', 'run', 'build_runner', 'build'],
                           ['root', 'analyze'], ['root', 'test'],
-                          ['preview', 'analyze'], ['preview', 'test']], calls)
+                          ['preview', 'analyze'], ['preview', 'test'],
+                          ['preview', 'build', 'web', '--release']], calls)
+
+    def test_stale_widgetbook_tree_stops_before_analysis(self):
+        result, calls = self.execute(stale=True)
+        self.assertEqual(1, result.returncode)
+        self.assertIn('was stale', result.stderr)
+        self.assertEqual([['root', 'pub', 'get'], ['preview', 'pub', 'get'],
+                          ['preview', 'dart', 'run', 'build_runner', 'build']], calls)
 
     def test_resolution_failure_stops_before_any_analysis(self):
         result, calls = self.execute(fail_preview=True)

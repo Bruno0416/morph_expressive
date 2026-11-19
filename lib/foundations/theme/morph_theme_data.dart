@@ -1,6 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:material_ui/material_ui.dart'
-    show Brightness, Color, TargetPlatform, TextTheme, ThemeData, VisualDensity;
+    show
+        Brightness,
+        Color,
+        DynamicSchemeVariant,
+        TargetPlatform,
+        TextTheme,
+        ThemeData,
+        VisualDensity;
 
 import '../../components/app_bars/styles/morph_app_bar_theme.dart';
 import '../../components/badges/styles/morph_badge_theme.dart';
@@ -47,6 +54,7 @@ import '../color/morph_color_scheme.dart';
 import '../interaction/morph_focus_ring_theme.dart';
 import '../interaction/morph_haptics.dart';
 import '../surface/morph_surface_glass.dart';
+import '../tokens/morph_density.dart';
 import '../tokens/morph_spacing.dart';
 import '../type/morph_typography.dart';
 import '../type/morph_variable_font_config.dart';
@@ -65,6 +73,7 @@ class MorphThemeData {
     this.iconTheme = const IconThemeData(size: 24),
     this.spacing = const MorphSpacing.regular(),
     this.visualDensity = 0,
+    this.density = MorphDensity.standard,
     this.platform,
     this.useMaterial3 = true,
     this.splashColor,
@@ -151,27 +160,69 @@ class MorphThemeData {
   }
 
   /// Light theme, optionally seeded from [seedColor].
-  factory MorphThemeData.light({Color? seedColor, TextTheme? textTheme}) {
+  ///
+  /// [dynamicSchemeVariant] and [contrastLevel] only apply when [seedColor] is
+  /// given; their defaults keep the standard tonal-spot Material 3 scheme.
+  /// [density] sets the global layout density.
+  factory MorphThemeData.light({
+    Color? seedColor,
+    TextTheme? textTheme,
+    DynamicSchemeVariant dynamicSchemeVariant = DynamicSchemeVariant.tonalSpot,
+    double contrastLevel = 0.0,
+    MorphDensity density = MorphDensity.standard,
+  }) {
     return MorphThemeData(
       textTheme: textTheme,
+      density: density,
       colorScheme: seedColor == null
           ? MorphColorScheme.light()
-          : MorphColorScheme.fromSeed(seedColor),
+          : MorphColorScheme.fromSeed(
+              seedColor,
+              dynamicSchemeVariant: dynamicSchemeVariant,
+              contrastLevel: contrastLevel,
+            ),
     );
   }
 
   /// Dark theme, optionally seeded from [seedColor].
-  factory MorphThemeData.dark({Color? seedColor, TextTheme? textTheme}) {
+  ///
+  /// [dynamicSchemeVariant] and [contrastLevel] only apply when [seedColor] is
+  /// given; their defaults keep the standard tonal-spot Material 3 scheme.
+  /// [density] sets the global layout density.
+  factory MorphThemeData.dark({
+    Color? seedColor,
+    TextTheme? textTheme,
+    DynamicSchemeVariant dynamicSchemeVariant = DynamicSchemeVariant.tonalSpot,
+    double contrastLevel = 0.0,
+    MorphDensity density = MorphDensity.standard,
+  }) {
     return MorphThemeData(
       textTheme: textTheme,
+      density: density,
       colorScheme: seedColor == null
           ? MorphColorScheme.dark()
-          : MorphColorScheme.fromSeed(seedColor, brightness: Brightness.dark),
+          : MorphColorScheme.fromSeed(
+              seedColor,
+              brightness: Brightness.dark,
+              dynamicSchemeVariant: dynamicSchemeVariant,
+              contrastLevel: contrastLevel,
+            ),
     );
   }
 
   /// Adapts a Material [ThemeData] into an [MorphThemeData].
-  factory MorphThemeData.fromMaterial(ThemeData theme) {
+  ///
+  /// [density] overrides the layout density of the adapted theme; the cached
+  /// adaptation itself always stays at [MorphDensity.standard].
+  factory MorphThemeData.fromMaterial(
+    ThemeData theme, {
+    MorphDensity density = MorphDensity.standard,
+  }) {
+    final MorphThemeData base = _fromMaterialCached(theme);
+    return density == base.density ? base : base.copyWith(density: density);
+  }
+
+  static MorphThemeData _fromMaterialCached(ThemeData theme) {
     final MorphThemeData? cached = _materialCache[theme];
     if (cached != null) {
       return cached;
@@ -210,7 +261,22 @@ class MorphThemeData {
   final MorphSpacing spacing;
 
   /// Visual density offset applied to Material [VisualDensity].
+  ///
+  /// This is the Material passthrough used by framework widgets; Morph
+  /// components resolve their own layout metrics from [density].
   final double visualDensity;
+
+  /// Global Morph layout density (compact, standard, comfortable).
+  ///
+  /// Independent of component sizes and of text scaling. [MorphDensity.standard]
+  /// keeps the approved Morph geometry.
+  final MorphDensity density;
+
+  /// Additive layout adjustments of [density].
+  MorphDensityMetrics get densityMetrics => density.metrics;
+
+  /// [spacing] with the gap adjustments of [density] applied.
+  MorphSpacing get densitySpacing => density.metrics.spacing(spacing);
 
   /// Target platform overrides, if any.
   final TargetPlatform? platform;
@@ -412,6 +478,7 @@ class MorphThemeData {
     IconThemeData? iconTheme,
     MorphSpacing? spacing,
     double? visualDensity,
+    MorphDensity? density,
     TargetPlatform? platform,
     bool? useMaterial3,
     Color? splashColor,
@@ -478,6 +545,7 @@ class MorphThemeData {
     iconTheme: iconTheme,
     spacing: spacing,
     visualDensity: visualDensity,
+    density: density,
     platform: platform,
     useMaterial3: useMaterial3,
     splashColor: splashColor,

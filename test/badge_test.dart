@@ -71,16 +71,16 @@ void _themeDefaultsMatchTheBadgeSpec() {
   const theme = MorphBadgeTheme.defaults;
   expect(theme.dotSize, 6);
   expect(theme.dotCornerRadius, 3);
-  expect(theme.labelMinSize, 16);
-  expect(theme.labelCornerRadius, 8);
-  expect(theme.labelHorizontalPadding, 4);
-  expect(theme.labelVerticalPadding, 0);
+  expect(theme.labelMinSize, 18);
+  expect(theme.labelCornerRadius, 9);
+  expect(theme.labelHorizontalPadding, 5);
+  expect(theme.labelVerticalPadding, 1);
   expect(theme.labelFontSize, 11);
-  expect(theme.labelFontWeight, FontWeight.w500);
+  expect(theme.labelFontWeight, FontWeight.w600);
   expect(theme.labelLineHeight, 16);
   expect(theme.labelLetterSpacing, 0.5);
   expect(theme.smallOffset, const Offset(6, 6));
-  expect(theme.largeOffset, const Offset(12, 14));
+  expect(theme.largeOffset, const Offset(13, 15));
 
   final scheme = MorphThemeData.light().colorScheme;
   expect(theme.containerColor(scheme), scheme.error);

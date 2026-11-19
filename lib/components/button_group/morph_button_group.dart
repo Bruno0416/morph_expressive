@@ -147,7 +147,8 @@ class MorphButtonGroup extends StatefulWidget {
     this.shape = MorphButtonShape.round,
     this.size = MorphButtonSize.sm,
     this.style = MorphButtonStyle.filled,
-    this.density = MorphButtonGroupDensity.regular,
+    this.variant,
+    this.density,
     this.spacing,
     this.itemWidth,
     this.direction = Axis.horizontal,
@@ -188,8 +189,15 @@ class MorphButtonGroup extends StatefulWidget {
   /// Visual style applied uniformly to every action.
   final MorphButtonStyle style;
 
+  /// Chromatic role forwarded to every action button. Null keeps the canonical
+  /// colors of [style].
+  final MorphVariant? variant;
+
   /// Density level (0…−3) that shrinks container height.
-  final MorphButtonGroupDensity density;
+  ///
+  /// When null the group follows the global [MorphDensity] of the nearest
+  /// [MorphTheme]; an explicit level always wins.
+  final MorphButtonGroupDensity? density;
 
   /// Optional between-space override (dp, `>= 0`; 0 allowed). Precedence:
   /// this widget value → [MorphButtonGroupTheme] (`connectedGap` for connected
@@ -326,9 +334,39 @@ class _MorphButtonGroupState extends State<MorphButtonGroup>
     _bootstrapState();
   }
 
+  /// Global density of the nearest [MorphTheme]; read without registering a
+  /// dependency so it is also valid from [initState].
+  MorphDensity get _globalDensity =>
+      MorphTheme.maybeOf(context)?.density ?? MorphDensity.standard;
+
+  /// Group density used for scope and keys: explicit, else the global level.
+  MorphButtonGroupDensity get _resolvedDensity =>
+      widget.density ??
+      (_globalDensity == MorphDensity.compact
+          ? MorphButtonGroupDensity.compact
+          : MorphButtonGroupDensity.regular);
+
+  /// Segment (container) height for the current size and density: an explicit
+  /// widget density wins, otherwise the global density applies once.
+  double _segmentHeight(
+    MorphButtonGroupTheme groupTheme, {
+    MorphButtonSize? size,
+  }) => groupTheme.containerHeightFor(
+    size ?? widget.size,
+    density: widget.density ?? MorphButtonGroupDensity.regular,
+    global: widget.density == null ? _globalDensity : null,
+  );
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final int nextSignature = _computeLayoutSignature(widget);
+    if (nextSignature != _layoutSignature) {
+      // Global density changed: drop stale measurements like a layout update.
+      _layoutSignature = nextSignature;
+      _measurementGeneration++;
+      _initMeasurementState(clearMeasuredWidths: true);
+    }
     _updateDecorations();
     _updateIconOnlyNaturalSizeCache();
     _scheduleMeasurementIfNeeded();

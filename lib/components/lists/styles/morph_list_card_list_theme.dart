@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../../foundations/foundations.dart';
-import '../../cards/enums/morph_card_variant.dart';
+import '../../cards/enums/morph_card_type.dart';
 
 /// Theme values for `MorphCardList`.
 @immutable
@@ -27,7 +27,7 @@ class MorphListCardListTheme {
     double? innerRadius,
     this.gap = defaultGap,
     this.itemPadding = defaultItemPadding,
-    this.variant = MorphCardVariant.filled,
+    this.variant = MorphCardType.filled,
     this.border,
     this.radiusSpring = MorphMotion.expressiveSpatialDefault,
     // Keep the public `innerRadius:` API and distinguish explicit overrides.
@@ -56,7 +56,7 @@ class MorphListCardListTheme {
   final EdgeInsetsGeometry itemPadding;
 
   /// Card variant for each card-list item.
-  final MorphCardVariant variant;
+  final MorphCardType variant;
 
   /// Optional card outline; null keeps the variant default.
   final BorderSide? border;
@@ -65,11 +65,11 @@ class MorphListCardListTheme {
   final MorphSpring radiusSpring;
 
   /// Resting fill for [variant]. Outlined stays on surface.
-  Color backgroundColor(MorphColorScheme scheme, {MorphCardVariant? variant}) {
+  Color backgroundColor(MorphColorScheme scheme, {MorphCardType? variant}) {
     return switch (variant ?? this.variant) {
-      MorphCardVariant.filled => scheme.surfaceContainerHighest,
-      MorphCardVariant.elevated => scheme.surfaceContainerLow,
-      MorphCardVariant.outlined => scheme.surface,
+      MorphCardType.filled => scheme.surfaceContainerHighest,
+      MorphCardType.elevated => scheme.surfaceContainerLow,
+      MorphCardType.outlined => scheme.surface,
     };
   }
 
@@ -80,7 +80,7 @@ class MorphListCardListTheme {
     double? innerRadius,
     double? gap,
     EdgeInsetsGeometry? itemPadding,
-    MorphCardVariant? variant,
+    MorphCardType? variant,
     BorderSide? border,
     MorphSpring? radiusSpring,
   }) {

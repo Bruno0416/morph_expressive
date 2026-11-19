@@ -25,7 +25,7 @@ mixin _MorphNavigationRailChildrenMixin on State<MorphNavigationRail> {
   }
 
   List<Widget> _headerChildren(BuildContext context) {
-    final theme = MorphTheme.of(context).navigationRailTheme;
+    final theme = MorphNavigationRailTheme.resolve(context);
     final children = <Widget>[SizedBox(height: theme.topSpace)];
     if (widget.leading != null) {
       children.add(
@@ -44,8 +44,9 @@ mixin _MorphNavigationRailChildrenMixin on State<MorphNavigationRail> {
   }
 
   List<Widget> _destinationChildren(BuildContext context) {
-    final MorphNavigationRailTheme theme = MorphTheme.of(context)
-        .navigationRailTheme;
+    final MorphNavigationRailTheme theme = MorphNavigationRailTheme.resolve(
+      context,
+    );
     final List<Widget> children = _showExpandedItems
         ? _buildExpandedDestinations(context, theme)
         : _buildCollapsedDestinations(theme);

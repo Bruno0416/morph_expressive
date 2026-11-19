@@ -25,7 +25,7 @@ class MorphSegmentedButton<T> extends StatefulWidget {
     required this.onSelectionChanged,
     this.multiSelect = false,
     this.showSelectedIcon = true,
-    this.density = MorphSegmentedButtonDensity.regular,
+    this.density,
     this.enabled = true,
     this.organicStretchIntensity = 0.40,
     this.semanticLabel,
@@ -52,7 +52,7 @@ class MorphSegmentedButton<T> extends StatefulWidget {
   final bool showSelectedIcon;
 
   /// Density level that shrinks container height (−4dp per step).
-  final MorphSegmentedButtonDensity density;
+  final MorphSegmentedButtonDensity? density;
 
   /// When false, the whole group is disabled.
   final bool enabled;
@@ -175,11 +175,22 @@ class _MorphSegmentedButtonState<T> extends State<MorphSegmentedButton<T>> {
 
   Widget _buildButton(BuildContext context) {
     final theme = MorphTheme.of(context);
-    final segmentedButtonTheme = theme.segmentedButtonTheme;
+    final segmentedButtonTheme = widget.density == null
+        ? theme.segmentedButtonTheme.withDensity(theme.density)
+        : theme.segmentedButtonTheme;
     final scheme = theme.colorScheme;
-    final visualHeight = segmentedButtonTheme.heightFor(widget.density);
-    final layoutHeight = segmentedButtonTheme.layoutHeightFor(widget.density);
-    final borderRadius = segmentedButtonTheme.borderRadiusFor(widget.density);
+    final visualHeight = segmentedButtonTheme.heightFor(
+      widget.density,
+      global: theme.density,
+    );
+    final layoutHeight = segmentedButtonTheme.layoutHeightFor(
+      widget.density,
+      global: theme.density,
+    );
+    final borderRadius = segmentedButtonTheme.borderRadiusFor(
+      widget.density,
+      global: theme.density,
+    );
     final pad = (layoutHeight - visualHeight) / 2;
     final groupEnabled = widget.enabled;
 
@@ -476,7 +487,7 @@ class _MorphSegmentedButtonState<T> extends State<MorphSegmentedButton<T>> {
     TextDirection direction,
   ) {
     final Radius outer = segmentedButtonTheme
-        .borderRadiusFor(widget.density)
+        .borderRadiusFor(widget.density, global: MorphTheme.of(context).density)
         .topLeft;
     return BorderRadiusDirectional.horizontal(
       start: index == 0 ? outer : Radius.zero,

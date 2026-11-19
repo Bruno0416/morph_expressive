@@ -79,7 +79,7 @@ extension _MorphSearchBarContentBuild on _MorphSearchBarState {
     return <Widget>[
       if (_clearVisible)
         MorphIconButton(
-          variant: MorphIconButtonVariant.standard,
+          type: MorphIconButtonType.standard,
           icon: const Icon(MorphIcons.close),
           tooltip: MorphSearchConstants.clearButtonTooltip,
           onPressed: _controller.clear,

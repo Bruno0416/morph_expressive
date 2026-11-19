@@ -110,7 +110,7 @@ extension MorphDismissibleCardCollapseRender<T extends StatefulWidget>
             child: Padding(
               padding: EdgeInsets.zero,
               child: MorphCard(
-                variant: MorphCardVariant.filled,
+                type: MorphCardType.filled,
                 borderRadius: BorderRadius.circular(cardRadius),
                 color:
                     s.color ??

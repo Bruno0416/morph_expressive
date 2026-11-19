@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 
 import '../../../foundations/foundations.dart';
 import '../../buttons/enums/morph_button_enums.dart';
+import '../../buttons/styles/morph_button_theme.dart';
 import '../enums/morph_button_group_enums.dart';
 
 /// Resolved spacing metrics for a button group layout pass.
@@ -250,9 +251,13 @@ class MorphButtonGroupTheme extends MorphThemeExtension<MorphButtonGroupTheme> {
   }
 
   /// Spec container heights (32 / 40 / 56 / 96 / 136) plus [density] adjustment.
+  ///
+  /// A non-null [global] density replaces [density] and applies the shared
+  /// [MorphDensityMetrics] control height delta for the size step instead.
   double containerHeightFor(
     MorphButtonSize size, {
     MorphButtonGroupDensity density = MorphButtonGroupDensity.regular,
+    MorphDensity? global,
   }) {
     final base = switch (size) {
       MorphButtonSize.xs => 32.0,
@@ -262,6 +267,12 @@ class MorphButtonGroupTheme extends MorphThemeExtension<MorphButtonGroupTheme> {
       MorphButtonSize.xl => 136.0,
       _ => size.height ?? 56.0,
     };
+    if (global != null) {
+      return math.max(
+        24,
+        base + global.metrics.controlHeightFor(MorphButtonTheme.sizeStep(size)),
+      );
+    }
     return math.max(24, base + density.heightAdjustment);
   }
 

@@ -125,8 +125,7 @@ extension _MorphTextFieldBuild on _MorphTextFieldState {
 
   Widget _buildContainer(MorphThemeData theme, MorphTextFieldTheme fieldTheme) {
     final MorphTextFieldColors colors = _currentColors;
-    final int density = _densityOf(fieldTheme);
-    final double height = fieldTheme.heightFor(density);
+    final double height = _heightOf(theme, fieldTheme);
     final List<Widget> trailing = _trailingSlots(fieldTheme, colors, height);
     final bool hasLeading = widget.leading != null || _hasPrefixErrorIcon;
     final double start = !hasLeading

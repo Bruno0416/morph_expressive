@@ -2,6 +2,7 @@
 """Genera el inventario publico de widgets para la galeria web Morph Expressive."""
 from pathlib import Path
 import re
+import sys
 
 ROOT = Path(__file__).resolve().parent.parent
 LIB = ROOT / 'lib'
@@ -49,12 +50,20 @@ class MorphCatalogEntry {
 }
 
 const morphComponentCatalog = <MorphCatalogEntry>[\n'''
-TARGET.parent.mkdir(parents=True, exist_ok=True)
-TARGET.write_text(
-    header + ''.join(
-        f"  MorphCatalogEntry('{category}', '{name}'),\n"
-        for category, name in sorted(widgets)
-    ) + '];\n',
-    encoding='utf-8',
-)
-print(f'Morph Expressive preview catalog: {len(widgets)} exported widgets')
+rendered = header + ''.join(
+    f"  MorphCatalogEntry('{category}', '{name}'),\n"
+    for category, name in sorted(widgets)
+) + '];\n'
+if '--check' in sys.argv:
+    # Verify without writing: the committed catalog must match the exports.
+    current = TARGET.read_text(encoding='utf-8') if TARGET.is_file() else ''
+    if current != rendered:
+        raise SystemExit(
+            'preview/lib/component_catalog.dart is stale; run '
+            'python3 tool/generate_preview_catalog.py'
+        )
+    print(f'Morph Expressive preview catalog up to date: {len(widgets)} exported widgets')
+else:
+    TARGET.parent.mkdir(parents=True, exist_ok=True)
+    TARGET.write_text(rendered, encoding='utf-8')
+    print(f'Morph Expressive preview catalog: {len(widgets)} exported widgets')

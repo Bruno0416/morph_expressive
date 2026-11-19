@@ -10,7 +10,9 @@ python3 tool/check_gif_branding.py
 python3 tool/check_icons.py
 python3 tool/check_motion.py
 python3 tool/check_morph_names.py
+python3 tool/check_button_surface_docs.py
 python3 tool/check_preview_coverage.py
+python3 tool/check_secure_links.py
 python3 tool/check_third_party_notices.py
 python3 -m unittest discover -s tool -p 'test_*.py'
 python3 tool/check_dependency_imports.py
@@ -32,6 +34,21 @@ for package_config in .dart_tool/package_config.json preview/.dart_tool/package_
     exit 1
   }
 done
+# The Widgetbook navigation tree is generated from @UseCase annotations and
+# checked in. Regenerate it and fail when the committed copy was stale.
+(
+  cd preview
+  generated=lib/main.directories.g.dart
+  before="$(mktemp)"
+  trap 'rm -f "$before"' EXIT
+  cp "$generated" "$before"
+  dart run build_runner build
+  dart format "$generated" >/dev/null
+  cmp -s "$before" "$generated" || {
+    printf '%s\n' "preview/$generated was stale; it has been regenerated, review and keep it." >&2
+    exit 1
+  }
+)
 flutter analyze
 flutter test
 
@@ -39,5 +56,7 @@ flutter test
   cd preview
   flutter analyze
   flutter test
+  # The Widgetbook catalog must also compile for the web release target.
+  flutter build web --release
 )
 printf '%s\n' 'Morph Expressive: all checks completed.'

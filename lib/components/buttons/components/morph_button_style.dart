@@ -144,7 +144,10 @@ extension _MorphButtonStyle on _MorphButtonState {
         width: width,
       );
     }
-    return BorderSide(color: _buttonTheme.outline(_scheme), width: width);
+    return BorderSide(
+      color: _palette?.outline ?? _buttonTheme.outline(_scheme),
+      width: width,
+    );
   }
 
   MouseCursor? _resolveMouseCursor(Set<WidgetState> states) {
@@ -231,7 +234,15 @@ extension _MorphButtonStyle on _MorphButtonState {
     return {...states, WidgetState.selected};
   }
 
+  /// Resolved palette of [MorphButton.variant]; null keeps the historical
+  /// per-style colors.
+  MorphVariantPalette? get _palette => widget.variant?.resolve(_scheme);
+
   Color _selectionForegroundColor() {
+    final MorphVariantPalette? palette = _palette;
+    if (palette != null) {
+      return _variantForegroundColor(palette);
+    }
     if (!_usesSelection) {
       return _buttonTheme.foreground(_scheme, widget.style);
     }
@@ -248,7 +259,41 @@ extension _MorphButtonStyle on _MorphButtonState {
     };
   }
 
+  /// Variant content color. Selected toggles use the filled pair (except text,
+  /// which has no container); unselected toggles keep the neutral surface of
+  /// the style with accent content, and tonal keeps its container pair.
+  Color _variantForegroundColor(MorphVariantPalette palette) {
+    final bool selected = _usesSelection && _isSelected;
+    return switch (widget.style) {
+      MorphButtonStyle.filled =>
+        !_usesSelection || selected ? palette.onColor : palette.accent,
+      MorphButtonStyle.tonal =>
+        selected ? palette.onColor : palette.onContainer,
+      MorphButtonStyle.elevated => selected ? palette.onColor : palette.accent,
+      MorphButtonStyle.outlined => selected ? palette.onColor : palette.accent,
+      MorphButtonStyle.text => palette.accent,
+    };
+  }
+
+  Color _variantBackgroundColor(MorphVariantPalette palette) {
+    final bool selected = _usesSelection && _isSelected;
+    return switch (widget.style) {
+      MorphButtonStyle.filled =>
+        !_usesSelection || selected ? palette.color : _scheme.surfaceContainer,
+      MorphButtonStyle.tonal => selected ? palette.color : palette.container,
+      MorphButtonStyle.elevated =>
+        selected ? palette.color : _scheme.surfaceContainerLow,
+      MorphButtonStyle.outlined =>
+        selected ? palette.color : Colors.transparent,
+      MorphButtonStyle.text => Colors.transparent,
+    };
+  }
+
   Color _selectionBackgroundColor() {
+    final MorphVariantPalette? palette = _palette;
+    if (palette != null) {
+      return _variantBackgroundColor(palette);
+    }
     if (!_usesSelection) {
       return _buttonTheme.container(_scheme, widget.style);
     }

@@ -30,16 +30,18 @@ def main() -> None:
             + ', '.join(invalid_copy_with)
         )
 
-    preview = ROOT / 'preview' / 'lib' / 'component_gallery.dart'
-    content = preview.read_text()
-    if 'MorphIconAlignmentLab' in content or "'icon_lab'" in content:
-        raise SystemExit('La galeria temporal de iconos sigue exportada')
+    # The retired icon alignment lab must not come back in the Widgetbook
+    # preview or its tests.
+    preview_sources = [
+        *(ROOT / 'preview' / 'lib').rglob('*.dart'),
+        *(ROOT / 'preview' / 'test').rglob('*.dart'),
+    ]
+    for source in preview_sources:
+        content = source.read_text(encoding='utf-8')
+        if 'MorphIconAlignmentLab' in content or "'icon_lab'" in content or 'icon_lab_' in content:
+            raise SystemExit(f'La galeria temporal de iconos sigue presente: {source.relative_to(ROOT)}')
 
-    widget_test = ROOT / 'preview' / 'test' / 'widget_test.dart'
-    if 'icon_lab_' in widget_test.read_text():
-        raise SystemExit('Quedan pruebas de la galeria de iconos retirada')
-
-    print('Motion: presets migrados y pruebas de galeria sin icon lab')
+    print('Motion: presets migrados y preview sin icon lab')
 
 
 if __name__ == '__main__':

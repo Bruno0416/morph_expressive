@@ -140,7 +140,8 @@ class _MorphSelectionAppBarState extends State<MorphSelectionAppBar> {
   }
 
   MorphSelectionTheme _theme(BuildContext context) {
-    return widget.theme ?? MorphTheme.of(context).selectionTheme;
+    final MorphThemeData morph = MorphTheme.of(context);
+    return widget.theme ?? morph.selectionTheme.withDensity(morph.density);
   }
 
   void _clear(MorphSelectionController controller) {
@@ -177,13 +178,16 @@ class _MorphSelectionAppBarState extends State<MorphSelectionAppBar> {
     // AnimatedSize pass infinite max height). Band matches the idle app bar;
     // overall header height still varies with select-all / idle content.
     return SizedBox(
-      height: theme.appBarTheme.smallHeight,
+      // Same band as the idle app bar, so it follows the app bar density.
+      height: theme.appBarTheme
+          .metrics(null, global: theme.density)
+          .smallHeight,
       child: Padding(
         padding: appBarPad,
         child: NavigationToolbar(
           middleSpacing: titleGap,
           leading: MorphIconButton(
-            variant: MorphIconButtonVariant.standard,
+            type: MorphIconButtonType.standard,
             icon: Icon(MorphIcons.close, color: foreground),
             onPressed: () => _clear(controller),
             tooltip: 'Clear selection',

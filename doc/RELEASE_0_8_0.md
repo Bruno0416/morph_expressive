@@ -1,5 +1,9 @@
 # Morph Expressive 0.8.0 — final implementation report and publication checklist
 
+> **Historical record.** The statuses below are those at the time of writing.
+> Version 0.8.0 was later published on pub.dev (2026-11-13). For the current
+> process see [Release process](RELEASE.md).
+
 **Version:** 0.8.0 (`pubspec.yaml`). Preview application: 0.2.0+1, `publish_to: none`.
 **Base:** the published 0.7.0 (`v0.7.0`). **Scope:** implementation final for this
 update; documentation and assets prepared for review.

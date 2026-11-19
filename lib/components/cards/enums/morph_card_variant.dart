@@ -1,13 +1,7 @@
-/// The three card variants defined by Material 3.
+/// Compatibility entry point for code that imported this file directly.
 ///
-/// See https://m3.material.io/components/cards/specs.
-enum MorphCardVariant {
-  /// Elevated surface with shadow.
-  elevated,
+/// The card visual type is now [MorphCardType]; `MorphCardVariant` remains a
+/// deprecated typedef of it.
+library;
 
-  /// Filled tonal surface.
-  filled,
-
-  /// Outlined surface with a border.
-  outlined,
-}
+export 'morph_card_type.dart';

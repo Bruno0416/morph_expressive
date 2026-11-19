@@ -3,7 +3,58 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Alignment,
+        BackdropFilter,
+        BorderRadius,
+        BoxConstraints,
+        BoxFit,
+        BuildContext,
+        Card,
+        Center,
+        ChoiceChip,
+        ClipRRect,
+        Color,
+        ColoredBox,
+        Colors,
+        Column,
+        ConstrainedBox,
+        Container,
+        DropdownButton,
+        DropdownMenuItem,
+        EdgeInsets,
+        Expanded,
+        FittedBox,
+        IgnorePointer,
+        ImageFilterConfig,
+        LayoutBuilder,
+        ListView,
+        MainAxisSize,
+        MaterialApp,
+        Padding,
+        SafeArea,
+        Scaffold,
+        ScrollController,
+        SingleTickerProviderStateMixin,
+        SizedBox,
+        Slider,
+        Stack,
+        StackFit,
+        State,
+        StatefulWidget,
+        Switch,
+        Text,
+        TextAlign,
+        TextStyle,
+        ValueKey,
+        ValueListenableBuilder,
+        ValueNotifier,
+        Widget,
+        WidgetsBinding,
+        Wrap,
+        WrapAlignment,
+        WrapCrossAlignment;
 import 'package:flutter/scheduler.dart';
 
 /// Native Impeller backdrop benchmark. Production frosted widgets are unchanged.
@@ -326,7 +377,7 @@ class _MorphFrostedBlurBenchmarkLabState
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                const Text('Frosted Impeller Lab · múltiples superficies'),
+                const Text('Frosted Impeller Lab · multiple surfaces'),
                 Wrap(
                   alignment: WrapAlignment.center,
                   crossAxisAlignment: WrapCrossAlignment.center,
@@ -336,7 +387,7 @@ class _MorphFrostedBlurBenchmarkLabState
                       ChoiceChip(
                         key: ValueKey<String>('frosted-mode-${mode.name}'),
                         label: Text(switch (mode) {
-                          _BlurMode.none => 'Sin blur',
+                          _BlurMode.none => 'No blur',
                           _BlurMode.gaussian => 'Gaussian',
                           _BlurMode.bounded => 'Bounded',
                           _BlurMode.kawase => 'Kawase 1x',
@@ -362,7 +413,7 @@ class _MorphFrostedBlurBenchmarkLabState
                     ),
                     const Text('Auto-scroll'),
                     Switch(value: _autoScroll, onChanged: _toggleAutoScroll),
-                    const Text('Gráficas Flutter'),
+                    const Text('Flutter graphs'),
                     Switch(
                       value: _showPerformanceOverlay,
                       onChanged: (value) => setState(() {
@@ -415,7 +466,7 @@ class _MorphFrostedBlurBenchmarkLabState
                     spacing: 16,
                     children: <Widget>[
                       Text(
-                        'FPS renderizados (1 s): '
+                        'Rendered FPS (1 s): '
                         '${value.fps.toStringAsFixed(1)}',
                       ),
                       Text(
@@ -480,8 +531,8 @@ class _MorphFrostedBlurBenchmarkLabState
                   const Padding(
                     padding: EdgeInsets.all(8),
                     child: Text(
-                      'macOS/Linux Impeller · usa --profile · misma ventana, '
-                      'cantidad de superficies y velocidad por modo',
+                      'macOS/Linux Impeller · use --profile · same window, '
+                      'surface count and speed per mode',
                       textAlign: TextAlign.center,
                     ),
                   ),

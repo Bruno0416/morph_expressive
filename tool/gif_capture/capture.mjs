@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * Captura escenas de Flutter Web sin puntero y produce GIFs optimizados.
- * Las escenas animan sus propios controles; Playwright solo captura frames.
+ * Captures Flutter Web scenes (no visible pointer) and produces optimized GIFs.
+ * The scenes drive their own controls; Playwright only records frames.
  *
- * Los frames salen del screencast del compositor (unos 60 por segundo, con la
- * marca de tiempo real de cada uno) y se muestrean en una rejilla uniforme de
- * 1/fps. Con fps <= 50 no se duplica ni se interpola ningun frame: cada frame
- * del GIF es el ultimo frame real producido hasta ese instante, de modo que la
- * velocidad de reproduccion coincide con la animacion real.
- * Uso interno: invocado por tool/generate_component_gifs.sh.
+ * Frames come from the compositor screencast (about 60 per second, each with
+ * its real timestamp) and are sampled on a uniform 1/fps grid. With fps <= 50
+ * no frame is duplicated or interpolated: every GIF frame is the last real
+ * frame produced up to that instant, so playback speed matches the real
+ * animation.
+ * Internal use: invoked by tool/generate_component_gifs.sh.
  */
 import { chromium } from 'playwright';
 import { spawnSync } from 'node:child_process';
@@ -17,9 +17,10 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// The 14 README GIFs. `navigation_rail_drawer` is kept for its own guide only
-// (doc/NAVIGATION_MORPH.md); it is not part of the default set.
-const scenarios = ['buttons', 'chips', 'dialogs', 'dropdown', 'lists', 'loading', 'navigation', 'segmented', 'sliders', 'textfields', 'async_button', 'skeleton', 'tabs', 'fab_menu'];
+// The default set (every scene the documentation may use). The README picks a
+// subset; tool/check_gif_branding.py holds the curated list.
+// `navigation_rail_drawer` is kept for its own guide only (doc/NAVIGATION_MORPH.md).
+const scenarios = ['buttons', 'chips', 'dialogs', 'dropdown', 'lists', 'loading', 'navigation', 'segmented', 'sliders', 'textfields', 'async_button', 'skeleton', 'tabs', 'fab_menu', 'variants', 'density', 'context_menu', 'frosted'];
 const guideScenarios = ['navigation_rail_drawer'];
 const themes = ['purple', 'teal', 'blue'];
 const here = fileURLToPath(new URL('.', import.meta.url));
@@ -31,22 +32,32 @@ const fps = Number(process.env.MORPH_GIF_FPS ?? 15);
 const maxFps = 50;
 // Scenes whose effective renderer is verified outside the image.
 const requiredRenderer = { navigation_rail_drawer: ['organic_stretch', 'shader'] };
+// Every showcase is 16:9 (640x360) at a GIF-exact rate (25 fps = 4 cs, 50 fps = 2 cs).
+// Scenes with time-based loops (wavy tracks, loading indicator) last a whole
+// number of seconds so the clip joins seamlessly.
 const sceneSettings = {
-  chips: { width: 640, height: 340, seconds: 8.7, theme: 'teal', fps: 25 },
-  textfields: { width: 640, height: 420, seconds: 8.2, theme: 'purple', fps: 25 },
+  buttons: { width: 640, height: 360, seconds: 7, theme: 'purple', fps: 25 },
+  dropdown: { width: 640, height: 360, seconds: 7, theme: 'purple', fps: 25 },
+  segmented: { width: 640, height: 360, seconds: 7, theme: 'purple', fps: 25 },
+  textfields: { width: 640, height: 360, seconds: 7, theme: 'purple', fps: 25 },
+  chips: { width: 640, height: 360, seconds: 7.5, theme: 'teal', fps: 25 },
+  sliders: { width: 640, height: 360, seconds: 7, theme: 'purple', fps: 25 },
+  loading: { width: 640, height: 360, seconds: 7, theme: 'teal', fps: 25, colors: 128, dither: 'none' },
+  navigation: { width: 640, height: 360, seconds: 7, theme: 'purple', fps: 25 },
+  // The background loops every 7 s (FrostedGifScene.periodMs): keep them equal. 10 fps
+  // and 96 colors keep the moving blur under the README size limit.
+  frosted: { width: 640, height: 360, seconds: 7, theme: 'purple', fps: 10, colors: 96 },
+  // Existing scenes kept as they were.
   lists: { width: 640, height: 340, seconds: 5.8, theme: 'purple', fps: 50 },
   dialogs: { width: 640, height: 360, seconds: 6.5, theme: 'blue', fps: 25 },
-  sliders: { width: 640, height: 360, seconds: 6.8, theme: 'purple', fps: 50 },
-  dropdown: { width: 640, height: 320, seconds: 4.8, theme: 'purple', fps: 50 },
-  loading: { width: 640, height: 310, seconds: 8, theme: 'teal', fps: 50 },
-  buttons: { width: 640, height: 370, seconds: 7.2, theme: 'purple', fps: 50, colors: 96, dither: 'none' },
-  segmented: { width: 640, height: 350, seconds: 7.2, theme: 'purple', fps: 50 },
-  navigation: { width: 640, height: 350, seconds: 7.2, theme: 'purple', fps: 50 },
   async_button: { width: 640, height: 340, seconds: 10.6, theme: 'teal', fps: 50 },
   skeleton: { width: 640, height: 340, seconds: 8.3, theme: 'blue', fps: 50, colors: 48, dither: 'none' },
   tabs: { width: 640, height: 380, seconds: 7.5, theme: 'purple', fps: 50 },
   fab_menu: { width: 640, height: 400, seconds: 7.7, theme: 'teal', fps: 50 },
   navigation_rail_drawer: { width: 640, height: 380, seconds: 7.6, theme: 'teal', fps: 50 },
+  variants: { width: 640, height: 360, seconds: 6, theme: 'purple', fps: 50 },
+  density: { width: 640, height: 360, seconds: 6.6, theme: 'purple', fps: 25 },
+  context_menu: { width: 640, height: 360, seconds: 7.2, theme: 'blue', fps: 50 },
 };
 // The recording starts this long after the scene marks its own start, once the
 // shader programs and fonts have had time to load.
@@ -57,7 +68,7 @@ const requested = process.argv.flatMap((arg, index, args) =>
 const selected = requested.length ? [...new Set(requested)] : scenarios;
 
 if (!selected.length || selected.some((s) => !scenarios.includes(s) && !guideScenarios.includes(s))) {
-  console.error(`Escena inválida. Valores: ${[...scenarios, ...guideScenarios].join(', ')}`);
+  console.error(`Invalid scene. Values: ${[...scenarios, ...guideScenarios].join(', ')}`);
   process.exit(2);
 }
 if (!Number.isInteger(fps) || fps < 8 || fps > maxFps ||
@@ -65,7 +76,7 @@ if (!Number.isInteger(fps) || fps < 8 || fps > maxFps ||
       const seconds = Number(secondsOverride ?? sceneSettings[name]?.seconds ?? 4.8);
       return !Number.isFinite(seconds) || seconds < 4.5 || seconds > 12;
     })) {
-  console.error('Configura MORPH_GIF_FPS=8..50 y MORPH_GIF_SECONDS=4.5..12.');
+  console.error('Set MORPH_GIF_FPS=8..50 and MORPH_GIF_SECONDS=4.5..12.');
   process.exit(2);
 }
 
@@ -73,7 +84,7 @@ function run(command, args) {
   const result = spawnSync(command, args, { stdio: 'inherit' });
   if (result.error) throw result.error;
   if (result.status !== 0) {
-    throw new Error(`${command} terminó con código ${result.status}`);
+    throw new Error(`${command} exited with code ${result.status}`);
   }
 }
 
@@ -113,7 +124,7 @@ try {
           if (message.text().includes('MORPH_GIF_SCENE_START')) resolveStart();
         }));
       await page.goto(url.href, { waitUntil: 'domcontentloaded', timeout: 60000 });
-      // Flutter web monta <flutter-view> cuando su motor está activo.
+      // Flutter web mounts <flutter-view> once its engine is running.
       await page.locator('flutter-view').waitFor({ state: 'visible', timeout: 60000 });
       await page.addStyleTag({ content: 'html, body, flutter-view, * { cursor: none !important; }' });
       await page.mouse.move(settings.width - 1, settings.height - 1);
@@ -131,7 +142,7 @@ try {
       await cdp.send('Page.startScreencast', { format: 'png', everyNthFrame: 1 });
       await sleep(seconds * 1000 + 250);
       await cdp.send('Page.stopScreencast');
-      if (captured.length < 2) throw new Error(`${name}: el compositor no produjo frames`);
+      if (captured.length < 2) throw new Error(`${name}: the compositor produced no frames`);
 
       // Uniform grid: each GIF frame is the last real frame produced so far.
       const frames = Math.floor(seconds * sceneFps);
@@ -149,17 +160,17 @@ try {
       const realFps = (captured.length - 1) / (captured.at(-1).t - t0);
       // A static tail produces no compositor frames: the last real frame holds.
       console.log(
-        `[gif] ${name}: ${captured.length} frames del compositor (${realFps.toFixed(1)} fps reales), ` +
-          `${frames} frames GIF a ${sceneFps} fps, ${reused} repetidos por estar la pantalla quieta`);
+        `[gif] ${name}: ${captured.length} compositor frames (${realFps.toFixed(1)} real fps), ` +
+          `${frames} GIF frames at ${sceneFps} fps, ${reused} repeated while the screen was still`);
       const encodeFps = sceneFps;
       for (const [component, effective] of renderers) {
-        console.log(`[gif] ${name}: renderer efectivo ${component} = ${effective}`);
+        console.log(`[gif] ${name}: effective renderer ${component} = ${effective}`);
       }
       const need = requiredRenderer[name];
       if (need && renderers.get(need[0]) !== need[1]) {
-        throw new Error(`${name}: se esperaba ${need[0]}=${need[1]} y se obtuvo ${renderers.get(need[0]) ?? 'sin diagnostico'}`);
+        throw new Error(`${name}: expected ${need[0]}=${need[1]} but got ${renderers.get(need[0]) ?? 'no diagnostic'}`);
       }
-      // Paleta adaptativa a cada clip para un GIF moderado sin banding severo.
+      // Adaptive palette per clip: a moderate GIF without severe banding.
       const filename = join(output, `${name}.gif`);
       run('ffmpeg', [
         '-hide_banner', '-loglevel', 'error', '-y',
@@ -176,7 +187,7 @@ try {
       await rm(temporary, { recursive: true, force: true });
     }
   }
-  console.log(`\n[gif] ${selected.length} GIF(s) en doc/assets/gifs/`);
+  console.log(`\n[gif] ${selected.length} GIF(s) in doc/assets/gifs/`);
 } finally {
   await browser?.close();
 }

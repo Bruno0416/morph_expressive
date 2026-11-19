@@ -385,8 +385,8 @@ Future<void> _selectedActionsAreTonalAndTheEmphasisActionIsFilled(
     ),
   );
   expect(
-    tester.widget<MorphIconButton>(find.byType(MorphIconButton)).variant,
-    MorphIconButtonVariant.tonal,
+    tester.widget<MorphIconButton>(find.byType(MorphIconButton)).type,
+    MorphIconButtonType.tonal,
   );
   expect(
     tester.widget<MorphIconButton>(find.byType(MorphIconButton)).shape,
@@ -407,8 +407,8 @@ Future<void> _selectedActionsAreTonalAndTheEmphasisActionIsFilled(
     ),
   );
   expect(
-    tester.widget<MorphIconButton>(find.byType(MorphIconButton)).variant,
-    MorphIconButtonVariant.filled,
+    tester.widget<MorphIconButton>(find.byType(MorphIconButton)).type,
+    MorphIconButtonType.filled,
   );
   expect(
     tester.widget<MorphIconButton>(find.byType(MorphIconButton)).shape,

@@ -1,11 +1,25 @@
 part of 'morph_theme_data.dart';
 
 MorphThemeData _morphDeriveDarkTemplate(MorphThemeData source) {
-  return MorphThemeData.dark(seedColor: source.colorScheme.primary).copyWith(
+  // Regenerate from the real seed (and its variant/contrast) when the scheme
+  // remembers it. Re-seeding from the light `primary` (tone 40, already
+  // gamut-mapped) drifts by a channel step or more and loses the variant, so
+  // the derived dark scheme would not equal `MorphThemeData.dark(seedColor:)`.
+  final MorphColorScheme scheme = source.colorScheme;
+  final Color? seed = scheme.seedColor;
+  final MorphThemeData base = seed == null
+      ? MorphThemeData.dark(seedColor: scheme.primary)
+      : MorphThemeData.dark(
+          seedColor: seed,
+          dynamicSchemeVariant: scheme.dynamicSchemeVariant,
+          contrastLevel: scheme.contrastLevel,
+        );
+  return base.copyWith(
     typography: source.typography,
     iconTheme: source.iconTheme,
     spacing: source.spacing,
     visualDensity: source.visualDensity,
+    density: source.density,
     platform: source.platform,
     useMaterial3: source.useMaterial3,
     splashColor: source.splashColor,
@@ -74,6 +88,7 @@ MorphThemeData _morphCopyThemeData(
   IconThemeData? iconTheme,
   MorphSpacing? spacing,
   double? visualDensity,
+  MorphDensity? density,
   TargetPlatform? platform,
   bool? useMaterial3,
   Color? splashColor,
@@ -144,6 +159,7 @@ MorphThemeData _morphCopyThemeData(
     iconTheme: iconTheme ?? source.iconTheme,
     spacing: spacing ?? source.spacing,
     visualDensity: visualDensity ?? source.visualDensity,
+    density: density ?? source.density,
     platform: platform ?? source.platform,
     useMaterial3: useMaterial3 ?? source.useMaterial3,
     splashColor: splashColor ?? source.splashColor,

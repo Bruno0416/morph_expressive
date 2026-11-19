@@ -13,10 +13,7 @@ extension _MorphButtonGroupOverflowButton on _MorphButtonGroupState {
     required VoidCallback onPressed,
   }) {
     final groupTheme = MorphTheme.of(context).buttonGroupTheme;
-    final segmentHeight = groupTheme.containerHeightFor(
-      widget.size,
-      density: widget.density,
-    );
+    final segmentHeight = _segmentHeight(groupTheme);
     return KeyedSubtree(
       key: ValueKey('button-overflow-$start-$end-$isFirst-$isLast'),
       child: MorphButtonGroupItemScope(
@@ -29,6 +26,7 @@ extension _MorphButtonGroupOverflowButton on _MorphButtonGroupState {
             isSelected: _selectedActionInRange(start, end) != null,
             onPressed: onPressed,
             style: widget.style,
+            variant: widget.variant,
             size: _mapSize(widget.size),
             shape: widget.shape,
             decoration:

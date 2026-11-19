@@ -3,7 +3,7 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/widgets.dart';
 
 import '../../../foundations/foundations.dart';
-import '../enums/morph_card_variant.dart';
+import '../enums/morph_card_type.dart';
 
 part 'morph_card_theme_ops.dart';
 part 'morph_card_theme_resolve.dart';
@@ -21,8 +21,8 @@ class MorphCardTheme extends MorphThemeExtension<MorphCardTheme> {
     this.outlineWidth = 1,
     this.focusThickness = 3,
     this.focusGap = 2,
-    this.disabledOpacity = 0.38,
-    this.disabledOutlineOpacity = 0.12,
+    this.disabledOpacity = MorphStateOpacity.disabledContent,
+    this.disabledOutlineOpacity = MorphStateOpacity.disabledContainer,
     this.scrimOpacity = 0.32,
     this.swipeThreshold = 0.4,
     this.compactBreakpoint = 600,
@@ -252,6 +252,23 @@ class MorphCardTheme extends MorphThemeExtension<MorphCardTheme> {
 
   /// Cap for unexpanded content. Null means the card grows with its child.
   final double? maxHeight;
+
+  /// This theme with the layout [density] applied once.
+  ///
+  /// Content padding and the collection [gap] (and its [maxGap] cap) move by
+  /// the additive density deltas. Radii, elevation and colors are unchanged.
+  /// Call this where the card is painted, never on an already resolved theme.
+  MorphCardTheme withDensity(MorphDensity density) {
+    if (density == MorphDensity.standard) {
+      return this;
+    }
+    final MorphDensityMetrics m = density.metrics;
+    return copyWith(
+      contentPadding: m.padding(contentPadding),
+      gap: MorphDensityMetrics.adjust(gap, m.gap),
+      maxGap: MorphDensityMetrics.adjust(maxGap, m.gap),
+    );
+  }
 
   @override
   MorphCardTheme copyWith({

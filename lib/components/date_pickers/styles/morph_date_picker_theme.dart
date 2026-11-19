@@ -200,7 +200,10 @@ class MorphDatePickerTheme extends MorphThemeExtension<MorphDatePickerTheme> {
     required bool enabled,
   }) {
     if (!enabled) {
-      return MorphColorUtils.withOpacity(scheme.onSurface, 0.38);
+      return MorphColorUtils.withOpacity(
+        scheme.onSurface,
+        MorphStateOpacity.disabledContent,
+      );
     }
     return selected ? selectedDayForegroundColor(scheme) : scheme.onSurface;
   }
@@ -213,7 +216,10 @@ class MorphDatePickerTheme extends MorphThemeExtension<MorphDatePickerTheme> {
     required bool enabled,
   }) {
     if (!enabled) {
-      return MorphColorUtils.withOpacity(scheme.onSurface, 0.38);
+      return MorphColorUtils.withOpacity(
+        scheme.onSurface,
+        MorphStateOpacity.disabledContent,
+      );
     }
     return selected ? selectedDayForegroundColor(scheme) : scheme.onSurface;
   }

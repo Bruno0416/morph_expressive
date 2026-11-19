@@ -1,7 +1,39 @@
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        Alignment,
+        AlwaysScrollableScrollPhysics,
+        AnimationController,
+        Axis,
+        AxisDirection,
+        BuildContext,
+        ClampingScrollPhysics,
+        Directionality,
+        ListenableBuilder,
+        MaterialScrollBehavior,
+        NotificationListener,
+        OverscrollIndicatorNotification,
+        OverscrollNotification,
+        ScrollBehavior,
+        ScrollEndNotification,
+        ScrollNotification,
+        ScrollPhysics,
+        ScrollStartNotification,
+        ScrollUpdateNotification,
+        ScrollViewKeyboardDismissBehavior,
+        ScrollableDetails,
+        State,
+        StatefulWidget,
+        TargetPlatform,
+        TextDirection,
+        TickerProviderStateMixin,
+        Transform,
+        ValueNotifier,
+        Widget,
+        axisDirectionToAxis,
+        immutable;
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
 

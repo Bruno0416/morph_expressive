@@ -1,3 +1,6 @@
+import '../../../foundations/interaction/morph_state_layer.dart'
+    show MorphStateOpacity;
+
 /// Shared numeric constants used throughout the button package.
 class MorphButtonConstants {
   const MorphButtonConstants._();
@@ -24,13 +27,16 @@ class MorphButtonConstants {
   static const double kFocusRingWidth = 2;
 
   /// Alpha value for disabled foreground color (text/icons).
-  static const double kDisabledForegroundAlpha = 0.38;
+  static const double kDisabledForegroundAlpha =
+      MorphStateOpacity.disabledContent;
 
   /// Alpha value for disabled background color.
-  static const double kDisabledBackgroundAlpha = 0.1;
+  static const double kDisabledBackgroundAlpha =
+      MorphStateOpacity.disabledContainer;
 
   /// Alpha value for disabled outline/border color.
-  static const double kDisabledOutlineAlpha = 0.1;
+  static const double kDisabledOutlineAlpha =
+      MorphStateOpacity.disabledContainer;
 
   /// Ratio used to calculate pressed corner radius from square radius.
   static const double kPressedRadiusRatio = 0.6;

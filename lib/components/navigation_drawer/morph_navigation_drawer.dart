@@ -65,6 +65,7 @@ import 'controllers/morph_navigation_drawer_controller.dart';
 import 'enums/morph_navigation_drawer_enums.dart';
 import 'models/morph_navigation_destination.dart';
 import 'models/morph_navigation_drawer_section.dart';
+import 'styles/morph_navigation_drawer_theme.dart';
 
 export 'controllers/morph_navigation_drawer_controller.dart';
 export 'enums/morph_navigation_drawer_enums.dart';
@@ -369,7 +370,7 @@ class _MorphNavigationDrawerState extends State<MorphNavigationDrawer>
     if (!mounted) {
       return;
     }
-    final spring = MorphTheme.of(context).navigationDrawerTheme.revealSpring;
+    final spring = MorphNavigationDrawerTheme.resolve(context).revealSpring;
     _reveal.motion = MorphMotion.springMotion(spring);
     final target = _open ? 1.0 : 0.0;
     if (!_revealSeeded) {
@@ -425,7 +426,7 @@ class _MorphNavigationDrawerState extends State<MorphNavigationDrawer>
     if (!_isModal || !_shown) {
       return;
     }
-    final width = MorphTheme.of(context).navigationDrawerTheme.width;
+    final width = MorphNavigationDrawerTheme.resolve(context).width;
     if (width <= 0) {
       return;
     }
@@ -436,7 +437,7 @@ class _MorphNavigationDrawerState extends State<MorphNavigationDrawer>
   }
 
   void _onDragEnd(DragEndDetails details) {
-    final theme = MorphTheme.of(context).navigationDrawerTheme;
+    final theme = MorphNavigationDrawerTheme.resolve(context);
     final rtl = Directionality.of(context) == TextDirection.rtl;
     final velocity = details.primaryVelocity ?? 0;
     final towardEnd = rtl ? -velocity : velocity;

@@ -20,7 +20,7 @@ pixel-by-pixel distortion will not be identical to the shader version.
 ## Basic integration
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart' show ListView, ScrollConfiguration;
 import 'package:morph_expressive/morph_expressive.dart';
 
 ScrollConfiguration(
@@ -28,7 +28,7 @@ ScrollConfiguration(
   child: ListView.builder(
     itemCount: items.length,
     itemBuilder: (context, index) => MorphCard(
-      frosted: true, // Opt into the theme's glass for this card.
+      surface: MorphSurface.frosted, // Opt into the theme's glass for this card.
       headline: items[index].title,
     ),
   ),

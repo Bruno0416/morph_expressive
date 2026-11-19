@@ -45,10 +45,12 @@ class MorphCarouselTheme extends MorphThemeExtension<MorphCarouselTheme> {
   static const double defaultPressedStateOpacity = 0.1;
 
   /// Disabled content opacity.
-  static const double defaultDisabledOpacity = 0.38;
+  static const double defaultDisabledOpacity =
+      MorphStateOpacity.disabledContent;
 
   /// Disabled outline opacity.
-  static const double defaultDisabledOutlineOpacity = 0.12;
+  static const double defaultDisabledOutlineOpacity =
+      MorphStateOpacity.disabledContainer;
 
   /// Small item minimum width.
   static const double defaultSmallMinWidth = 40;

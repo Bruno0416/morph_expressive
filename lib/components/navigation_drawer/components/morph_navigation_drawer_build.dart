@@ -18,7 +18,7 @@ extension _MorphNavigationDrawerBuild on _MorphNavigationDrawerState {
               ? const SizedBox.shrink()
               : _shortcuts(panel);
         }
-        final theme = MorphTheme.of(context).navigationDrawerTheme;
+        final theme = MorphNavigationDrawerTheme.resolve(context);
         final reveal = _reveal.value.clamp(0.0, 1.0);
         return _shortcuts(
           SizedBox(
@@ -42,7 +42,7 @@ extension _MorphNavigationDrawerBuild on _MorphNavigationDrawerState {
 
   Widget _buildOverlay(BuildContext context) {
     final data = MorphTheme.of(context);
-    final theme = data.navigationDrawerTheme;
+    final theme = data.navigationDrawerTheme.withDensity(data.density);
     final reveal = _reveal.value.clamp(0.0, 1.0);
     final rtl = Directionality.of(context) == TextDirection.rtl;
     return MorphScrimSystemUi.wrap(
@@ -100,7 +100,7 @@ extension _MorphNavigationDrawerBuild on _MorphNavigationDrawerState {
 
   Widget _sheet(BuildContext context, {required double? height}) {
     final data = MorphTheme.of(context);
-    final theme = data.navigationDrawerTheme;
+    final theme = data.navigationDrawerTheme.withDensity(data.density);
     final scheme = data.colorScheme;
     final color = _isModal
         ? theme.resolveModalContainer(scheme)
@@ -152,7 +152,7 @@ extension _MorphNavigationDrawerBuild on _MorphNavigationDrawerState {
   }
 
   List<Widget> _rows(MorphThemeData data) {
-    final theme = data.navigationDrawerTheme;
+    final theme = data.navigationDrawerTheme.withDensity(data.density);
     final rows = <Widget>[];
     final headline = widget.headline;
     if (headline != null) {
@@ -205,7 +205,7 @@ extension _MorphNavigationDrawerBuild on _MorphNavigationDrawerState {
     required bool divided,
     required String? header,
   }) {
-    final theme = data.navigationDrawerTheme;
+    final theme = data.navigationDrawerTheme.withDensity(data.density);
     if (divided) {
       rows.add(
         Padding(

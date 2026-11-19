@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/widgets.dart';
 import 'package:morph_expressive/components/menus/morph_menus.dart'
     show MorphMenu;
@@ -6,7 +7,9 @@ import 'package:morph_expressive/morph_components.dart' show MorphMenu;
 import '../../../foundations/foundations.dart';
 import '../enums/morph_menu_color_style.dart';
 import '../enums/morph_menu_item_shape.dart';
+import '../enums/morph_menu_presentation.dart';
 import '../styles/morph_menu_theme.dart';
+import 'morph_menu_presentation_scope.dart';
 import 'morph_menu_style_scope.dart';
 
 /// A single interactive row inside an [MorphMenu] popup.
@@ -101,7 +104,8 @@ class MorphMenuItem extends StatelessWidget {
             style: style,
           );
           return MorphFocusRing(
-            focused: state.focused,
+            // Desktop rows show the keyboard highlight as the row fill only.
+            focused: state.focused && menuTheme.focusIndicatorWidth > 0,
             radius: radius,
             width: menuTheme.focusIndicatorWidth,
             gap: menuTheme.focusIndicatorOffset,
@@ -110,20 +114,39 @@ class MorphMenuItem extends StatelessWidget {
               state: state,
               color: selected ? palette.selectedContent : palette.stateLayer,
               shape: RoundedRectangleBorder(borderRadius: radius),
-              child: _body(
+              child: _expandable(
                 context,
-                menuTheme: menuTheme,
-                scheme: scheme,
-                style: style,
-                palette: palette,
-                radius: radius,
-                iconForeground: iconForeground,
-                focused: state.focused,
+                (bool expanded) => _body(
+                  context,
+                  menuTheme: menuTheme,
+                  scheme: scheme,
+                  style: style,
+                  palette: palette,
+                  radius: radius,
+                  iconForeground: iconForeground,
+                  focused: state.focused,
+                  expanded: expanded,
+                ),
               ),
             ),
           );
         },
       ),
+    );
+  }
+
+  /// Desktop menus keep the owner row of an open submenu highlighted.
+  Widget _expandable(BuildContext context, Widget Function(bool) build) {
+    final ValueListenable<FocusNode?>? expanded =
+        MorphMenuPresentationScope.maybeOf(context)?.expandedNode;
+    final FocusNode? node = focusNode;
+    if (expanded == null || node == null) {
+      return build(false);
+    }
+    return ValueListenableBuilder<FocusNode?>(
+      valueListenable: expanded,
+      builder: (BuildContext context, FocusNode? open, Widget? _) =>
+          build(identical(open, node)),
     );
   }
 
@@ -136,11 +159,13 @@ class MorphMenuItem extends StatelessWidget {
     required BorderRadius radius,
     required Color iconForeground,
     required bool focused,
+    bool expanded = false,
   }) {
     final Color background = _entryBackground(
       menuTheme: menuTheme,
       palette: palette,
       focused: focused,
+      expanded: expanded,
     );
     return Container(
       constraints: BoxConstraints(minHeight: menuTheme.entryHeight),
@@ -164,6 +189,7 @@ class MorphMenuItem extends StatelessWidget {
     required MorphMenuTheme menuTheme,
     required MorphMenuColors palette,
     required bool focused,
+    bool expanded = false,
   }) {
     Color background = selected
         ? palette.selectedContainer
@@ -171,12 +197,14 @@ class MorphMenuItem extends StatelessWidget {
     if (selected && !enabled) {
       background = background.withValues(alpha: menuTheme.disabledOpacity);
     }
-    if (focused) {
+    if (focused || expanded) {
       final Color layer = selected
           ? palette.selectedContent
           : palette.stateLayer;
       background = Color.alphaBlend(
-        layer.withValues(alpha: MorphStateOpacity.focus),
+        layer.withValues(
+          alpha: focused ? MorphStateOpacity.focus : MorphStateOpacity.hover,
+        ),
         background,
       );
     }
@@ -224,6 +252,76 @@ class MorphMenuItem extends StatelessWidget {
     );
   }
 
+  Widget _desktopRow(
+    BuildContext context, {
+    required MorphMenuPresentationScope scope,
+    required MorphMenuTheme menuTheme,
+    required MorphColorScheme scheme,
+    required MorphMenuColorStyle style,
+    required Color iconForeground,
+  }) {
+    final IconThemeData iconTheme = IconThemeData(
+      color: iconForeground,
+      size: menuTheme.iconSize,
+    );
+    final bool leadingSlot = scope.reserveLeading || leading != null;
+    return Row(
+      children: <Widget>[
+        if (leadingSlot) ...<Widget>[
+          SizedBox(
+            width: menuTheme.iconSize,
+            height: menuTheme.iconSize,
+            child: leading == null
+                ? null
+                : Center(
+                    child: IconTheme.merge(data: iconTheme, child: leading!),
+                  ),
+          ),
+          SizedBox(width: menuTheme.iconGap),
+        ],
+        Expanded(
+          child: _labelBlock(
+            context,
+            menuTheme: menuTheme,
+            scheme: scheme,
+            style: style,
+          ),
+        ),
+        if (badge != null) ...<Widget>[
+          SizedBox(width: menuTheme.iconGap),
+          badge!,
+        ],
+        if (trailingText != null) ...<Widget>[
+          SizedBox(width: menuTheme.resolvedShortcutGap),
+          Text(
+            trailingText!,
+            maxLines: 1,
+            style: menuTheme.trailingTextStyle(
+              MorphTheme.of(context).typeScale,
+              scheme,
+              enabled: enabled,
+              selected: selected,
+              style: style,
+            ),
+          ),
+        ],
+        // Fixed trailing slot: chevrons and trailing icons share one column.
+        if (trailing != null || scope.reserveTrailing) ...<Widget>[
+          SizedBox(width: menuTheme.iconGap),
+          SizedBox(
+            width: menuTheme.iconSize,
+            height: menuTheme.iconSize,
+            child: trailing == null
+                ? null
+                : Center(
+                    child: IconTheme.merge(data: iconTheme, child: trailing!),
+                  ),
+          ),
+        ],
+      ],
+    );
+  }
+
   Widget _entryRow(
     BuildContext context, {
     required MorphMenuTheme menuTheme,
@@ -231,6 +329,18 @@ class MorphMenuItem extends StatelessWidget {
     required MorphMenuColorStyle style,
     required Color iconForeground,
   }) {
+    final MorphMenuPresentationScope? scope =
+        MorphMenuPresentationScope.maybeOf(context);
+    if (scope != null && scope.presentation == MorphMenuPresentation.desktop) {
+      return _desktopRow(
+        context,
+        scope: scope,
+        menuTheme: menuTheme,
+        scheme: scheme,
+        style: style,
+        iconForeground: iconForeground,
+      );
+    }
     return Row(
       children: <Widget>[
         if (leading != null) ...<Widget>[

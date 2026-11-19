@@ -1,3 +1,6 @@
+// cupertino_ui is not a direct dependency and material_ui does not re-export
+// the iOS selection handle controls, so the framework library is the only source.
+// ignore: deprecated_member_use
 import 'package:flutter/cupertino.dart'
     show
         cupertinoDesktopTextSelectionHandleControls,

@@ -104,7 +104,7 @@ Future<void> _morphiconbuttonRendersItsIconAndFiresOnpressed(
   await tester.pumpWidget(
     _host(
       MorphIconButton(
-        variant: MorphIconButtonVariant.standard,
+        type: MorphIconButtonType.standard,
         icon: const Icon(MorphIcons.menu),
         onPressed: () => taps++,
       ),

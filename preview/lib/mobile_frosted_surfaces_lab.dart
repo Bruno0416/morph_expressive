@@ -189,21 +189,21 @@ class _MorphFrostedSurfacesLabState extends State<MorphFrostedSurfacesLab> {
                               : FluentIcons.line.weather_moon,
                         ),
                         tooltip: 'Switch theme',
-                        variant: MorphIconButtonVariant.tonal,
+                        type: MorphIconButtonType.tonal,
                         onPressed: widget.onToggleTheme,
                       ),
                       Gap(8),
                       MorphIconButton(
                         icon: Icon(FluentIcons.line.phone_vibrate),
                         tooltip: 'Haptics lab',
-                        variant: MorphIconButtonVariant.tonal,
+                        type: MorphIconButtonType.tonal,
                         onPressed: _openHapticsLab,
                       ),
                       Gap(8),
                       MorphIconButton(
                         icon: Icon(FluentIcons.line.arrow_sync),
                         tooltip: 'Scroll Blur Compatibility Lab',
-                        variant: MorphIconButtonVariant.tonal,
+                        type: MorphIconButtonType.tonal,
                         onPressed: _openScrollBlurLab,
                       ),
                     ],
@@ -521,7 +521,7 @@ class _MorphFrostedSurfacesLabState extends State<MorphFrostedSurfacesLab> {
                         Gap(14),
                         _sectionTitle(type, scheme, 'Cards'),
                         MorphCard(
-                          frosted: true,
+                          surface: MorphSurface.frosted,
                           headline: 'Card · global glass',
                           supportingText: 'Inherits the theme blur and tint.',
                           onPressed: () => _report('Glass card'),
@@ -534,7 +534,7 @@ class _MorphFrostedSurfacesLabState extends State<MorphFrostedSurfacesLab> {
                         ),
                         Gap(10),
                         MorphCard(
-                          variant: MorphCardVariant.outlined,
+                          type: MorphCardType.outlined,
                           headline: 'Card · custom glass',
                           supportingText: 'Independent blur and tint.',
                           glass: const MorphSurfaceGlass(
@@ -653,7 +653,7 @@ class _MorphFrostedSurfacesLabState extends State<MorphFrostedSurfacesLab> {
   /// Section surface using the same glass treatment as application cards.
   Widget _card(MorphColorScheme scheme, {required Widget child}) {
     return MorphCard(
-      frosted: true,
+      surface: MorphSurface.frosted,
       padding: const EdgeInsets.all(18),
       color: scheme.surfaceContainerHigh.withValues(alpha: 0.72),
       borderRadius: BorderRadius.circular(26),

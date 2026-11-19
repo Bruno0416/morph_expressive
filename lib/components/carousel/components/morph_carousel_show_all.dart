@@ -37,7 +37,7 @@ class MorphCarouselShowAll extends StatelessWidget {
                   children: <Widget>[
                     Expanded(child: header ?? const SizedBox.shrink()),
                     MorphIconButton(
-                      variant: MorphIconButtonVariant.standard,
+                      type: MorphIconButtonType.standard,
                       icon: const Icon(MorphIcons.arrow_back),
                       tooltip: 'Back',
                       onPressed: () =>

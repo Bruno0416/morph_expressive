@@ -95,6 +95,7 @@ import '../buttons/res/morph_button_constants.dart';
 import '../buttons/styles/morph_button_motion.dart';
 import '../buttons/styles/morph_button_theme.dart';
 import '../buttons/utils/morph_button_gradient_layer.dart';
+import '../buttons/utils/morph_button_variant_palette.dart';
 import '../menus/morph_menus.dart';
 import '../dropdown_menus/utils/morph_dropdown_geometry.dart';
 import '../tooltips/morph_tooltips.dart';
@@ -147,6 +148,7 @@ class MorphSplitButton<T> extends StatefulWidget {
     this.enabled = true,
     this.menuBuilder,
     this.morphMenuBuilder,
+    this.variant,
     this.decoration,
     this.mouseCursor,
     this.statesController,
@@ -192,6 +194,7 @@ class MorphSplitButton<T> extends StatefulWidget {
     this.enabled = true,
     this.menuBuilder,
     this.morphMenuBuilder,
+    this.variant,
     this.decoration,
     this.mouseCursor,
     this.statesController,
@@ -226,6 +229,7 @@ class MorphSplitButton<T> extends StatefulWidget {
     this.enabled = true,
     this.menuBuilder,
     this.morphMenuBuilder,
+    this.variant,
     this.decoration,
     this.mouseCursor,
     this.statesController,
@@ -260,6 +264,7 @@ class MorphSplitButton<T> extends StatefulWidget {
     this.enabled = true,
     this.menuBuilder,
     this.morphMenuBuilder,
+    this.variant,
     this.decoration,
     this.mouseCursor,
     this.statesController,
@@ -294,6 +299,7 @@ class MorphSplitButton<T> extends StatefulWidget {
     this.enabled = true,
     this.menuBuilder,
     this.morphMenuBuilder,
+    this.variant,
     this.decoration,
     this.mouseCursor,
     this.statesController,
@@ -336,6 +342,10 @@ class MorphSplitButton<T> extends StatefulWidget {
 
   /// final.
   final MorphButtonStyle style;
+
+  /// Chromatic role of the split button, independent of [style]. Null keeps
+  /// the canonical colors of the style. Explicit decoration colors win.
+  final MorphVariant? variant;
 
   /// final.
   final MorphSplitButtonTrailingAlignment trailingAlignment;
@@ -500,8 +510,10 @@ class _MorphSplitButtonState<T> extends State<MorphSplitButton<T>>
 
   MorphButtonTheme get _buttonTheme => MorphTheme.of(context).buttonTheme;
 
-  MorphSplitButtonTheme get _splitTheme =>
-      MorphTheme.of(context).splitButtonTheme;
+  MorphSplitButtonTheme get _splitTheme {
+    final MorphThemeData theme = MorphTheme.of(context);
+    return theme.splitButtonTheme.withDensity(theme.density);
+  }
 
   MorphColorScheme get _scheme => MorphTheme.of(context).colorScheme;
 

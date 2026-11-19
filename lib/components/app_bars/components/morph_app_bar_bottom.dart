@@ -50,7 +50,7 @@ class _MorphBottomAppBarState extends State<_MorphBottomAppBar> {
     final theme = MorphTheme.of(context);
     final appBarTheme = theme.appBarTheme;
     final scheme = theme.colorScheme;
-    final metrics = appBarTheme.metrics(bar.density);
+    final metrics = appBarTheme.metrics(bar.density, global: theme.density);
     final contentPadding = appBarTheme.bottomPadding.resolve(
       Directionality.of(context),
     );

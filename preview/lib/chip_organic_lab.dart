@@ -1,4 +1,25 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart'
+    show
+        BuildContext,
+        Column,
+        CrossAxisAlignment,
+        Expanded,
+        Icon,
+        Icons,
+        Material,
+        MaterialType,
+        Row,
+        SizedBox,
+        Slider,
+        State,
+        StatefulWidget,
+        Text,
+        TextAlign,
+        TextButton,
+        TextStyle,
+        ValueChanged,
+        ValueKey,
+        Widget;
 import 'package:morph_expressive/morph_expressive.dart';
 
 /// Compare the retained organic bloom and harmonic stretch with the original.

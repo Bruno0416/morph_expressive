@@ -167,6 +167,21 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
     return tallest;
   }
 
+  /// Nav bar density: an explicit widget value wins, otherwise the global
+  /// [MorphDensity] (compact maps to compact, anything else to regular).
+  MorphNavBarDensity get _density =>
+      widget.density ??
+      (MorphTheme.of(context).density == MorphDensity.compact
+          ? MorphNavBarDensity.compact
+          : MorphNavBarDensity.regular);
+
+  /// Extra band padding per side for a global comfortable density (2dp, so
+  /// the bar grows by 4dp, mirroring the compact reduction). Zero when the
+  /// widget sets an explicit density.
+  double get _comfortableExtraPerSide => widget.density == null
+      ? MorphTheme.of(context).densityMetrics.paddingVertical.clamp(0, 2)
+      : 0;
+
   ({double top, double bottom}) _bandPadding(
     MorphNavigationBarTheme theme,
     bool wide,
@@ -178,11 +193,13 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
         (wide ? theme.horizontalPadding : theme.verticalPaddingTop) + extra;
     var bottom =
         (wide ? theme.horizontalPadding : theme.verticalPaddingBottom) + extra;
-    if (widget.density == MorphNavBarDensity.compact) {
+    if (_density == MorphNavBarDensity.compact) {
       final double cut = theme.compactHeightReduction / 2;
       top = math.max(0, top - cut);
       bottom = math.max(0, bottom - cut);
     }
+    top += _comfortableExtraPerSide;
+    bottom += _comfortableExtraPerSide;
     // Small vertical navigation needs less trailing space. In particular,
     // the Morph variant's 14sp label otherwise pushes its natural height
     // above the 64dp compact target. Keep medium/standard bars unchanged.
@@ -196,10 +213,7 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
     final MorphThemeData morph = MorphTheme.of(context);
     final MorphNavigationBarTheme theme = morph.navigationBarTheme;
     final MorphColorScheme scheme = morph.colorScheme;
-    final MorphNavMetrics metrics = theme.metrics(
-      widget.density,
-      morph.spacing,
-    );
+    final MorphNavMetrics metrics = theme.metrics(_density, morph.spacing);
     final Color background =
         widget.backgroundColor ?? theme.containerColor(scheme);
     final ShapeBorder shape = widget.floating
@@ -389,9 +403,10 @@ extension _MorphNavigationBarBuild on _MorphNavigationBarState {
     var minHeight = widget.size == MorphNavBarSize.small
         ? theme.heightSmall
         : theme.heightMedium;
-    if (widget.density == MorphNavBarDensity.compact) {
+    if (_density == MorphNavBarDensity.compact) {
       minHeight -= theme.compactHeightReduction;
     }
+    minHeight += _comfortableExtraPerSide * 2;
     // The Morph dash sits above a 32dp icon and a selected label. A 64dp
     // band leaves too little separation between them, even if the dash is
     // inset. Give only the small Morph variant extra breathing room and

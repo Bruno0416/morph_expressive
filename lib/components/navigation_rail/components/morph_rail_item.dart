@@ -11,6 +11,7 @@ import 'package:material_ui/material_ui.dart'
 import '../../../foundations/foundations.dart';
 import '../enums/morph_navigation_rail_enums.dart';
 import '../models/morph_navigation_rail_destination.dart';
+import '../styles/morph_navigation_rail_theme.dart';
 import 'morph_rail_item_button.dart';
 
 /// Single rail item (private to package). One class per file.
@@ -58,7 +59,7 @@ class MorphRailItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = MorphTheme.of(context).navigationRailTheme;
+    final theme = MorphNavigationRailTheme.resolve(context);
     final bool unlabeled =
         destination.short ||
         labelBehavior == MorphNavigationRailLabelBehavior.alwaysHide;

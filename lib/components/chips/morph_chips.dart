@@ -93,10 +93,66 @@ class MorphChip extends StatefulWidget {
     super.key,
   });
 
+  /// An assist chip: triggers an action related to the content.
+  const MorphChip.assist({
+    required this.label,
+    this.leading,
+    this.avatar,
+    this.trailing,
+    this.selected = false,
+    this.elevated = false,
+    this.onPressed,
+    this.onDeleted,
+    this.focusNode,
+    super.key,
+  }) : type = MorphChipType.assist;
+
+  /// A filter chip: represents a toggleable filter ([selected]).
+  const MorphChip.filter({
+    required this.label,
+    this.leading,
+    this.avatar,
+    this.trailing,
+    this.selected = false,
+    this.elevated = false,
+    this.onPressed,
+    this.onDeleted,
+    this.focusNode,
+    super.key,
+  }) : type = MorphChipType.filter;
+
+  /// An input chip: a discrete piece of user-entered information that can be selected and removed.
+  const MorphChip.input({
+    required this.label,
+    this.leading,
+    this.avatar,
+    this.trailing,
+    this.selected = false,
+    this.elevated = false,
+    this.onPressed,
+    this.onDeleted,
+    this.focusNode,
+    super.key,
+  }) : type = MorphChipType.input;
+
+  /// A suggestion chip: presents a dynamically generated suggestion.
+  const MorphChip.suggestion({
+    required this.label,
+    this.leading,
+    this.avatar,
+    this.trailing,
+    this.selected = false,
+    this.elevated = false,
+    this.onPressed,
+    this.onDeleted,
+    this.focusNode,
+    super.key,
+  }) : type = MorphChipType.suggestion;
+
   /// Label shown on the chip.
   final String label;
 
-  /// Which chip variant to paint.
+  /// Which chip type to paint.
   final MorphChipType type;
 
   /// Optional leading icon. Ignored when [avatar] is set.
@@ -252,7 +308,7 @@ class _MorphChipState extends State<MorphChip> {
   @override
   Widget build(BuildContext context) {
     final theme = MorphTheme.of(context);
-    final chipTheme = theme.chipTheme;
+    final chipTheme = theme.chipTheme.withDensity(theme.density);
     final scheme = theme.colorScheme;
     final stateLayer = chipTheme.stateLayerColor(
       scheme,

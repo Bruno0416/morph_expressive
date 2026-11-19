@@ -453,7 +453,7 @@ class _MorphSearchBarState extends State<MorphSearchBar>
     return MorphComponentTheme(
       builder: (BuildContext context) {
         final theme = MorphTheme.of(context);
-        final barTheme = theme.searchBarTheme;
+        final barTheme = theme.searchBarTheme.withDensity(theme.density);
         final scheme = theme.colorScheme;
         final states = _statesController.value;
         final textDirection = Directionality.of(context);

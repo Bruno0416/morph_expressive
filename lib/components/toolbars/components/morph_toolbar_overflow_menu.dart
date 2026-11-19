@@ -59,7 +59,7 @@ class MorphToolbarOverflowMenu extends StatelessWidget {
       ],
       anchorBuilder: (BuildContext context, VoidCallback open) {
         return MorphIconButton(
-          variant: MorphIconButtonVariant.standard,
+          type: MorphIconButtonType.standard,
           icon: icon,
           size: iconButtonSize,
           shape: shape,

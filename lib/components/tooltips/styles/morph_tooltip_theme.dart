@@ -95,6 +95,21 @@ class MorphTooltipTheme extends MorphThemeExtension<MorphTooltipTheme> {
   TextStyle richBodyStyle(MorphTypeScale type, MorphColorScheme scheme) =>
       type.bodyMedium.copyWith(color: scheme.onSurfaceVariant);
 
+  /// This theme with the layout [density] applied once (bubble paddings and
+  /// inner gaps only; widths, minimum height and typography are unchanged).
+  MorphTooltipTheme withDensity(MorphDensity density) {
+    if (density == MorphDensity.standard) {
+      return this;
+    }
+    final MorphDensityMetrics m = density.metrics;
+    return copyWith(
+      plainPadding: m.padding(plainPadding),
+      richPadding: m.padding(richPadding),
+      richTitleGap: MorphDensityMetrics.adjust(richTitleGap, m.gap / 2),
+      richActionsGap: MorphDensityMetrics.adjust(richActionsGap, m.gap),
+    );
+  }
+
   @override
   MorphTooltipTheme copyWith({
     ShapeBorder? plainShape,

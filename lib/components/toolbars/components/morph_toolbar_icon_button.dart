@@ -44,7 +44,7 @@ class MorphToolbarIconButton extends StatefulWidget {
 
   /// Defaults to filled for an expand trigger, tonal when selected, else
   /// standard.
-  final MorphIconButtonVariant? variant;
+  final MorphIconButtonType? variant;
 
   /// Round on a floating toolbar. Docked actions may be square.
   final MorphIconButtonShapeVariant shape;
@@ -118,13 +118,13 @@ class _MorphToolbarIconButtonState extends State<MorphToolbarIconButton>
     );
   }
 
-  MorphIconButtonVariant get _resolvedVariant =>
+  MorphIconButtonType get _resolvedVariant =>
       widget.variant ??
       (widget.action.isExpandTrigger
-          ? MorphIconButtonVariant.filled
+          ? MorphIconButtonType.filled
           : widget.action.active
-          ? MorphIconButtonVariant.tonal
-          : MorphIconButtonVariant.standard);
+          ? MorphIconButtonType.tonal
+          : MorphIconButtonType.standard);
 
   VoidCallback? get _resolvedOnPressed => widget.action.enabled
       ? (widget.onPressed ?? widget.action.onPressed)
@@ -138,7 +138,7 @@ class _MorphToolbarIconButtonState extends State<MorphToolbarIconButton>
       semanticLabel: widget.action.semanticLabel,
       size: widget.size,
       shape: widget.shape,
-      variant: _resolvedVariant,
+      type: _resolvedVariant,
       visualSize: visualSize,
     );
     if (!widget.action.active || widget.action.isExpandTrigger) {

@@ -6,7 +6,7 @@ extension _MorphButtonGroupBuild on _MorphButtonGroupState {
     final groupTheme = MorphTheme.of(context).buttonGroupTheme;
     final metrics = groupTheme.metricsFor(
       widget.size,
-      widget.density,
+      _resolvedDensity,
       isConnected: widget._connected,
     );
     final spacing = math.max(0.0, widget.spacing ?? metrics.spacing);
@@ -18,7 +18,7 @@ extension _MorphButtonGroupBuild on _MorphButtonGroupState {
         type: widget.type,
         shape: widget.shape,
         size: widget.size,
-        density: widget.density,
+        density: _resolvedDensity,
         direction: widget.direction,
         child: _buildContent(context, spacing),
       ),
@@ -165,10 +165,7 @@ extension _MorphButtonGroupBuild on _MorphButtonGroupState {
     final groupTheme = MorphTheme.of(context).buttonGroupTheme;
     // Spec container heights: 32 / 40 / 56 / 96 / 136 (visual). XS/S a11y
     // 48dp targets are enforced via minimumSize width, not visual height.
-    final segmentHeight = groupTheme.containerHeightFor(
-      widget.size,
-      density: widget.density,
-    );
+    final segmentHeight = _segmentHeight(groupTheme);
     final button = _buildButtonWidget(
       action: action,
       index: index,
@@ -210,6 +207,7 @@ extension _MorphButtonGroupBuild on _MorphButtonGroupState {
       onPressed: onPressed,
       enabled: action.enabled,
       style: widget.style,
+      variant: widget.variant,
       size: _mapSize(
         widget.size,
         actionWidth: action.width,
@@ -304,8 +302,10 @@ extension _MorphButtonGroupBuild on _MorphButtonGroupState {
       'xl' => MorphButtonSize.xl,
       _ => MorphButtonSize.md,
     };
-    final segmentHeight = MorphTheme.of(context).buttonGroupTheme
-        .containerHeightFor(s, density: widget.density);
+    final segmentHeight = _segmentHeight(
+      MorphTheme.of(context).buttonGroupTheme,
+      size: s,
+    );
     // Preserve token [name] so group spacing / radius tables still resolve.
     // Override height for density; zero hPadding for icon-only actions.
     return base.copyWith(

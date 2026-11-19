@@ -85,14 +85,14 @@ class _MorphMobileHapticsLabState extends State<MorphMobileHapticsLab> {
         centerTitle: true,
         automaticallyImplyLeading: false,
         leading: MorphIconButton(
-          variant: MorphIconButtonVariant.standard,
+          type: MorphIconButtonType.standard,
           icon: const Icon(MorphIcons.menu),
           tooltip: 'Open navigation drawer',
           onPressed: _drawer.open,
         ),
         actions: [
           MorphIconButton(
-            variant: MorphIconButtonVariant.standard,
+            type: MorphIconButtonType.standard,
             icon: Icon(
               widget.darkMode
                   ? FluentIcons.line.weather_sunny
@@ -201,7 +201,7 @@ class _MorphMobileHapticsLabState extends State<MorphMobileHapticsLab> {
                           child: const Text('Outlined'),
                         ),
                         MorphIconButton(
-                          variant: MorphIconButtonVariant.filled,
+                          type: MorphIconButtonType.filled,
                           icon: const Icon(MorphIcons.star),
                           tooltip: 'Icon button haptic',
                           onPressed: () => _record('Icon button'),

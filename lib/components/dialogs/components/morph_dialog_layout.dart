@@ -3,7 +3,9 @@ part of '../morph_dialogs.dart';
 extension _MorphDialogLayout on MorphDialog {
   Widget _buildDialog(BuildContext context) {
     final MorphThemeData theme = MorphTheme.of(context);
-    final MorphDialogTheme dialogTheme = theme.dialogTheme;
+    final MorphDialogTheme dialogTheme = theme.dialogTheme.withDensity(
+      theme.density,
+    );
     final MorphDialogAppearance appearance = dialogTheme.appearance;
     final MorphColorScheme scheme = theme.colorScheme;
     final Color containerColor = morphDialogTinted(
@@ -63,7 +65,9 @@ extension _MorphDialogLayout on MorphDialog {
   }
 
   List<Widget> _buildChildren(MorphThemeData theme) {
-    final MorphDialogTheme dialogTheme = theme.dialogTheme;
+    final MorphDialogTheme dialogTheme = theme.dialogTheme.withDensity(
+      theme.density,
+    );
     final EdgeInsets padding = dialogTheme.padding;
     final hasContent = content != null;
     final bool hasActions = actions.isNotEmpty || leadingAction != null;
@@ -113,7 +117,9 @@ extension _MorphDialogLayout on MorphDialog {
   }
 
   Widget _buildHeader(MorphThemeData theme) {
-    final MorphDialogTheme dialogTheme = theme.dialogTheme;
+    final MorphDialogTheme dialogTheme = theme.dialogTheme.withDensity(
+      theme.density,
+    );
     final MorphDialogAppearance appearance = dialogTheme.appearance;
     final TextAlign align = icon == null ? TextAlign.start : TextAlign.center;
     return Column(
@@ -149,7 +155,9 @@ extension _MorphDialogLayout on MorphDialog {
   }
 
   Widget _divider(MorphThemeData theme) {
-    final MorphDialogTheme dialogTheme = theme.dialogTheme;
+    final MorphDialogTheme dialogTheme = theme.dialogTheme.withDensity(
+      theme.density,
+    );
     return MorphDivider(
       color: dialogTheme.appearance.resolveDivider(theme.colorScheme),
       thickness: dialogTheme.dividerThickness,

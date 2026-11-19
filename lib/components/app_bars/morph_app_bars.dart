@@ -167,7 +167,7 @@ class MorphAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.foregroundColor,
     this.elevation,
     this.shapeFamily = MorphAppBarShapeFamily.square,
-    this.density = MorphAppBarDensity.regular,
+    this.density,
     this.toolbarHeight,
     this.automaticallyImplyLeading = false,
     this.safeArea = true,
@@ -204,7 +204,7 @@ class MorphAppBar extends StatelessWidget implements PreferredSizeWidget {
     Color? foregroundColor,
     MorphAppBarGlass glass = const MorphAppBarGlass(),
     MorphAppBarShapeFamily shapeFamily = MorphAppBarShapeFamily.square,
-    MorphAppBarDensity density = MorphAppBarDensity.regular,
+    MorphAppBarDensity? density,
     double? toolbarHeight,
     bool automaticallyImplyLeading = false,
     bool safeArea = true,
@@ -257,7 +257,7 @@ class MorphAppBar extends StatelessWidget implements PreferredSizeWidget {
     MorphAppBarGlass? glass,
     double? elevation,
     MorphAppBarShapeFamily shapeFamily = MorphAppBarShapeFamily.square,
-    MorphAppBarDensity density = MorphAppBarDensity.regular,
+    MorphAppBarDensity? density,
     double? toolbarHeight,
     bool automaticallyImplyLeading = false,
     bool safeArea = true,
@@ -338,7 +338,7 @@ class MorphAppBar extends StatelessWidget implements PreferredSizeWidget {
        foregroundColor = null,
        elevation = null,
        shapeFamily = MorphAppBarShapeFamily.square,
-       density = MorphAppBarDensity.regular,
+       density = null,
        toolbarHeight = null,
        automaticallyImplyLeading = true,
        clipBehavior = Clip.none,
@@ -375,7 +375,7 @@ class MorphAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.hideMode = MorphAppBarHideMode.none,
     this.controller,
     this.shapeFamily = MorphAppBarShapeFamily.square,
-    this.density = MorphAppBarDensity.regular,
+    this.density,
     this.variant = MorphAppBarVariant.medium,
     this.semanticLabel,
   }) : _kind = _MorphAppBarKind.sliver,
@@ -430,7 +430,7 @@ class MorphAppBar extends StatelessWidget implements PreferredSizeWidget {
   final MorphAppBarShapeFamily shapeFamily;
 
   /// density.
-  final MorphAppBarDensity density;
+  final MorphAppBarDensity? density;
 
   /// toolbarHeight.
   final double? toolbarHeight;
@@ -491,6 +491,10 @@ class MorphAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   /// Content-band height before the first scroll frame.
+  ///
+  /// This getter has no [BuildContext], so it cannot read the global
+  /// [MorphDensity]: a null [density] resolves as regular here. The live,
+  /// density-aware height replaces it from the first frame on.
   double _fallbackContentHeight() {
     if (toolbarHeight != null) {
       return toolbarHeight!;

@@ -355,6 +355,31 @@ class MorphToolbarTheme extends MorphThemeExtension<MorphToolbarTheme> {
     }
   }
 
+  /// This theme with the layout [density] applied once.
+  ///
+  /// Only the action gaps and the docked horizontal padding follow the
+  /// density. The container size, the floating padding (icon button targets
+  /// need the 48dp row inside the 64dp bar) and the FAB layout are invariant.
+  MorphToolbarTheme withDensity(MorphDensity density) {
+    if (density == MorphDensity.standard) {
+      return this;
+    }
+    final MorphDensityMetrics m = density.metrics;
+    return copyWith(
+      dockedHorizontalPadding: MorphDensityMetrics.adjust(
+        dockedHorizontalPadding,
+        m.paddingHorizontal,
+      ),
+      actionGap: MorphDensityMetrics.adjust(actionGap, m.gap),
+      dockedPreferredGap: MorphDensityMetrics.adjust(
+        dockedPreferredGap,
+        m.gap * 2,
+      ),
+      dockedMinGap: MorphDensityMetrics.adjust(dockedMinGap, m.gap),
+      centeredGap: MorphDensityMetrics.adjust(centeredGap, m.gap),
+    );
+  }
+
   @override
   MorphToolbarTheme copyWith({
     double? containerSize,

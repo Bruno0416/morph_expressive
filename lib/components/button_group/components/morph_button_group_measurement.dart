@@ -178,10 +178,7 @@ extension _MorphButtonGroupMeasurement on _MorphButtonGroupState {
 
   void _updateDecorations() {
     final groupTheme = MorphTheme.of(context).buttonGroupTheme;
-    final segmentHeight = groupTheme.containerHeightFor(
-      widget.size,
-      density: widget.density,
-    );
+    final segmentHeight = _segmentHeight(groupTheme);
     final minimumTarget = groupTheme.minTargetFor(widget.size);
     _cachedDecorations = List.generate(
       widget.actions.length,
@@ -291,10 +288,7 @@ extension _MorphButtonGroupMeasurement on _MorphButtonGroupState {
 
   void _updateIconOnlyNaturalSizeCache() {
     final groupTheme = MorphTheme.of(context).buttonGroupTheme;
-    _iconOnlyNaturalSizeCache = groupTheme.containerHeightFor(
-      widget.size,
-      density: widget.density,
-    );
+    _iconOnlyNaturalSizeCache = _segmentHeight(groupTheme);
   }
 
   void _measureButtonWidths(int generation, {int attempt = 0}) {
@@ -440,6 +434,7 @@ extension _MorphButtonGroupMeasurement on _MorphButtonGroupState {
         key: _unselectedKeys[index],
         onPressed: () {},
         style: widget.style,
+        variant: widget.variant,
         size: _mapSize(
           widget.size,
           actionWidth: action.width,
@@ -464,6 +459,7 @@ extension _MorphButtonGroupMeasurement on _MorphButtonGroupState {
           key: _unselectedKeys[index],
           onPressed: () {},
           style: widget.style,
+          variant: widget.variant,
           size: _mapSize(
             widget.size,
             actionWidth: action.width,
@@ -482,6 +478,7 @@ extension _MorphButtonGroupMeasurement on _MorphButtonGroupState {
           key: _selectedKeys[index],
           onPressed: () {},
           style: widget.style,
+          variant: widget.variant,
           size: _mapSize(
             widget.size,
             actionWidth: action.width,
@@ -534,6 +531,7 @@ extension _MorphButtonGroupMeasurement on _MorphButtonGroupState {
       group.size,
       group.style,
       group.density,
+      _globalDensity,
     );
 
     return Object.hash(
