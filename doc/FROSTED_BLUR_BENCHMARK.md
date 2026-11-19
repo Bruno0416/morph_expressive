@@ -22,13 +22,13 @@ loads. Otherwise it is visibly disabled, never silently replaced with Gaussian.
 
 ## Workload and metrics
 
-- Compare `Sin blur` (baseline), `Gaussian`, `Bounded`, and `Kawase 1x`.
+- Compare `No blur` (baseline), `Gaussian`, `Bounded`, and `Kawase 1x`.
 - Select **1, 4, 8, 12, or 16** distinct clipped backdrop surfaces. Each is a
   real `BackdropFilter` for blurred modes, not one shared filter replicated
   visually. No automatic `BackdropGroup` is used (overlap/key semantics vary).
 - `Auto-scroll` is enabled by default, continuously moving the content behind
   the surfaces at a controllable pixel speed. You can pause and drag manually.
-- **FPS renderizados (1 s)** uses a rolling one-second window of native
+- **Rendered FPS (1 s)** uses a rolling one-second window of native
   `FrameTiming` vsync timestamps, not the accumulated sample count. The FPS
   reading is estimated rendered-frame throughput, **not** GPU frame time or
   display refresh rate; it falls to zero when updates stop.
@@ -36,7 +36,7 @@ loads. Otherwise it is visibly disabled, never silently replaced with Gaussian.
   The sample window resets when changing a test variable. Allow warmup before
   recording results. The dashboard itself updates twice per second and adds
   a small measurement overhead.
-  Enable **Gráficas Flutter** to show the built-in UI/raster performance
+  Enable **Flutter graphs** to show the built-in UI/raster performance
   overlay as an additional diagnostic. The overlay adds its own overhead.
 
 Measure each mode in `--profile` with the same **window size, panel count,

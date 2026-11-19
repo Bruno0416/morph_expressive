@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show ValueNotifier, debugPrint;
 import 'package:flutter/gestures.dart';
@@ -14,7 +13,6 @@ import 'package:material_ui/material_ui.dart'
         Builder,
         Canvas,
         Center,
-        ClipRRect,
         Container,
         CustomPaint,
         CustomPainter,
@@ -50,6 +48,7 @@ import 'package:material_ui/material_ui.dart'
         SingleTickerProviderStateMixin,
         Size,
         SizedBox,
+        Spacer,
         Stack,
         State,
         TextBaseline,
@@ -57,6 +56,8 @@ import 'package:material_ui/material_ui.dart'
         StatelessWidget,
         Text,
         TextEditingController,
+        TextEditingValue,
+        TextSelection,
         TextStyle,
         ValueKey,
         ValueListenableBuilder,
@@ -172,83 +173,6 @@ class _CursorPainter extends CustomPainter {
   bool shouldRepaint(_CursorPainter oldDelegate) => false;
 }
 
-/// Slowly drifting colour blobs behind the frosted scene. One full cycle lasts
-/// [period], so a clip whose length is a multiple of it loops seamlessly.
-class _DriftingBackdrop extends StatefulWidget {
-  const _DriftingBackdrop({required this.colors, required this.period});
-
-  final List<Color> colors;
-  final Duration period;
-
-  @override
-  State<_DriftingBackdrop> createState() => _DriftingBackdropState();
-}
-
-class _DriftingBackdropState extends State<_DriftingBackdrop>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: widget.period,
-  )..repeat();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => AnimatedBuilder(
-    animation: _controller,
-    builder: (context, _) => CustomPaint(
-      painter: _BlobsPainter(widget.colors, _controller.value),
-      size: Size.infinite,
-    ),
-  );
-}
-
-class _BlobsPainter extends CustomPainter {
-  const _BlobsPainter(this.colors, this.t);
-
-  final List<Color> colors;
-  final double t;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawRect(
-      Offset.zero & size,
-      Paint()..color = colors.first.withValues(alpha: .22),
-    );
-    const tau = 2 * math.pi;
-    for (var i = 0; i < colors.length; i++) {
-      final phase = tau * (t + i / colors.length);
-      final cx =
-          size.width * (.15 + .7 * i / (colors.length - 1)) +
-          size.width * .09 * math.sin(phase + i);
-      final cy = size.height * (.5 + .26 * math.sin(phase * 1 + i * 2.1));
-      canvas.drawCircle(
-        Offset(cx, cy),
-        size.height * (.34 + .05 * (i % 2)),
-        Paint()..color = colors[i],
-      );
-    }
-    // Thin diagonal stripes give the blur something sharp to soften.
-    final stripe = Paint()
-      ..color = const Color(0x33FFFFFF)
-      ..strokeWidth = 12;
-    for (var x = -size.height; x < size.width; x += 48) {
-      canvas.drawLine(
-        Offset(x + 48 * t, size.height),
-        Offset(x + 48 * t + size.height, 0),
-        stripe,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_BlobsPainter oldDelegate) => oldDelegate.t != t;
-}
-
 class _CaptureScene extends StatefulWidget {
   const _CaptureScene({required this.scene});
 
@@ -258,7 +182,8 @@ class _CaptureScene extends StatefulWidget {
   State<_CaptureScene> createState() => _CaptureSceneState();
 }
 
-class _CaptureSceneState extends State<_CaptureScene> {
+class _CaptureSceneState extends State<_CaptureScene>
+    with SingleTickerProviderStateMixin {
   final List<Timer> _timers = [];
   final MorphDropdownController<String> _dropdown =
       MorphDropdownController<String>();
@@ -271,16 +196,32 @@ class _CaptureSceneState extends State<_CaptureScene> {
   final FocusNode _emailFocus = FocusNode();
   final FocusNode _filledFocus = FocusNode();
 
-  String _segment = 'Movies';
-  String _chipToggle = 'Daily';
+  String _segment = 'Day';
+  Set<String> _transport = <String>{};
+  int _sizeIndex = 1;
   Set<String> _chipMulti = <String>{};
-  bool _filterSelected = false;
-  bool _inputSelected = false;
-  double _sliderValue = 0.28;
-  double _progressValue = 0.32;
+  Set<String> _topics = <String>{};
+  static const List<String> _everyone = ['Ana', 'Ben', 'Chloe'];
+  final List<String> _people = [..._everyone];
+  final Map<String, GlobalKey> _chipKeys = {
+    for (final name in _everyone) name: GlobalKey(),
+  };
+  bool _emailTouched = false;
+  double _volume = .35;
+  double _brightness = .6;
+  MorphSliderRange _range = const MorphSliderRange(.25, .75);
+  final List<GlobalKey> _sliderKeys = List.generate(3, (_) => GlobalKey());
+  final List<GlobalKey> _navKeys = List.generate(2, (_) => GlobalKey());
+  final List<GlobalKey> _dropdownKeys = List.generate(2, (_) => GlobalKey());
+  final MorphDropdownController<String> _dropdownMulti =
+      MorphDropdownController<String>();
+  // Loading scene: one 3.5 s period of progress (two per 7 s clip).
+  late final AnimationController _loadingClock = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 3500),
+  );
   int _expressiveNavigationIndex = 0;
   int _morphNavigationIndex = 0;
-  int _pageIndex = 0;
   int _railIndex = 0;
   int _drawerIndex = 0;
 
@@ -294,16 +235,12 @@ class _CaptureSceneState extends State<_CaptureScene> {
   final MorphFabMenuController _fab = MorphFabMenuController();
   final GlobalKey _preserveKey = GlobalKey();
   final GlobalKey _compactKey = GlobalKey();
-  final GlobalKey _groupKey = GlobalKey();
   final GlobalKey _underlineViewKey = GlobalKey();
   final GlobalKey _pillViewKey = GlobalKey();
   final List<GlobalKey> _styleKeys = List.generate(5, (_) => GlobalKey());
   final List<GlobalKey> _shapeKeys = List.generate(4, (_) => GlobalKey());
   final List<bool> _shapeSelected = List<bool>.filled(4, false);
-  final GlobalKey _connectedKey = GlobalKey();
   final List<GlobalKey> _fabKeys = List.generate(6, (_) => GlobalKey());
-  int _connectedSelected = 0;
-  int _reactiveSelected = 1;
   int _pointerId = 900;
 
   // Density scene: the only thing that changes is the theme's density.
@@ -525,40 +462,6 @@ class _CaptureSceneState extends State<_CaptureScene> {
     );
   }
 
-  // Enter text a character at a time so the focus/label transition is visible
-  // in the exported GIF rather than jumping to the final value in one frame.
-  void _typeForCapture(
-    TextEditingController controller,
-    String text, {
-    required int startMs,
-    int letterDelayMs = 46,
-  }) {
-    for (var i = 1; i <= text.length; i++) {
-      final value = text.substring(0, i);
-      _at(startMs + (i - 1) * letterDelayMs, () => controller.text = value);
-    }
-  }
-
-  // Keep the multi selector externally controlled, exactly like the gallery.
-  void _addMultiChip(String value) => setState(() {
-    _chipMulti = <String>{..._chipMulti, value};
-  });
-
-  void _removeMultiChip(String value) => setState(() {
-    _chipMulti = <String>{..._chipMulti}..remove(value);
-  });
-
-  void _scheduleDoubleSequence(
-    List<double> values, {
-    required void Function(double value) apply,
-    int startMs = 0,
-    int stepMs = 180,
-  }) {
-    for (var i = 0; i < values.length; i++) {
-      _at(startMs + (i * stepMs), () => setState(() => apply(values[i])));
-    }
-  }
-
   void _scheduleLoop({
     required int cycleMs,
     required int cycles,
@@ -582,110 +485,15 @@ class _CaptureSceneState extends State<_CaptureScene> {
       debugPrint('MORPH_GIF_SCENE_START');
       switch (widget.scene) {
         case 'buttons':
-          // Staggered: one control at a time. Two full turns of the rotating
-          // shape (3.6 s each) fit the clip, so the loop joins seamlessly.
-          for (var i = 0; i < 5; i++) {
-            _at(300 + i * 560, () => _tapKey(_styleKeys[i], holdMs: 230));
-          }
-          // Every shape is pressed twice so selection (and the morph) returns
-          // to the first state before the loop restarts.
-          for (final (i, ms) in [
-            (0, 3000),
-            (1, 3400),
-            (2, 3800),
-            (3, 4200),
-            (0, 4900),
-            (1, 5300),
-            (2, 5700),
-            (3, 6100),
-          ]) {
-            _at(ms, () => _tapKey(_shapeKeys[i], holdMs: 230));
-          }
+          _scriptButtons();
         case 'dropdown':
-          _scheduleLoop(
-            cycleMs: 2200,
-            cycles: 2,
-            events: [
-              (atMs: 0, action: _dropdown.openDropdown),
-              (atMs: 680, action: _dropdown.closeDropdown),
-              (atMs: 1140, action: _dropdown.openDropdown),
-              (atMs: 1820, action: _dropdown.closeDropdown),
-            ],
-          );
+          _scriptDropdown();
         case 'segmented':
-          // One row at a time so each behaviour can be followed.
-          _at(300, () => setState(() => _segment = 'TV Shows'));
-          _at(1500, () => setState(() => _segment = 'Movies'));
-          _at(2300, () => _tapKey(_connectedKey, fx: .83, holdMs: 240));
-          _at(3100, () => _tapKey(_connectedKey, fx: .5, holdMs: 240));
-          _at(3900, () => _tapKey(_connectedKey, fx: .17, holdMs: 240));
-          _at(4700, () => _tapKey(_groupKey, fx: .83, holdMs: 260));
-          _at(5500, () => _tapKey(_groupKey, fx: .17, holdMs: 260));
-          _at(6300, () => _tapKey(_groupKey, fx: .5, holdMs: 260));
+          _scriptSegmented();
         case 'textfields':
-          // Show the existing search and outlined fields, then the new filled
-          // label transition: focus -> type -> blur (label stays outside) -> clear.
-          // This scene needs a longer recording than the other components.
-          _typeForCapture(_filled, 'hello@morph.dev', startMs: 3320);
-          _typeForCapture(
-            _filled,
-            'morph@flutter.dev',
-            startMs: 6450,
-            letterDelayMs: 40,
-          );
-          for (final event in <({int atMs, VoidCallback action})>[
-            (atMs: 0, action: _searchFocus.requestFocus),
-            (atMs: 300, action: () => _search.text = 'Morph Expressive'),
-            (atMs: 1050, action: _search.clear),
-            (atMs: 1250, action: _emailFocus.requestFocus),
-            (atMs: 1570, action: () => _email.text = 'hello@morph.dev'),
-            (atMs: 2250, action: _emailFocus.unfocus),
-            (atMs: 2670, action: _filledFocus.requestFocus),
-            (atMs: 4430, action: _filledFocus.unfocus),
-            (atMs: 5580, action: _filled.clear),
-            (atMs: 5970, action: _filledFocus.requestFocus),
-            (atMs: 7420, action: _filledFocus.unfocus),
-          ]) {
-            _at(event.atMs, event.action);
-          }
+          _scriptTextfields();
         case 'chips':
-          // Material 3 Expressive chips + moving single + independent multi.
-          // Multi: 0->1 bloom, 1->2->3 borrowed-pill morph, 3->2->1
-          // fusion, 1->0 bloom, then replay both behaviors for visibility.
-          for (final event in <({int atMs, VoidCallback action})>[
-            (
-              atMs: 0,
-              action: () => setState(() {
-                _filterSelected = true;
-                _chipToggle = 'Weekly';
-              }),
-            ),
-            (atMs: 620, action: () => _addMultiChip('Daily')),
-            (atMs: 1150, action: () => setState(() => _chipToggle = 'Monthly')),
-            (atMs: 1460, action: () => _addMultiChip('Weekly')),
-            (atMs: 2020, action: () => setState(() => _inputSelected = true)),
-            (atMs: 2280, action: () => _addMultiChip('Monthly')),
-            (atMs: 2860, action: () => setState(() => _chipToggle = 'Daily')),
-            (atMs: 3150, action: () => _removeMultiChip('Weekly')),
-            (atMs: 3820, action: () => _removeMultiChip('Monthly')),
-            (atMs: 4480, action: () => _removeMultiChip('Daily')),
-            (atMs: 5150, action: () => _addMultiChip('Monthly')),
-            (atMs: 5810, action: () => _addMultiChip('Daily')),
-            (atMs: 6250, action: () => setState(() => _chipToggle = 'Weekly')),
-            (atMs: 6450, action: () => _removeMultiChip('Monthly')),
-            (atMs: 6980, action: () => _removeMultiChip('Daily')),
-            (atMs: 7490, action: () => _addMultiChip('Daily')),
-            (
-              atMs: 7850,
-              action: () => setState(() {
-                _filterSelected = false;
-                _inputSelected = false;
-                _chipToggle = 'Daily';
-              }),
-            ),
-          ]) {
-            _at(event.atMs, event.action);
-          }
+          _scriptChips();
         case 'dialogs':
           // Capture MorphDialog's own animated route transition and scrim.
           for (final event in <({int atMs, VoidCallback action})>[
@@ -714,86 +522,9 @@ class _CaptureSceneState extends State<_CaptureScene> {
             ],
           );
         case 'sliders':
-          // Slow down near the upper threshold to make the 90–98% smoothstep
-          // flattening clearly visible on both wavy slider variants.
-          _scheduleDoubleSequence(
-            const [
-              0.52,
-              0.72,
-              0.86,
-              0.90,
-              0.91,
-              0.92,
-              0.93,
-              0.94,
-              0.95,
-              0.96,
-              0.97,
-              0.98,
-              1.00,
-              0.98,
-              0.97,
-              0.96,
-              0.95,
-              0.94,
-              0.93,
-              0.92,
-              0.91,
-              0.90,
-              0.85,
-              0.65,
-              0.50,
-              0.72,
-              0.88,
-              0.90,
-              0.92,
-              0.94,
-              0.96,
-              0.98,
-              // Back to the resting value so the loop joins.
-              0.9,
-              0.7,
-              0.48,
-              0.34,
-              0.28,
-            ],
-            apply: (value) => _sliderValue = value,
-            stepMs: 178,
-          );
+          _scriptSliders();
         case 'navigation':
-          _scheduleLoop(
-            cycleMs: 3300,
-            cycles: 2,
-            events: [
-              (
-                atMs: 0,
-                action: () => setState(() => _expressiveNavigationIndex = 1),
-              ),
-              (
-                atMs: 350,
-                action: () => setState(() => _morphNavigationIndex = 2),
-              ),
-              (atMs: 740, action: () => setState(() => _pageIndex = 1)),
-              (
-                atMs: 1100,
-                action: () => setState(() => _expressiveNavigationIndex = 2),
-              ),
-              (
-                atMs: 1450,
-                action: () => setState(() => _morphNavigationIndex = 1),
-              ),
-              (atMs: 1830, action: () => setState(() => _pageIndex = 3)),
-              (
-                atMs: 2250,
-                action: () => setState(() => _expressiveNavigationIndex = 0),
-              ),
-              (
-                atMs: 2640,
-                action: () => setState(() => _morphNavigationIndex = 0),
-              ),
-              (atMs: 2960, action: () => setState(() => _pageIndex = 0)),
-            ],
-          );
+          _scriptNavigation();
         case 'navigation_rail_drawer':
           // Diagnostic outside the image: which renderer the organic stretch
           // really uses here (the capture tool reads this line).
@@ -817,35 +548,7 @@ class _CaptureSceneState extends State<_CaptureScene> {
             ],
           );
         case 'loading':
-          // All variants stay visible; determinate indicators advance together
-          // and return to their first value so the loop joins.
-          _scheduleDoubleSequence(
-            const [
-              0.12,
-              0.2,
-              0.28,
-              0.36,
-              0.44,
-              0.52,
-              0.6,
-              0.68,
-              0.76,
-              0.84,
-              0.9,
-              0.94,
-              0.97,
-              1.0,
-              1.0,
-              1.0,
-              0.6,
-              0.48,
-              0.4,
-              0.34,
-              0.32,
-            ],
-            apply: (value) => _progressValue = value,
-            stepMs: 330,
-          );
+          _loadingClock.repeat();
         case 'async_button':
           _after(_delayMs + 300, () => _tapKey(_preserveKey, holdMs: 160));
           _after(_delayMs + 300, () => _tapKey(_compactKey, holdMs: 160));
@@ -934,6 +637,928 @@ class _CaptureSceneState extends State<_CaptureScene> {
     });
   }
 
+  // -----------------------------------------------------------------------
+  // Showcases redesigned for 1.0.0: buttons, dropdown, segmented, textfields,
+  // chips, sliders, loading and navigation. Every label is English and every
+  // interaction is a scripted pointer event (or a controller call) on the real
+  // widgets; the clips start and end on the same resting state.
+  // -----------------------------------------------------------------------
+
+  void _tapAt(Offset at, {int holdMs = 200}) {
+    final id = _pointerId++;
+    final binding = GestureBinding.instance;
+    binding.handlePointerEvent(
+      PointerDownEvent(
+        pointer: id,
+        position: at,
+        kind: PointerDeviceKind.touch,
+        timeStamp: _stamp,
+      ),
+    );
+    _after(holdMs, () {
+      binding.handlePointerEvent(
+        PointerUpEvent(
+          pointer: id,
+          position: at,
+          kind: PointerDeviceKind.touch,
+          timeStamp: _stamp,
+        ),
+      );
+    });
+  }
+
+  /// Touch tap on the centre of the first on-screen [Text] equal to [text].
+  void _tapText(String text, {int holdMs = 220, double dx = 0}) {
+    final at = _textCenter(text);
+    if (at != null) _tapAt(at + Offset(dx, 0), holdMs: holdMs);
+  }
+
+  /// Presses [key] at horizontal fraction [from], drags through [legs]
+  /// (duration in ms, target fraction) with eased motion and releases where the
+  /// last leg ends. A 120 ms pause separates the legs.
+  void _dragSmooth(GlobalKey key, double from, List<(int, double)> legs) {
+    final box = key.currentContext?.findRenderObject();
+    if (box is! RenderBox || !box.hasSize) return;
+    Offset at(double fraction) => box.localToGlobal(
+      Offset(box.size.width * fraction, box.size.height / 2),
+    );
+    final id = _pointerId++;
+    final binding = GestureBinding.instance;
+    var previous = at(from);
+    binding.handlePointerEvent(
+      PointerDownEvent(
+        pointer: id,
+        position: previous,
+        kind: PointerDeviceKind.touch,
+        timeStamp: _stamp,
+      ),
+    );
+    var elapsed = 0;
+    var start = from;
+    for (final (index, (ms, target)) in legs.indexed) {
+      final steps = (ms / 16).ceil();
+      for (var i = 1; i <= steps; i++) {
+        elapsed += 16;
+        final next = at(
+          start + (target - start) * Curves.easeInOutCubic.transform(i / steps),
+        );
+        final delta = next - previous;
+        previous = next;
+        _after(elapsed, () {
+          binding.handlePointerEvent(
+            PointerMoveEvent(
+              pointer: id,
+              position: next,
+              delta: delta,
+              kind: PointerDeviceKind.touch,
+              timeStamp: _stamp,
+            ),
+          );
+        });
+      }
+      start = target;
+      if (index < legs.length - 1) elapsed += 120;
+    }
+    final end = previous;
+    _after(elapsed + 16, () {
+      binding.handlePointerEvent(
+        PointerUpEvent(
+          pointer: id,
+          position: end,
+          kind: PointerDeviceKind.touch,
+          timeStamp: _stamp,
+        ),
+      );
+    });
+  }
+
+  /// Types [text] one character at a time into [controller] with the caret at
+  /// the end (the field keeps the focus it was given).
+  void _typeInto(
+    TextEditingController controller,
+    String text, {
+    required int startMs,
+    int letterMs = 55,
+    String prefix = '',
+  }) {
+    for (var i = 1; i <= text.length; i++) {
+      final value = prefix + text.substring(0, i);
+      _at(startMs + (i - 1) * letterMs, () {
+        controller.value = TextEditingValue(
+          text: value,
+          selection: TextSelection.collapsed(offset: value.length),
+        );
+        setState(() {});
+      });
+    }
+  }
+
+  Widget _valueText(String text) {
+    final theme = MorphTheme.of(context);
+    return Text(
+      text,
+      style: (theme.textTheme.labelLarge ?? const TextStyle()).copyWith(
+        color: theme.colorScheme.primary,
+      ),
+    );
+  }
+
+  Widget _labelWithValue(String label, String value) =>
+      Row(children: [_captureLabel(label), const Spacer(), _valueText(value)]);
+
+  // ------------------------------- buttons -------------------------------
+
+  void _scriptButtons() {
+    // Five styles, one press at a time, held long enough to read the response.
+    for (var i = 0; i < 5; i++) {
+      _at(350 + i * 600, () => _tapKey(_styleKeys[i], holdMs: 330));
+    }
+    // Every shape button is pressed twice: the first press selects (and
+    // morphs), the second returns it to the resting shape.
+    for (final (i, ms) in [
+      (0, 3500),
+      (1, 3900),
+      (2, 4300),
+      (3, 4700),
+      (0, 5200),
+      (1, 5600),
+      (2, 6000),
+      (3, 6400),
+    ]) {
+      _at(ms, () => _tapKey(_shapeKeys[i], holdMs: 280));
+    }
+  }
+
+  Widget _buttonsScene() {
+    final shapes = [
+      (
+        'Rotating',
+        MorphShapeCatalog.fromKind(MorphShapeKind.sunny),
+        null as MorphShape?,
+        true,
+        MorphIcons.favorite_border,
+      ),
+      (
+        'Press',
+        MorphShapeCatalog.fromKind(MorphShapeKind.softBurst),
+        null,
+        false,
+        MorphIcons.star_outline,
+      ),
+      (
+        'Morph on select',
+        MorphShapeCatalog.fromKind(MorphShapeKind.clover4Leaf),
+        MorphShapeCatalog.fromKind(MorphShapeKind.flower),
+        false,
+        MorphIcons.check,
+      ),
+      (
+        'Rotate + morph',
+        MorphShapeCatalog.fromKind(MorphShapeKind.cookie12Sided),
+        MorphShapeCatalog.fromKind(MorphShapeKind.softBoom),
+        true,
+        MorphIcons.add,
+      ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _captureLabel('Button styles · press response'),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 14,
+          runSpacing: 12,
+          children: [
+            for (final (i, style, label) in [
+              (0, MorphButtonStyle.filled, 'Filled'),
+              (1, MorphButtonStyle.tonal, 'Tonal'),
+              (2, MorphButtonStyle.elevated, 'Elevated'),
+              (3, MorphButtonStyle.outlined, 'Outlined'),
+              (4, MorphButtonStyle.text, 'Text'),
+            ])
+              MorphButton(
+                key: _styleKeys[i],
+                style: style,
+                onPressed: () {},
+                label: Text(label),
+              ),
+          ],
+        ),
+        const SizedBox(height: 30),
+        _captureLabel('Shape buttons · rotate, press and morph'),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final (i, (caption, shape, selectedShape, rotate, icon))
+                in shapes.indexed)
+              SizedBox(
+                width: 136,
+                child: Column(
+                  children: [
+                    MorphShapeButton(
+                      key: _shapeKeys[i],
+                      size: 100,
+                      shape: shape,
+                      selectedShape: selectedShape,
+                      selected: _shapeSelected[i],
+                      pressedScale: .88,
+                      rotationEnabled: rotate,
+                      rotationDuration: const Duration(milliseconds: 3500),
+                      semanticLabel: caption,
+                      onPressed: () => setState(
+                        () => _shapeSelected[i] = !_shapeSelected[i],
+                      ),
+                      child: Icon(icon),
+                    ),
+                    const SizedBox(height: 8),
+                    _captureLabel(caption),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ------------------------------- dropdown ------------------------------
+
+  void _scriptDropdown() {
+    _mouse = const Offset(612, 342);
+    _mouseMove(_mouse);
+    // Single select: open, hover, choose, closes by itself.
+    _at(350, () => _tapKey(_dropdownKeys[0], holdMs: 140));
+    _glide(() => _textCenter('Kotlin'), atMs: 1050, ms: 380);
+    _glide(() => _textCenter('Swift'), atMs: 1650, ms: 380);
+    _at(2250, () => _tapText('Swift', holdMs: 140));
+    // Multiple select: open, pick two, close.
+    _at(3150, () => _tapKey(_dropdownKeys[1], holdMs: 140));
+    _at(3850, () => _tapText('Android', holdMs: 140));
+    _at(4350, () => _tapText('Web', holdMs: 140));
+    _at(5100, _dropdownMulti.closeDropdown);
+    // Back to the resting state so the clip loops.
+    _at(6250, () {
+      _dropdown.clearAll();
+      _dropdownMulti.clearAll();
+    });
+  }
+
+  Widget _dropdownScene() {
+    Widget column(String caption, Widget field) => SizedBox(
+      width: 284,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [_captureLabel(caption), const SizedBox(height: 8), field],
+      ),
+    );
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        column(
+          'Single select',
+          MorphDropdownMenu<String>(
+            key: _dropdownKeys[0],
+            controller: _dropdown,
+            singleSelect: true,
+            fieldStyle: const MorphDropdownFieldStyle(
+              hintText: 'Choose a framework',
+            ),
+            items: const [
+              MorphDropdownItem(label: 'Flutter', value: 'flutter'),
+              MorphDropdownItem(label: 'Kotlin', value: 'kotlin'),
+              MorphDropdownItem(label: 'Swift', value: 'swift'),
+            ],
+          ),
+        ),
+        column(
+          'Multiple select',
+          MorphDropdownMenu<String>(
+            key: _dropdownKeys[1],
+            controller: _dropdownMulti,
+            fieldStyle: const MorphDropdownFieldStyle(
+              hintText: 'Choose platforms',
+            ),
+            items: const [
+              MorphDropdownItem(label: 'Android', value: 'android'),
+              MorphDropdownItem(label: 'iOS', value: 'ios'),
+              MorphDropdownItem(label: 'Web', value: 'web'),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ------------------------------- segmented -----------------------------
+
+  void _scriptSegmented() {
+    // Toggle: the pill glides and stretches between options.
+    _at(400, () => _tapText('Week', holdMs: 200));
+    _at(1150, () => _tapText('Month', holdMs: 200));
+    _at(1900, () => _tapText('Day', holdMs: 200));
+    // Segmented button: multi select with the selected check.
+    _at(2700, () => _tapText('Walk', holdMs: 200));
+    _at(3250, () => _tapText('Train', holdMs: 200));
+    _at(3800, () => _tapText('Walk', holdMs: 200));
+    _at(4350, () => _tapText('Train', holdMs: 200));
+    // Connected group: neighbours squish while one segment is selected.
+    _at(5000, () => _tapText('Large', holdMs: 240));
+    _at(5650, () => _tapText('Small', holdMs: 240));
+    _at(6300, () => _tapText('Medium', holdMs: 240));
+  }
+
+  Widget _segmentedScene() {
+    const sizes = ['Small', 'Medium', 'Large'];
+    return SizedBox(
+      width: 584,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _labelWithValue('Segmented toggle', 'Calendar: $_segment'),
+          const SizedBox(height: 8),
+          MorphSegmentedToggle<String>(
+            options: const [
+              MorphSegmentedToggleOption(value: 'Day', label: 'Day'),
+              MorphSegmentedToggleOption(value: 'Week', label: 'Week'),
+              MorphSegmentedToggleOption(value: 'Month', label: 'Month'),
+            ],
+            selected: _segment,
+            onChanged: (value) => setState(() => _segment = value),
+          ),
+          const SizedBox(height: 24),
+          _labelWithValue(
+            'Segmented button',
+            _transport.isEmpty
+                ? 'Nothing selected'
+                : 'Selected: ${(_transport.toList()..sort()).join(' + ')}',
+          ),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: SizedBox(
+              width: 584,
+              child: MorphSegmentedButton<String>(
+                multiSelect: true,
+                selected: _transport,
+                onSelectionChanged: (next) => setState(() => _transport = next),
+                segments: const [
+                  MorphSegment(value: 'Walk', label: 'Walk'),
+                  MorphSegment(value: 'Bike', label: 'Bike'),
+                  MorphSegment(value: 'Bus', label: 'Bus'),
+                  MorphSegment(value: 'Train', label: 'Train'),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          _labelWithValue(
+            'Connected button group',
+            'Size: ${sizes[_sizeIndex]}',
+          ),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: MorphButtonGroup(
+              type: MorphButtonGroupType.connected,
+              overflow: MorphButtonGroupOverflow.none,
+              neighborSquish: true,
+              selectedIndex: _sizeIndex,
+              selectionRequired: true,
+              onSelectedIndexChanged: (next) =>
+                  setState(() => _sizeIndex = next ?? _sizeIndex),
+              actions: [
+                for (final size in sizes)
+                  MorphButtonGroupAction(label: Text(size)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ------------------------------- textfields ----------------------------
+
+  bool get _emailValid =>
+      RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]{2,}$').hasMatch(_filled.text);
+
+  void _scriptTextfields() {
+    // Filled field: focus, type an incomplete address, leave (error), return
+    // and complete it (the error clears).
+    _at(300, _filledFocus.requestFocus);
+    _typeInto(_filled, 'hello@morph', startMs: 600, letterMs: 55);
+    _at(1700, () {
+      _filledFocus.unfocus();
+      setState(() => _emailTouched = true);
+    });
+    _at(2400, _filledFocus.requestFocus);
+    _at(2480, () {
+      _filled.selection = TextSelection.collapsed(offset: _filled.text.length);
+    });
+    _typeInto(
+      _filled,
+      '.dev',
+      startMs: 2750,
+      letterMs: 110,
+      prefix: 'hello@morph',
+    );
+    _at(3500, _filledFocus.unfocus);
+    // Outlined field with a character counter.
+    _at(3700, _emailFocus.requestFocus);
+    _typeInto(_email, 'morph_dev', startMs: 4000, letterMs: 65);
+    _at(4800, _emailFocus.unfocus);
+    // Search field with its clear button.
+    _at(5000, _searchFocus.requestFocus);
+    _typeInto(_search, 'Morph', startMs: 5250, letterMs: 80);
+    // Everything returns to the empty resting state.
+    _at(6450, () {
+      _search.clear();
+      _searchFocus.unfocus();
+      _filled.clear();
+      _email.clear();
+      setState(() => _emailTouched = false);
+    });
+  }
+
+  Widget _textfieldsScene() {
+    final showError = _emailTouched && !_emailValid;
+    return SizedBox(
+      width: 584,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _captureLabel('Filled · floating label and error'),
+                    const SizedBox(height: 8),
+                    MorphTextField(
+                      key: const ValueKey('gif_textfield_filled'),
+                      controller: _filled,
+                      focusNode: _filledFocus,
+                      label: 'Email address',
+                      placeholder: 'name@example.com',
+                      leading: Icon(FluentIcons.line.mail),
+                      variant: MorphTextFieldVariant.filled,
+                      supportingText: 'We only use it for receipts',
+                      errorText: showError
+                          ? 'Enter a valid email address'
+                          : null,
+                      showErrorIcon: true,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _captureLabel('Outlined · counter'),
+                    const SizedBox(height: 8),
+                    MorphTextField(
+                      key: const ValueKey('gif_textfield_outlined'),
+                      controller: _email,
+                      focusNode: _emailFocus,
+                      label: 'Username',
+                      placeholder: 'your_name',
+                      leading: Icon(FluentIcons.line.person),
+                      variant: MorphTextFieldVariant.outlined,
+                      supportingText: 'Letters, numbers and _',
+                      maxLength: 16,
+                      showCounter: true,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          _captureLabel('Search · clear button'),
+          const SizedBox(height: 8),
+          MorphTextField(
+            key: const ValueKey('gif_textfield_search'),
+            controller: _search,
+            focusNode: _searchFocus,
+            placeholder: 'Search components',
+            leading: const Icon(MorphIcons.search),
+            showClearButton: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ------------------------------- chips ---------------------------------
+
+  void _scriptChips() {
+    // Filter chips: select three, then deselect them.
+    for (final (ms, topic) in [
+      (400, 'Movies'),
+      (850, 'Music'),
+      (1300, 'Games'),
+      (1900, 'Music'),
+      (2350, 'Movies'),
+      (2800, 'Games'),
+    ]) {
+      _at(ms, () => _tapText(topic, holdMs: 170));
+    }
+    // Input chips: remove two people, then add them back with the assist chip.
+    _at(3500, () => _tapKey(_chipKeys['Ben']!, fx: .86, holdMs: 170));
+    _at(3950, () => _tapKey(_chipKeys['Chloe']!, fx: .86, holdMs: 170));
+    _at(4500, () => _tapText('Add person', holdMs: 170));
+    _at(4950, () => _tapText('Add person', holdMs: 170));
+    // Expressive group: multiple selection with the shared morphing pill.
+    for (final (ms, day) in [
+      (5500, 'Mon'),
+      (5900, 'Wed'),
+      (6300, 'Mon'),
+      (6700, 'Wed'),
+    ]) {
+      _at(ms, () => _tapText(day, holdMs: 170));
+    }
+  }
+
+  Widget _chipsScene() {
+    const topics = ['Movies', 'Music', 'Books', 'Games', 'Travel'];
+    return SizedBox(
+      width: 584,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _captureLabel('Filter chips · select and deselect'),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              for (final topic in topics)
+                MorphChip.filter(
+                  label: topic,
+                  selected: _topics.contains(topic),
+                  onPressed: () => setState(() {
+                    _topics = _topics.contains(topic)
+                        ? ({..._topics}..remove(topic))
+                        : {..._topics, topic};
+                  }),
+                ),
+            ],
+          ),
+          const SizedBox(height: 22),
+          _captureLabel('Input chips · remove, and an assist chip to add'),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              for (final person in _people)
+                MorphChip.input(
+                  key: _chipKeys[person],
+                  label: person,
+                  onDeleted: () => setState(() => _people.remove(person)),
+                ),
+              MorphChip.assist(
+                label: 'Add person',
+                leading: const Icon(MorphIcons.add),
+                onPressed: () => setState(() {
+                  final next = _everyone.firstWhere(
+                    (name) => !_people.contains(name),
+                    orElse: () => '',
+                  );
+                  if (next.isEmpty) return;
+                  _people
+                    ..add(next)
+                    ..sort(
+                      (a, b) => _everyone.indexOf(a) - _everyone.indexOf(b),
+                    );
+                }),
+              ),
+            ],
+          ),
+          const SizedBox(height: 22),
+          _captureLabel('Chip group · multiple selection'),
+          const SizedBox(height: 10),
+          MorphChipToggle<String>(
+            key: const ValueKey('gif_chips_multi'),
+            multiSelection: true,
+            options: const [
+              MorphChipToggleOption(value: 'Mon', label: 'Mon'),
+              MorphChipToggleOption(value: 'Tue', label: 'Tue'),
+              MorphChipToggleOption(value: 'Wed', label: 'Wed'),
+              MorphChipToggleOption(value: 'Thu', label: 'Thu'),
+              MorphChipToggleOption(value: 'Fri', label: 'Fri'),
+            ],
+            selectedValues: _chipMulti,
+            onSelectionChanged: (values) => setState(() => _chipMulti = values),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ------------------------------- sliders -------------------------------
+
+  void _scriptSliders() {
+    // Each slider is dragged for real, then returned to where it started.
+    _at(
+      300,
+      () => _dragSmooth(_sliderKeys[0], .35, [
+        (650, .85),
+        (750, .12),
+        (650, .35),
+      ]),
+    );
+    _at(
+      2500,
+      () => _dragSmooth(_sliderKeys[1], .6, [(650, .2), (750, .95), (650, .6)]),
+    );
+    _at(
+      4700,
+      () => _dragSmooth(_sliderKeys[2], .75, [
+        (650, .95),
+        (750, .55),
+        (650, .75),
+      ]),
+    );
+  }
+
+  Widget _sliderRow(String name, Widget slider, String value) => Padding(
+    padding: const EdgeInsets.only(bottom: 22),
+    child: Row(
+      children: [
+        SizedBox(width: 96, child: _captureLabel(name)),
+        Expanded(child: slider),
+        SizedBox(
+          width: 76,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: _valueText(value),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Widget _slidersScene() => SizedBox(
+    width: 584,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Room for the value bubble that rises above a dragged thumb.
+        const SizedBox(height: 26),
+        _sliderRow(
+          'Volume',
+          MorphSlider(
+            key: _sliderKeys[0],
+            value: _volume,
+            label: '${(_volume * 100).round()}%',
+            onChanged: (value) => setState(() => _volume = value),
+          ),
+          '${(_volume * 100).round()}%',
+        ),
+        _sliderRow(
+          'Brightness',
+          MorphSlider.wavy(
+            key: _sliderKeys[1],
+            value: _brightness,
+            label: '${(_brightness * 100).round()}%',
+            onChanged: (value) => setState(() => _brightness = value),
+          ),
+          '${(_brightness * 100).round()}%',
+        ),
+        _sliderRow(
+          'Price range',
+          MorphRangeSlider.wavy(
+            key: _sliderKeys[2],
+            values: _range,
+            labels: MorphSliderRangeLabels(
+              '${(_range.start * 100).round()}',
+              '${(_range.end * 100).round()}',
+            ),
+            onChanged: (range) => setState(() => _range = range),
+          ),
+          '\$${(_range.start * 100).round()}–${(_range.end * 100).round()}',
+        ),
+      ],
+    ),
+  );
+
+  // ------------------------------- loading -------------------------------
+
+  /// Progress shared by every determinate indicator: eased 0 -> 100 %, held for
+  /// a moment, then restarted. Two periods fit the 7 s clip.
+  double _loadingProgress() {
+    final u = _loadingClock.value;
+    return u < .8 ? Curves.easeInOutCubic.transform(u / .8) : 1.0;
+  }
+
+  Widget _loadingScene() {
+    Widget cell(String caption, Widget child) => SizedBox(
+      width: 146,
+      child: Column(
+        children: [
+          SizedBox(width: 72, height: 72, child: Center(child: child)),
+          const SizedBox(height: 8),
+          _captureLabel(caption),
+        ],
+      ),
+    );
+    // One full morph sequence (7 shapes x 1 s) and a whole number of turns
+    // fit the 7 s clip, so the loop joins seamlessly.
+    const rotation = Duration(milliseconds: 1750);
+    const morphTurn = 360 / 7;
+    return AnimatedBuilder(
+      animation: _loadingClock,
+      builder: (context, _) {
+        final value = _loadingProgress();
+        return SizedBox(
+          width: 584,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  cell(
+                    'Loading indicator',
+                    const MorphLoadingIndicator(
+                      size: 64,
+                      globalRotationDuration: rotation,
+                      morphRotationDegrees: morphTurn,
+                    ),
+                  ),
+                  cell(
+                    'Contained',
+                    const MorphLoadingIndicator(
+                      variant: MorphLoadingIndicatorVariant.contained,
+                      size: 64,
+                      globalRotationDuration: rotation,
+                      morphRotationDegrees: morphTurn,
+                    ),
+                  ),
+                  cell(
+                    'Circular',
+                    MorphProgressIndicator.circular(
+                      value: value,
+                      size: 56,
+                      strokeWidth: 6,
+                      trackStrokeWidth: 6,
+                    ),
+                  ),
+                  cell(
+                    'Circular wavy',
+                    MorphProgressIndicator.circularWavy(
+                      value: value,
+                      size: 60,
+                      strokeWidth: 5,
+                      trackStrokeWidth: 5,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              _labelWithValue('Linear', '${(value * 100).round()}%'),
+              const SizedBox(height: 8),
+              MorphProgressIndicator.linear(
+                value: value,
+                linearSize: MorphProgressIndicatorSize.m,
+              ),
+              const SizedBox(height: 26),
+              _labelWithValue('Linear wavy', '${(value * 100).round()}%'),
+              const SizedBox(height: 8),
+              MorphProgressIndicator.linearWavy(
+                value: value,
+                linearSize: MorphProgressIndicatorSize.m,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // ------------------------------- navigation ----------------------------
+
+  void _scriptNavigation() {
+    const taps = <(int, bool, int)>[
+      (400, true, 1),
+      (1150, false, 1),
+      (1900, true, 2),
+      (2650, false, 2),
+      (3400, true, 1),
+      (4150, false, 1),
+      (4900, true, 0),
+      (5650, false, 0),
+    ];
+    for (final (ms, expressive, index) in taps) {
+      _at(ms, () {
+        if (expressive) {
+          _tapKey(_navKeys[0], fx: (index + .5) / 3, holdMs: 200);
+        } else {
+          _tapKey(_navKeys[1], fx: (index + .5) / 3, holdMs: 200);
+        }
+      });
+    }
+  }
+
+  Widget _navigationScene() {
+    const names = ['Home', 'Search', 'Saved'];
+    const destinations = [
+      MorphNavigationBarDestination(icon: MorphIcons.home, label: 'Home'),
+      MorphNavigationBarDestination(icon: MorphIcons.search, label: 'Search'),
+      MorphNavigationBarDestination(
+        icon: MorphIcons.favorite_border,
+        label: 'Saved',
+      ),
+    ];
+    return SizedBox(
+      width: 584,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 584,
+            child: _labelWithValue(
+              'Expressive bar · shared elastic selection',
+              names[_expressiveNavigationIndex],
+            ),
+          ),
+          const SizedBox(height: 6),
+          SizedBox(
+            key: _navKeys[0],
+            width: 584,
+            child: MorphNavigationBar.expressive(
+              key: const ValueKey('gif_navigation_expressive_bar'),
+              safeArea: false,
+              autoLayout: false,
+              selectedIndex: _expressiveNavigationIndex,
+              onDestinationSelected: (index) =>
+                  setState(() => _expressiveNavigationIndex = index),
+              destinations: destinations,
+            ),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: 584,
+            child: _labelWithValue(
+              'Morph bar · sliding top indicator',
+              names[_morphNavigationIndex],
+            ),
+          ),
+          const SizedBox(height: 6),
+          SizedBox(
+            key: _navKeys[1],
+            width: 584,
+            child: MorphNavigationBar.morph(
+              key: const ValueKey('gif_navigation_morph_bar'),
+              safeArea: false,
+              iconSize: 32,
+              unselectedIconScale: 0.9,
+              selectedIndex: _morphNavigationIndex,
+              onDestinationSelected: (index) =>
+                  setState(() => _morphNavigationIndex = index),
+              destinations: destinations,
+            ),
+          ),
+          const SizedBox(height: 22),
+          _captureLabel('Page indicators · follow the bars above'),
+          const SizedBox(height: 5),
+          Row(
+            children: [
+              MorphPageIndicator(
+                key: const ValueKey('gif_page_expand'),
+                count: 3,
+                selectedIndex: _expressiveNavigationIndex,
+                activeWidth: 34,
+                inactiveWidth: 12,
+                height: 14,
+                inactiveHeight: 12,
+                spacing: 4,
+              ),
+              const SizedBox(width: 34),
+              MorphPageIndicator(
+                key: const ValueKey('gif_page_slide'),
+                count: 3,
+                selectedIndex: _morphNavigationIndex,
+                effect: MorphPageIndicatorEffect.slide,
+                activeWidth: 26,
+                inactiveWidth: 12,
+                height: 12,
+                spacing: 5,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showCaptureDialog() {
     MorphDialog.show<void>(
       context,
@@ -962,6 +1587,8 @@ class _CaptureSceneState extends State<_CaptureScene> {
       timer.cancel();
     }
     _dropdown.dispose();
+    _dropdownMulti.dispose();
+    _loadingClock.dispose();
     _underlineController.dispose();
     _pillController.dispose();
     _fab.dispose();
@@ -980,14 +1607,17 @@ class _CaptureSceneState extends State<_CaptureScene> {
     final morph = MorphTheme.of(context);
     final scheme = morph.colorScheme;
     final (title, subtitle) = switch (widget.scene) {
-      'buttons' => ('Buttons', 'Five styles · ShapeButton'),
-      'dropdown' => ('Dropdown', 'Spring expand and collapse'),
-      'segmented' => ('Segmented', 'Toggle · connected · reactive'),
-      'textfields' => ('Text fields', 'Search, outlined, filled labels'),
-      'chips' => ('Chips', 'Single and multi selection'),
-      'sliders' => ('Sliders', 'Linear and wavy tracks'),
-      'loading' => ('Loading', 'Loaders and progress'),
-      'navigation' => ('Navigation', 'Morph bars and page indicators'),
+      'buttons' => ('Buttons', 'Five styles · shape buttons'),
+      'dropdown' => ('Dropdown', 'Open, hover, select, close'),
+      'segmented' => (
+        'Segmented',
+        'Toggle · segmented button · connected group',
+      ),
+      'textfields' => ('Text fields', 'Typing, focus, floating label, error'),
+      'chips' => ('Chips', 'Filter · input · assist · group'),
+      'sliders' => ('Sliders', 'Drag to change the value'),
+      'loading' => ('Loading', 'Loading indicator and progress'),
+      'navigation' => ('Navigation', 'Tap to change destination'),
       'navigation_rail_drawer' => (
         'Rail and drawer',
         'Elastic selection and stretch',
@@ -1004,7 +1634,6 @@ class _CaptureSceneState extends State<_CaptureScene> {
       ),
       'density' => ('Density', 'One theme switch · nothing else changes'),
       'context_menu' => ('Context menu', 'Desktop secondary click and submenu'),
-      'frosted' => ('Frosted surfaces', 'surface: solid vs surface: frosted'),
       _ => ('Morph Expressive', 'Component capture'),
     };
 
@@ -1047,6 +1676,19 @@ class _CaptureSceneState extends State<_CaptureScene> {
               ),
             ),
           ),
+        if (widget.scene == 'loading')
+          Positioned(
+            top: 18,
+            right: 28,
+            child: AnimatedBuilder(
+              animation: _loadingClock,
+              builder: (context, _) => Text(
+                'Progress ${(_loadingProgress() * 100).round()}%',
+                style: (morph.textTheme.titleSmall ?? const TextStyle())
+                    .copyWith(color: scheme.primary),
+              ),
+            ),
+          ),
         Positioned(
           bottom: 19,
           right: 30,
@@ -1072,17 +1714,6 @@ class _CaptureSceneState extends State<_CaptureScene> {
       ),
     );
   }
-
-  Widget _loadingCell(String caption, Widget child) => SizedBox(
-    width: 112,
-    child: Column(
-      children: [
-        SizedBox(width: 72, height: 72, child: Center(child: child)),
-        const SizedBox(height: 8),
-        _captureLabel(caption),
-      ],
-    ),
-  );
 
   Widget _asyncColumn(
     String label,
@@ -1497,323 +2128,11 @@ class _CaptureSceneState extends State<_CaptureScene> {
     );
   }
 
-  Widget _frostedScene() {
-    final scheme = MorphTheme.of(context).colorScheme;
-    Widget row(String caption, MorphSurface surface) => Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: scheme.surface.withValues(alpha: .86),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              caption,
-              style:
-                  (MorphTheme.of(context).textTheme.labelMedium ??
-                          const TextStyle())
-                      .copyWith(color: scheme.onSurface),
-            ),
-          ),
-          const SizedBox(height: 8),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                MorphButton.filled(
-                  surface: surface,
-                  label: const Text('Filled'),
-                  onPressed: () {},
-                ),
-                const SizedBox(width: 10),
-                MorphButton.tonal(
-                  surface: surface,
-                  label: const Text('Tonal'),
-                  onPressed: () {},
-                ),
-                const SizedBox(width: 10),
-                MorphButton.outlined(
-                  surface: surface,
-                  label: const Text('Outlined'),
-                  onPressed: () {},
-                ),
-                const SizedBox(width: 10),
-                MorphIconButton.tonal(
-                  surface: surface,
-                  icon: Icon(FluentIcons.line.heart),
-                  onPressed: () {},
-                ),
-                const SizedBox(width: 14),
-                MorphCard.filled(
-                  surface: surface,
-                  width: 124,
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                    child: Text('Card'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-    return SizedBox(
-      width: 584,
-      height: 262,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: _DriftingBackdrop(
-                period: const Duration(milliseconds: 6000),
-                colors: [
-                  scheme.primaryContainer,
-                  scheme.tertiaryContainer,
-                  scheme.secondaryContainer,
-                  scheme.primary.withValues(alpha: .55),
-                ],
-              ),
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                row('surface: .solid', MorphSurface.solid),
-                row('surface: .frosted', MorphSurface.frosted),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _content() => switch (widget.scene) {
-    'buttons' => Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _captureLabel('Styles · press and release'),
-        const SizedBox(height: 10),
-        Wrap(
-          spacing: 18,
-          runSpacing: 12,
-          children: [
-            for (final (i, style, label) in [
-              (0, MorphButtonStyle.filled, 'Filled'),
-              (1, MorphButtonStyle.tonal, 'Tonal'),
-              (2, MorphButtonStyle.elevated, 'Elevated'),
-              (3, MorphButtonStyle.outlined, 'Outlined'),
-              (4, MorphButtonStyle.text, 'Text'),
-            ])
-              MorphButton(
-                key: _styleKeys[i],
-                style: style,
-                onPressed: () {},
-                label: Text(label),
-              ),
-          ],
-        ),
-        const SizedBox(height: 26),
-        _captureLabel('ShapeButton · rotation, press and morph'),
-        const SizedBox(height: 12),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (final (i, caption, shape, selectedShape, rotate, icon) in [
-              (
-                0,
-                'Rotation',
-                MorphShapeCatalog.fromKind(MorphShapeKind.sunny),
-                null,
-                true,
-                MorphIcons.favorite_border,
-              ),
-              (
-                1,
-                'Press',
-                MorphShapeCatalog.fromKind(MorphShapeKind.softBurst),
-                null,
-                false,
-                MorphIcons.star_outline,
-              ),
-              (
-                2,
-                'Morph',
-                MorphShapeCatalog.fromKind(MorphShapeKind.clover4Leaf),
-                MorphShapeCatalog.fromKind(MorphShapeKind.flower),
-                false,
-                MorphIcons.check,
-              ),
-              (
-                3,
-                'Rotation + morph',
-                MorphShapeCatalog.fromKind(MorphShapeKind.cookie12Sided),
-                MorphShapeCatalog.fromKind(MorphShapeKind.softBoom),
-                true,
-                MorphIcons.add,
-              ),
-            ])
-              Padding(
-                padding: EdgeInsets.only(left: i == 0 ? 0 : 36),
-                child: SizedBox(
-                  width: 112,
-                  child: Column(
-                    children: [
-                      MorphShapeButton(
-                        key: _shapeKeys[i],
-                        size: 100,
-                        shape: shape,
-                        selectedShape: selectedShape,
-                        selected: _shapeSelected[i],
-                        pressedScale: .88,
-                        rotationEnabled: rotate,
-                        rotationDuration: const Duration(milliseconds: 3600),
-                        semanticLabel: caption,
-                        onPressed: () => setState(
-                          () => _shapeSelected[i] = !_shapeSelected[i],
-                        ),
-                        child: Icon(icon),
-                      ),
-                      const SizedBox(height: 8),
-                      _captureLabel(caption),
-                    ],
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ],
-    ),
-    'dropdown' => SizedBox(
-      width: 360,
-      child: MorphDropdownMenu<String>(
-        controller: _dropdown,
-        singleSelect: true,
-        fieldStyle: const MorphDropdownFieldStyle(
-          hintText: 'Choose a framework',
-        ),
-        items: const [
-          MorphDropdownItem(label: 'Flutter', value: 'flutter'),
-          MorphDropdownItem(label: 'Kotlin', value: 'kotlin'),
-          MorphDropdownItem(label: 'Swift', value: 'swift'),
-        ],
-      ),
-    ),
-    'segmented' => SizedBox(
-      width: 584,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _captureLabel('Segmented toggle'),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: 520,
-            child: MorphSegmentedToggle<String>(
-              options: const [
-                MorphSegmentedToggleOption(value: 'Movies', label: 'Movies'),
-                MorphSegmentedToggleOption(
-                  value: 'TV Shows',
-                  label: 'TV Shows',
-                ),
-              ],
-              selected: _segment,
-              onChanged: (value) => setState(() => _segment = value),
-            ),
-          ),
-          const SizedBox(height: 24),
-          _captureLabel('Connected button group'),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: MorphButtonGroup(
-              key: _connectedKey,
-              type: MorphButtonGroupType.connected,
-              overflow: MorphButtonGroupOverflow.none,
-              neighborSquish: true,
-              selectedIndex: _connectedSelected,
-              selectionRequired: true,
-              onSelectedIndexChanged: (next) => setState(
-                () => _connectedSelected = next ?? _connectedSelected,
-              ),
-              actions: const [
-                MorphButtonGroupAction(label: Text('Day')),
-                MorphButtonGroupAction(label: Text('Week')),
-                MorphButtonGroupAction(label: Text('Month')),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          _captureLabel('Reactive group'),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: MorphReactiveButtonGroup(
-              key: _groupKey,
-              fit: MorphReactiveGroupFit.natural,
-              selectedIndex: _reactiveSelected,
-              onSelectedIndexChanged: (next) =>
-                  setState(() => _reactiveSelected = next ?? _reactiveSelected),
-              selectionRequired: true,
-              pressedExpansion: .08,
-              selectedExpansion: .08,
-              items: const [
-                MorphReactiveGroupItem(label: Text('Hoy')),
-                MorphReactiveGroupItem(label: Text('Esta semana')),
-                MorphReactiveGroupItem(label: Text('Todo el historial')),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ),
-    'textfields' => SizedBox(
-      width: 535,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _captureLabel('Search'),
-          const SizedBox(height: 8),
-          MorphTextField(
-            key: const ValueKey('gif_textfield_search'),
-            controller: _search,
-            focusNode: _searchFocus,
-            placeholder: 'Search for a movie',
-            leading: const Icon(MorphIcons.search),
-            showClearButton: true,
-          ),
-          const SizedBox(height: 18),
-          _captureLabel('Outlined'),
-          const SizedBox(height: 8),
-          MorphTextField(
-            key: const ValueKey('gif_textfield_outlined'),
-            controller: _email,
-            focusNode: _emailFocus,
-            label: 'Email',
-            placeholder: 'hello@example.com',
-            variant: MorphTextFieldVariant.outlined,
-          ),
-          const SizedBox(height: 26),
-          _captureLabel('Filled · floating label'),
-          const SizedBox(height: 8),
-          MorphTextField(
-            key: const ValueKey('gif_textfield_filled'),
-            controller: _filled,
-            focusNode: _filledFocus,
-            label: 'Email address',
-            placeholder: 'name@example.com',
-            leading: Icon(FluentIcons.line.mail),
-            variant: MorphTextFieldVariant.filled,
-          ),
-        ],
-      ),
-    ),
+    'buttons' => _buttonsScene(),
+    'dropdown' => _dropdownScene(),
+    'segmented' => _segmentedScene(),
+    'textfields' => _textfieldsScene(),
     'dialogs' => SizedBox(
       width: 560,
       child: Column(
@@ -1872,180 +2191,9 @@ class _CaptureSceneState extends State<_CaptureScene> {
         ),
       ),
     ),
-    'chips' => Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _captureLabel('Material 3 Expressive · filter, input, assist'),
-        const SizedBox(height: 10),
-        Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: [
-            MorphChip(
-              label: 'Filter',
-              type: MorphChipType.filter,
-              selected: _filterSelected,
-              onPressed: () =>
-                  setState(() => _filterSelected = !_filterSelected),
-            ),
-            MorphChip(
-              label: 'Input',
-              type: MorphChipType.input,
-              selected: _inputSelected,
-              onPressed: () => setState(() => _inputSelected = !_inputSelected),
-            ),
-            MorphChip(label: 'Assist', onPressed: () {}),
-          ],
-        ),
-        const SizedBox(height: 20),
-        _captureLabel('Morph expressive · single'),
-        const SizedBox(height: 10),
-        MorphChipToggle<String>(
-          key: const ValueKey('gif_chips_single'),
-          options: const [
-            MorphChipToggleOption(value: 'Daily', label: 'Daily'),
-            MorphChipToggleOption(value: 'Weekly', label: 'Weekly'),
-            MorphChipToggleOption(value: 'Monthly', label: 'Monthly'),
-          ],
-          selected: _chipToggle,
-          onChanged: (value) => setState(() => _chipToggle = value),
-        ),
-        const SizedBox(height: 20),
-        _captureLabel('Morph expressive · multiple'),
-        const SizedBox(height: 10),
-        MorphChipToggle<String>(
-          key: const ValueKey('gif_chips_multi'),
-          multiSelection: true,
-          options: const [
-            MorphChipToggleOption(value: 'Daily', label: 'Daily'),
-            MorphChipToggleOption(value: 'Weekly', label: 'Weekly'),
-            MorphChipToggleOption(value: 'Monthly', label: 'Monthly'),
-          ],
-          selectedValues: _chipMulti,
-          onSelectionChanged: (values) => setState(() => _chipMulti = values),
-        ),
-      ],
-    ),
-    'sliders' => SizedBox(
-      width: 550,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Linear'),
-          const SizedBox(height: 6),
-          MorphSlider(
-            value: _sliderValue,
-            onChanged: (value) => setState(() => _sliderValue = value),
-          ),
-          const SizedBox(height: 26),
-          const Text('Wavy'),
-          const SizedBox(height: 6),
-          MorphSlider.wavy(
-            value: _sliderValue,
-            onChanged: (value) => setState(() => _sliderValue = value),
-          ),
-          const SizedBox(height: 18),
-          const Text('Wavy range'),
-          const SizedBox(height: 6),
-          MorphRangeSlider.wavy(
-            values: MorphSliderRange(0.0, _sliderValue),
-            onChanged: (range) => setState(() => _sliderValue = range.end),
-          ),
-        ],
-      ),
-    ),
-    'navigation' => SizedBox(
-      width: 560,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _captureLabel('Expressive bar · shared elastic selection'),
-          const SizedBox(height: 6),
-          SizedBox(
-            width: 520,
-            child: MorphNavigationBar.expressive(
-              key: const ValueKey('gif_navigation_expressive_bar'),
-              safeArea: false,
-              autoLayout: false,
-              selectedIndex: _expressiveNavigationIndex,
-              onDestinationSelected: (index) =>
-                  setState(() => _expressiveNavigationIndex = index),
-              destinations: const [
-                MorphNavigationBarDestination(
-                  icon: MorphIcons.home,
-                  label: 'Home',
-                ),
-                MorphNavigationBarDestination(
-                  icon: MorphIcons.search,
-                  label: 'Search',
-                ),
-                MorphNavigationBarDestination(
-                  icon: MorphIcons.favorite_border,
-                  label: 'Saved',
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          _captureLabel('Morph bar · sliding top indicator'),
-          const SizedBox(height: 6),
-          SizedBox(
-            width: 520,
-            child: MorphNavigationBar.morph(
-              key: const ValueKey('gif_navigation_morph_bar'),
-              safeArea: false,
-              iconSize: 32,
-              unselectedIconScale: 0.9,
-              selectedIndex: _morphNavigationIndex,
-              onDestinationSelected: (index) =>
-                  setState(() => _morphNavigationIndex = index),
-              destinations: const [
-                MorphNavigationBarDestination(
-                  icon: MorphIcons.home,
-                  label: 'Home',
-                ),
-                MorphNavigationBarDestination(
-                  icon: MorphIcons.search,
-                  label: 'Search',
-                ),
-                MorphNavigationBarDestination(
-                  icon: MorphIcons.favorite_border,
-                  label: 'Saved',
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-          _captureLabel('Page indicator · expand / slide'),
-          const SizedBox(height: 5),
-          Row(
-            children: [
-              MorphPageIndicator(
-                key: const ValueKey('gif_page_expand'),
-                count: 4,
-                selectedIndex: _pageIndex,
-                activeWidth: 34,
-                inactiveWidth: 12,
-                height: 14,
-                inactiveHeight: 12,
-                spacing: 4,
-              ),
-              const SizedBox(width: 34),
-              MorphPageIndicator(
-                key: const ValueKey('gif_page_slide'),
-                count: 4,
-                selectedIndex: _pageIndex,
-                effect: MorphPageIndicatorEffect.slide,
-                activeWidth: 26,
-                inactiveWidth: 12,
-                height: 12,
-                spacing: 5,
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
+    'chips' => _chipsScene(),
+    'sliders' => _slidersScene(),
+    'navigation' => _navigationScene(),
     'navigation_rail_drawer' => SizedBox(
       width: 560,
       child: Row(
@@ -2130,61 +2278,7 @@ class _CaptureSceneState extends State<_CaptureScene> {
         ],
       ),
     ),
-    'loading' => SizedBox(
-      width: 584,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _loadingCell('Loader', const MorphLoadingIndicator(size: 64)),
-              _loadingCell(
-                'Contained',
-                const MorphLoadingIndicator(
-                  variant: MorphLoadingIndicatorVariant.contained,
-                  size: 64,
-                ),
-              ),
-              _loadingCell(
-                'Circular',
-                MorphProgressIndicator.circular(
-                  value: _progressValue,
-                  size: 48,
-                ),
-              ),
-              _loadingCell(
-                'Circular wavy',
-                MorphProgressIndicator.circularWavy(
-                  value: _progressValue,
-                  size: 48,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 22),
-          _captureLabel('Linear'),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: 520,
-            child: MorphProgressIndicator.linear(
-              value: _progressValue,
-              linearSize: MorphProgressIndicatorSize.s,
-            ),
-          ),
-          const SizedBox(height: 22),
-          _captureLabel('Linear wavy'),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: 520,
-            child: MorphProgressIndicator.linearWavy(
-              value: _progressValue,
-              linearSize: MorphProgressIndicatorSize.s,
-            ),
-          ),
-        ],
-      ),
-    ),
+    'loading' => _loadingScene(),
     'async_button' => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2339,7 +2433,6 @@ class _CaptureSceneState extends State<_CaptureScene> {
     'variants' => _variantsScene(),
     'density' => _densityScene(),
     'context_menu' => _contextMenuScene(),
-    'frosted' => _frostedScene(),
     _ => const SizedBox.shrink(),
   };
 }

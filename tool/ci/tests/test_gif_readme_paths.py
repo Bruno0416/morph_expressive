@@ -1,5 +1,6 @@
 """Run the actual asset guard against README path, set and weight regressions."""
 from pathlib import Path
+import os
 import re
 import shutil
 import subprocess
@@ -8,18 +9,23 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[3]
-RAW = 'https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/'
-SHOWN = ['buttons', 'variants', 'frosted', 'density', 'context_menu', 'async_button']
+PREFIX = 'https://raw.githubusercontent.com/Bruno0416/morph_expressive/'
+RAW = PREFIX + 'main/'
+REVIEW = 'review/v1.0.0-visual'
+SHOWN = ['buttons', 'variants', 'dropdown', 'density', 'context_menu', 'async_button']
+CI_VARIABLES = ('GITHUB_HEAD_REF', 'GITHUB_REF_NAME')
 
 
-def readme_with(names, extra=''):
-    images = '\n'.join(f'<img src="{RAW}doc/assets/gifs/{n}.gif" width="480" alt="{n}">'
+def readme_with(names, extra='', ref='main', banner_ref=None):
+    base = f'{PREFIX}{ref}/'
+    images = '\n'.join(f'<img src="{base}doc/assets/gifs/{n}.gif" width="480" alt="{n}">'
                        for n in names)
-    return f'# Morph\n\n<img src="{RAW}doc/assets/banner.png" alt="banner">\n\n{images}\n{extra}\n'
+    banner = f'{PREFIX}{banner_ref or ref}/'
+    return f'# Morph\n\n<img src="{banner}doc/assets/banner.png" alt="banner">\n\n{images}\n{extra}\n'
 
 
 class ReadmeGifPathsTest(unittest.TestCase):
-    def check(self, readme=None, pubspec=None, mutate_files=None):
+    def check(self, readme=None, pubspec=None, mutate_files=None, env=None):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             for relative in ['tool/check_gif_branding.py', 'tool/gif_capture/capture.mjs',
@@ -28,6 +34,8 @@ class ReadmeGifPathsTest(unittest.TestCase):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(ROOT / relative, target)
             shutil.copytree(ROOT / 'doc/assets/gifs', root / 'doc/assets/gifs')
+            # The retired frosted showcase must not be needed (or be required) here.
+            (root / 'doc/assets/gifs/frosted.gif').unlink(missing_ok=True)
             (root / 'doc/assets/banner.png').write_bytes(b'\x89PNG\r\n')
             (root / 'README.md').write_text(readme if readme is not None else readme_with(SHOWN))
             if pubspec is not None:
@@ -35,8 +43,11 @@ class ReadmeGifPathsTest(unittest.TestCase):
                     (root / 'pubspec.yaml').read_text()))
             if mutate_files:
                 mutate_files(root)
+            # Deterministic ref resolution: no inherited CI variables.
+            environment = {k: v for k, v in os.environ.items() if k not in CI_VARIABLES}
+            environment.update(env or {})
             return subprocess.run([sys.executable, str(root / 'tool/check_gif_branding.py')],
-                                  cwd=root, capture_output=True, text=True)
+                                  cwd=root, capture_output=True, text=True, env=environment)
 
     def test_absolute_urls_with_local_assets_pass(self):
         result = self.check()
@@ -58,16 +69,70 @@ class ReadmeGifPathsTest(unittest.TestCase):
         self.assertNotEqual(0, result.returncode)
         self.assertIn('never a relative path', result.stderr)
 
-    def test_other_branch_blob_or_query_urls_are_rejected(self):
+    def test_blob_or_query_urls_are_rejected(self):
         gif = f'{RAW}doc/assets/gifs/tabs.gif'
-        for bad in [gif.replace('/main/', '/develop/'),
-                    gif + '?raw=true',
+        for bad in [gif + '?raw=true',
                     gif.replace('raw.githubusercontent.com', 'github.com').replace(
                         '/main/', '/blob/main/')]:
             with self.subTest(bad=bad):
                 result = self.check(readme_with(SHOWN, f'<img src="{bad}" alt="x">'))
                 self.assertNotEqual(0, result.returncode)
                 self.assertIn('absolute URL under', result.stderr)
+
+    def test_main_ref_passes_on_any_branch(self):
+        for env in [{}, {'GITHUB_REF_NAME': 'main'}, {'GITHUB_HEAD_REF': REVIEW}]:
+            with self.subTest(env=env):
+                result = self.check(readme_with(SHOWN, ref='main'), env=env)
+                self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_current_branch_ref_passes_from_push_or_pull_request(self):
+        readme = readme_with(SHOWN, ref=REVIEW)
+        for env in [{'GITHUB_REF_NAME': REVIEW}, {'GITHUB_HEAD_REF': REVIEW},
+                    {'GITHUB_HEAD_REF': REVIEW, 'GITHUB_REF_NAME': '12/merge'}]:
+            with self.subTest(env=env):
+                result = self.check(readme, env=env)
+                self.assertEqual(0, result.returncode, result.stderr)
+
+    def test_current_branch_ref_passes_from_git_fallback(self):
+        def init_git(root):
+            subprocess.run(['git', 'init', '-q', '-b', REVIEW, str(root)], check=True)
+        result = self.check(readme_with(SHOWN, ref=REVIEW), mutate_files=init_git)
+        self.assertEqual(0, result.returncode, result.stderr)
+        # The same README is refused when git reports another branch.
+        result = self.check(
+            readme_with(SHOWN, ref=REVIEW),
+            mutate_files=lambda root: subprocess.run(
+                ['git', 'init', '-q', '-b', 'other', str(root)], check=True))
+        self.assertNotEqual(0, result.returncode)
+
+    def test_review_ref_is_rejected_when_current_branch_is_main(self):
+        # What happens on main (push) and on a pull request targeting main.
+        for env in [{'GITHUB_REF_NAME': 'main'}, {'GITHUB_HEAD_REF': 'main'}]:
+            with self.subTest(env=env):
+                result = self.check(readme_with(SHOWN, ref=REVIEW), env=env)
+                self.assertNotEqual(0, result.returncode)
+                self.assertIn(f"use ref '{REVIEW}'", result.stderr)
+                self.assertIn('temporary', result.stderr)
+
+    def test_other_branch_ref_is_rejected(self):
+        result = self.check(readme_with(SHOWN, ref='develop'),
+                            env={'GITHUB_REF_NAME': REVIEW})
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn("use ref 'develop'", result.stderr)
+
+    def test_mixed_refs_are_rejected(self):
+        env = {'GITHUB_REF_NAME': REVIEW}
+        for readme in [readme_with(SHOWN, ref=REVIEW, banner_ref='main'),
+                       readme_with(SHOWN, extra=f'<img src="{PREFIX}{REVIEW}/doc/assets/gifs/tabs.gif" alt="x">')]:
+            with self.subTest(readme=readme[:60]):
+                result = self.check(readme, env=env)
+                self.assertNotEqual(0, result.returncode)
+                self.assertIn('mix refs', result.stderr)
+
+    def test_frosted_scene_is_no_longer_allowed(self):
+        result = self.check(readme_with(SHOWN + ['frosted']))
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn('frosted', result.stderr)
 
     def test_svg_banner_source_is_rejected(self):
         result = self.check(readme_with(

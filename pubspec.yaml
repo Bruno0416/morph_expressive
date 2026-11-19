@@ -25,26 +25,26 @@ platforms:
 
 # Ten animated screenshots for the pub.dev gallery.
 screenshots:
+  - description: Five button types, each shown with its press response, plus shape buttons that morph when pressed.
+    path: doc/assets/gifs/buttons.gif
   - description: The five MorphVariant roles (primary, secondary, tertiary, muted, danger) across filled, tonal, outlined, text and icon buttons.
     path: doc/assets/gifs/variants.gif
-  - description: Desktop context menu opening at the pointer on secondary click, with row hover, a submenu and an action that closes it.
-    path: doc/assets/gifs/context_menu.gif
+  - description: Single-select and multi-select dropdown menus that open, highlight on hover, select an option and close.
+    path: doc/assets/gifs/dropdown.gif
+  - description: A linear slider, a wavy slider and a wavy range slider dragged by pointer.
+    path: doc/assets/gifs/sliders.gif
+  - description: Free and contained loading indicators, plus circular, circular wavy and linear progress.
+    path: doc/assets/gifs/loading.gif
+  - description: Two navigation bars changing destination on tap, with elastic selection.
+    path: doc/assets/gifs/navigation.gif
   - description: One theme density switch (compact, standard, comfortable) resizing buttons, chips, a text field and list rows.
     path: doc/assets/gifs/density.gif
+  - description: Desktop context menu opening at the pointer on secondary click, with row hover, a submenu and an action that closes it.
+    path: doc/assets/gifs/context_menu.gif
   - description: Controlled async button going from loading to success (animated check) and to error, in preserved-width and compact modes.
     path: doc/assets/gifs/async_button.gif
-  - description: The five button styles with 90/160 ms press response and ShapeButtons with rotation and morph.
-    path: doc/assets/gifs/buttons.gif
-  - description: Skeleton placeholders sharing one tilted shimmer, then the real content appears without moving the layout.
-    path: doc/assets/gifs/skeleton.gif
   - description: FAB sizes, the extended FAB and a FAB menu whose main surface morphs while the items open and close.
     path: doc/assets/gifs/fab_menu.gif
-  - description: Tabs with a rounded underline and a pill surface whose indicator follows the page swipe.
-    path: doc/assets/gifs/tabs.gif
-  - description: Free and contained loaders with circular, circular wavy, linear and linear wavy progress.
-    path: doc/assets/gifs/loading.gif
-  - description: Morph navigation bars with elastic selection, plus the page indicators.
-    path: doc/assets/gifs/navigation.gif
 
 environment:
   sdk: ^3.13.0

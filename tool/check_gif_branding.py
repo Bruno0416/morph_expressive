@@ -5,11 +5,12 @@
   GIF89a file and is not one of the exports made before the Morph Expressive
   branding change (their hashes are kept below; the watermark is embedded in
   the frames).
-* README images use ONLY absolute `raw.githubusercontent.com` URLs on the
-  `main` branch of the repository (`doc/assets/gifs/<name>.gif` and
-  `doc/assets/banner.png`): no relative paths, no query strings, no `blob`
-  links and no SVG sources for the repository's own assets (third-party badges
-  on other hosts are not checked). The files must also exist locally, so a README
+* README images use ONLY absolute `raw.githubusercontent.com` URLs of the
+  repository (`doc/assets/gifs/<name>.gif` and `doc/assets/banner.png`) that
+  all share ONE ref, which is either `main` or the current branch (see below):
+  no relative paths, no query strings, no `blob` links and no SVG sources for
+  the repository's own assets (third-party badges on other hosts are not
+  checked). The files must also exist locally, so a README
   edit cannot point at an asset that was never created. The README may show a
   curated subset of the scenes; every GIF it shows must be an allowed one.
 * README GIFs weigh at most 1.5 MiB each and 8 MiB in total.
@@ -21,23 +22,54 @@
   frame interval), which detects exports made with an older pipeline or scene.
 
 Absolute URLs 404 (or show the previous content) until the files are pushed to
-`main`; the guard therefore validates the local file behind every URL.
+the referenced ref; the guard therefore validates the local file behind every URL.
+
+Review-branch refs are TEMPORARY. While a branch is being reviewed, the README
+may point at that branch so the images render before the merge. The accepted
+ref is `main` or the CURRENT branch, resolved from `GITHUB_HEAD_REF` (pull
+requests), then `GITHUB_REF_NAME` (pushes), then `git branch --show-current`.
+On `main` the current branch is `main`, so a README that still points at a
+review branch fails automatically and can never be published.
 """
 
+import os
 import re
+import subprocess
 from hashlib import sha256
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 GIF_DIR = ROOT / "doc" / "assets" / "gifs"
 
-RAW_BASE = "https://raw.githubusercontent.com/Bruno0416/morph_expressive/main/"
-GIF_URL = re.compile(re.escape(RAW_BASE) + r"doc/assets/gifs/([a-z0-9_]+)\.gif")
-BANNER_URL = RAW_BASE + "doc/assets/banner.png"
+RAW_PREFIX = "https://raw.githubusercontent.com/Bruno0416/morph_expressive/"
+# The ref may contain slashes (`review/v1.0.0-visual`), so it is matched lazily
+# up to the fixed `/doc/assets/` suffix.
+GIF_URL = re.compile(re.escape(RAW_PREFIX) + r"(.+?)/doc/assets/gifs/([a-z0-9_]+)\.gif")
+BANNER_URL = re.compile(re.escape(RAW_PREFIX) + r"(.+?)/doc/assets/banner\.png")
+
+
+def current_branch():
+    """Branch the checkout belongs to: pull request head, push ref, then git."""
+    for variable in ("GITHUB_HEAD_REF", "GITHUB_REF_NAME"):
+        value = os.environ.get(variable, "").strip()
+        if value:
+            return value
+    try:
+        result = subprocess.run(
+            ["git", "branch", "--show-current"], cwd=ROOT, capture_output=True,
+            text=True, check=False,
+        )
+    except OSError:
+        return ""
+    return result.stdout.strip() if result.returncode == 0 else ""
+
+
+BRANCH = current_branch()
+ALLOWED_REFS = {"main"} | ({BRANCH} if BRANCH else set())
 
 # Scenes the documentation may use (README and pub.dev gallery).
 ALLOWED_GIFS = [
-    "buttons", "variants", "async_button", "frosted", "density", "context_menu",
+    "buttons", "variants", "async_button", "density", "context_menu",
     "tabs", "navigation", "chips", "dropdown", "lists", "dialogs", "textfields",
     "sliders", "segmented", "loading", "skeleton", "fab_menu",
 ]
@@ -117,18 +149,31 @@ sources = re.findall(r'<img\b[^>]*?\bsrc=["\']([^"\']+)["\']', readme, re.I)
 sources += re.findall(r'<source\b[^>]*?\bsrcset=["\']([^"\'\s]+)', readme, re.I)
 sources += re.findall(r"!\[[^\]]*\]\(\s*<?([^)\s>]+)", readme)
 shown = []
+refs = []
 for source in sources:
     gif_match = GIF_URL.fullmatch(source)
-    if gif_match:
-        shown.append(gif_match.group(1))
-    elif source == BANNER_URL:
-        if not (ROOT / "doc" / "assets" / "banner.png").is_file():
+    banner_match = BANNER_URL.fullmatch(source)
+    if gif_match or banner_match:
+        match = gif_match or banner_match
+        refs.append(match.group(1))
+        if gif_match:
+            shown.append(gif_match.group(2))
+        elif not (ROOT / "doc" / "assets" / "banner.png").is_file():
             problems.append("README banner is referenced but doc/assets/banner.png is missing")
     elif not re.match(r"https?://", source, re.I) or "doc/assets" in source:
         problems.append(
-            f"README image must be an absolute URL under {RAW_BASE}doc/assets/ "
-            f"(gif scenes or banner.png), never a relative path: {source}"
+            f"README image must be an absolute URL under {RAW_PREFIX}<ref>/doc/assets/ "
+            f"(gif scenes or banner.png), never a relative path, blob link or query: {source}"
         )
+for ref in sorted(set(refs)):
+    if ref not in ALLOWED_REFS:
+        problems.append(
+            f"README images use ref '{ref}'; allowed refs are 'main' or the current "
+            f"branch ({BRANCH or 'unknown'}). Review-branch refs are temporary and "
+            f"must be switched back to 'main' before merging"
+        )
+if len(set(refs)) > 1:
+    problems.append(f"README images mix refs {sorted(set(refs))}; use one ref for all of them")
 # Local assets must not be reached through any other spelling either.
 for ref in re.findall(r"(?<![\w/])doc/assets/gifs/[\w.-]+", readme):
     problems.append(f"README references {ref} without the raw.githubusercontent.com base")

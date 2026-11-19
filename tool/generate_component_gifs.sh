@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Genera los GIFs del README a partir de las escenas de Flutter Web.
-# Requisitos: Flutter (SDK del repositorio), Node.js/npm, Python 3 y FFmpeg.
+# Generates the README GIFs from the Flutter Web scenes.
+# Requirements: Flutter (the repository SDK), Node.js/npm, Python 3 and FFmpeg.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -13,64 +13,64 @@ ONLY=()
 while (($#)); do
   case "$1" in
     --only)
-      if (($# < 2)); then echo 'Falta el nombre tras --only' >&2; exit 2; fi
+      if (($# < 2)); then echo 'Missing the scene name after --only' >&2; exit 2; fi
       ONLY+=(--only "$2"); shift 2 ;;
     --skip-build) SKIP_BUILD=1; shift ;;
     -h|--help)
       cat <<'HELP'
-Uso: bash tool/generate_component_gifs.sh [--only ESCENA ...] [--skip-build]
-Escenas: buttons chips dialogs dropdown lists loading navigation segmented
-  sliders textfields async_button skeleton tabs fab_menu density context_menu frosted
-  (el README usa un subconjunto: ver ALLOWED_GIFS en tool/check_gif_branding.py)
-Escena solo para su guía: navigation_rail_drawer (no forma parte del conjunto por defecto).
-Cada escena marca su inicio (MORPH_GIF_SCENE_START); la grabación empieza 1.2 s después (fuentes y shaders listos).
-Los frames salen del screencast del compositor (~60/s, con su marca de tiempo real) y se
-muestrean en una rejilla uniforme: sin duplicar ni interpolar. 50 FPS (20 ms, el máximo
-uniforme de un GIF) en las escenas de movimiento y 25 FPS en las restantes. La escena
-navigation_rail_drawer comprueba además el renderer efectivo fuera de la imagen.
-Tamaños: ver sceneSettings en tool/gif_capture/capture.mjs.
-Variables: MORPH_GIF_FPS=8..50 (fuerza el mismo valor en todas las escenas), MORPH_GIF_SECONDS=duración opcional, MORPH_GIF_PORT=8765
-Requiere: flutter, npm/node, python3 y ffmpeg. Primera ejecución instala Playwright/Chromium.
+Usage: bash tool/generate_component_gifs.sh [--only SCENE ...] [--skip-build]
+Scenes: buttons chips dialogs dropdown lists loading navigation segmented
+  sliders textfields async_button skeleton tabs fab_menu variants density context_menu
+  (the README uses a subset: see ALLOWED_GIFS in tool/check_gif_branding.py)
+Guide-only scene: navigation_rail_drawer (not part of the default set).
+Each scene marks its start (MORPH_GIF_SCENE_START); recording starts 1.2 s later (fonts and shaders ready).
+Frames come from the compositor screencast (~60/s, with their real timestamps) and are
+sampled on a uniform grid: no duplication or interpolation. All showcases are 640x360
+(16:9) at 25 FPS (4 cs) or 50 FPS (2 cs, the uniform GIF maximum) for fast motion. The
+navigation_rail_drawer scene also checks the effective renderer outside the image.
+Sizes: see sceneSettings in tool/gif_capture/capture.mjs.
+Variables: MORPH_GIF_FPS=8..50 (forces the same value for every scene), MORPH_GIF_SECONDS=optional duration, MORPH_GIF_PORT=8765
+Requires: flutter, npm/node, python3 and ffmpeg. The first run installs Playwright/Chromium.
 HELP
       exit 0 ;;
-    *) echo "Opción no reconocida: $1" >&2; exit 2 ;;
+    *) echo "Unknown option: $1" >&2; exit 2 ;;
   esac
 done
 
 for cmd in flutter npm node python3 ffmpeg curl; do
   command -v "$cmd" >/dev/null 2>&1 || {
-    echo "[gif] Falta el comando requerido: $cmd" >&2
+    echo "[gif] Missing required command: $cmd" >&2
     exit 1
   }
 done
 
 if [[ ! -d "$CAPTURE_DIR/node_modules/playwright" ]]; then
-  echo '[gif] Instalando Playwright (solo herramienta de desarrollo)...'
+  echo '[gif] Installing Playwright (development tool only)...'
   npm install --prefix "$CAPTURE_DIR" --no-audit --no-fund
 fi
 
-# Descarga Chromium una única vez y lo reutiliza desde la caché de Playwright.
+# Downloads Chromium once and reuses it from the Playwright cache.
 "$CAPTURE_DIR/node_modules/.bin/playwright" install chromium
 
 if (( ! SKIP_BUILD )); then
-  echo '[gif] Compilando la preview Flutter Web en release...'
+  echo '[gif] Building the Flutter Web preview in release mode...'
   (cd "$ROOT_DIR" && flutter pub get)
   (cd "$PREVIEW_DIR" && flutter pub get && flutter build web --release)
 fi
 
 [[ -f "$PREVIEW_DIR/build/web/index.html" ]] || {
-  echo '[gif] No existe preview/build/web/index.html. Ejecuta sin --skip-build.' >&2
+  echo '[gif] preview/build/web/index.html does not exist. Run without --skip-build.' >&2
   exit 1
 }
 
-# Evita capturar GIFs de una compilación antigua después de cambiar el branding.
+# Avoid capturing GIFs from an old build after a branding change.
 for asset in "$PREVIEW_DIR/build/web/index.html" "$PREVIEW_DIR/build/web/main.dart.js"; do
   if [[ ! -f "$asset" ]]; then
-    echo "[gif] Falta un recurso compilado: $asset" >&2
+    echo "[gif] Missing built asset: $asset" >&2
     exit 1
   fi
   if grep -Eiq 'Morph[[:space:]]+UI' "$asset"; then
-    echo "[gif] Branding antiguo detectado en $asset. Regenera sin --skip-build." >&2
+    echo "[gif] Old branding detected in $asset. Regenerate without --skip-build." >&2
     exit 1
   fi
 done
@@ -100,11 +100,11 @@ for _ in {1..60}; do
   sleep 0.25
 done
 if (( ! UP )); then
-  echo '[gif] No se pudo iniciar el servidor HTTP local:' >&2
+  echo '[gif] Could not start the local HTTP server:' >&2
   cat "$LOG_FILE" >&2
   exit 1
 fi
 
-echo '[gif] Capturando las escenas (ninguna muestra cursor salvo context_menu, que dibuja el suyo)...'
+echo '[gif] Capturing the scenes (none shows a cursor except context_menu, which draws its own)...'
 MORPH_GIF_URL="http://127.0.0.1:$PORT/" \
   node "$CAPTURE_DIR/capture.mjs" "${ONLY[@]}"

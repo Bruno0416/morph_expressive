@@ -32,7 +32,6 @@ guides are compiled by `test/doc_examples_test.dart`.
 | [MorphScrollBehavior](MORPH_SCROLL.md) | Flutter-like geometric overscroll compatible with frosted blur |
 | [Navigation](NAVIGATION_MORPH.md) | Navigation bar API, nested scrolling host and frosted bars (written for 0.6.1; the API still applies) |
 | [Reduced motion](REDUCED_MOTION_ACCESSIBILITY.md) and [its tests](REDUCED_MOTION_TESTS.md) | Per-family reduced-motion behavior and reproducible checks |
-| [Visual and interaction fixes](R3_VISUAL_FIXES.md) | Connected groups, FAB menu, submenus, antialiasing, rotation and menu semantics |
 | [Frosted blur benchmark](FROSTED_BLUR_BENCHMARK.md) | Native lab for blur strategies (experiment, not production) |
 
 ## Historical records
@@ -46,6 +45,7 @@ kept for context and are not instructions for the current version.
 | [0.8.0 final report](RELEASE_0_8_0.md) | Implementation scope, validation status and publication checklist of 0.8.0 |
 | [0.7.0 release checklist](RELEASE_0_7_0.md) | Validation gates and publication checklist of 0.7.0 |
 | [R3 implementation](R3_IMPLEMENTATION.md) | Implementation notes of the R3 interaction work |
+| [Visual and interaction fixes](R3_VISUAL_FIXES.md) | Record of the R3 fixes: connected groups, FAB menu, submenus, antialiasing, rotation and menu semantics (written in Spanish) |
 | [pub.dev compatibility](PUB_DEV_COMPATIBILITY.md) | 0.4.1 namespace fixes and regression checks |
 | [Chip organic experiment](CHIP_ORGANIC_EXPERIMENT.md), [dropdown motion](DROPDOWN_CENTERED_MOTION.md), [dropdown unfold](DROPDOWN_LIQUID_UNFOLD.md), [shape dependency audit](SHAPE_DEPENDENCY_AUDIT.md), [operation loading plan](OPERATION_LOADING_PLAN.md) | Design experiments and audits |
 

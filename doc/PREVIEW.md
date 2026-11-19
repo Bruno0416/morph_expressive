@@ -163,34 +163,40 @@ Read [Frosted surfaces](FROSTED_SURFACES.md) and
 
 ## Reproducible animated GIF scenes
 
-The 14 README GIFs come from isolated capture scenes in
+The animated showcases come from isolated capture scenes in
 `preview/lib/component_gif_capture.dart`; `?capture=<scene>` selects one without
-touching the Widgetbook catalog. Scenes: `buttons`, `chips`, `dialogs`, `dropdown`, `lists`,
-`loading`, `navigation`, `segmented`, `sliders`, `textfields`, `async_button`,
-`skeleton`, `tabs` and `fab_menu`. `navigation_rail_drawer` is kept only for the
-rail/drawer example in [NAVIGATION_MORPH.md](NAVIGATION_MORPH.md); it is not part
-of the default set.
+touching the Widgetbook catalog. Every scene uses real Morph widgets, English
+labels and an explicit theme and seed. `navigation_rail_drawer` is kept only for
+the rail/drawer example in [NAVIGATION_MORPH.md](NAVIGATION_MORPH.md), and
+`dialogs` is kept for documentation; neither is shown in the README.
 
 | Scene | Canvas | Duration | GIF fps | Content |
 | --- | --- | --- | --- | --- |
-| `buttons` | 640×370 | 7.2 s | 50 | Filled, tonal, elevated, outlined and text buttons pressed one at a time; four `MorphShapeButton`s (rotation, press, morph, rotation + morph), each pressed twice so the loop joins |
-| `segmented` | 640×350 | 7.2 s | 50 | `MorphSegmentedToggle`, the connected `MorphButtonGroup` and the reactive group (expansion 0.08), one row at a time |
-| `loading` | 640×310 | 8 s | 50 | Free and contained loaders, circular, circular wavy, linear and linear wavy progress; determinate values advance together |
-| `navigation` | 640×350 | 7.2 s | 50 | Only Morph variants (`.expressive`, `.morph`) and page indicators |
-| `async_button` | 640×260 | 10.6 s | 50 | Preserved/compact: idle → loading → success → loading → error |
+| `buttons` | 640×360 | 7 s | 25 | Filled, tonal, elevated, outlined and text buttons pressed in turn; four `MorphShapeButton`s (rotation, press, morph, rotation + morph) |
+| `dropdown` | 640×360 | 7 s | 25 | Single-select menu (open, hover, choose, close) and a multi-select menu with chips |
+| `segmented` | 640×360 | 7 s | 25 | `MorphSegmentedToggle`, a multi-select `MorphSegmentedButton` and a connected `MorphButtonGroup`, each with a selection readout |
+| `textfields` | 640×360 | 7 s | 25 | Filled email field with floating label and validation error, outlined username with counter, search field with clear button; real typing |
+| `chips` | 640×360 | 7.5 s | 25 | Filter chips selected and deselected, input chips removed and re-added through an assist chip, a multi-select chip group |
+| `sliders` | 640×360 | 7 s | 25 | Linear, wavy and wavy range sliders dragged with value bubbles and readouts, each returning to its start |
+| `loading` | 640×360 | 7 s | 25 | Loading indicator (free and contained) and circular, circular wavy, linear and linear wavy progress driven by one value |
+| `navigation` | 640×360 | 7 s | 25 | Expressive and morph navigation bars with tapped destinations, followed by page indicators |
+| `variants` | 640×360 | 6 s | 50 | The five `MorphVariant` roles across filled, tonal, outlined, text and icon buttons |
+| `density` | 640×360 | 6.6 s | 25 | One `MorphThemeData.density` switch (compact, standard, comfortable) on the same components |
+| `context_menu` | 640×360 | 7.2 s | 50 | Desktop context menu: secondary click at the pointer, row hover, a submenu and an action |
+| `async_button` | 640×340 | 10.6 s | 50 | Preserved/compact: idle → loading → success → loading → error |
 | `skeleton` | 640×340 | 8.3 s | 50 | One tilted shimmer, then the real content |
 | `tabs` | 640×380 | 7.5 s | 50 | Rounded underline and pill; selection change, reversed swipe, completed swipe |
-| `fab_menu` | 640×400 | 7.7 s | 50 | FAB small / regular / medium / large, extended FABs, and the FAB menu opening and closing |
+| `fab_menu` | 640×400 | 7.7 s | 50 | FAB sizes, extended FABs, and the FAB menu opening and closing |
+| `lists` | 640×340 | 5.8 s | 50 | List rows with spring swipe actions |
+| `dialogs` | 640×360 | 6.5 s | 25 | Floating dialog entrance and exit |
 | `navigation_rail_drawer` | 640×380 | 7.6 s | 50 | Rail and drawer selection with the organic stretch (renderer checked outside the image) |
-| `lists`, `sliders`, `dropdown` | 640×340 / 360 / 320 | 5.8 / 6.8 / 4.8 s | 50 | Unchanged sequences |
-| `chips`, `textfields`, `dialogs` | 640×340 / 420 / 360 | 8.7 / 8.2 / 6.5 s | 25 | Unchanged sequences; the page produces 40, 25 and 14 real frames per second respectively, so 25 fps does not repeat frames artificially |
 
 All headers are compact (title and short description on one line) so the
 components use the canvas; the watermark stays clear of every scene.
 
 Scenes drive the real widgets: state changes through timers and, where press or
 drag feedback matters (buttons, segmented, async button, tabs), real pointer
-events dispatched to the gesture binding. No cursor is rendered, no lab controls
+events dispatched to the gesture binding. Only `context_menu` draws a pointer arrow (deliberately, to show where the secondary click happens); no lab controls
 or debug metrics appear, and no component is altered for the capture.
 
 Each scene prints a start marker (`MORPH_GIF_SCENE_START`) once its first frame
@@ -200,8 +206,9 @@ shader programs had time to load. Frames come from the compositor screencast
 1/fps grid: nothing is duplicated or interpolated to raise the rate, so playback
 speed matches the real animation (a still screen repeats the last real frame).
 GIF delays are centiseconds, so 50 fps (20 ms) is the fastest uniform rate. Sequences
-return to their first state so the loop joins; the continuous rotation of the
-ShapeButton is the only element with a small phase offset at the seam. Scenes
+return to their first state so the loop joins; continuous rotations and waves
+(shape buttons, loading, wavy sliders) are the only elements with a small phase
+offset at the seam. Scenes
 also print the effective renderer (`MORPH_GIF_RENDERER`); the rail/drawer capture
 fails unless the organic stretch really runs on the Shader.
 
@@ -210,7 +217,7 @@ FFmpeg; Playwright/Chromium install on first use and are never a consumer
 dependency):
 
 ```bash
-bash tool/generate_component_gifs.sh                 # all 14, builds the Web preview
+bash tool/generate_component_gifs.sh                 # every default scene, builds the Web preview
 bash tool/generate_component_gifs.sh --only tabs     # one scene
 python3 tool/check_gif_branding.py                   # assets, README and pub.dev gallery
 ```
@@ -221,9 +228,9 @@ editing a scene. `MORPH_GIF_FPS` (8–50) forces one frame rate for every scene;
 Inspect the first frame, intermediate states, open/expanded states, the close
 and the loop join before committing GIFs together with their README references.
 
-pub.dev declares ten of the images (`pubspec.yaml` → `screenshots`: async_button,
-skeleton, fab_menu, buttons, segmented, tabs, loading, navigation, dropdown,
-lists); the README shows all 14. Screenshots are documentation only and are not
+pub.dev declares ten of the images (`pubspec.yaml` → `screenshots`); the README
+shows a curated subset with absolute `raw.githubusercontent.com` URLs, checked by
+`tool/check_gif_branding.py`. Screenshots are documentation only and are not
 Flutter assets.
 
 ## 0.3.0 interaction review
