@@ -1,7 +1,17 @@
 # Morph Expressive Widgetbook
 
-Widgetbook catalog of every exported Morph Expressive widget. Run from the
-root:
+Widgetbook catalog of every exported Morph Expressive widget. From the repository root:
+
+```bash
+bash tool/run_preview.sh
+```
+
+Choose `1` to run on your desktop (Linux, macOS, or Windows via Git Bash),
+or `2` to open Firefox automatically at <http://127.0.0.1:8080/>.
+The desktop option requires Flutter's native build tools for your OS; the
+Firefox option requires `curl` and Firefox.
+
+To run the web preview manually:
 
 ```bash
 flutter pub get
